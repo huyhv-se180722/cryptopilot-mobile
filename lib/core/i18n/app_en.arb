@@ -284,5 +284,7 @@
   "watchNote": "Note",
   "watchSave": "Save",
   "watchSearchPairs": "Search pair or coin",
-  "upgradeOnWeb": "View plans on the web"
+  "upgradeOnWeb": "View plans on the web",
+  "watchAddToWatchlist": "Add to watchlist",
+  "watchWatching": "Watching"
 }

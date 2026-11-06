@@ -9,6 +9,14 @@ import '../application/market_board.dart';
 import '../domain/market.dart';
 import 'market_widgets.dart';
 
+/// What other features put under a pair's figures (the watchlist's "Add to
+/// watchlist", later "Create alert"); composed in `main.dart` so the market
+/// feature does not depend on them.
+typedef PairActionsBuilder =
+    Widget Function(BuildContext context, MarketPair pair);
+
+final pairActionsProvider = Provider<PairActionsBuilder?>((ref) => null);
+
 /// A pair's 24 h figures, live from the board, until the analysis screens of
 /// T-090 replace it (SRS 3.3.1 statistics; mobile plan 8b).
 Future<void> showPairSheet(BuildContext context, MarketPair pair) =>
@@ -122,6 +130,10 @@ class PairSheet extends ConsumerWidget {
                   ],
                 ),
               ),
+            if (ref.watch(pairActionsProvider) case final actions?) ...[
+              const SizedBox(height: 12),
+              actions(context, pair),
+            ],
             const SizedBox(height: 12),
             Text(
               l.marketAnalysisNext,

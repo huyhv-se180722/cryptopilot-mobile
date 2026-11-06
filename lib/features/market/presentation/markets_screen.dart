@@ -81,7 +81,7 @@ class MarketBoardView extends ConsumerWidget {
         ),
       );
     } else if (board.pairs == null) {
-      body = const _Skeleton();
+      body = const ListSkeleton();
     } else if (rows.isEmpty) {
       body = _Message(text: l.msg41);
     } else {
@@ -330,36 +330,5 @@ class _Message extends StatelessWidget {
         ),
       ),
     ],
-  );
-}
-
-class _Skeleton extends StatelessWidget {
-  const _Skeleton();
-
-  @override
-  Widget build(BuildContext context) => ListView.builder(
-    physics: const NeverScrollableScrollPhysics(),
-    itemCount: 8,
-    itemBuilder: (_, _) => Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      child: Row(
-        children: [
-          _bar(context, 90),
-          const Spacer(),
-          _bar(context, 70),
-          const SizedBox(width: 12),
-          _bar(context, 84),
-        ],
-      ),
-    ),
-  );
-
-  Widget _bar(BuildContext context, double width) => Container(
-    width: width,
-    height: 16,
-    decoration: BoxDecoration(
-      color: context.cp.raised,
-      borderRadius: BorderRadius.circular(4),
-    ),
   );
 }

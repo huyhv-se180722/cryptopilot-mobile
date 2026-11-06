@@ -134,3 +134,35 @@ class _CountdownState extends State<Countdown> {
     );
   }
 }
+
+/// Rows of grey bars while a list loads (shape of a market row).
+class ListSkeleton extends StatelessWidget {
+  const ListSkeleton({super.key});
+
+  @override
+  Widget build(BuildContext context) => ListView.builder(
+    physics: const NeverScrollableScrollPhysics(),
+    itemCount: 8,
+    itemBuilder: (_, _) => Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      child: Row(
+        children: [
+          _bar(context, 90),
+          const Spacer(),
+          _bar(context, 70),
+          const SizedBox(width: 12),
+          _bar(context, 84),
+        ],
+      ),
+    ),
+  );
+
+  Widget _bar(BuildContext context, double width) => Container(
+    width: width,
+    height: 16,
+    decoration: BoxDecoration(
+      color: context.cp.raised,
+      borderRadius: BorderRadius.circular(4),
+    ),
+  );
+}

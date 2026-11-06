@@ -933,6 +933,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'View plans on the web'**
   String get upgradeOnWeb;
+
+  /// No description provided for @watchAddToWatchlist.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to watchlist'**
+  String get watchAddToWatchlist;
+
+  /// No description provided for @watchWatching.
+  ///
+  /// In en, this message translates to:
+  /// **'Watching'**
+  String get watchWatching;
 }
 
 class _AppLocalizationsDelegate

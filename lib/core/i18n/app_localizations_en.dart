@@ -486,4 +486,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get upgradeOnWeb => 'View plans on the web';
+
+  @override
+  String get watchAddToWatchlist => 'Add to watchlist';
+
+  @override
+  String get watchWatching => 'Watching';
 }

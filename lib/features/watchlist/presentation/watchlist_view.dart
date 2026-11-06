@@ -49,7 +49,7 @@ class WatchlistView extends ConsumerWidget {
         ),
       );
     } else if (watchlist == null) {
-      body = const Center(child: CircularProgressIndicator());
+      body = const ListSkeleton();
     } else if (watchlist.items.isEmpty) {
       body = _Centered(
         icon: Icons.star_border,
@@ -130,47 +130,8 @@ class WatchRow extends ConsumerWidget {
 
   final WatchItem item;
 
-  Future<bool> _remove(BuildContext context, WidgetRef ref) async {
-    final l = AppLocalizations.of(context);
-    final messenger = ScaffoldMessenger.of(context);
-    final controller = ref.read(watchlistControllerProvider.notifier);
-    try {
-      var outcome = await controller.remove(item);
-      if (outcome is NeedsConfirmation && context.mounted) {
-        final confirmed = await showDialog<bool>(
-          context: context,
-          builder: (context) => AlertDialog(
-            content: Text(
-              l.msg26(
-                item.symbol,
-                '${outcome is NeedsConfirmation ? outcome.alerts : 0}',
-              ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context, false),
-                child: Text(l.commonCancel),
-              ),
-              FilledButton(
-                key: const Key('confirm-remove'),
-                onPressed: () => Navigator.pop(context, true),
-                child: Text(l.watchRemove),
-              ),
-            ],
-          ),
-        );
-        if (!(confirmed ?? false)) return false;
-        outcome = await controller.remove(
-          item,
-          confirmedAlerts: outcome.alerts,
-        );
-      }
-    } on ApiFailure catch (failure) {
-      messenger.showSnackBar(SnackBar(content: Text(failureText(l, failure))));
-    }
-    // The reloaded list drops the row; the Dismissible itself never does.
-    return false;
-  }
+  Future<bool> _remove(BuildContext context, WidgetRef ref) =>
+      removeWatchItem(context, ref, item);
 
   Future<void> _edit(BuildContext context, WidgetRef ref) async {
     final l = AppLocalizations.of(context);
@@ -355,4 +316,109 @@ class _Centered extends StatelessWidget {
       ),
     ],
   );
+}
+
+/// Removes [item], asking MSG26 first when alerts go with it. Always false:
+/// the reloaded list drops the row, a Dismissible never does.
+Future<bool> removeWatchItem(
+  BuildContext context,
+  WidgetRef ref,
+  WatchItem item,
+) async {
+  final l = AppLocalizations.of(context);
+  final messenger = ScaffoldMessenger.of(context);
+  final controller = ref.read(watchlistControllerProvider.notifier);
+  try {
+    var outcome = await controller.remove(item);
+    if (outcome is NeedsConfirmation && context.mounted) {
+      final confirmed = await showDialog<bool>(
+        context: context,
+        builder: (context) => AlertDialog(
+          content: Text(
+            l.msg26(
+              item.symbol,
+              '${outcome is NeedsConfirmation ? outcome.alerts : 0}',
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: Text(l.commonCancel),
+            ),
+            FilledButton(
+              key: const Key('confirm-remove'),
+              onPressed: () => Navigator.pop(context, true),
+              child: Text(l.watchRemove),
+            ),
+          ],
+        ),
+      );
+      if (!(confirmed ?? false)) return false;
+      outcome = await controller.remove(item, confirmedAlerts: outcome.alerts);
+    }
+  } on ApiFailure catch (failure) {
+    messenger.showSnackBar(SnackBar(content: Text(failureText(l, failure))));
+  }
+  // The reloaded list drops the row; the Dismissible itself never does.
+  return false;
+}
+
+/// "Add to watchlist" / "Watching" under a pair's figures (SRS 3.4.1: add from
+/// SCR-09, SCR-10, SCR-11).
+class WatchToggle extends ConsumerStatefulWidget {
+  const WatchToggle({required this.pair, super.key});
+
+  final MarketPair pair;
+
+  @override
+  ConsumerState<WatchToggle> createState() => _WatchToggleState();
+}
+
+class _WatchToggleState extends ConsumerState<WatchToggle> {
+  bool _pending = false;
+
+  Future<void> _add() async {
+    final l = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    setState(() => _pending = true);
+    try {
+      final item = await ref
+          .read(watchlistControllerProvider.notifier)
+          .add(widget.pair.pairId);
+      messenger.showSnackBar(SnackBar(content: Text(l.msg25(item.symbol))));
+    } on ApiFailure catch (failure) {
+      messenger.showSnackBar(SnackBar(content: Text(failureText(l, failure))));
+    } finally {
+      if (mounted) setState(() => _pending = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final state = ref.watch(watchlistControllerProvider);
+    final item = state.items
+        .where((item) => item.pairId == widget.pair.pairId)
+        .firstOrNull;
+    if (item != null) {
+      return OutlinedButton.icon(
+        key: const Key('watch-toggle'),
+        onPressed: _pending
+            ? null
+            : () async {
+                setState(() => _pending = true);
+                await removeWatchItem(context, ref, item);
+                if (mounted) setState(() => _pending = false);
+              },
+        icon: const Icon(Icons.star),
+        label: Text(l.watchWatching),
+      );
+    }
+    return FilledButton.icon(
+      key: const Key('watch-toggle'),
+      onPressed: _pending || state.watchlist == null ? null : _add,
+      icon: const Icon(Icons.star_border),
+      label: Text(l.watchAddToWatchlist),
+    );
+  }
 }
