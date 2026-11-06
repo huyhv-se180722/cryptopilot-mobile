@@ -52,3 +52,7 @@ docs/plan/
 *.jks
 *.keystore
 android/key.properties
+
+# Markdown stays local (owner rule, as in the web client): plans, notes and agent files
+*.md
+*.mdx
