@@ -47,6 +47,7 @@ class RealtimeHub extends Notifier<RealtimeState> {
   int _attempt = 0;
   Timer? _retry;
   Timer? _backgroundClose;
+  bool _disposed = false;
 
   @override
   RealtimeState build() {
@@ -63,6 +64,7 @@ class RealtimeHub extends Notifier<RealtimeState> {
         if (wasIn != isIn) _restart();
       })
       ..onDispose(() {
+        _disposed = true;
         lifecycle.dispose();
         _retry?.cancel();
         _backgroundClose?.cancel();
@@ -86,6 +88,7 @@ class RealtimeHub extends Notifier<RealtimeState> {
           _ensureConnected();
         },
         onCancel: () {
+          if (_disposed) return;
           entry.unsubscribe?.call();
           entry.unsubscribe = null;
           _destinations.remove(destination);
@@ -98,6 +101,7 @@ class RealtimeHub extends Notifier<RealtimeState> {
   }
 
   void _subscribe(String destination, _Destination entry) {
+    if (_disposed) return;
     final connection = _connection;
     if (connection == null || !state.connected) return;
     if (destination.startsWith('/user/') && !_authenticated) return;
@@ -112,6 +116,7 @@ class RealtimeHub extends Notifier<RealtimeState> {
   }
 
   Future<void> _ensureConnected() async {
+    if (_disposed) return;
     if (_connection != null || _connecting || !_foreground) return;
     if (_destinations.isEmpty) return;
     _connecting = true;
@@ -162,6 +167,7 @@ class RealtimeHub extends Notifier<RealtimeState> {
   }
 
   void _dropConnection() {
+    if (_disposed) return;
     _connection = null;
     for (final destination in _destinations.values) {
       destination.unsubscribe = null;
@@ -172,6 +178,7 @@ class RealtimeHub extends Notifier<RealtimeState> {
   }
 
   void _scheduleRetry() {
+    if (_disposed) return;
     if (!_foreground || _destinations.isEmpty) return;
     final seconds = 1 << _attempt.clamp(0, 5);
     _attempt++;
@@ -183,6 +190,7 @@ class RealtimeHub extends Notifier<RealtimeState> {
   }
 
   void _close() {
+    if (_disposed) return;
     _retry?.cancel();
     final connection = _connection;
     _dropConnection();
@@ -197,6 +205,7 @@ class RealtimeHub extends Notifier<RealtimeState> {
   }
 
   void _scheduleIdleClose() {
+    if (_disposed) return;
     _backgroundClose?.cancel();
     _backgroundClose = Timer(backgroundGrace, () {
       if (_destinations.isEmpty) _close();

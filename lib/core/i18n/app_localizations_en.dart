@@ -310,4 +310,82 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get accountSignOutConfirm => 'Sign out of CryptoPilot on this device?';
+
+  @override
+  String get marketLive => 'Live';
+
+  @override
+  String get marketDelayed => 'Delayed';
+
+  @override
+  String get marketWatchlist => 'Watchlist';
+
+  @override
+  String get marketSpot => 'Spot';
+
+  @override
+  String get marketFutures => 'Futures';
+
+  @override
+  String get marketSearch => 'Search pair or coin';
+
+  @override
+  String get marketSortVolume => 'Pair / Vol';
+
+  @override
+  String get marketSortPrice => 'Last price';
+
+  @override
+  String get marketSortChange => '24h chg';
+
+  @override
+  String get marketPerpetual => 'Perp';
+
+  @override
+  String marketVolumeShort(String value) {
+    return 'Vol $value';
+  }
+
+  @override
+  String marketFundingShort(String rate) {
+    return 'Funding $rate';
+  }
+
+  @override
+  String get marketHigh24h => '24h high';
+
+  @override
+  String get marketLow24h => '24h low';
+
+  @override
+  String marketVolume24h(String asset) {
+    return '24h volume ($asset)';
+  }
+
+  @override
+  String marketTurnover24h(String asset) {
+    return '24h turnover ($asset)';
+  }
+
+  @override
+  String get marketBestBid => 'Best bid';
+
+  @override
+  String get marketBestAsk => 'Best ask';
+
+  @override
+  String get marketMarkPrice => 'Mark price';
+
+  @override
+  String get marketIndexPrice => 'Index price';
+
+  @override
+  String get marketFundingRate => 'Funding rate';
+
+  @override
+  String get marketNextFunding => 'Next funding in';
+
+  @override
+  String get marketAnalysisNext =>
+      'Charts, indicators and the setup score arrive in the next build.';
 }

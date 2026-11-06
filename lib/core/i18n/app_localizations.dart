@@ -651,6 +651,144 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Sign out of CryptoPilot on this device?'**
   String get accountSignOutConfirm;
+
+  /// No description provided for @marketLive.
+  ///
+  /// In en, this message translates to:
+  /// **'Live'**
+  String get marketLive;
+
+  /// No description provided for @marketDelayed.
+  ///
+  /// In en, this message translates to:
+  /// **'Delayed'**
+  String get marketDelayed;
+
+  /// No description provided for @marketWatchlist.
+  ///
+  /// In en, this message translates to:
+  /// **'Watchlist'**
+  String get marketWatchlist;
+
+  /// No description provided for @marketSpot.
+  ///
+  /// In en, this message translates to:
+  /// **'Spot'**
+  String get marketSpot;
+
+  /// No description provided for @marketFutures.
+  ///
+  /// In en, this message translates to:
+  /// **'Futures'**
+  String get marketFutures;
+
+  /// No description provided for @marketSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Search pair or coin'**
+  String get marketSearch;
+
+  /// No description provided for @marketSortVolume.
+  ///
+  /// In en, this message translates to:
+  /// **'Pair / Vol'**
+  String get marketSortVolume;
+
+  /// No description provided for @marketSortPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Last price'**
+  String get marketSortPrice;
+
+  /// No description provided for @marketSortChange.
+  ///
+  /// In en, this message translates to:
+  /// **'24h chg'**
+  String get marketSortChange;
+
+  /// No description provided for @marketPerpetual.
+  ///
+  /// In en, this message translates to:
+  /// **'Perp'**
+  String get marketPerpetual;
+
+  /// No description provided for @marketVolumeShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Vol {value}'**
+  String marketVolumeShort(String value);
+
+  /// No description provided for @marketFundingShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Funding {rate}'**
+  String marketFundingShort(String rate);
+
+  /// No description provided for @marketHigh24h.
+  ///
+  /// In en, this message translates to:
+  /// **'24h high'**
+  String get marketHigh24h;
+
+  /// No description provided for @marketLow24h.
+  ///
+  /// In en, this message translates to:
+  /// **'24h low'**
+  String get marketLow24h;
+
+  /// No description provided for @marketVolume24h.
+  ///
+  /// In en, this message translates to:
+  /// **'24h volume ({asset})'**
+  String marketVolume24h(String asset);
+
+  /// No description provided for @marketTurnover24h.
+  ///
+  /// In en, this message translates to:
+  /// **'24h turnover ({asset})'**
+  String marketTurnover24h(String asset);
+
+  /// No description provided for @marketBestBid.
+  ///
+  /// In en, this message translates to:
+  /// **'Best bid'**
+  String get marketBestBid;
+
+  /// No description provided for @marketBestAsk.
+  ///
+  /// In en, this message translates to:
+  /// **'Best ask'**
+  String get marketBestAsk;
+
+  /// No description provided for @marketMarkPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark price'**
+  String get marketMarkPrice;
+
+  /// No description provided for @marketIndexPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Index price'**
+  String get marketIndexPrice;
+
+  /// No description provided for @marketFundingRate.
+  ///
+  /// In en, this message translates to:
+  /// **'Funding rate'**
+  String get marketFundingRate;
+
+  /// No description provided for @marketNextFunding.
+  ///
+  /// In en, this message translates to:
+  /// **'Next funding in'**
+  String get marketNextFunding;
+
+  /// No description provided for @marketAnalysisNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Charts, indicators and the setup score arrive in the next build.'**
+  String get marketAnalysisNext;
 }
 
 class _AppLocalizationsDelegate

@@ -4,12 +4,17 @@ import 'package:cryptopilot_mobile/core/auth/session_controller.dart';
 import 'package:cryptopilot_mobile/core/auth/token_store.dart';
 import 'package:cryptopilot_mobile/core/errors/api_failure.dart';
 import 'package:cryptopilot_mobile/core/errors/api_problem.dart';
+import 'package:cryptopilot_mobile/core/realtime/realtime_hub.dart';
 import 'package:cryptopilot_mobile/core/settings/settings.dart';
 import 'package:cryptopilot_mobile/core/web/web_links.dart';
 import 'package:cryptopilot_mobile/features/account/data/profile_api.dart';
 import 'package:cryptopilot_mobile/features/account/domain/profile.dart';
 import 'package:cryptopilot_mobile/features/auth/data/auth_api.dart';
+import 'package:cryptopilot_mobile/features/market/data/market_api.dart';
+import 'package:cryptopilot_mobile/features/market/domain/market.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
+
+import 'realtime_fakes.dart';
 
 final now = DateTime.utc(2026, 11, 6, 10);
 
@@ -138,6 +143,8 @@ List<Override> baseOverrides({
   AuthApi? auth,
   ProfileApi? profile,
   WebLinks? web,
+  FakeTransport? transport,
+  MarketApi? market,
 }) => [
   tokenStoreProvider.overrideWithValue(store),
   authTokenApiProvider.overrideWithValue(tokens),
@@ -146,7 +153,46 @@ List<Override> baseOverrides({
   authApiProvider.overrideWithValue(auth ?? FakeAuthApi()),
   profileApiProvider.overrideWithValue(profile ?? FakeProfileApi()),
   webLinksProvider.overrideWithValue(web ?? FakeWebLinks()),
+  realtimeTransportProvider.overrideWithValue(transport ?? FakeTransport()),
+  marketApiProvider.overrideWithValue(market ?? FakeMarketApi()),
 ];
+
+class FakeMarketApi implements MarketApi {
+  final Map<Market, List<MarketPair>> pairsBy = {
+    Market.spot: [pairOf('BTC', 1), pairOf('ETH', 2), pairOf('SOL', 3)],
+    Market.futures: [
+      pairOf('BTC', 1, market: Market.futures),
+      pairOf('ETH', 2, market: Market.futures),
+    ],
+  };
+  final List<String> statsCalls = [];
+  Object? pairsError;
+
+  @override
+  Future<List<MarketPair>> pairs(Market market) async {
+    if (pairsError != null) throw pairsError!;
+    return pairsBy[market]!;
+  }
+
+  @override
+  Future<Ticker> stats(Market market, String symbol) async {
+    statsCalls.add(symbol);
+    return Ticker(symbol: symbol, lastPrice: '100.5', changePercent24h: '1');
+  }
+}
+
+MarketPair pairOf(String base, int order, {Market market = Market.spot}) =>
+    MarketPair(
+      pairId: 'pair-$base',
+      symbol: '${base}USDT',
+      market: market,
+      baseAsset: base,
+      quoteAsset: 'USDT',
+      baseAssetName: base == 'BTC' ? 'Bitcoin' : base,
+      tickSize: '0.010000000000',
+      stepSize: '0.000010000000',
+      displayOrder: order,
+    );
 
 /// Lets scheduled microtasks and chained futures run.
 Future<void> settle() async {

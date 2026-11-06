@@ -1,24 +1,39 @@
 {
   "@@locale": "en",
-
   "productName": "CryptoPilot",
   "productTagline": "Crypto Trading Support System",
-
   "commonLoading": "Loading…",
   "commonRetry": "Try again",
   "commonCancel": "Cancel",
   "commonClose": "Close",
-
   "msg01": "The {field} field is required.",
-  "@msg01": { "placeholders": { "field": { "type": "String" } } },
+  "@msg01": {
+    "placeholders": {
+      "field": {
+        "type": "String"
+      }
+    }
+  },
   "msg02": "Please enter a valid email address.",
   "msg03": "Password must be 8-64 characters and include uppercase, lowercase letters and a digit.",
   "msg07": "This link is invalid or has expired.",
   "msg08": "Incorrect email or password. Please check again.",
   "msg09": "Too many failed attempts. Please try again after {minutes} minutes.",
-  "@msg09": { "placeholders": { "minutes": { "type": "String" } } },
+  "@msg09": {
+    "placeholders": {
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
   "msg10": "Your account has been {status}. Please contact support.",
-  "@msg10": { "placeholders": { "status": { "type": "String" } } },
+  "@msg10": {
+    "placeholders": {
+      "status": {
+        "type": "String"
+      }
+    }
+  },
   "msg11": "Please verify your email before logging in. Resend verification email?",
   "msg12": "If the email is registered, a reset link has been sent.",
   "msg13": "Your password has been changed. Please log in again.",
@@ -26,17 +41,27 @@
   "msg41": "No results found.",
   "msg42": "Information on CryptoPilot is for reference and education only and is not investment advice.",
   "msg43": "Something went wrong. Please try again. (Ref: {code})",
-  "@msg43": { "placeholders": { "code": { "type": "String" } } },
+  "@msg43": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
   "msg44": "Your session has expired. Please log in again.",
   "msg50": "Too many requests. Please try again in {seconds} seconds.",
-  "@msg50": { "placeholders": { "seconds": { "type": "String" } } },
-
+  "@msg50": {
+    "placeholders": {
+      "seconds": {
+        "type": "String"
+      }
+    }
+  },
   "errorNetwork": "Unable to reach the server. Check your connection and try again.",
   "errorTimeout": "The server took too long to respond. Please try again.",
   "errorUnknownReference": "—",
   "statusLocked": "locked",
   "statusBanned": "banned",
-
   "authEmailLabel": "Email address",
   "authEmailField": "email",
   "authPasswordLabel": "Password",
@@ -58,7 +83,13 @@
   "authResendVerification": "Resend verification email",
   "authResendSent": "If the address is registered and unverified, a new link is on its way.",
   "authResendIn": "Resend in {seconds}s",
-  "@authResendIn": { "placeholders": { "seconds": { "type": "int" } } },
+  "@authResendIn": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
   "authRulesTitle": "Password requirements",
   "authRuleLength": "8–64 characters",
   "authRuleLowercase": "A lowercase letter",
@@ -76,13 +107,10 @@
   "authResetSubmit": "Set new password",
   "authRequestNewLink": "Request a new link",
   "authSessionExpiredTitle": "Session expired",
-
   "splashUnavailableTitle": "Cannot reach CryptoPilot",
-
   "adminTitle": "The administration console is on the web",
   "adminBody": "This app is for Traders. Open the console in your browser to manage CryptoPilot.",
   "adminOpenConsole": "Open the web console",
-
   "navHome": "Home",
   "navMarkets": "Markets",
   "navAlerts": "Alerts",
@@ -92,7 +120,6 @@
   "tabComingTitle": "Coming in the next build",
   "tabComingBody": "This tab is being built. Use the CryptoPilot website meanwhile.",
   "openOnWeb": "Open on the web",
-
   "accountTitle": "Account",
   "accountNotifications": "Notifications",
   "accountNotificationsHint": "In-app notifications are always on.",
@@ -107,5 +134,56 @@
   "accountSubscriptionLink": "Subscription",
   "accountAbout": "About",
   "accountSignOut": "Sign out",
-  "accountSignOutConfirm": "Sign out of CryptoPilot on this device?"
+  "accountSignOutConfirm": "Sign out of CryptoPilot on this device?",
+  "marketLive": "Live",
+  "marketDelayed": "Delayed",
+  "marketWatchlist": "Watchlist",
+  "marketSpot": "Spot",
+  "marketFutures": "Futures",
+  "marketSearch": "Search pair or coin",
+  "marketSortVolume": "Pair / Vol",
+  "marketSortPrice": "Last price",
+  "marketSortChange": "24h chg",
+  "marketPerpetual": "Perp",
+  "marketVolumeShort": "Vol {value}",
+  "@marketVolumeShort": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "marketFundingShort": "Funding {rate}",
+  "@marketFundingShort": {
+    "placeholders": {
+      "rate": {
+        "type": "String"
+      }
+    }
+  },
+  "marketHigh24h": "24h high",
+  "marketLow24h": "24h low",
+  "marketVolume24h": "24h volume ({asset})",
+  "@marketVolume24h": {
+    "placeholders": {
+      "asset": {
+        "type": "String"
+      }
+    }
+  },
+  "marketTurnover24h": "24h turnover ({asset})",
+  "@marketTurnover24h": {
+    "placeholders": {
+      "asset": {
+        "type": "String"
+      }
+    }
+  },
+  "marketBestBid": "Best bid",
+  "marketBestAsk": "Best ask",
+  "marketMarkPrice": "Mark price",
+  "marketIndexPrice": "Index price",
+  "marketFundingRate": "Funding rate",
+  "marketNextFunding": "Next funding in",
+  "marketAnalysisNext": "Charts, indicators and the setup score arrive in the next build."
 }

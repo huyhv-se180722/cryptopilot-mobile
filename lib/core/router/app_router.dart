@@ -8,6 +8,7 @@ import '../../features/auth/presentation/admin_notice_screen.dart';
 import '../../features/auth/presentation/forgot_password_screen.dart';
 import '../../features/auth/presentation/login_screen.dart';
 import '../../features/auth/presentation/reset_password_screen.dart';
+import '../../features/market/presentation/markets_screen.dart';
 import '../../features/shell/presentation/home_shell.dart';
 import '../auth/session.dart';
 import '../auth/session_controller.dart';
@@ -100,7 +101,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (_, _, shell) => HomeShell(navigationShell: shell),
         branches: [
           branch(Routes.home, (l) => l.navHome),
-          branch(Routes.markets, (l) => l.navMarkets),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: Routes.markets,
+                builder: (_, _) => const MarketsScreen(),
+              ),
+            ],
+          ),
           branch(Routes.alerts, (l) => l.navAlerts),
           branch(Routes.plans, (l) => l.navPlans),
           branch(Routes.journal, (l) => l.navJournal),

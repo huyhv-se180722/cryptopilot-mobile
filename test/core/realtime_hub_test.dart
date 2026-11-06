@@ -1,66 +1,14 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:cryptopilot_mobile/core/auth/session_controller.dart';
 import 'package:cryptopilot_mobile/core/auth/token_store.dart';
 import 'package:cryptopilot_mobile/core/realtime/realtime_hub.dart';
-import 'package:cryptopilot_mobile/core/realtime/realtime_transport.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../support/fakes.dart';
-
-class FakeConnection implements RealtimeConnection {
-  FakeConnection(this.headers, this.onConnected, this.onClosed);
-
-  final Map<String, String> headers;
-  final void Function() onConnected;
-  final void Function() onClosed;
-  final Map<String, void Function(String?)> subscriptions = {};
-  bool closed = false;
-
-  void push(String destination, Object body) =>
-      subscriptions[destination]?.call(jsonEncode(body));
-
-  void drop() {
-    closed = true;
-    onClosed();
-  }
-
-  @override
-  void Function() subscribe(
-    String destination,
-    void Function(String? body) onMessage,
-  ) {
-    subscriptions[destination] = onMessage;
-    return () => subscriptions.remove(destination);
-  }
-
-  @override
-  void close() {
-    closed = true;
-    onClosed();
-  }
-}
-
-class FakeTransport implements RealtimeTransport {
-  final List<FakeConnection> connections = [];
-
-  FakeConnection get last => connections.last;
-
-  @override
-  RealtimeConnection connect({
-    required String url,
-    required Map<String, String> headers,
-    required void Function() onConnected,
-    required void Function() onClosed,
-  }) {
-    final connection = FakeConnection(headers, onConnected, onClosed);
-    connections.add(connection);
-    return connection;
-  }
-}
+import '../support/realtime_fakes.dart';
 
 void main() {
   late FakeTransport transport;
@@ -71,10 +19,11 @@ void main() {
     transport = FakeTransport();
     store = MemoryTokenStore(signedIn ? storedFor('saved') : null);
     container = ProviderContainer(
-      overrides: [
-        ...baseOverrides(store: store, tokens: FakeAuthTokenApi()),
-        realtimeTransportProvider.overrideWithValue(transport),
-      ],
+      overrides: baseOverrides(
+        store: store,
+        tokens: FakeAuthTokenApi(),
+        transport: transport,
+      ),
       retry: (_, _) => null,
     );
     addTearDown(container.dispose);
