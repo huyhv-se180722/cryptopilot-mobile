@@ -224,9 +224,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             ),
             const SizedBox(height: 24),
             Text(l.authNoAccount, textAlign: TextAlign.center),
-            TextButton(
+            TextButton.icon(
               onPressed: () => ref.read(webLinksProvider).open('/register'),
-              child: Text('${l.authCreateAccountLink} ↗'),
+              iconAlignment: IconAlignment.end,
+              icon: const Icon(Icons.open_in_new, size: 18),
+              label: Text(l.authCreateAccountLink),
             ),
             Text(
               l.authCreateAccountHint,

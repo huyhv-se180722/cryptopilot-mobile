@@ -20,9 +20,11 @@ class AdminNoticeScreen extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          FilledButton(
+          FilledButton.icon(
             onPressed: () => ref.read(webLinksProvider).open('/admin'),
-            child: Text('${l.adminOpenConsole} ↗'),
+            iconAlignment: IconAlignment.end,
+            icon: const Icon(Icons.open_in_new, size: 18),
+            label: Text(l.adminOpenConsole),
           ),
           const SizedBox(height: 12),
           OutlinedButton(

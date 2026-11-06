@@ -167,12 +167,12 @@ void main() {
       final h = Harness();
       await h.pump(tester);
       await tester.scrollUntilVisible(
-        find.text('Create a free account ↗'),
+        find.text('Create a free account'),
         100,
         // The page, not the scrollables inside its text fields.
         scrollable: find.byType(Scrollable).first,
       );
-      await tester.tap(find.text('Create a free account ↗'));
+      await tester.tap(find.text('Create a free account'));
 
       expect(h.web.opened, ['/register']);
     });
@@ -216,7 +216,7 @@ void main() {
       find.text('The administration console is on the web'),
       findsOneWidget,
     );
-    await tester.tap(find.text('Open the web console ↗'));
+    await tester.tap(find.text('Open the web console'));
     expect(h.web.opened, ['/admin']);
 
     await tester.tap(find.text('Sign out'));
