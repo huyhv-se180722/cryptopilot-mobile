@@ -10,6 +10,7 @@ import '../../features/auth/presentation/login_screen.dart';
 import '../../features/auth/presentation/reset_password_screen.dart';
 import '../../features/market/presentation/markets_screen.dart';
 import '../../features/shell/presentation/home_shell.dart';
+import '../../features/watchlist/presentation/watchlist_view.dart';
 import '../auth/session.dart';
 import '../auth/session_controller.dart';
 import '../i18n/app_localizations.dart';
@@ -105,7 +106,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             routes: [
               GoRoute(
                 path: Routes.markets,
-                builder: (_, _) => const MarketsScreen(),
+                builder: (_, _) =>
+                    const MarketsScreen(watchlist: WatchlistView()),
               ),
             ],
           ),

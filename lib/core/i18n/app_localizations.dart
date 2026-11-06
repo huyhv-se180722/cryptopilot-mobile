@@ -789,6 +789,150 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Charts, indicators and the setup score arrive in the next build.'**
   String get marketAnalysisNext;
+
+  /// No description provided for @msg25.
+  ///
+  /// In en, this message translates to:
+  /// **'{pair} added to watchlist.'**
+  String msg25(String pair);
+
+  /// No description provided for @msg26.
+  ///
+  /// In en, this message translates to:
+  /// **'Removing {pair} will also delete {n} alerts. Continue?'**
+  String msg26(String pair, String n);
+
+  /// No description provided for @msg27.
+  ///
+  /// In en, this message translates to:
+  /// **'You have reached the limit of {max} {items} of the {plan} plan. Upgrade to increase the limit?'**
+  String msg27(String max, String items, String plan);
+
+  /// No description provided for @msg29.
+  ///
+  /// In en, this message translates to:
+  /// **'This feature is available on the {plan} plan or higher. View plans?'**
+  String msg29(String plan);
+
+  /// No description provided for @msg45.
+  ///
+  /// In en, this message translates to:
+  /// **'{pair} is already in your watchlist.'**
+  String msg45(String pair);
+
+  /// No description provided for @watchCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} / {limit} pairs'**
+  String watchCount(int count, int limit);
+
+  /// No description provided for @watchCountNoLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} pairs'**
+  String watchCountNoLimit(int count);
+
+  /// No description provided for @watchEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No pairs watched yet'**
+  String get watchEmptyTitle;
+
+  /// No description provided for @watchEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Add pairs to follow their price, setup score and alerts.'**
+  String get watchEmptyBody;
+
+  /// No description provided for @watchAddPair.
+  ///
+  /// In en, this message translates to:
+  /// **'Add pair'**
+  String get watchAddPair;
+
+  /// No description provided for @watchAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Added'**
+  String get watchAdded;
+
+  /// No description provided for @watchAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get watchAdd;
+
+  /// No description provided for @watchUnlabelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get watchUnlabelled;
+
+  /// No description provided for @watchScore.
+  ///
+  /// In en, this message translates to:
+  /// **'Score {score}'**
+  String watchScore(String score);
+
+  /// No description provided for @watchScoreInsufficient.
+  ///
+  /// In en, this message translates to:
+  /// **'Score: insufficient data'**
+  String get watchScoreInsufficient;
+
+  /// No description provided for @watchAlerts.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No alerts} =1{1 alert} other{{count} alerts}}'**
+  String watchAlerts(int count);
+
+  /// No description provided for @watchUnlisted.
+  ///
+  /// In en, this message translates to:
+  /// **'Not available now'**
+  String get watchUnlisted;
+
+  /// No description provided for @watchEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit label and note'**
+  String get watchEdit;
+
+  /// No description provided for @watchRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get watchRemove;
+
+  /// No description provided for @watchLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Label'**
+  String get watchLabel;
+
+  /// No description provided for @watchNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Note'**
+  String get watchNote;
+
+  /// No description provided for @watchSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get watchSave;
+
+  /// No description provided for @watchSearchPairs.
+  ///
+  /// In en, this message translates to:
+  /// **'Search pair or coin'**
+  String get watchSearchPairs;
+
+  /// No description provided for @upgradeOnWeb.
+  ///
+  /// In en, this message translates to:
+  /// **'View plans on the web'**
+  String get upgradeOnWeb;
 }
 
 class _AppLocalizationsDelegate

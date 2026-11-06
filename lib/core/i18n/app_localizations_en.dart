@@ -388,4 +388,102 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get marketAnalysisNext =>
       'Charts, indicators and the setup score arrive in the next build.';
+
+  @override
+  String msg25(String pair) {
+    return '$pair added to watchlist.';
+  }
+
+  @override
+  String msg26(String pair, String n) {
+    return 'Removing $pair will also delete $n alerts. Continue?';
+  }
+
+  @override
+  String msg27(String max, String items, String plan) {
+    return 'You have reached the limit of $max $items of the $plan plan. Upgrade to increase the limit?';
+  }
+
+  @override
+  String msg29(String plan) {
+    return 'This feature is available on the $plan plan or higher. View plans?';
+  }
+
+  @override
+  String msg45(String pair) {
+    return '$pair is already in your watchlist.';
+  }
+
+  @override
+  String watchCount(int count, int limit) {
+    return '$count / $limit pairs';
+  }
+
+  @override
+  String watchCountNoLimit(int count) {
+    return '$count pairs';
+  }
+
+  @override
+  String get watchEmptyTitle => 'No pairs watched yet';
+
+  @override
+  String get watchEmptyBody =>
+      'Add pairs to follow their price, setup score and alerts.';
+
+  @override
+  String get watchAddPair => 'Add pair';
+
+  @override
+  String get watchAdded => 'Added';
+
+  @override
+  String get watchAdd => 'Add';
+
+  @override
+  String get watchUnlabelled => 'Other';
+
+  @override
+  String watchScore(String score) {
+    return 'Score $score';
+  }
+
+  @override
+  String get watchScoreInsufficient => 'Score: insufficient data';
+
+  @override
+  String watchAlerts(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count alerts',
+      one: '1 alert',
+      zero: 'No alerts',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get watchUnlisted => 'Not available now';
+
+  @override
+  String get watchEdit => 'Edit label and note';
+
+  @override
+  String get watchRemove => 'Remove';
+
+  @override
+  String get watchLabel => 'Label';
+
+  @override
+  String get watchNote => 'Note';
+
+  @override
+  String get watchSave => 'Save';
+
+  @override
+  String get watchSearchPairs => 'Search pair or coin';
+
+  @override
+  String get upgradeOnWeb => 'View plans on the web';
 }

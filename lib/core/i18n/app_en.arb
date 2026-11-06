@@ -185,5 +185,104 @@
   "marketIndexPrice": "Index price",
   "marketFundingRate": "Funding rate",
   "marketNextFunding": "Next funding in",
-  "marketAnalysisNext": "Charts, indicators and the setup score arrive in the next build."
+  "marketAnalysisNext": "Charts, indicators and the setup score arrive in the next build.",
+  "msg25": "{pair} added to watchlist.",
+  "@msg25": {
+    "placeholders": {
+      "pair": {
+        "type": "String"
+      }
+    }
+  },
+  "msg26": "Removing {pair} will also delete {n} alerts. Continue?",
+  "@msg26": {
+    "placeholders": {
+      "pair": {
+        "type": "String"
+      },
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "msg27": "You have reached the limit of {max} {items} of the {plan} plan. Upgrade to increase the limit?",
+  "@msg27": {
+    "placeholders": {
+      "max": {
+        "type": "String"
+      },
+      "items": {
+        "type": "String"
+      },
+      "plan": {
+        "type": "String"
+      }
+    }
+  },
+  "msg29": "This feature is available on the {plan} plan or higher. View plans?",
+  "@msg29": {
+    "placeholders": {
+      "plan": {
+        "type": "String"
+      }
+    }
+  },
+  "msg45": "{pair} is already in your watchlist.",
+  "@msg45": {
+    "placeholders": {
+      "pair": {
+        "type": "String"
+      }
+    }
+  },
+  "watchCount": "{count} / {limit} pairs",
+  "@watchCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "limit": {
+        "type": "int"
+      }
+    }
+  },
+  "watchCountNoLimit": "{count} pairs",
+  "@watchCountNoLimit": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "watchEmptyTitle": "No pairs watched yet",
+  "watchEmptyBody": "Add pairs to follow their price, setup score and alerts.",
+  "watchAddPair": "Add pair",
+  "watchAdded": "Added",
+  "watchAdd": "Add",
+  "watchUnlabelled": "Other",
+  "watchScore": "Score {score}",
+  "@watchScore": {
+    "placeholders": {
+      "score": {
+        "type": "String"
+      }
+    }
+  },
+  "watchScoreInsufficient": "Score: insufficient data",
+  "watchAlerts": "{count, plural, =0{No alerts} =1{1 alert} other{{count} alerts}}",
+  "@watchAlerts": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "watchUnlisted": "Not available now",
+  "watchEdit": "Edit label and note",
+  "watchRemove": "Remove",
+  "watchLabel": "Label",
+  "watchNote": "Note",
+  "watchSave": "Save",
+  "watchSearchPairs": "Search pair or coin",
+  "upgradeOnWeb": "View plans on the web"
 }

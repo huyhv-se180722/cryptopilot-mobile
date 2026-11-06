@@ -12,6 +12,8 @@ import 'package:cryptopilot_mobile/features/account/domain/profile.dart';
 import 'package:cryptopilot_mobile/features/auth/data/auth_api.dart';
 import 'package:cryptopilot_mobile/features/market/data/market_api.dart';
 import 'package:cryptopilot_mobile/features/market/domain/market.dart';
+import 'package:cryptopilot_mobile/features/watchlist/data/watchlist_api.dart';
+import 'package:cryptopilot_mobile/features/watchlist/domain/watchlist.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 
 import 'realtime_fakes.dart';
@@ -145,6 +147,7 @@ List<Override> baseOverrides({
   WebLinks? web,
   FakeTransport? transport,
   MarketApi? market,
+  WatchlistApi? watchlist,
 }) => [
   tokenStoreProvider.overrideWithValue(store),
   authTokenApiProvider.overrideWithValue(tokens),
@@ -155,7 +158,77 @@ List<Override> baseOverrides({
   webLinksProvider.overrideWithValue(web ?? FakeWebLinks()),
   realtimeTransportProvider.overrideWithValue(transport ?? FakeTransport()),
   marketApiProvider.overrideWithValue(market ?? FakeMarketApi()),
+  watchlistApiProvider.overrideWithValue(watchlist ?? FakeWatchlistApi()),
 ];
+
+class FakeWatchlistApi implements WatchlistApi {
+  List<WatchItem> items = [
+    watchOf('BTC', label: 'Core', alerts: 2),
+    watchOf('ETH', label: 'Core'),
+    watchOf('SOL'),
+  ];
+  int? limit = 5;
+  final List<String> removeCalls = [];
+  final List<String> added = [];
+  Object? addError;
+
+  @override
+  Future<Watchlist> list() async => Watchlist(items: [...items], limit: limit);
+
+  @override
+  Future<WatchItem> add(String pairId) async {
+    if (addError != null) throw addError!;
+    added.add(pairId);
+    final item = watchOf(pairId.replaceFirst('pair-', ''));
+    items = [...items, item];
+    return item;
+  }
+
+  @override
+  Future<WatchItem> update(String id, {String? label, String? note}) async =>
+      items.firstWhere((item) => item.id == id);
+
+  @override
+  Future<void> remove(
+    String id, {
+    bool confirm = false,
+    int? expectedAlertCount,
+  }) async {
+    removeCalls.add('$id confirm=$confirm n=$expectedAlertCount');
+    final item = items.firstWhere((item) => item.id == id);
+    if (item.activeAlerts > 0 && !confirm) {
+      throw problem(
+        400,
+        'WATCHLIST_REMOVAL_CONFIRMATION_REQUIRED',
+        'MSG26',
+        args: [item.symbol, '${item.activeAlerts}'],
+      );
+    }
+    items = [
+      for (final i in items)
+        if (i.id != id) i,
+    ];
+  }
+
+  @override
+  Future<SetupScore?> score(String symbol) async => SetupScore(
+    score: symbol == 'BTCUSDT' ? 72 : null,
+    preset: 'SWING',
+    presetVersion: 'v1',
+    timeframe: '4h',
+  );
+}
+
+WatchItem watchOf(String base, {String? label, int alerts = 0}) => WatchItem(
+  id: 'watch-$base',
+  pairId: 'pair-$base',
+  symbol: '${base}USDT',
+  spotListed: true,
+  futuresListed: true,
+  label: label,
+  sortOrder: 0,
+  activeAlerts: alerts,
+);
 
 class FakeMarketApi implements MarketApi {
   final Map<Market, List<MarketPair>> pairsBy = {
