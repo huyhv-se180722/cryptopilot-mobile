@@ -435,6 +435,42 @@ void main() {
       await unmount(tester);
     });
 
+    testWidgets('the type filter asks the server and All types clears it', (
+      tester,
+    ) async {
+      await pump(tester);
+      await tester.tap(find.byKey(const Key('alert-filter-type')));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+      await tester.tap(find.text('Indicator').last);
+      await tester.pump();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+
+      expect(api.calls.last, 'list null INDICATOR 1');
+      expect(find.text('Crosses above 68,000.00'), findsNothing);
+      expect(find.text('RSI (14) 4h · Less than 30'), findsOneWidget);
+      expect(
+        find.descendant(
+          of: find.byKey(const Key('alert-filter-type')),
+          matching: find.text('Indicator'),
+        ),
+        findsOneWidget,
+      );
+
+      await tester.tap(find.byKey(const Key('alert-filter-type')));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+      await tester.tap(find.text('All types').last);
+      await tester.pump();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+
+      expect(api.calls.last, 'list null null 1');
+      expect(find.text('Crosses above 68,000.00'), findsOneWidget);
+      await unmount(tester);
+    });
+
     testWidgets('the next page loads as the list scrolls', (tester) async {
       await pump(tester, alerts: [for (var i = 0; i < 25; i++) alertOf('x$i')]);
       expect(api.calls, ['list null null 1']);
@@ -608,6 +644,11 @@ void main() {
           ],
         );
         expect(tester.takeException(), isNull);
+        // The type filter leads the row, inside the 360 dp screen.
+        expect(
+          tester.getRect(find.byKey(const Key('alert-filter-type'))).right,
+          lessThanOrEqualTo(360),
+        );
         await tester.tap(find.byKey(const Key('alert-row-a1')));
         await tester.pump();
         await tester.pump(const Duration(milliseconds: 400));
