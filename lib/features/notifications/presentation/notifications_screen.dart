@@ -158,9 +158,16 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
 }
 
 class NotificationRow extends ConsumerWidget {
-  const NotificationRow({required this.notification, super.key});
+  const NotificationRow({
+    required this.notification,
+    this.padding = const EdgeInsets.fromLTRB(16, 12, 16, 12),
+    super.key,
+  });
 
   final AppNotification notification;
+
+  /// Full-width in SCR-15; a card that pads itself (Home) passes less.
+  final EdgeInsets padding;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -173,7 +180,7 @@ class NotificationRow extends ConsumerWidget {
       key: Key('notification-${notification.id}'),
       onTap: () => openNotification(context, ref, notification),
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+        padding: padding,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

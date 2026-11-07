@@ -475,7 +475,10 @@ class _NotificationsBlock extends ConsumerWidget {
       AsyncValue(:final value?) => Column(
         children: [
           for (final notification in value)
-            NotificationRow(notification: notification),
+            NotificationRow(
+              notification: notification,
+              padding: const EdgeInsets.symmetric(vertical: 8),
+            ),
         ],
       ),
       AsyncValue(:final error?) => _Failed(
