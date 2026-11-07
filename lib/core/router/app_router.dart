@@ -1,14 +1,19 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../features/account/presentation/account_screen.dart';
+import '../../features/alerts/presentation/alerts_screen.dart';
 import '../../features/auth/presentation/admin_notice_screen.dart';
 import '../../features/auth/presentation/forgot_password_screen.dart';
 import '../../features/auth/presentation/login_screen.dart';
 import '../../features/auth/presentation/reset_password_screen.dart';
+import '../../features/home/presentation/home_screen.dart';
+import '../../features/market/presentation/markets_screen.dart';
+import '../../features/notifications/presentation/notification_bell.dart';
+import '../../features/notifications/presentation/notifications_screen.dart';
 import '../../features/shell/presentation/home_shell.dart';
+import '../../features/watchlist/presentation/watchlist_view.dart';
 import '../auth/session.dart';
 import '../auth/session_controller.dart';
 import '../i18n/app_localizations.dart';
@@ -26,6 +31,7 @@ abstract final class Routes {
   static const plans = '/plans';
   static const journal = '/journal';
   static const account = '/account';
+  static const notifications = '/notifications';
 }
 
 const _publicRoutes = {
@@ -64,13 +70,16 @@ final appRouterProvider = Provider<GoRouter>((ref) {
 
   StatefulShellBranch branch(
     String path,
-    String Function(AppLocalizations) title,
-  ) => StatefulShellBranch(
+    String Function(AppLocalizations) title, {
+    List<Widget> actions = const [],
+  }) => StatefulShellBranch(
     routes: [
       GoRoute(
         path: path,
-        builder: (context, _) =>
-            PendingTab(title: title(AppLocalizations.of(context))),
+        builder: (context, _) => PendingTab(
+          title: title(AppLocalizations.of(context)),
+          actions: actions,
+        ),
       ),
     ],
   );
@@ -96,12 +105,33 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (_, _) => const AdminNoticeScreen(),
       ),
       GoRoute(path: Routes.account, builder: (_, _) => const AccountScreen()),
+      // SCR-13 is pushed from Markets and Home, not a tab (D-142).
+      GoRoute(path: Routes.alerts, builder: (_, _) => const AlertsScreen()),
+      GoRoute(
+        path: Routes.notifications,
+        builder: (_, _) => const NotificationsScreen(),
+      ),
       StatefulShellRoute.indexedStack(
-        builder: (_, _, shell) => HomeShell(navigationShell: shell),
+        // A notification pushed while a tab is shown appears as a banner.
+        builder: (_, _, shell) =>
+            NotificationBanner(child: HomeShell(navigationShell: shell)),
         branches: [
-          branch(Routes.home, (l) => l.navHome),
-          branch(Routes.markets, (l) => l.navMarkets),
-          branch(Routes.alerts, (l) => l.navAlerts),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(path: Routes.home, builder: (_, _) => const HomeScreen()),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: Routes.markets,
+                builder: (_, _) => const MarketsScreen(
+                  watchlist: WatchlistView(),
+                  actions: [NotificationBell()],
+                ),
+              ),
+            ],
+          ),
           branch(Routes.plans, (l) => l.navPlans),
           branch(Routes.journal, (l) => l.navJournal),
         ],

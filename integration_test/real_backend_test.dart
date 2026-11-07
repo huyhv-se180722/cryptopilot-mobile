@@ -82,6 +82,19 @@ void main() {
     final rotated = await SecureTokenStore().read();
     expect(rotated!.refreshToken, isNot(stored!.refreshToken));
 
-    // Leave the session in storage for the process-restart check by adb.
+    // SCR-09 over the real STOMP channel: the overview fills the prices and
+    // the board says Live.
+    await tester.tap(find.text('Markets'));
+    await waitFor(tester, find.byKey(const Key('row-spot-BTCUSDT')));
+    await waitFor(tester, find.text('Live'));
+    await waitFor(
+      tester,
+      find.descendant(
+        of: find.byKey(const Key('row-spot-BTCUSDT')),
+        matching: find.textContaining(RegExp(r'^\d{1,3}(,\d{3})*\.\d{2}$')),
+      ),
+    );
+    await tester.tap(find.byKey(const Key('row-spot-BTCUSDT')));
+    await waitFor(tester, find.text('24h high'));
   });
 }

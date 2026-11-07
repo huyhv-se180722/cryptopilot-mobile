@@ -108,5 +108,10 @@ class CpColors extends ThemeExtension<CpColors> {
 }
 
 extension CpColorsOf on BuildContext {
-  CpColors get cp => Theme.of(this).extension<CpColors>()!;
+  /// The app theme carries the tokens; a bare theme falls back to them.
+  CpColors get cp {
+    final theme = Theme.of(this);
+    return theme.extension<CpColors>() ??
+        (theme.brightness == Brightness.dark ? CpColors.dark : CpColors.light);
+  }
 }

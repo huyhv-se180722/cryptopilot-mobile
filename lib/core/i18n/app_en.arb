@@ -1,42 +1,81 @@
 {
   "@@locale": "en",
-
   "productName": "CryptoPilot",
   "productTagline": "Crypto Trading Support System",
-
   "commonLoading": "Loading…",
   "commonRetry": "Try again",
   "commonCancel": "Cancel",
   "commonClose": "Close",
-
   "msg01": "The {field} field is required.",
-  "@msg01": { "placeholders": { "field": { "type": "String" } } },
+  "@msg01": {
+    "placeholders": {
+      "field": {
+        "type": "String"
+      }
+    }
+  },
   "msg02": "Please enter a valid email address.",
   "msg03": "Password must be 8-64 characters and include uppercase, lowercase letters and a digit.",
   "msg07": "This link is invalid or has expired.",
   "msg08": "Incorrect email or password. Please check again.",
   "msg09": "Too many failed attempts. Please try again after {minutes} minutes.",
-  "@msg09": { "placeholders": { "minutes": { "type": "String" } } },
+  "@msg09": {
+    "placeholders": {
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
   "msg10": "Your account has been {status}. Please contact support.",
-  "@msg10": { "placeholders": { "status": { "type": "String" } } },
+  "@msg10": {
+    "placeholders": {
+      "status": {
+        "type": "String"
+      }
+    }
+  },
   "msg11": "Please verify your email before logging in. Resend verification email?",
   "msg12": "If the email is registered, a reset link has been sent.",
   "msg13": "Your password has been changed. Please log in again.",
   "msg14": "Saved successfully.",
+  "msg15": "{field} must be between {min} and {max}.",
+  "@msg15": {
+    "placeholders": {
+      "field": {
+        "type": "String"
+      },
+      "min": {
+        "type": "String"
+      },
+      "max": {
+        "type": "String"
+      }
+    }
+  },
   "msg41": "No results found.",
   "msg42": "Information on CryptoPilot is for reference and education only and is not investment advice.",
   "msg43": "Something went wrong. Please try again. (Ref: {code})",
-  "@msg43": { "placeholders": { "code": { "type": "String" } } },
+  "@msg43": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
   "msg44": "Your session has expired. Please log in again.",
   "msg50": "Too many requests. Please try again in {seconds} seconds.",
-  "@msg50": { "placeholders": { "seconds": { "type": "String" } } },
-
+  "@msg50": {
+    "placeholders": {
+      "seconds": {
+        "type": "String"
+      }
+    }
+  },
   "errorNetwork": "Unable to reach the server. Check your connection and try again.",
   "errorTimeout": "The server took too long to respond. Please try again.",
   "errorUnknownReference": "—",
   "statusLocked": "locked",
   "statusBanned": "banned",
-
   "authEmailLabel": "Email address",
   "authEmailField": "email",
   "authPasswordLabel": "Password",
@@ -58,7 +97,13 @@
   "authResendVerification": "Resend verification email",
   "authResendSent": "If the address is registered and unverified, a new link is on its way.",
   "authResendIn": "Resend in {seconds}s",
-  "@authResendIn": { "placeholders": { "seconds": { "type": "int" } } },
+  "@authResendIn": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
   "authRulesTitle": "Password requirements",
   "authRuleLength": "8–64 characters",
   "authRuleLowercase": "A lowercase letter",
@@ -76,13 +121,10 @@
   "authResetSubmit": "Set new password",
   "authRequestNewLink": "Request a new link",
   "authSessionExpiredTitle": "Session expired",
-
   "splashUnavailableTitle": "Cannot reach CryptoPilot",
-
   "adminTitle": "The administration console is on the web",
   "adminBody": "This app is for Traders. Open the console in your browser to manage CryptoPilot.",
   "adminOpenConsole": "Open the web console",
-
   "navHome": "Home",
   "navMarkets": "Markets",
   "navAlerts": "Alerts",
@@ -92,7 +134,6 @@
   "tabComingTitle": "Coming in the next build",
   "tabComingBody": "This tab is being built. Use the CryptoPilot website meanwhile.",
   "openOnWeb": "Open on the web",
-
   "accountTitle": "Account",
   "accountNotifications": "Notifications",
   "accountNotificationsHint": "In-app notifications are always on.",
@@ -107,5 +148,416 @@
   "accountSubscriptionLink": "Subscription",
   "accountAbout": "About",
   "accountSignOut": "Sign out",
-  "accountSignOutConfirm": "Sign out of CryptoPilot on this device?"
+  "accountSignOutConfirm": "Sign out of CryptoPilot on this device?",
+  "marketLive": "Live",
+  "marketDelayed": "Delayed",
+  "marketWatchlist": "Watchlist",
+  "marketSpot": "Spot",
+  "marketFutures": "Futures",
+  "marketSearch": "Search pair or coin",
+  "marketSortVolume": "Pair / Vol",
+  "marketSortPrice": "Last price",
+  "marketSortChange": "24h chg",
+  "marketPerpetual": "Perp",
+  "marketVolumeShort": "Vol {value}",
+  "@marketVolumeShort": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "marketFundingShort": "Funding {rate}",
+  "@marketFundingShort": {
+    "placeholders": {
+      "rate": {
+        "type": "String"
+      }
+    }
+  },
+  "marketHigh24h": "24h high",
+  "marketLow24h": "24h low",
+  "marketVolume24h": "24h volume ({asset})",
+  "@marketVolume24h": {
+    "placeholders": {
+      "asset": {
+        "type": "String"
+      }
+    }
+  },
+  "marketTurnover24h": "24h turnover ({asset})",
+  "@marketTurnover24h": {
+    "placeholders": {
+      "asset": {
+        "type": "String"
+      }
+    }
+  },
+  "marketBestBid": "Best bid",
+  "marketBestAsk": "Best ask",
+  "marketMarkPrice": "Mark price",
+  "marketIndexPrice": "Index price",
+  "marketFundingRate": "Funding rate",
+  "marketNextFunding": "Next funding in",
+  "marketAnalysisNext": "Charts, indicators and the setup score arrive in the next build.",
+  "msg25": "{pair} added to watchlist.",
+  "@msg25": {
+    "placeholders": {
+      "pair": {
+        "type": "String"
+      }
+    }
+  },
+  "msg26": "Removing {pair} will also delete {n} alerts. Continue?",
+  "@msg26": {
+    "placeholders": {
+      "pair": {
+        "type": "String"
+      },
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "msg27": "You have reached the limit of {max} {items} of the {plan} plan. Upgrade to increase the limit?",
+  "@msg27": {
+    "placeholders": {
+      "max": {
+        "type": "String"
+      },
+      "items": {
+        "type": "String"
+      },
+      "plan": {
+        "type": "String"
+      }
+    }
+  },
+  "msg29": "This feature is available on the {plan} plan or higher. View plans?",
+  "@msg29": {
+    "placeholders": {
+      "plan": {
+        "type": "String"
+      }
+    }
+  },
+  "msg45": "{pair} is already in your watchlist.",
+  "@msg45": {
+    "placeholders": {
+      "pair": {
+        "type": "String"
+      }
+    }
+  },
+  "watchCount": "{count} / {limit} pairs",
+  "@watchCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "limit": {
+        "type": "int"
+      }
+    }
+  },
+  "watchCountNoLimit": "{count} pairs",
+  "@watchCountNoLimit": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "watchEmptyTitle": "No pairs watched yet",
+  "watchEmptyBody": "Add pairs to follow their price, setup score and alerts.",
+  "watchAddPair": "Add pair",
+  "watchAdded": "Added",
+  "watchAdd": "Add",
+  "watchUnlabelled": "Other",
+  "watchScore": "Score {score}",
+  "@watchScore": {
+    "placeholders": {
+      "score": {
+        "type": "String"
+      }
+    }
+  },
+  "watchScoreInsufficient": "Score: insufficient data",
+  "watchAlerts": "{count, plural, =0{No alerts} =1{1 alert} other{{count} alerts}}",
+  "@watchAlerts": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "watchUnlisted": "Not available now",
+  "watchEdit": "Edit label and note",
+  "watchRemove": "Remove",
+  "watchLabel": "Label",
+  "watchNote": "Note",
+  "watchSave": "Save",
+  "watchSearchPairs": "Search pair or coin",
+  "upgradeOnWeb": "View plans on the web",
+  "watchAddToWatchlist": "Add to watchlist",
+  "watchWatching": "Watching",
+  "alertsTitle": "Alerts",
+  "alertsNew": "New alert",
+  "alertCreate": "Create alert",
+  "alertEdit": "Edit alert",
+  "alertsAll": "All",
+  "alertStatusACTIVE": "Active",
+  "alertStatusPAUSED": "Paused",
+  "alertStatusTRIGGERED": "Triggered",
+  "alertStatusEXPIRED": "Expired",
+  "alertTypeAll": "All types",
+  "alertTypePRICE": "Price",
+  "alertTypeINDICATOR": "Indicator",
+  "alertsEmpty": "No alerts yet.",
+  "alertsEmptyBody": "Create one from a pair in Markets, or here.",
+  "alertsEmptyFiltered": "No alerts match these filters.",
+  "alertTriggerCount": "{count, plural, =0{Never triggered} =1{Triggered once} other{Triggered {count}×}}",
+  "@alertTriggerCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "alertLastTriggered": "last {time}",
+  "@alertLastTriggered": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "alertExpires": "Expires {date}",
+  "@alertExpires": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "alertNoExpiry": "No expiry",
+  "alertPause": "Pause",
+  "alertResume": "Resume",
+  "alertDelete": "Delete",
+  "alertDeleteTitle": "Delete alert",
+  "alertDeleteConfirm": "Delete the {condition} alert on {pair}? This cannot be undone.",
+  "@alertDeleteConfirm": {
+    "placeholders": {
+      "condition": {
+        "type": "String"
+      },
+      "pair": {
+        "type": "String"
+      }
+    }
+  },
+  "alertDeleted": "Alert deleted.",
+  "alertPaused": "Alert paused.",
+  "alertResumed": "Alert resumed.",
+  "alertResumeExpired": "This alert has expired. Edit it to set a new expiry.",
+  "alertIndicatorRSI_14": "RSI (14)",
+  "alertIndicatorMACD_CROSS": "MACD cross",
+  "alertIndicatorEMA_CROSS": "EMA 20 / EMA 50 cross",
+  "alertIndicatorFUNDING_RATE": "Funding rate",
+  "alertIndicatorOPEN_INTEREST_CHANGE": "Open interest change (1h)",
+  "alertConditionCROSS_ABOVE": "Crosses above",
+  "alertConditionCROSS_BELOW": "Crosses below",
+  "alertConditionGREATER_THAN": "Greater than",
+  "alertConditionLESS_THAN": "Less than",
+  "alertCrossMACD_ABOVE": "MACD crosses above signal",
+  "alertCrossMACD_BELOW": "MACD crosses below signal",
+  "alertCrossEMA_ABOVE": "EMA 20 crosses above EMA 50",
+  "alertCrossEMA_BELOW": "EMA 20 crosses below EMA 50",
+  "alertModeONCE": "Once",
+  "alertModeONCE_PER_BAR": "Once per bar",
+  "alertModeEVERY_TIME": "Every time",
+  "alertModeHint": "Once stops after the first trigger; once per bar triggers at most once per candle (1h for price); every time waits for the cooldown.",
+  "alertPairField": "Pair",
+  "alertPairSearch": "Search pair or coin",
+  "alertAddsToWatchlist": "This pair is added to your watchlist with the alert.",
+  "alertMarketField": "Market",
+  "alertTypeField": "Alert type",
+  "alertIndicatorField": "Indicator",
+  "alertTimeframeField": "Timeframe",
+  "alertConditionField": "Condition",
+  "alertPriceField": "Target price",
+  "alertPriceHint": "Rounded to the pair’s tick size.",
+  "alertRsiField": "RSI level",
+  "alertPercentField": "Change over 1 hour (%)",
+  "alertFundingField": "Funding rate (%)",
+  "alertLastPrice": "Last {price}",
+  "@alertLastPrice": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "alertMarkPrice": "Mark {price}",
+  "@alertMarkPrice": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "alertTriggerField": "Trigger",
+  "alertCooldownField": "Cooldown (minutes)",
+  "alertChannelsField": "Channels",
+  "alertInApp": "In-app (always on)",
+  "alertEmail": "Email",
+  "alertPush": "Push",
+  "alertExpiryField": "Expiry",
+  "alertExpiryDays": "{days, plural, =1{1 day} other{{days} days}}",
+  "@alertExpiryDays": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "alertExpiryKeep": "Keep current",
+  "alertSave": "Save alert",
+  "alertNotListed": "This pair is not listed on the selected market.",
+  "alertFuturesOnly": "Funding rate and open interest alerts are on Futures only.",
+  "alertErrPositive": "{field} must be greater than 0.",
+  "@alertErrPositive": {
+    "placeholders": {
+      "field": {
+        "type": "String"
+      }
+    }
+  },
+  "alertErrCooldown": "{field} must be at least 1 minute.",
+  "@alertErrCooldown": {
+    "placeholders": {
+      "field": {
+        "type": "String"
+      }
+    }
+  },
+  "alertErrExpiry": "The expiry must be in the future and within 90 days.",
+  "alertErrNumber": "{field} must be a number.",
+  "@alertErrNumber": {
+    "placeholders": {
+      "field": {
+        "type": "String"
+      }
+    }
+  },
+  "notificationsTitle": "Notifications",
+  "notificationsAll": "All",
+  "notificationsUnread": "Unread",
+  "notificationsMarkAll": "Mark all as read",
+  "notificationsAllRead": "All notifications marked as read.",
+  "notificationsEmpty": "No notifications yet.",
+  "notificationsEmptyUnread": "You're all caught up.",
+  "notificationsView": "View",
+  "notificationsUnreadCount": "{count, plural, =1{1 unread notification} other{{count} unread notifications}}",
+  "@notificationsUnreadCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "notificationAgeNow": "now",
+  "notificationAgeMinutes": "{n}m ago",
+  "@notificationAgeMinutes": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "notificationAgeHours": "{n}h ago",
+  "@notificationAgeHours": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "notificationAgeDays": "{n}d ago",
+  "@notificationAgeDays": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "homeSearch": "Search pairs",
+  "homeSeeAll": "See all",
+  "homeWatchlist": "Watchlist",
+  "homeWatchlistEmpty": "No pairs watched yet.",
+  "homePlans": "Plans and positions",
+  "homePlansActive": "Active",
+  "homePlansActiveCount": "Active ({count})",
+  "@homePlansActiveCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "homePlansExecuted": "Executed",
+  "homeOpenPositions": "{count, plural, =0{No open positions} =1{1 open position} other{{count} open positions}}",
+  "@homeOpenPositions": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "homeOpenPositionsMore": "{count}+ open positions",
+  "@homeOpenPositionsMore": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "homePlansEmptyActive": "No active plans.",
+  "homePlansEmptyExecuted": "No executed plans.",
+  "homeCreatePlanWeb": "Create a plan on the web",
+  "homePlanLevels": "Entry {entry} · SL {stop} · TP {target}",
+  "@homePlanLevels": {
+    "placeholders": {
+      "entry": {
+        "type": "String"
+      },
+      "stop": {
+        "type": "String"
+      },
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "homeDirectionLong": "Long",
+  "homeDirectionShort": "Short",
+  "homePositionOpen": "Position open",
+  "homePositionClosed": "Position closed",
+  "planStatusDraft": "Draft",
+  "planStatusActive": "Active",
+  "planStatusExecuted": "Executed",
+  "planStatusCancelled": "Cancelled",
+  "planStatusExpired": "Expired",
+  "planStatusInvalidated": "Invalidated",
+  "homePerformance": "Performance",
+  "homePerformanceTrades": "Trades",
+  "homePerformanceWinRate": "Win rate",
+  "homePerformanceNetPnl": "Net P/L (USDT)",
+  "homePerformanceEmpty": "No closed trades yet.",
+  "homePerformanceUnavailable": "Performance is not available yet.",
+  "homeNews": "Latest news",
+  "homeNewsEmpty": "No news in the last 7 days.",
+  "newsBullish": "Bullish",
+  "newsNeutral": "Neutral",
+  "newsBearish": "Bearish"
 }

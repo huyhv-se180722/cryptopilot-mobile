@@ -68,6 +68,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get msg14 => 'Saved successfully.';
 
   @override
+  String msg15(String field, String min, String max) {
+    return '$field must be between $min and $max.';
+  }
+
+  @override
   String get msg41 => 'No results found.';
 
   @override
@@ -310,4 +315,626 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get accountSignOutConfirm => 'Sign out of CryptoPilot on this device?';
+
+  @override
+  String get marketLive => 'Live';
+
+  @override
+  String get marketDelayed => 'Delayed';
+
+  @override
+  String get marketWatchlist => 'Watchlist';
+
+  @override
+  String get marketSpot => 'Spot';
+
+  @override
+  String get marketFutures => 'Futures';
+
+  @override
+  String get marketSearch => 'Search pair or coin';
+
+  @override
+  String get marketSortVolume => 'Pair / Vol';
+
+  @override
+  String get marketSortPrice => 'Last price';
+
+  @override
+  String get marketSortChange => '24h chg';
+
+  @override
+  String get marketPerpetual => 'Perp';
+
+  @override
+  String marketVolumeShort(String value) {
+    return 'Vol $value';
+  }
+
+  @override
+  String marketFundingShort(String rate) {
+    return 'Funding $rate';
+  }
+
+  @override
+  String get marketHigh24h => '24h high';
+
+  @override
+  String get marketLow24h => '24h low';
+
+  @override
+  String marketVolume24h(String asset) {
+    return '24h volume ($asset)';
+  }
+
+  @override
+  String marketTurnover24h(String asset) {
+    return '24h turnover ($asset)';
+  }
+
+  @override
+  String get marketBestBid => 'Best bid';
+
+  @override
+  String get marketBestAsk => 'Best ask';
+
+  @override
+  String get marketMarkPrice => 'Mark price';
+
+  @override
+  String get marketIndexPrice => 'Index price';
+
+  @override
+  String get marketFundingRate => 'Funding rate';
+
+  @override
+  String get marketNextFunding => 'Next funding in';
+
+  @override
+  String get marketAnalysisNext =>
+      'Charts, indicators and the setup score arrive in the next build.';
+
+  @override
+  String msg25(String pair) {
+    return '$pair added to watchlist.';
+  }
+
+  @override
+  String msg26(String pair, String n) {
+    return 'Removing $pair will also delete $n alerts. Continue?';
+  }
+
+  @override
+  String msg27(String max, String items, String plan) {
+    return 'You have reached the limit of $max $items of the $plan plan. Upgrade to increase the limit?';
+  }
+
+  @override
+  String msg29(String plan) {
+    return 'This feature is available on the $plan plan or higher. View plans?';
+  }
+
+  @override
+  String msg45(String pair) {
+    return '$pair is already in your watchlist.';
+  }
+
+  @override
+  String watchCount(int count, int limit) {
+    return '$count / $limit pairs';
+  }
+
+  @override
+  String watchCountNoLimit(int count) {
+    return '$count pairs';
+  }
+
+  @override
+  String get watchEmptyTitle => 'No pairs watched yet';
+
+  @override
+  String get watchEmptyBody =>
+      'Add pairs to follow their price, setup score and alerts.';
+
+  @override
+  String get watchAddPair => 'Add pair';
+
+  @override
+  String get watchAdded => 'Added';
+
+  @override
+  String get watchAdd => 'Add';
+
+  @override
+  String get watchUnlabelled => 'Other';
+
+  @override
+  String watchScore(String score) {
+    return 'Score $score';
+  }
+
+  @override
+  String get watchScoreInsufficient => 'Score: insufficient data';
+
+  @override
+  String watchAlerts(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count alerts',
+      one: '1 alert',
+      zero: 'No alerts',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get watchUnlisted => 'Not available now';
+
+  @override
+  String get watchEdit => 'Edit label and note';
+
+  @override
+  String get watchRemove => 'Remove';
+
+  @override
+  String get watchLabel => 'Label';
+
+  @override
+  String get watchNote => 'Note';
+
+  @override
+  String get watchSave => 'Save';
+
+  @override
+  String get watchSearchPairs => 'Search pair or coin';
+
+  @override
+  String get upgradeOnWeb => 'View plans on the web';
+
+  @override
+  String get watchAddToWatchlist => 'Add to watchlist';
+
+  @override
+  String get watchWatching => 'Watching';
+
+  @override
+  String get alertsTitle => 'Alerts';
+
+  @override
+  String get alertsNew => 'New alert';
+
+  @override
+  String get alertCreate => 'Create alert';
+
+  @override
+  String get alertEdit => 'Edit alert';
+
+  @override
+  String get alertsAll => 'All';
+
+  @override
+  String get alertStatusACTIVE => 'Active';
+
+  @override
+  String get alertStatusPAUSED => 'Paused';
+
+  @override
+  String get alertStatusTRIGGERED => 'Triggered';
+
+  @override
+  String get alertStatusEXPIRED => 'Expired';
+
+  @override
+  String get alertTypeAll => 'All types';
+
+  @override
+  String get alertTypePRICE => 'Price';
+
+  @override
+  String get alertTypeINDICATOR => 'Indicator';
+
+  @override
+  String get alertsEmpty => 'No alerts yet.';
+
+  @override
+  String get alertsEmptyBody => 'Create one from a pair in Markets, or here.';
+
+  @override
+  String get alertsEmptyFiltered => 'No alerts match these filters.';
+
+  @override
+  String alertTriggerCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Triggered $count×',
+      one: 'Triggered once',
+      zero: 'Never triggered',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String alertLastTriggered(String time) {
+    return 'last $time';
+  }
+
+  @override
+  String alertExpires(String date) {
+    return 'Expires $date';
+  }
+
+  @override
+  String get alertNoExpiry => 'No expiry';
+
+  @override
+  String get alertPause => 'Pause';
+
+  @override
+  String get alertResume => 'Resume';
+
+  @override
+  String get alertDelete => 'Delete';
+
+  @override
+  String get alertDeleteTitle => 'Delete alert';
+
+  @override
+  String alertDeleteConfirm(String condition, String pair) {
+    return 'Delete the $condition alert on $pair? This cannot be undone.';
+  }
+
+  @override
+  String get alertDeleted => 'Alert deleted.';
+
+  @override
+  String get alertPaused => 'Alert paused.';
+
+  @override
+  String get alertResumed => 'Alert resumed.';
+
+  @override
+  String get alertResumeExpired =>
+      'This alert has expired. Edit it to set a new expiry.';
+
+  @override
+  String get alertIndicatorRSI_14 => 'RSI (14)';
+
+  @override
+  String get alertIndicatorMACD_CROSS => 'MACD cross';
+
+  @override
+  String get alertIndicatorEMA_CROSS => 'EMA 20 / EMA 50 cross';
+
+  @override
+  String get alertIndicatorFUNDING_RATE => 'Funding rate';
+
+  @override
+  String get alertIndicatorOPEN_INTEREST_CHANGE => 'Open interest change (1h)';
+
+  @override
+  String get alertConditionCROSS_ABOVE => 'Crosses above';
+
+  @override
+  String get alertConditionCROSS_BELOW => 'Crosses below';
+
+  @override
+  String get alertConditionGREATER_THAN => 'Greater than';
+
+  @override
+  String get alertConditionLESS_THAN => 'Less than';
+
+  @override
+  String get alertCrossMACD_ABOVE => 'MACD crosses above signal';
+
+  @override
+  String get alertCrossMACD_BELOW => 'MACD crosses below signal';
+
+  @override
+  String get alertCrossEMA_ABOVE => 'EMA 20 crosses above EMA 50';
+
+  @override
+  String get alertCrossEMA_BELOW => 'EMA 20 crosses below EMA 50';
+
+  @override
+  String get alertModeONCE => 'Once';
+
+  @override
+  String get alertModeONCE_PER_BAR => 'Once per bar';
+
+  @override
+  String get alertModeEVERY_TIME => 'Every time';
+
+  @override
+  String get alertModeHint =>
+      'Once stops after the first trigger; once per bar triggers at most once per candle (1h for price); every time waits for the cooldown.';
+
+  @override
+  String get alertPairField => 'Pair';
+
+  @override
+  String get alertPairSearch => 'Search pair or coin';
+
+  @override
+  String get alertAddsToWatchlist =>
+      'This pair is added to your watchlist with the alert.';
+
+  @override
+  String get alertMarketField => 'Market';
+
+  @override
+  String get alertTypeField => 'Alert type';
+
+  @override
+  String get alertIndicatorField => 'Indicator';
+
+  @override
+  String get alertTimeframeField => 'Timeframe';
+
+  @override
+  String get alertConditionField => 'Condition';
+
+  @override
+  String get alertPriceField => 'Target price';
+
+  @override
+  String get alertPriceHint => 'Rounded to the pair’s tick size.';
+
+  @override
+  String get alertRsiField => 'RSI level';
+
+  @override
+  String get alertPercentField => 'Change over 1 hour (%)';
+
+  @override
+  String get alertFundingField => 'Funding rate (%)';
+
+  @override
+  String alertLastPrice(String price) {
+    return 'Last $price';
+  }
+
+  @override
+  String alertMarkPrice(String price) {
+    return 'Mark $price';
+  }
+
+  @override
+  String get alertTriggerField => 'Trigger';
+
+  @override
+  String get alertCooldownField => 'Cooldown (minutes)';
+
+  @override
+  String get alertChannelsField => 'Channels';
+
+  @override
+  String get alertInApp => 'In-app (always on)';
+
+  @override
+  String get alertEmail => 'Email';
+
+  @override
+  String get alertPush => 'Push';
+
+  @override
+  String get alertExpiryField => 'Expiry';
+
+  @override
+  String alertExpiryDays(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: '$days days',
+      one: '1 day',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get alertExpiryKeep => 'Keep current';
+
+  @override
+  String get alertSave => 'Save alert';
+
+  @override
+  String get alertNotListed =>
+      'This pair is not listed on the selected market.';
+
+  @override
+  String get alertFuturesOnly =>
+      'Funding rate and open interest alerts are on Futures only.';
+
+  @override
+  String alertErrPositive(String field) {
+    return '$field must be greater than 0.';
+  }
+
+  @override
+  String alertErrCooldown(String field) {
+    return '$field must be at least 1 minute.';
+  }
+
+  @override
+  String get alertErrExpiry =>
+      'The expiry must be in the future and within 90 days.';
+
+  @override
+  String alertErrNumber(String field) {
+    return '$field must be a number.';
+  }
+
+  @override
+  String get notificationsTitle => 'Notifications';
+
+  @override
+  String get notificationsAll => 'All';
+
+  @override
+  String get notificationsUnread => 'Unread';
+
+  @override
+  String get notificationsMarkAll => 'Mark all as read';
+
+  @override
+  String get notificationsAllRead => 'All notifications marked as read.';
+
+  @override
+  String get notificationsEmpty => 'No notifications yet.';
+
+  @override
+  String get notificationsEmptyUnread => 'You\'re all caught up.';
+
+  @override
+  String get notificationsView => 'View';
+
+  @override
+  String notificationsUnreadCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count unread notifications',
+      one: '1 unread notification',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get notificationAgeNow => 'now';
+
+  @override
+  String notificationAgeMinutes(int n) {
+    return '${n}m ago';
+  }
+
+  @override
+  String notificationAgeHours(int n) {
+    return '${n}h ago';
+  }
+
+  @override
+  String notificationAgeDays(int n) {
+    return '${n}d ago';
+  }
+
+  @override
+  String get homeSearch => 'Search pairs';
+
+  @override
+  String get homeSeeAll => 'See all';
+
+  @override
+  String get homeWatchlist => 'Watchlist';
+
+  @override
+  String get homeWatchlistEmpty => 'No pairs watched yet.';
+
+  @override
+  String get homePlans => 'Plans and positions';
+
+  @override
+  String get homePlansActive => 'Active';
+
+  @override
+  String homePlansActiveCount(int count) {
+    return 'Active ($count)';
+  }
+
+  @override
+  String get homePlansExecuted => 'Executed';
+
+  @override
+  String homeOpenPositions(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count open positions',
+      one: '1 open position',
+      zero: 'No open positions',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String homeOpenPositionsMore(int count) {
+    return '$count+ open positions';
+  }
+
+  @override
+  String get homePlansEmptyActive => 'No active plans.';
+
+  @override
+  String get homePlansEmptyExecuted => 'No executed plans.';
+
+  @override
+  String get homeCreatePlanWeb => 'Create a plan on the web';
+
+  @override
+  String homePlanLevels(String entry, String stop, String target) {
+    return 'Entry $entry · SL $stop · TP $target';
+  }
+
+  @override
+  String get homeDirectionLong => 'Long';
+
+  @override
+  String get homeDirectionShort => 'Short';
+
+  @override
+  String get homePositionOpen => 'Position open';
+
+  @override
+  String get homePositionClosed => 'Position closed';
+
+  @override
+  String get planStatusDraft => 'Draft';
+
+  @override
+  String get planStatusActive => 'Active';
+
+  @override
+  String get planStatusExecuted => 'Executed';
+
+  @override
+  String get planStatusCancelled => 'Cancelled';
+
+  @override
+  String get planStatusExpired => 'Expired';
+
+  @override
+  String get planStatusInvalidated => 'Invalidated';
+
+  @override
+  String get homePerformance => 'Performance';
+
+  @override
+  String get homePerformanceTrades => 'Trades';
+
+  @override
+  String get homePerformanceWinRate => 'Win rate';
+
+  @override
+  String get homePerformanceNetPnl => 'Net P/L (USDT)';
+
+  @override
+  String get homePerformanceEmpty => 'No closed trades yet.';
+
+  @override
+  String get homePerformanceUnavailable => 'Performance is not available yet.';
+
+  @override
+  String get homeNews => 'Latest news';
+
+  @override
+  String get homeNewsEmpty => 'No news in the last 7 days.';
+
+  @override
+  String get newsBullish => 'Bullish';
+
+  @override
+  String get newsNeutral => 'Neutral';
+
+  @override
+  String get newsBearish => 'Bearish';
 }
