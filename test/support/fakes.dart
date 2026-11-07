@@ -10,6 +10,9 @@ import 'package:cryptopilot_mobile/core/web/web_links.dart';
 import 'package:cryptopilot_mobile/features/account/data/profile_api.dart';
 import 'package:cryptopilot_mobile/features/account/domain/profile.dart';
 import 'package:cryptopilot_mobile/features/alerts/data/alert_api.dart';
+import 'package:cryptopilot_mobile/features/analysis/data/analysis_api.dart';
+import 'package:cryptopilot_mobile/features/analysis/domain/analysis.dart'
+    show Analysis, FuturesMetrics, decodeAnalysis, decodeFuturesMetrics;
 import 'package:cryptopilot_mobile/features/alerts/domain/alert.dart';
 import 'package:cryptopilot_mobile/features/auth/data/auth_api.dart';
 import 'package:cryptopilot_mobile/features/journal/data/performance_api.dart';
@@ -168,6 +171,7 @@ List<Override> baseOverrides({
   PerformanceApi? performance,
   FakeChartSurface? chart,
   SettingsStore? settings,
+  AnalysisApi? analysis,
 }) => [
   tokenStoreProvider.overrideWithValue(store),
   authTokenApiProvider.overrideWithValue(tokens),
@@ -187,6 +191,7 @@ List<Override> baseOverrides({
   newsApiProvider.overrideWithValue(news ?? FakeNewsApi()),
   performanceApiProvider.overrideWithValue(performance ?? FakePerformanceApi()),
   chartSurfaceProvider.overrideWithValue(chart ?? FakeChartSurface()),
+  analysisApiProvider.overrideWithValue(analysis ?? FakeAnalysisApi()),
 ];
 
 class FakeWatchlistApi implements WatchlistApi {
@@ -735,5 +740,117 @@ class FakePerformanceApi implements PerformanceApi {
   Future<PerformanceSummary> summary() async {
     if (error != null) throw error!;
     return summaryValue;
+  }
+}
+
+/// `GET /analysis/{m}/{s}` as backend develop 25ba960 answers it (T-107:
+/// `componentsLocked`; D-126 push without score).
+Map<String, Object?> analysisJson({
+  String market = 'SPOT',
+  String symbol = 'BTCUSDT',
+  bool locked = false,
+  int? score = 56,
+  String support = '75790.0000000000',
+}) => {
+  'symbol': symbol,
+  'market': market,
+  'timeframe': '1h',
+  'openTime': '2026-11-07T08:00:00Z',
+  'calculatedAt': '2026-11-07T09:00:01.339409Z',
+  'indicators': {
+    'sma20': '75926.1660000001',
+    'ema20': '76039.2154406578',
+    'ema50': '76577.2345805825',
+    'ema200': '77867.9229098132',
+    'rsi14': '51.8182579316',
+    'macdLine': '-106.1115449333',
+    'macdSignal': '-199.4043185456',
+    'macdHistogram': '93.2927736123',
+    'bbUpper': '76195.7288915412',
+    'bbMiddle': '75926.1660000001',
+    'bbLower': '75656.6031084590',
+    'volumeSma20': '584.8379235000',
+  },
+  'nearestSupport': support,
+  'nearestResistance': '76208.2500000000',
+  'componentsLocked': locked,
+  'components': locked
+      ? null
+      : {
+          'formulaVersion': 'v1',
+          'trend': '25.00',
+          'momentum': '100.00',
+          'volume': '0.00',
+          'level': '1.09',
+          if (market == 'FUTURES') 'derivatives': '75.43',
+        },
+  'setupScore': {
+    'score': score,
+    'preset': 'SCALPING',
+    'presetVersion': 'v1',
+    'timeframe': '15m',
+    'openTime': '2026-11-07T09:15:00Z',
+    'components': locked
+        ? null
+        : {
+            'formulaVersion': 'v1',
+            'trend': '50.00',
+            'momentum': '80.00',
+            'volume': '25.54',
+            'level': '49.48',
+            if (market == 'FUTURES') 'derivatives': '50.07',
+          },
+    if (market == 'FUTURES') 'dominantSide': 'LONG',
+  },
+};
+
+class FakeAnalysisApi implements AnalysisApi {
+  /// By `MARKET SYMBOL tf`; missing → the default spot answer.
+  final Map<String, Object?> answers = {};
+  final List<String> calls = [];
+  final List<String> metricCalls = [];
+  Object? error;
+  Object? metricsError;
+
+  @override
+  Future<Analysis> analysis(Market market, String symbol, Timeframe tf) async {
+    final key = '${market.wire} $symbol ${tf.wire}';
+    calls.add(key);
+    if (error case final e?) throw e;
+    return decodeAnalysis(
+      answers[key] ?? analysisJson(market: market.wire, symbol: symbol),
+    );
+  }
+
+  @override
+  Future<FuturesMetrics> metrics(String symbol, DateTime from) async {
+    metricCalls.add('$symbol ${from.toIso8601String()}');
+    if (metricsError case final e?) throw e;
+    return decodeFuturesMetrics({
+      'symbol': symbol,
+      'from': from.toIso8601String(),
+      'to': now.toIso8601String(),
+      'openInterest': [
+        {
+          'time': '2026-11-06T09:35:00Z',
+          'openInterest': '95532.229000000000',
+          'openInterestValue': '7273680617.71650000',
+        },
+      ],
+      'longShortRatio': [
+        {
+          'time': '2026-11-06T09:35:00Z',
+          'longShortRatio': '3.23010000',
+          'longAccountRatio': '0.76360000',
+          'shortAccountRatio': '0.23640000',
+        },
+      ],
+      'fundingSettlements': <Object?>[],
+      'availableFrom': {
+        'openInterest': '2026-11-05T00:00:00Z',
+        'longShortRatio': '2026-11-05T00:00:00Z',
+        'fundingSettlements': null,
+      },
+    });
   }
 }
