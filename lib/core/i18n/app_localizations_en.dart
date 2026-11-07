@@ -311,6 +311,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get accountAbout => 'About';
 
   @override
+  String get accountLicences => 'Open-source licenses';
+
+  @override
   String get accountSignOut => 'Sign out';
 
   @override

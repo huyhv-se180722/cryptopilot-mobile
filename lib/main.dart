@@ -1,4 +1,6 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'app.dart';
@@ -10,6 +12,13 @@ import 'features/notifications/domain/notification.dart';
 import 'features/watchlist/presentation/watchlist_view.dart';
 
 void main() {
+  // Third-party notices shown by Account › Open-source licenses; the chart
+  // library's attribution is a licence condition (ADR-012 item 7).
+  LicenseRegistry.addLicense(() async* {
+    yield LicenseEntryWithLineBreaks(const [
+      'TradingView Lightweight Charts',
+    ], await rootBundle.loadString('assets/chart/LICENSE.txt'));
+  });
   runApp(
     // Failed calls are retried by the user ("Try again"), never silently.
     ProviderScope(

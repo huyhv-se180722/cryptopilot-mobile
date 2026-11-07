@@ -15,7 +15,9 @@ import 'package:cryptopilot_mobile/features/auth/data/auth_api.dart';
 import 'package:cryptopilot_mobile/features/journal/data/performance_api.dart';
 import 'package:cryptopilot_mobile/features/journal/domain/performance.dart';
 import 'package:cryptopilot_mobile/features/market/data/market_api.dart';
+import 'package:cryptopilot_mobile/features/market/domain/candle.dart';
 import 'package:cryptopilot_mobile/features/market/domain/market.dart';
+import 'package:cryptopilot_mobile/features/chart/presentation/chart_surface.dart';
 import 'package:cryptopilot_mobile/features/news/data/news_api.dart';
 import 'package:cryptopilot_mobile/features/news/domain/news.dart';
 import 'package:cryptopilot_mobile/features/notifications/data/notification_api.dart';
@@ -26,6 +28,7 @@ import 'package:cryptopilot_mobile/features/watchlist/data/watchlist_api.dart';
 import 'package:cryptopilot_mobile/features/watchlist/domain/watchlist.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 
+import 'chart_fakes.dart';
 import 'realtime_fakes.dart';
 
 final now = DateTime.utc(2026, 11, 6, 10);
@@ -163,11 +166,13 @@ List<Override> baseOverrides({
   PlanApi? plans,
   NewsApi? news,
   PerformanceApi? performance,
+  FakeChartSurface? chart,
+  SettingsStore? settings,
 }) => [
   tokenStoreProvider.overrideWithValue(store),
   authTokenApiProvider.overrideWithValue(tokens),
   clockProvider.overrideWithValue(() => now),
-  settingsStoreProvider.overrideWithValue(MemorySettingsStore()),
+  settingsStoreProvider.overrideWithValue(settings ?? MemorySettingsStore()),
   authApiProvider.overrideWithValue(auth ?? FakeAuthApi()),
   profileApiProvider.overrideWithValue(profile ?? FakeProfileApi()),
   webLinksProvider.overrideWithValue(web ?? FakeWebLinks()),
@@ -181,6 +186,7 @@ List<Override> baseOverrides({
   planApiProvider.overrideWithValue(plans ?? FakePlanApi()),
   newsApiProvider.overrideWithValue(news ?? FakeNewsApi()),
   performanceApiProvider.overrideWithValue(performance ?? FakePerformanceApi()),
+  chartSurfaceProvider.overrideWithValue(chart ?? FakeChartSurface()),
 ];
 
 class FakeWatchlistApi implements WatchlistApi {
@@ -338,6 +344,37 @@ class FakeMarketApi implements MarketApi {
   Future<Ticker> stats(Market market, String symbol) async {
     statsCalls.add(symbol);
     return Ticker(symbol: symbol, lastPrice: '100.5', changePercent24h: '1');
+  }
+
+  /// Closed candles by `MARKET SYMBOL tf`; older pages by `… before`.
+  final Map<String, List<Candle>> candlesBy = {};
+  final List<String> candleCalls = [];
+  Object? candlesError;
+
+  /// While set, `candles()` waits for it.
+  Future<void>? candlesHold;
+
+  @override
+  Future<List<Candle>> candles(
+    Market market,
+    String symbol,
+    Timeframe tf, {
+    int limit = 500,
+    DateTime? to,
+  }) async {
+    candleCalls.add(
+      '${market.wire} $symbol ${tf.wire} $limit${to == null ? '' : ' to'}',
+    );
+    if (candlesHold case final gate?) await gate;
+    if (candlesError case final error?) throw error;
+    final all = candlesBy['${market.wire} $symbol ${tf.wire}'] ?? const [];
+    final before = [
+      for (final c in all)
+        if (to == null || c.openTime.isBefore(to)) c,
+    ];
+    return before.length > limit
+        ? before.sublist(before.length - limit)
+        : before;
   }
 }
 

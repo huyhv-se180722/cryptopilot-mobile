@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/errors/api_failure.dart';
 import '../../../core/http/http_providers.dart';
 import '../../../core/json/json_read.dart';
+import '../domain/candle.dart';
 import '../domain/market.dart';
 
 /// Public market data (`/market/**`, fe-guide market module; checked on
@@ -14,6 +15,16 @@ abstract interface class MarketApi {
 
   /// One pair's REST snapshot, for the Delayed fallback (Q-65).
   Future<Ticker> stats(Market market, String symbol);
+
+  /// Closed candles, oldest first: the latest [limit] (1–1000) before [to]
+  /// (default now). 404 MSG41 for a pair not enabled on [market].
+  Future<List<Candle>> candles(
+    Market market,
+    String symbol,
+    Timeframe tf, {
+    int limit = 500,
+    DateTime? to,
+  });
 }
 
 class DioMarketApi implements MarketApi {
@@ -40,6 +51,25 @@ class DioMarketApi implements MarketApi {
   Future<Ticker> stats(Market market, String symbol) => apiCall(
     () => _dio.get<Object?>('market/${market.path}/$symbol/stats'),
     market == Market.spot ? decodeSpotStats : decodeFuturesStats,
+  );
+
+  @override
+  Future<List<Candle>> candles(
+    Market market,
+    String symbol,
+    Timeframe tf, {
+    int limit = 500,
+    DateTime? to,
+  }) => apiCall(
+    () => _dio.get<Object?>(
+      'market/${market.path}/$symbol/candles',
+      queryParameters: {
+        'tf': tf.wire,
+        'limit': limit,
+        if (to != null) 'to': to.toUtc().toIso8601String(),
+      },
+    ),
+    decodeCandles,
   );
 }
 

@@ -646,6 +646,12 @@ abstract class AppLocalizations {
   /// **'About'**
   String get accountAbout;
 
+  /// No description provided for @accountLicences.
+  ///
+  /// In en, this message translates to:
+  /// **'Open-source licenses'**
+  String get accountLicences;
+
   /// No description provided for @accountSignOut.
   ///
   /// In en, this message translates to:

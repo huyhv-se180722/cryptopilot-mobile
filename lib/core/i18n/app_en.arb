@@ -147,6 +147,7 @@
   "accountProfileLink": "Profile and security",
   "accountSubscriptionLink": "Subscription",
   "accountAbout": "About",
+  "accountLicences": "Open-source licenses",
   "accountSignOut": "Sign out",
   "accountSignOutConfirm": "Sign out of CryptoPilot on this device?",
   "marketLive": "Live",
