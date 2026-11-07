@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cryptopilot_mobile/core/auth/token_store.dart';
 import 'package:cryptopilot_mobile/core/i18n/app_localizations.dart';
 import 'package:cryptopilot_mobile/core/i18n/app_localizations_en.dart';
@@ -9,6 +11,7 @@ import 'package:cryptopilot_mobile/features/alerts/presentation/alert_format.dar
 import 'package:cryptopilot_mobile/features/alerts/presentation/alert_sheet.dart';
 import 'package:cryptopilot_mobile/features/alerts/presentation/alerts_screen.dart';
 import 'package:cryptopilot_mobile/features/market/domain/market.dart';
+import 'package:cryptopilot_mobile/features/market/presentation/market_widgets.dart';
 import 'package:cryptopilot_mobile/features/market/presentation/markets_screen.dart';
 import 'package:cryptopilot_mobile/features/market/presentation/pair_sheet.dart';
 import 'package:cryptopilot_mobile/features/watchlist/domain/watchlist.dart';
@@ -358,9 +361,10 @@ void main() {
       List<Alert>? alerts,
       List<WatchItem>? watched,
       Brightness brightness = Brightness.light,
+      Future<void>? hold,
     }) async {
       transport = FakeTransport();
-      api = FakeAlertApi();
+      api = FakeAlertApi()..hold = hold;
       watchlist = FakeWatchlistApi();
       if (alerts != null) api.alerts = alerts;
       if (watched != null) watchlist.items = watched;
@@ -553,6 +557,19 @@ void main() {
 
       expect(api.created.single.$1, 'pair-SOL');
       expect(find.text('Crosses above 150.00'), findsOneWidget);
+      await unmount(tester);
+    });
+
+    testWidgets('the first read shows the list skeleton', (tester) async {
+      final gate = Completer<void>();
+      await pump(tester, hold: gate.future);
+      expect(find.byType(ListSkeleton), findsOneWidget);
+
+      gate.complete();
+      await tester.pump();
+      await tester.pump();
+      expect(find.byType(ListSkeleton), findsNothing);
+      expect(find.byKey(const Key('alert-row-a1')), findsOneWidget);
       await unmount(tester);
     });
 

@@ -1,6 +1,10 @@
+import 'dart:async';
+
 import 'package:cryptopilot_mobile/core/auth/token_store.dart';
+import 'package:cryptopilot_mobile/core/errors/api_failure.dart';
 import 'package:cryptopilot_mobile/core/i18n/app_localizations.dart';
 import 'package:cryptopilot_mobile/core/theme/app_theme.dart';
+import 'package:cryptopilot_mobile/features/market/presentation/market_widgets.dart';
 import 'package:cryptopilot_mobile/features/market/presentation/markets_screen.dart';
 import 'package:cryptopilot_mobile/features/market/presentation/pair_sheet.dart';
 import 'package:cryptopilot_mobile/features/watchlist/domain/watchlist.dart';
@@ -89,10 +93,15 @@ void main() {
     late FakeTransport transport;
     late FakeWatchlistApi api;
 
-    Future<void> pump(WidgetTester tester, {List<WatchItem>? items}) async {
+    Future<void> pump(
+      WidgetTester tester, {
+      List<WatchItem>? items,
+      void Function(FakeWatchlistApi api)? setUp,
+    }) async {
       transport = FakeTransport();
       api = FakeWatchlistApi();
       if (items != null) api.items = items;
+      setUp?.call(api);
       await tester.pumpWidget(
         ProviderScope(
           overrides: baseOverrides(
@@ -113,6 +122,8 @@ void main() {
       for (var i = 0; i < 6; i++) {
         await tester.pump();
       }
+      // Loading, empty and failed lists show no price, so nothing connects.
+      if (transport.connections.isEmpty) return;
       transport.last.onConnected();
       transport.last.push('/topic/overview.SPOT', {
         'market': 'SPOT',
@@ -245,6 +256,75 @@ void main() {
         ),
         findsOneWidget,
       );
+      await unmount(tester);
+    });
+
+    testWidgets('the first read shows the list skeleton', (tester) async {
+      final gate = Completer<void>();
+      await pump(tester, setUp: (api) => api.hold = gate.future);
+      expect(find.byType(ListSkeleton), findsOneWidget);
+
+      gate.complete();
+      await tester.pump();
+      await tester.pump();
+      expect(find.byType(ListSkeleton), findsNothing);
+      expect(find.byKey(const Key('watch-row-BTCUSDT')), findsOneWidget);
+      await unmount(tester);
+    });
+
+    testWidgets('an empty watchlist offers Add pair', (tester) async {
+      await pump(tester, items: []);
+      expect(find.text('No pairs watched yet'), findsOneWidget);
+      expect(
+        find.text('Add pairs to follow their price, setup score and alerts.'),
+        findsOneWidget,
+      );
+      expect(find.widgetWithText(FilledButton, 'Add pair'), findsOneWidget);
+      expect(find.byKey(const Key('watch-reorder')), findsNothing);
+      await unmount(tester);
+    });
+
+    testWidgets('an unreadable answer shows MSG43 and Try again reads again', (
+      tester,
+    ) async {
+      await pump(
+        tester,
+        setUp: (api) =>
+            api.listError = const UnexpectedFailure(traceId: 'f3a9c2'),
+      );
+      expect(
+        find.text('Something went wrong. Please try again. (Ref: f3a9c2)'),
+        findsOneWidget,
+      );
+      await tester.tap(find.text('Try again'));
+      await tester.pump();
+      await tester.pump();
+      expect(find.byKey(const Key('watch-row-BTCUSDT')), findsOneWidget);
+      await unmount(tester);
+    });
+
+    testWidgets('Edit label and note sends both and regroups with MSG14', (
+      tester,
+    ) async {
+      await pump(tester);
+      expect(find.text('OTHER'), findsOneWidget);
+      await tester.tap(find.byKey(const Key('watch-menu-SOLUSDT')));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+      await tester.tap(find.text('Edit label and note'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+
+      await tester.enterText(find.byKey(const Key('watch-label')), 'Core ');
+      await tester.enterText(find.byKey(const Key('watch-note')), 'Breakout');
+      await tester.tap(find.byKey(const Key('watch-save')));
+      await tester.pump();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+
+      expect(api.updates, ['watch-SOL label=Core note=Breakout']);
+      expect(find.text('Saved successfully.'), findsOneWidget);
+      expect(find.text('OTHER'), findsNothing);
       await unmount(tester);
     });
   });
@@ -528,78 +608,90 @@ void main() {
     });
   });
 
-  group('360 dp, dark', () {
-    Future<void> render(WidgetTester tester, {required int tab}) async {
-      tester.view
-        ..physicalSize = const Size(360 * 3, 760 * 3)
-        ..devicePixelRatio = 3;
-      addTearDown(tester.view.reset);
-      final transport = FakeTransport();
-      await tester.pumpWidget(
-        ProviderScope(
-          overrides: baseOverrides(
-            store: MemoryTokenStore(storedFor('saved')),
-            tokens: FakeAuthTokenApi(),
-            transport: transport,
+  for (final brightness in Brightness.values) {
+    group('360 dp, ${brightness.name}', () {
+      Future<void> render(WidgetTester tester, {required int tab}) async {
+        tester.view
+          ..physicalSize = const Size(360 * 3, 760 * 3)
+          ..devicePixelRatio = 3;
+        addTearDown(tester.view.reset);
+        final transport = FakeTransport();
+        await tester.pumpWidget(
+          ProviderScope(
+            overrides: baseOverrides(
+              store: MemoryTokenStore(storedFor('saved')),
+              tokens: FakeAuthTokenApi(),
+              transport: transport,
+            ),
+            retry: (_, _) => null,
+            child: MaterialApp(
+              theme: appTheme(brightness),
+              localizationsDelegates: AppLocalizations.localizationsDelegates,
+              supportedLocales: AppLocalizations.supportedLocales,
+              home: const MarketsScreen(watchlist: WatchlistView()),
+            ),
           ),
-          retry: (_, _) => null,
-          child: MaterialApp(
-            theme: appTheme(Brightness.dark),
-            localizationsDelegates: AppLocalizations.localizationsDelegates,
-            supportedLocales: AppLocalizations.supportedLocales,
-            home: const MarketsScreen(watchlist: WatchlistView()),
-          ),
-        ),
-      );
-      for (var i = 0; i < 6; i++) {
-        await tester.pump();
-      }
-      transport.last.onConnected();
-      transport.last.push('/topic/overview.SPOT', {
-        'market': 'SPOT',
-        'serverTime': '2026-11-06T01:48:10Z',
-        'tickers': [
-          {
-            'market': 'SPOT',
-            'symbol': 'BTCUSDT',
-            'lastPrice': '76166.01',
-            'changePercent24h': '-5.66',
-            'quoteVolume24h': '2020233955.09',
-          },
-        ],
-      });
-      await tester.pump();
-      await tester.pump();
-      if (tab == 0) {
-        await tester.tap(find.text('Watchlist'));
-        await tester.pump();
-        await tester.pump(const Duration(milliseconds: 400));
-        // The watchlist and its scores load once the segment is built.
+        );
         for (var i = 0; i < 6; i++) {
           await tester.pump();
         }
+        transport.last.onConnected();
+        transport.last.push('/topic/overview.SPOT', {
+          'market': 'SPOT',
+          'serverTime': '2026-11-06T01:48:10Z',
+          'tickers': [
+            {
+              'market': 'SPOT',
+              'symbol': 'BTCUSDT',
+              'lastPrice': '76166.01',
+              'changePercent24h': '-5.66',
+              'quoteVolume24h': '2020233955.09',
+            },
+          ],
+        });
+        await tester.pump();
+        await tester.pump();
+        if (tab == 0) {
+          await tester.tap(find.text('Watchlist'));
+          await tester.pump();
+          await tester.pump(const Duration(milliseconds: 400));
+          // The watchlist and its scores load once the segment is built.
+          for (var i = 0; i < 6; i++) {
+            await tester.pump();
+          }
+        }
       }
-    }
 
-    Future<void> unmount(WidgetTester tester) async {
-      await tester.pumpWidget(const SizedBox());
-      await tester.pump(const Duration(seconds: 31));
-    }
+      Future<void> unmount(WidgetTester tester) async {
+        await tester.pumpWidget(const SizedBox());
+        await tester.pump(const Duration(seconds: 31));
+      }
 
-    testWidgets('the Spot list fits without overflow', (tester) async {
-      await render(tester, tab: 1);
-      expect(tester.takeException(), isNull);
-      expect(find.text('76,166.01'), findsOneWidget);
-      expect(find.text('−5.66%'), findsOneWidget);
-      await unmount(tester);
+      testWidgets('the Spot list fits without overflow', (tester) async {
+        await render(tester, tab: 1);
+        expect(tester.takeException(), isNull);
+        expect(find.text('76,166.01'), findsOneWidget);
+        expect(find.text('−5.66%'), findsOneWidget);
+        await unmount(tester);
+      });
+
+      testWidgets('the watchlist fits without overflow', (tester) async {
+        await render(tester, tab: 0);
+        expect(tester.takeException(), isNull);
+        expect(find.byKey(const Key('watch-row-BTCUSDT')), findsOneWidget);
+        expect(find.text('Score 72 · 2 alerts'), findsOneWidget);
+        await unmount(tester);
+      });
+
+      testWidgets('the reorder mode fits without overflow', (tester) async {
+        await render(tester, tab: 0);
+        await tester.tap(find.byKey(const Key('watch-reorder')));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 500));
+        expect(tester.takeException(), isNull);
+        expect(find.byKey(const Key('watch-drag-BTCUSDT')), findsOneWidget);
+        await unmount(tester);
+      });
     });
-
-    testWidgets('the watchlist fits without overflow', (tester) async {
-      await render(tester, tab: 0);
-      expect(tester.takeException(), isNull);
-      expect(find.byKey(const Key('watch-row-BTCUSDT')), findsOneWidget);
-      expect(find.text('Score 72 · 2 alerts'), findsOneWidget);
-      await unmount(tester);
-    });
-  });
+  }
 }

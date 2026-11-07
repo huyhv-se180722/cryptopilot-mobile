@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:cryptopilot_mobile/core/auth/token_store.dart';
 import 'package:cryptopilot_mobile/core/i18n/app_localizations.dart';
 import 'package:cryptopilot_mobile/core/i18n/app_localizations_en.dart';
 import 'package:cryptopilot_mobile/core/json/json_read.dart';
 import 'package:cryptopilot_mobile/core/theme/app_theme.dart';
+import 'package:cryptopilot_mobile/features/market/presentation/market_widgets.dart';
 import 'package:cryptopilot_mobile/features/notifications/application/notifications_controller.dart';
 import 'package:cryptopilot_mobile/features/notifications/domain/notification.dart';
 import 'package:cryptopilot_mobile/features/notifications/presentation/notification_bell.dart';
@@ -356,6 +359,24 @@ void main() {
       await tester.pump();
       await tester.pump();
       expect(api.calls, contains('list false 2'));
+      await unmount(tester);
+    });
+
+    testWidgets('the first read of the list shows the skeleton', (
+      tester,
+    ) async {
+      final gate = Completer<void>();
+      await pump(tester);
+      api.hold = gate.future;
+      await openList(tester);
+      expect(find.byType(ListSkeleton), findsOneWidget);
+
+      api.hold = null;
+      gate.complete();
+      await tester.pump();
+      await tester.pump();
+      expect(find.byType(ListSkeleton), findsNothing);
+      expect(find.text('Alert triggered'), findsOneWidget);
       await unmount(tester);
     });
 

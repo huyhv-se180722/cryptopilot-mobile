@@ -324,8 +324,12 @@ class FakeMarketApi implements MarketApi {
   final List<String> statsCalls = [];
   Object? pairsError;
 
+  /// While set, `pairs()` waits for it (the loading state).
+  Future<void>? hold;
+
   @override
   Future<List<MarketPair>> pairs(Market market) async {
+    if (hold case final gate?) await gate;
     if (pairsError != null) throw pairsError!;
     return pairsBy[market]!;
   }
@@ -412,6 +416,9 @@ class FakeAlertApi implements AlertApi {
   Object? createError;
   Object? resumeError;
 
+  /// While set, `list()` waits for it (the loading state).
+  Future<void>? hold;
+
   @override
   Future<AlertPage> list({
     AlertStatus? status,
@@ -419,6 +426,7 @@ class FakeAlertApi implements AlertApi {
     int page = 1,
     int pageSize = 20,
   }) async {
+    if (hold case final gate?) await gate;
     calls.add('list ${status?.wire} ${type?.wire} $page');
     final matching = [
       for (final alert in alerts)
@@ -557,6 +565,9 @@ class FakeNotificationApi implements NotificationApi {
   Object? listError;
   Object? readError;
 
+  /// While set, `list()` waits for it (the loading state).
+  Future<void>? hold;
+
   int get _unread => items.where((n) => !n.read).length;
 
   @override
@@ -566,6 +577,7 @@ class FakeNotificationApi implements NotificationApi {
     int pageSize = 20,
   }) async {
     calls.add('list $unreadOnly $page');
+    if (hold case final gate?) await gate;
     if (listError != null) throw listError!;
     final matching = [
       for (final n in items)
@@ -639,9 +651,13 @@ class FakePlanApi implements PlanApi {
   final List<String> calls = [];
   Object? error;
 
+  /// While set, `list()` waits for it (the loading state).
+  Future<void>? hold;
+
   @override
   Future<PlanPage> list({PlanTab? tab, int page = 1, int pageSize = 20}) async {
     calls.add('${tab?.wire} $pageSize');
+    if (hold case final gate?) await gate;
     if (error != null) throw error!;
     final rows = tab == PlanTab.executed ? executed : active;
     return PlanPage(items: rows.take(pageSize).toList(), total: rows.length);
