@@ -56,14 +56,15 @@ WatchItem decodeWatchItem(Object? body) {
   );
 }
 
+/// Keeps the server's order (`sortOrder`, then `addedAt`): rows can share a
+/// position, and only the server knows when each was added.
 Watchlist decodeWatchlist(Object? body) {
   final json = asJsonObject(body, 'watchlist');
   final items = json['items'];
   if (items is! List) throw const DecodeException('items is not a list');
   final limit = json['limit'];
   return Watchlist(
-    items: [for (final item in items) decodeWatchItem(item)]
-      ..sort((a, b) => a.sortOrder.compareTo(b.sortOrder)),
+    items: [for (final item in items) decodeWatchItem(item)],
     limit: limit is int ? limit : null,
   );
 }

@@ -6,6 +6,7 @@ import 'package:cryptopilot_mobile/features/market/presentation/pair_sheet.dart'
 import 'package:cryptopilot_mobile/features/watchlist/domain/watchlist.dart';
 import 'package:cryptopilot_mobile/features/watchlist/presentation/watchlist_view.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -34,6 +35,29 @@ void main() {
       });
       expect(watchlist.limit, 50);
       expect(watchlist.items.single.activeAlerts, 2);
+    });
+
+    test('keeps the server order (sortOrder, then addedAt)', () {
+      Map<String, Object?> row(String base, int sortOrder) => {
+        'id': 'watch-$base',
+        'pairId': 'pair-$base',
+        'symbol': '${base}USDT',
+        'spotListed': true,
+        'futuresListed': true,
+        'label': null,
+        'note': null,
+        'sortOrder': sortOrder,
+        'activeAlerts': 0,
+        'addedAt': '2026-10-29T14:19:07Z',
+      };
+      final watchlist = decodeWatchlist({
+        'items': [row('SOL', 0), row('BTC', 0), row('ETH', 1)],
+        'limit': null,
+      });
+      expect(
+        [for (final item in watchlist.items) item.symbol],
+        ['SOLUSDT', 'BTCUSDT', 'ETHUSDT'],
+      );
     });
 
     test('setup score of the preset, null score without enough candles', () {
@@ -220,6 +244,182 @@ void main() {
           'You have reached the limit of 5 watchlist items of the FREE plan. Upgrade to increase the limit?',
         ),
         findsOneWidget,
+      );
+      await unmount(tester);
+    });
+  });
+
+  group('SCR-12 reorder (SRS 3.4.1, PATCH sortOrder on 25ba960)', () {
+    late FakeTransport transport;
+    late FakeWatchlistApi api;
+
+    Future<void> pump(WidgetTester tester, {List<WatchItem>? items}) async {
+      transport = FakeTransport();
+      api = FakeWatchlistApi();
+      if (items != null) api.items = items;
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: baseOverrides(
+            store: MemoryTokenStore(storedFor('saved')),
+            tokens: FakeAuthTokenApi(),
+            transport: transport,
+            watchlist: api,
+          ),
+          retry: (_, _) => null,
+          child: MaterialApp(
+            theme: appTheme(Brightness.light),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: const WatchlistView(),
+          ),
+        ),
+      );
+      for (var i = 0; i < 6; i++) {
+        await tester.pump();
+      }
+      transport.last.onConnected();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 500));
+    }
+
+    Future<void> unmount(WidgetTester tester) async {
+      await tester.pumpWidget(const SizedBox());
+      await tester.pump(const Duration(seconds: 31));
+    }
+
+    Future<void> openReorder(WidgetTester tester) async {
+      await tester.tap(find.byKey(const Key('watch-reorder')));
+      await tester.pump();
+      // Add pair leaves with its exit animation.
+      await tester.pump(const Duration(milliseconds: 500));
+    }
+
+    /// Drags [symbol]'s handle by [dy] and lets the writes finish.
+    Future<void> drag(WidgetTester tester, String symbol, double dy) async {
+      final gesture = await tester.startGesture(
+        tester.getCenter(find.byKey(Key('watch-drag-$symbol'))),
+      );
+      await tester.pump();
+      for (var i = 0; i < 6; i++) {
+        await gesture.moveBy(Offset(0, dy / 6));
+        await tester.pump(const Duration(milliseconds: 16));
+      }
+      await gesture.up();
+      for (var i = 0; i < 6; i++) {
+        await tester.pump(const Duration(milliseconds: 100));
+      }
+    }
+
+    double top(WidgetTester tester, String key) =>
+        tester.getTopLeft(find.byKey(Key(key))).dy;
+
+    testWidgets('Reorder is offered from two pairs on', (tester) async {
+      await pump(tester, items: [watchOf('BTC')]);
+      expect(find.byKey(const Key('watch-reorder')), findsNothing);
+      await unmount(tester);
+
+      await pump(tester);
+      expect(find.byKey(const Key('watch-reorder')), findsOneWidget);
+      await unmount(tester);
+    });
+
+    testWidgets('the mode hides prices, menu and Add pair; Done leaves it', (
+      tester,
+    ) async {
+      await pump(tester);
+      await openReorder(tester);
+
+      expect(find.text('Drag ≡ to change the order'), findsOneWidget);
+      expect(find.byKey(const Key('watch-drag-BTCUSDT')), findsOneWidget);
+      expect(find.byKey(const Key('watch-menu-BTCUSDT')), findsNothing);
+      expect(find.byKey(const Key('add-pair')), findsNothing);
+      expect(find.text('CORE'), findsOneWidget);
+
+      await tester.tap(find.byKey(const Key('watch-reorder-done')));
+      await tester.pump();
+      expect(find.byKey(const Key('watch-menu-BTCUSDT')), findsOneWidget);
+      expect(api.updates, isEmpty);
+      await unmount(tester);
+    });
+
+    testWidgets('a drag numbers the list and sends only the rows that moved', (
+      tester,
+    ) async {
+      // All three share position 0, as rows added before any reorder can.
+      await pump(tester);
+      await openReorder(tester);
+      await drag(tester, 'ETHUSDT', -60);
+
+      // Shown order ETH, BTC, SOL → 0, 1, 2; ETH already holds 0.
+      expect(api.updates, ['watch-BTC sortOrder=1', 'watch-SOL sortOrder=2']);
+      expect(
+        top(tester, 'watch-drag-ETHUSDT'),
+        lessThan(top(tester, 'watch-drag-BTCUSDT')),
+      );
+
+      await tester.tap(find.byKey(const Key('watch-reorder-done')));
+      await tester.pump();
+      // The order read back from the server.
+      expect(
+        top(tester, 'watch-row-ETHUSDT'),
+        lessThan(top(tester, 'watch-row-BTCUSDT')),
+      );
+      await unmount(tester);
+    });
+
+    testWidgets('a row stays inside its label group', (tester) async {
+      await pump(tester);
+      await openReorder(tester);
+      // SOL is alone in OTHER: dragging it up past CORE changes nothing.
+      await drag(tester, 'SOLUSDT', -150);
+
+      expect(api.updates, isEmpty);
+      expect(
+        top(tester, 'watch-drag-SOLUSDT'),
+        greaterThan(top(tester, 'watch-drag-ETHUSDT')),
+      );
+      await unmount(tester);
+    });
+
+    testWidgets('Move down for screen readers moves the row', (tester) async {
+      final semantics = tester.ensureSemantics();
+      await pump(tester);
+      await openReorder(tester);
+
+      final node = tester.getSemantics(
+        find.byKey(const ValueKey('reorder-watch-BTC')),
+      );
+      tester.binding.performSemanticsAction(
+        SemanticsActionEvent(
+          type: SemanticsAction.customAction,
+          viewId: tester.view.viewId,
+          nodeId: node.id,
+          arguments: CustomSemanticsAction.getIdentifier(
+            const CustomSemanticsAction(label: 'Move down'),
+          ),
+        ),
+      );
+      for (var i = 0; i < 6; i++) {
+        await tester.pump(const Duration(milliseconds: 100));
+      }
+
+      expect(api.updates, ['watch-BTC sortOrder=1', 'watch-SOL sortOrder=2']);
+      semantics.dispose();
+      await unmount(tester);
+    });
+
+    testWidgets('a refused write brings back the server order and says why', (
+      tester,
+    ) async {
+      await pump(tester);
+      api.updateError = problem(404, 'WATCHLIST_ITEM_NOT_FOUND', 'MSG41');
+      await openReorder(tester);
+      await drag(tester, 'ETHUSDT', -60);
+
+      expect(find.text('No results found.'), findsOneWidget);
+      expect(
+        top(tester, 'watch-drag-BTCUSDT'),
+        lessThan(top(tester, 'watch-drag-ETHUSDT')),
       );
       await unmount(tester);
     });
