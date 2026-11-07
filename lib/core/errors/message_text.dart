@@ -34,6 +34,8 @@ String messageText(
       return l.msg13;
     case 'MSG14':
       return l.msg14;
+    case 'MSG15':
+      return l.msg15(field ?? '', arg(0), arg(1));
     case 'MSG25':
       return l.msg25(arg(0));
     case 'MSG26':

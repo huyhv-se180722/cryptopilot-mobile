@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../features/account/presentation/account_screen.dart';
+import '../../features/alerts/presentation/alerts_screen.dart';
 import '../../features/auth/presentation/admin_notice_screen.dart';
 import '../../features/auth/presentation/forgot_password_screen.dart';
 import '../../features/auth/presentation/login_screen.dart';
@@ -98,6 +99,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (_, _) => const AdminNoticeScreen(),
       ),
       GoRoute(path: Routes.account, builder: (_, _) => const AccountScreen()),
+      // SCR-13 is pushed from Markets and Home, not a tab (D-142).
+      GoRoute(path: Routes.alerts, builder: (_, _) => const AlertsScreen()),
       StatefulShellRoute.indexedStack(
         builder: (_, _, shell) => HomeShell(navigationShell: shell),
         branches: [
@@ -111,7 +114,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               ),
             ],
           ),
-          branch(Routes.alerts, (l) => l.navAlerts),
           branch(Routes.plans, (l) => l.navPlans),
           branch(Routes.journal, (l) => l.navJournal),
         ],

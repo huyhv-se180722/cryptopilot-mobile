@@ -30,6 +30,12 @@ class MarketsScreen extends StatelessWidget {
           title: Text(l.navMarkets),
           actions: [
             IconButton(
+              key: const Key('open-alerts'),
+              tooltip: l.navAlerts,
+              icon: const Icon(Icons.alarm),
+              onPressed: () => context.push('/alerts'),
+            ),
+            IconButton(
               key: const Key('open-account'),
               tooltip: l.navAccount,
               icon: const Icon(Icons.account_circle_outlined),

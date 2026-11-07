@@ -25,6 +25,27 @@ MarketPair? pairFor(WidgetRef ref, WatchItem item) {
       (item.futuresListed ? find(Market.futures) : null);
 }
 
+/// A row-menu entry another feature adds (the alerts' "Create alert"),
+/// composed in `main.dart` so the watchlist does not depend on it.
+class WatchRowAction {
+  const WatchRowAction({
+    required this.id,
+    required this.label,
+    required this.run,
+  });
+
+  final String id;
+  final String label;
+  final void Function(BuildContext context, MarketPair pair) run;
+}
+
+typedef WatchRowActionsBuilder =
+    List<WatchRowAction> Function(AppLocalizations l);
+
+final watchRowActionsProvider = Provider<WatchRowActionsBuilder?>(
+  (ref) => null,
+);
+
 /// SCR-12 on the Markets tab: groups by label, live price and change from the
 /// market boards, the setup score of the Trader's preset and the number of
 /// active alerts. Swipe left removes (MSG26 when alerts go with it).
@@ -197,6 +218,9 @@ class WatchRow extends ConsumerWidget {
       watchlistControllerProvider.select((s) => s.scores[item.symbol]),
     );
     final listed = item.spotListed || item.futuresListed;
+    final extras = pair == null
+        ? const <WatchRowAction>[]
+        : ref.watch(watchRowActionsProvider)?.call(l) ?? const [];
     final details = [
       if (!listed) l.watchUnlisted,
       if (score?.score != null) l.watchScore('${score!.score}'),
@@ -261,11 +285,20 @@ class WatchRow extends ConsumerWidget {
               ChangePill(percent: ticker?.changePercent24h, width: 76),
               PopupMenuButton<String>(
                 key: Key('watch-menu-${item.symbol}'),
-                onSelected: (action) => switch (action) {
-                  'edit' => _edit(context, ref),
-                  _ => _remove(context, ref),
+                onSelected: (action) {
+                  for (final extra in extras) {
+                    if (extra.id == action) return extra.run(context, pair!);
+                  }
+                  switch (action) {
+                    case 'edit':
+                      _edit(context, ref);
+                    default:
+                      _remove(context, ref);
+                  }
                 },
                 itemBuilder: (_) => [
+                  for (final extra in extras)
+                    PopupMenuItem(value: extra.id, child: Text(extra.label)),
                   PopupMenuItem(value: 'edit', child: Text(l.watchEdit)),
                   PopupMenuItem(value: 'remove', child: Text(l.watchRemove)),
                 ],

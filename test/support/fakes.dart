@@ -9,6 +9,8 @@ import 'package:cryptopilot_mobile/core/settings/settings.dart';
 import 'package:cryptopilot_mobile/core/web/web_links.dart';
 import 'package:cryptopilot_mobile/features/account/data/profile_api.dart';
 import 'package:cryptopilot_mobile/features/account/domain/profile.dart';
+import 'package:cryptopilot_mobile/features/alerts/data/alert_api.dart';
+import 'package:cryptopilot_mobile/features/alerts/domain/alert.dart';
 import 'package:cryptopilot_mobile/features/auth/data/auth_api.dart';
 import 'package:cryptopilot_mobile/features/market/data/market_api.dart';
 import 'package:cryptopilot_mobile/features/market/domain/market.dart';
@@ -148,6 +150,7 @@ List<Override> baseOverrides({
   FakeTransport? transport,
   MarketApi? market,
   WatchlistApi? watchlist,
+  AlertApi? alerts,
 }) => [
   tokenStoreProvider.overrideWithValue(store),
   authTokenApiProvider.overrideWithValue(tokens),
@@ -159,6 +162,7 @@ List<Override> baseOverrides({
   realtimeTransportProvider.overrideWithValue(transport ?? FakeTransport()),
   marketApiProvider.overrideWithValue(market ?? FakeMarketApi()),
   watchlistApiProvider.overrideWithValue(watchlist ?? FakeWatchlistApi()),
+  alertApiProvider.overrideWithValue(alerts ?? FakeAlertApi()),
 ];
 
 class FakeWatchlistApi implements WatchlistApi {
@@ -275,3 +279,140 @@ Future<void> settle() async {
 }
 
 const networkDown = NetworkFailure();
+
+/// An alert as the backend stores it (thresholds with their scale padding).
+Alert alertOf(
+  String id, {
+  String base = 'BTC',
+  Market market = Market.spot,
+  AlertType type = AlertType.price,
+  AlertIndicator? indicator,
+  String? timeframe,
+  AlertCondition condition = AlertCondition.crossAbove,
+  String? threshold = '68000.000000000000',
+  AlertStatus status = AlertStatus.active,
+  int triggers = 0,
+  DateTime? expiresAt,
+}) => Alert(
+  id: id,
+  pairId: 'pair-$base',
+  symbol: '${base}USDT',
+  rule: AlertRule(
+    market: market,
+    type: type,
+    indicator: indicator,
+    timeframe: timeframe,
+    condition: condition,
+    threshold: threshold,
+    triggerMode: TriggerMode.once,
+    expiresAt: expiresAt,
+  ),
+  status: status,
+  triggerCount: triggers,
+  lastTriggeredAt: triggers > 0 ? now : null,
+  createdAt: now,
+);
+
+class FakeAlertApi implements AlertApi {
+  List<Alert> alerts = [
+    alertOf('a1', triggers: 2),
+    alertOf(
+      'a2',
+      base: 'ETH',
+      type: AlertType.indicator,
+      indicator: AlertIndicator.rsi14,
+      timeframe: '4h',
+      condition: AlertCondition.lessThan,
+      threshold: '30.000000000000',
+      status: AlertStatus.paused,
+    ),
+  ];
+  final List<String> calls = [];
+  final List<(String, AlertRule)> created = [];
+  final List<(String, AlertRule)> updated = [];
+  Object? createError;
+  Object? resumeError;
+
+  @override
+  Future<AlertPage> list({
+    AlertStatus? status,
+    AlertType? type,
+    int page = 1,
+    int pageSize = 20,
+  }) async {
+    calls.add('list ${status?.wire} ${type?.wire} $page');
+    final matching = [
+      for (final alert in alerts)
+        if ((status == null || alert.status == status) &&
+            (type == null || alert.rule.type == type))
+          alert,
+    ];
+    final start = (page - 1) * pageSize;
+    return AlertPage(
+      items: matching.skip(start).take(pageSize).toList(),
+      page: page,
+      pageSize: pageSize,
+      total: matching.length,
+    );
+  }
+
+  @override
+  Future<Alert> create(String pairId, AlertRule rule) async {
+    if (createError != null) throw createError!;
+    created.add((pairId, rule));
+    final alert = Alert(
+      id: 'new-${created.length}',
+      pairId: pairId,
+      symbol: '${pairId.replaceFirst('pair-', '')}USDT',
+      rule: rule,
+      status: AlertStatus.active,
+      triggerCount: 0,
+      createdAt: now,
+    );
+    alerts = [alert, ...alerts];
+    return alert;
+  }
+
+  @override
+  Future<Alert> update(String id, AlertRule rule) async {
+    updated.add((id, rule));
+    return alerts.firstWhere((alert) => alert.id == id);
+  }
+
+  @override
+  Future<void> delete(String id) async {
+    calls.add('delete $id');
+    alerts = [
+      for (final alert in alerts)
+        if (alert.id != id) alert,
+    ];
+  }
+
+  Alert _with(String id, AlertStatus status) {
+    final old = alerts.firstWhere((alert) => alert.id == id);
+    final next = Alert(
+      id: old.id,
+      pairId: old.pairId,
+      symbol: old.symbol,
+      rule: old.rule,
+      status: status,
+      triggerCount: old.triggerCount,
+      createdAt: old.createdAt,
+    );
+    alerts = [for (final alert in alerts) alert.id == id ? next : alert];
+    return next;
+  }
+
+  @override
+  Future<Alert> pause(String id) async {
+    calls.add('pause $id');
+    return _with(id, AlertStatus.paused);
+  }
+
+  @override
+  Future<Alert> resume(String id) async {
+    calls.add('resume $id');
+    if (resumeError != null) throw resumeError!;
+    return _with(id, AlertStatus.active);
+  }
+}

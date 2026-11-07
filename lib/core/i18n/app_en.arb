@@ -38,6 +38,20 @@
   "msg12": "If the email is registered, a reset link has been sent.",
   "msg13": "Your password has been changed. Please log in again.",
   "msg14": "Saved successfully.",
+  "msg15": "{field} must be between {min} and {max}.",
+  "@msg15": {
+    "placeholders": {
+      "field": {
+        "type": "String"
+      },
+      "min": {
+        "type": "String"
+      },
+      "max": {
+        "type": "String"
+      }
+    }
+  },
   "msg41": "No results found.",
   "msg42": "Information on CryptoPilot is for reference and education only and is not investment advice.",
   "msg43": "Something went wrong. Please try again. (Ref: {code})",
@@ -286,5 +300,154 @@
   "watchSearchPairs": "Search pair or coin",
   "upgradeOnWeb": "View plans on the web",
   "watchAddToWatchlist": "Add to watchlist",
-  "watchWatching": "Watching"
+  "watchWatching": "Watching",
+  "alertsTitle": "Alerts",
+  "alertsNew": "New alert",
+  "alertCreate": "Create alert",
+  "alertEdit": "Edit alert",
+  "alertsAll": "All",
+  "alertStatusACTIVE": "Active",
+  "alertStatusPAUSED": "Paused",
+  "alertStatusTRIGGERED": "Triggered",
+  "alertStatusEXPIRED": "Expired",
+  "alertTypeAll": "All types",
+  "alertTypePRICE": "Price",
+  "alertTypeINDICATOR": "Indicator",
+  "alertsEmpty": "No alerts yet.",
+  "alertsEmptyBody": "Create one from a pair in Markets, or here.",
+  "alertsEmptyFiltered": "No alerts match these filters.",
+  "alertTriggerCount": "{count, plural, =0{Never triggered} =1{Triggered once} other{Triggered {count}×}}",
+  "@alertTriggerCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "alertLastTriggered": "last {time}",
+  "@alertLastTriggered": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "alertExpires": "Expires {date}",
+  "@alertExpires": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "alertNoExpiry": "No expiry",
+  "alertPause": "Pause",
+  "alertResume": "Resume",
+  "alertDelete": "Delete",
+  "alertDeleteTitle": "Delete alert",
+  "alertDeleteConfirm": "Delete the {condition} alert on {pair}? This cannot be undone.",
+  "@alertDeleteConfirm": {
+    "placeholders": {
+      "condition": {
+        "type": "String"
+      },
+      "pair": {
+        "type": "String"
+      }
+    }
+  },
+  "alertDeleted": "Alert deleted.",
+  "alertPaused": "Alert paused.",
+  "alertResumed": "Alert resumed.",
+  "alertResumeExpired": "This alert has expired. Edit it to set a new expiry.",
+  "alertIndicatorRSI_14": "RSI (14)",
+  "alertIndicatorMACD_CROSS": "MACD cross",
+  "alertIndicatorEMA_CROSS": "EMA 20 / EMA 50 cross",
+  "alertIndicatorFUNDING_RATE": "Funding rate",
+  "alertIndicatorOPEN_INTEREST_CHANGE": "Open interest change (1h)",
+  "alertConditionCROSS_ABOVE": "Crosses above",
+  "alertConditionCROSS_BELOW": "Crosses below",
+  "alertConditionGREATER_THAN": "Greater than",
+  "alertConditionLESS_THAN": "Less than",
+  "alertCrossMACD_ABOVE": "MACD crosses above signal",
+  "alertCrossMACD_BELOW": "MACD crosses below signal",
+  "alertCrossEMA_ABOVE": "EMA 20 crosses above EMA 50",
+  "alertCrossEMA_BELOW": "EMA 20 crosses below EMA 50",
+  "alertModeONCE": "Once",
+  "alertModeONCE_PER_BAR": "Once per bar",
+  "alertModeEVERY_TIME": "Every time",
+  "alertModeHint": "Once stops after the first trigger; once per bar triggers at most once per candle (1h for price); every time waits for the cooldown.",
+  "alertPairField": "Pair",
+  "alertPairSearch": "Search pair or coin",
+  "alertAddsToWatchlist": "This pair is added to your watchlist with the alert.",
+  "alertMarketField": "Market",
+  "alertTypeField": "Alert type",
+  "alertIndicatorField": "Indicator",
+  "alertTimeframeField": "Timeframe",
+  "alertConditionField": "Condition",
+  "alertPriceField": "Target price",
+  "alertPriceHint": "Rounded to the pair’s tick size.",
+  "alertRsiField": "RSI level",
+  "alertPercentField": "Change over 1 hour (%)",
+  "alertFundingField": "Funding rate (%)",
+  "alertLastPrice": "Last {price}",
+  "@alertLastPrice": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "alertMarkPrice": "Mark {price}",
+  "@alertMarkPrice": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "alertTriggerField": "Trigger",
+  "alertCooldownField": "Cooldown (minutes)",
+  "alertChannelsField": "Channels",
+  "alertInApp": "In-app (always on)",
+  "alertEmail": "Email",
+  "alertPush": "Push",
+  "alertExpiryField": "Expiry",
+  "alertExpiryDays": "{days, plural, =1{1 day} other{{days} days}}",
+  "@alertExpiryDays": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "alertExpiryKeep": "Keep current",
+  "alertSave": "Save alert",
+  "alertNotListed": "This pair is not listed on the selected market.",
+  "alertFuturesOnly": "Funding rate and open interest alerts are on Futures only.",
+  "alertErrPositive": "{field} must be greater than 0.",
+  "@alertErrPositive": {
+    "placeholders": {
+      "field": {
+        "type": "String"
+      }
+    }
+  },
+  "alertErrCooldown": "{field} must be at least 1 minute.",
+  "@alertErrCooldown": {
+    "placeholders": {
+      "field": {
+        "type": "String"
+      }
+    }
+  },
+  "alertErrExpiry": "The expiry must be in the future and within 90 days.",
+  "alertErrNumber": "{field} must be a number.",
+  "@alertErrNumber": {
+    "placeholders": {
+      "field": {
+        "type": "String"
+      }
+    }
+  }
 }

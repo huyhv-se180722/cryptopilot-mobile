@@ -68,6 +68,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get msg14 => 'Saved successfully.';
 
   @override
+  String msg15(String field, String min, String max) {
+    return '$field must be between $min and $max.';
+  }
+
+  @override
   String get msg41 => 'No results found.';
 
   @override
@@ -492,4 +497,271 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get watchWatching => 'Watching';
+
+  @override
+  String get alertsTitle => 'Alerts';
+
+  @override
+  String get alertsNew => 'New alert';
+
+  @override
+  String get alertCreate => 'Create alert';
+
+  @override
+  String get alertEdit => 'Edit alert';
+
+  @override
+  String get alertsAll => 'All';
+
+  @override
+  String get alertStatusACTIVE => 'Active';
+
+  @override
+  String get alertStatusPAUSED => 'Paused';
+
+  @override
+  String get alertStatusTRIGGERED => 'Triggered';
+
+  @override
+  String get alertStatusEXPIRED => 'Expired';
+
+  @override
+  String get alertTypeAll => 'All types';
+
+  @override
+  String get alertTypePRICE => 'Price';
+
+  @override
+  String get alertTypeINDICATOR => 'Indicator';
+
+  @override
+  String get alertsEmpty => 'No alerts yet.';
+
+  @override
+  String get alertsEmptyBody => 'Create one from a pair in Markets, or here.';
+
+  @override
+  String get alertsEmptyFiltered => 'No alerts match these filters.';
+
+  @override
+  String alertTriggerCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Triggered $count×',
+      one: 'Triggered once',
+      zero: 'Never triggered',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String alertLastTriggered(String time) {
+    return 'last $time';
+  }
+
+  @override
+  String alertExpires(String date) {
+    return 'Expires $date';
+  }
+
+  @override
+  String get alertNoExpiry => 'No expiry';
+
+  @override
+  String get alertPause => 'Pause';
+
+  @override
+  String get alertResume => 'Resume';
+
+  @override
+  String get alertDelete => 'Delete';
+
+  @override
+  String get alertDeleteTitle => 'Delete alert';
+
+  @override
+  String alertDeleteConfirm(String condition, String pair) {
+    return 'Delete the $condition alert on $pair? This cannot be undone.';
+  }
+
+  @override
+  String get alertDeleted => 'Alert deleted.';
+
+  @override
+  String get alertPaused => 'Alert paused.';
+
+  @override
+  String get alertResumed => 'Alert resumed.';
+
+  @override
+  String get alertResumeExpired =>
+      'This alert has expired. Edit it to set a new expiry.';
+
+  @override
+  String get alertIndicatorRSI_14 => 'RSI (14)';
+
+  @override
+  String get alertIndicatorMACD_CROSS => 'MACD cross';
+
+  @override
+  String get alertIndicatorEMA_CROSS => 'EMA 20 / EMA 50 cross';
+
+  @override
+  String get alertIndicatorFUNDING_RATE => 'Funding rate';
+
+  @override
+  String get alertIndicatorOPEN_INTEREST_CHANGE => 'Open interest change (1h)';
+
+  @override
+  String get alertConditionCROSS_ABOVE => 'Crosses above';
+
+  @override
+  String get alertConditionCROSS_BELOW => 'Crosses below';
+
+  @override
+  String get alertConditionGREATER_THAN => 'Greater than';
+
+  @override
+  String get alertConditionLESS_THAN => 'Less than';
+
+  @override
+  String get alertCrossMACD_ABOVE => 'MACD crosses above signal';
+
+  @override
+  String get alertCrossMACD_BELOW => 'MACD crosses below signal';
+
+  @override
+  String get alertCrossEMA_ABOVE => 'EMA 20 crosses above EMA 50';
+
+  @override
+  String get alertCrossEMA_BELOW => 'EMA 20 crosses below EMA 50';
+
+  @override
+  String get alertModeONCE => 'Once';
+
+  @override
+  String get alertModeONCE_PER_BAR => 'Once per bar';
+
+  @override
+  String get alertModeEVERY_TIME => 'Every time';
+
+  @override
+  String get alertModeHint =>
+      'Once stops after the first trigger; once per bar triggers at most once per candle (1h for price); every time waits for the cooldown.';
+
+  @override
+  String get alertPairField => 'Pair';
+
+  @override
+  String get alertPairSearch => 'Search pair or coin';
+
+  @override
+  String get alertAddsToWatchlist =>
+      'This pair is added to your watchlist with the alert.';
+
+  @override
+  String get alertMarketField => 'Market';
+
+  @override
+  String get alertTypeField => 'Alert type';
+
+  @override
+  String get alertIndicatorField => 'Indicator';
+
+  @override
+  String get alertTimeframeField => 'Timeframe';
+
+  @override
+  String get alertConditionField => 'Condition';
+
+  @override
+  String get alertPriceField => 'Target price';
+
+  @override
+  String get alertPriceHint => 'Rounded to the pair’s tick size.';
+
+  @override
+  String get alertRsiField => 'RSI level';
+
+  @override
+  String get alertPercentField => 'Change over 1 hour (%)';
+
+  @override
+  String get alertFundingField => 'Funding rate (%)';
+
+  @override
+  String alertLastPrice(String price) {
+    return 'Last $price';
+  }
+
+  @override
+  String alertMarkPrice(String price) {
+    return 'Mark $price';
+  }
+
+  @override
+  String get alertTriggerField => 'Trigger';
+
+  @override
+  String get alertCooldownField => 'Cooldown (minutes)';
+
+  @override
+  String get alertChannelsField => 'Channels';
+
+  @override
+  String get alertInApp => 'In-app (always on)';
+
+  @override
+  String get alertEmail => 'Email';
+
+  @override
+  String get alertPush => 'Push';
+
+  @override
+  String get alertExpiryField => 'Expiry';
+
+  @override
+  String alertExpiryDays(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: '$days days',
+      one: '1 day',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get alertExpiryKeep => 'Keep current';
+
+  @override
+  String get alertSave => 'Save alert';
+
+  @override
+  String get alertNotListed =>
+      'This pair is not listed on the selected market.';
+
+  @override
+  String get alertFuturesOnly =>
+      'Funding rate and open interest alerts are on Futures only.';
+
+  @override
+  String alertErrPositive(String field) {
+    return '$field must be greater than 0.';
+  }
+
+  @override
+  String alertErrCooldown(String field) {
+    return '$field must be at least 1 minute.';
+  }
+
+  @override
+  String get alertErrExpiry =>
+      'The expiry must be in the future and within 90 days.';
+
+  @override
+  String alertErrNumber(String field) {
+    return '$field must be a number.';
+  }
 }

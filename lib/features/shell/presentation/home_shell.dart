@@ -3,8 +3,8 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/i18n/app_localizations.dart';
 
-/// The five tabs of the mobile plan (Home, Markets, Alerts, Plans, Journal);
-/// each keeps its own navigation stack.
+/// The tabs until T-121 (Home, Markets, Plans, Journal); D-142 makes them
+/// Home, Markets, Trade, Plans, Assets. Each keeps its own navigation stack.
 class HomeShell extends StatelessWidget {
   const HomeShell({required this.navigationShell, super.key});
 
@@ -31,11 +31,6 @@ class HomeShell extends StatelessWidget {
             icon: const Icon(Icons.candlestick_chart_outlined),
             selectedIcon: const Icon(Icons.candlestick_chart),
             label: l.navMarkets,
-          ),
-          NavigationDestination(
-            icon: const Icon(Icons.notifications_active_outlined),
-            selectedIcon: const Icon(Icons.notifications_active),
-            label: l.navAlerts,
           ),
           NavigationDestination(
             icon: const Icon(Icons.assignment_outlined),

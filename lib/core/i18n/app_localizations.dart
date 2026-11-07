@@ -196,6 +196,12 @@ abstract class AppLocalizations {
   /// **'Saved successfully.'**
   String get msg14;
 
+  /// No description provided for @msg15.
+  ///
+  /// In en, this message translates to:
+  /// **'{field} must be between {min} and {max}.'**
+  String msg15(String field, String min, String max);
+
   /// No description provided for @msg41.
   ///
   /// In en, this message translates to:
@@ -945,6 +951,462 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Watching'**
   String get watchWatching;
+
+  /// No description provided for @alertsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Alerts'**
+  String get alertsTitle;
+
+  /// No description provided for @alertsNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New alert'**
+  String get alertsNew;
+
+  /// No description provided for @alertCreate.
+  ///
+  /// In en, this message translates to:
+  /// **'Create alert'**
+  String get alertCreate;
+
+  /// No description provided for @alertEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit alert'**
+  String get alertEdit;
+
+  /// No description provided for @alertsAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get alertsAll;
+
+  /// No description provided for @alertStatusACTIVE.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get alertStatusACTIVE;
+
+  /// No description provided for @alertStatusPAUSED.
+  ///
+  /// In en, this message translates to:
+  /// **'Paused'**
+  String get alertStatusPAUSED;
+
+  /// No description provided for @alertStatusTRIGGERED.
+  ///
+  /// In en, this message translates to:
+  /// **'Triggered'**
+  String get alertStatusTRIGGERED;
+
+  /// No description provided for @alertStatusEXPIRED.
+  ///
+  /// In en, this message translates to:
+  /// **'Expired'**
+  String get alertStatusEXPIRED;
+
+  /// No description provided for @alertTypeAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All types'**
+  String get alertTypeAll;
+
+  /// No description provided for @alertTypePRICE.
+  ///
+  /// In en, this message translates to:
+  /// **'Price'**
+  String get alertTypePRICE;
+
+  /// No description provided for @alertTypeINDICATOR.
+  ///
+  /// In en, this message translates to:
+  /// **'Indicator'**
+  String get alertTypeINDICATOR;
+
+  /// No description provided for @alertsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No alerts yet.'**
+  String get alertsEmpty;
+
+  /// No description provided for @alertsEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Create one from a pair in Markets, or here.'**
+  String get alertsEmptyBody;
+
+  /// No description provided for @alertsEmptyFiltered.
+  ///
+  /// In en, this message translates to:
+  /// **'No alerts match these filters.'**
+  String get alertsEmptyFiltered;
+
+  /// No description provided for @alertTriggerCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{Never triggered} =1{Triggered once} other{Triggered {count}×}}'**
+  String alertTriggerCount(int count);
+
+  /// No description provided for @alertLastTriggered.
+  ///
+  /// In en, this message translates to:
+  /// **'last {time}'**
+  String alertLastTriggered(String time);
+
+  /// No description provided for @alertExpires.
+  ///
+  /// In en, this message translates to:
+  /// **'Expires {date}'**
+  String alertExpires(String date);
+
+  /// No description provided for @alertNoExpiry.
+  ///
+  /// In en, this message translates to:
+  /// **'No expiry'**
+  String get alertNoExpiry;
+
+  /// No description provided for @alertPause.
+  ///
+  /// In en, this message translates to:
+  /// **'Pause'**
+  String get alertPause;
+
+  /// No description provided for @alertResume.
+  ///
+  /// In en, this message translates to:
+  /// **'Resume'**
+  String get alertResume;
+
+  /// No description provided for @alertDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get alertDelete;
+
+  /// No description provided for @alertDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete alert'**
+  String get alertDeleteTitle;
+
+  /// No description provided for @alertDeleteConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete the {condition} alert on {pair}? This cannot be undone.'**
+  String alertDeleteConfirm(String condition, String pair);
+
+  /// No description provided for @alertDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Alert deleted.'**
+  String get alertDeleted;
+
+  /// No description provided for @alertPaused.
+  ///
+  /// In en, this message translates to:
+  /// **'Alert paused.'**
+  String get alertPaused;
+
+  /// No description provided for @alertResumed.
+  ///
+  /// In en, this message translates to:
+  /// **'Alert resumed.'**
+  String get alertResumed;
+
+  /// No description provided for @alertResumeExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'This alert has expired. Edit it to set a new expiry.'**
+  String get alertResumeExpired;
+
+  /// No description provided for @alertIndicatorRSI_14.
+  ///
+  /// In en, this message translates to:
+  /// **'RSI (14)'**
+  String get alertIndicatorRSI_14;
+
+  /// No description provided for @alertIndicatorMACD_CROSS.
+  ///
+  /// In en, this message translates to:
+  /// **'MACD cross'**
+  String get alertIndicatorMACD_CROSS;
+
+  /// No description provided for @alertIndicatorEMA_CROSS.
+  ///
+  /// In en, this message translates to:
+  /// **'EMA 20 / EMA 50 cross'**
+  String get alertIndicatorEMA_CROSS;
+
+  /// No description provided for @alertIndicatorFUNDING_RATE.
+  ///
+  /// In en, this message translates to:
+  /// **'Funding rate'**
+  String get alertIndicatorFUNDING_RATE;
+
+  /// No description provided for @alertIndicatorOPEN_INTEREST_CHANGE.
+  ///
+  /// In en, this message translates to:
+  /// **'Open interest change (1h)'**
+  String get alertIndicatorOPEN_INTEREST_CHANGE;
+
+  /// No description provided for @alertConditionCROSS_ABOVE.
+  ///
+  /// In en, this message translates to:
+  /// **'Crosses above'**
+  String get alertConditionCROSS_ABOVE;
+
+  /// No description provided for @alertConditionCROSS_BELOW.
+  ///
+  /// In en, this message translates to:
+  /// **'Crosses below'**
+  String get alertConditionCROSS_BELOW;
+
+  /// No description provided for @alertConditionGREATER_THAN.
+  ///
+  /// In en, this message translates to:
+  /// **'Greater than'**
+  String get alertConditionGREATER_THAN;
+
+  /// No description provided for @alertConditionLESS_THAN.
+  ///
+  /// In en, this message translates to:
+  /// **'Less than'**
+  String get alertConditionLESS_THAN;
+
+  /// No description provided for @alertCrossMACD_ABOVE.
+  ///
+  /// In en, this message translates to:
+  /// **'MACD crosses above signal'**
+  String get alertCrossMACD_ABOVE;
+
+  /// No description provided for @alertCrossMACD_BELOW.
+  ///
+  /// In en, this message translates to:
+  /// **'MACD crosses below signal'**
+  String get alertCrossMACD_BELOW;
+
+  /// No description provided for @alertCrossEMA_ABOVE.
+  ///
+  /// In en, this message translates to:
+  /// **'EMA 20 crosses above EMA 50'**
+  String get alertCrossEMA_ABOVE;
+
+  /// No description provided for @alertCrossEMA_BELOW.
+  ///
+  /// In en, this message translates to:
+  /// **'EMA 20 crosses below EMA 50'**
+  String get alertCrossEMA_BELOW;
+
+  /// No description provided for @alertModeONCE.
+  ///
+  /// In en, this message translates to:
+  /// **'Once'**
+  String get alertModeONCE;
+
+  /// No description provided for @alertModeONCE_PER_BAR.
+  ///
+  /// In en, this message translates to:
+  /// **'Once per bar'**
+  String get alertModeONCE_PER_BAR;
+
+  /// No description provided for @alertModeEVERY_TIME.
+  ///
+  /// In en, this message translates to:
+  /// **'Every time'**
+  String get alertModeEVERY_TIME;
+
+  /// No description provided for @alertModeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Once stops after the first trigger; once per bar triggers at most once per candle (1h for price); every time waits for the cooldown.'**
+  String get alertModeHint;
+
+  /// No description provided for @alertPairField.
+  ///
+  /// In en, this message translates to:
+  /// **'Pair'**
+  String get alertPairField;
+
+  /// No description provided for @alertPairSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Search pair or coin'**
+  String get alertPairSearch;
+
+  /// No description provided for @alertAddsToWatchlist.
+  ///
+  /// In en, this message translates to:
+  /// **'This pair is added to your watchlist with the alert.'**
+  String get alertAddsToWatchlist;
+
+  /// No description provided for @alertMarketField.
+  ///
+  /// In en, this message translates to:
+  /// **'Market'**
+  String get alertMarketField;
+
+  /// No description provided for @alertTypeField.
+  ///
+  /// In en, this message translates to:
+  /// **'Alert type'**
+  String get alertTypeField;
+
+  /// No description provided for @alertIndicatorField.
+  ///
+  /// In en, this message translates to:
+  /// **'Indicator'**
+  String get alertIndicatorField;
+
+  /// No description provided for @alertTimeframeField.
+  ///
+  /// In en, this message translates to:
+  /// **'Timeframe'**
+  String get alertTimeframeField;
+
+  /// No description provided for @alertConditionField.
+  ///
+  /// In en, this message translates to:
+  /// **'Condition'**
+  String get alertConditionField;
+
+  /// No description provided for @alertPriceField.
+  ///
+  /// In en, this message translates to:
+  /// **'Target price'**
+  String get alertPriceField;
+
+  /// No description provided for @alertPriceHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Rounded to the pair’s tick size.'**
+  String get alertPriceHint;
+
+  /// No description provided for @alertRsiField.
+  ///
+  /// In en, this message translates to:
+  /// **'RSI level'**
+  String get alertRsiField;
+
+  /// No description provided for @alertPercentField.
+  ///
+  /// In en, this message translates to:
+  /// **'Change over 1 hour (%)'**
+  String get alertPercentField;
+
+  /// No description provided for @alertFundingField.
+  ///
+  /// In en, this message translates to:
+  /// **'Funding rate (%)'**
+  String get alertFundingField;
+
+  /// No description provided for @alertLastPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Last {price}'**
+  String alertLastPrice(String price);
+
+  /// No description provided for @alertMarkPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark {price}'**
+  String alertMarkPrice(String price);
+
+  /// No description provided for @alertTriggerField.
+  ///
+  /// In en, this message translates to:
+  /// **'Trigger'**
+  String get alertTriggerField;
+
+  /// No description provided for @alertCooldownField.
+  ///
+  /// In en, this message translates to:
+  /// **'Cooldown (minutes)'**
+  String get alertCooldownField;
+
+  /// No description provided for @alertChannelsField.
+  ///
+  /// In en, this message translates to:
+  /// **'Channels'**
+  String get alertChannelsField;
+
+  /// No description provided for @alertInApp.
+  ///
+  /// In en, this message translates to:
+  /// **'In-app (always on)'**
+  String get alertInApp;
+
+  /// No description provided for @alertEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get alertEmail;
+
+  /// No description provided for @alertPush.
+  ///
+  /// In en, this message translates to:
+  /// **'Push'**
+  String get alertPush;
+
+  /// No description provided for @alertExpiryField.
+  ///
+  /// In en, this message translates to:
+  /// **'Expiry'**
+  String get alertExpiryField;
+
+  /// No description provided for @alertExpiryDays.
+  ///
+  /// In en, this message translates to:
+  /// **'{days, plural, =1{1 day} other{{days} days}}'**
+  String alertExpiryDays(int days);
+
+  /// No description provided for @alertExpiryKeep.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep current'**
+  String get alertExpiryKeep;
+
+  /// No description provided for @alertSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save alert'**
+  String get alertSave;
+
+  /// No description provided for @alertNotListed.
+  ///
+  /// In en, this message translates to:
+  /// **'This pair is not listed on the selected market.'**
+  String get alertNotListed;
+
+  /// No description provided for @alertFuturesOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Funding rate and open interest alerts are on Futures only.'**
+  String get alertFuturesOnly;
+
+  /// No description provided for @alertErrPositive.
+  ///
+  /// In en, this message translates to:
+  /// **'{field} must be greater than 0.'**
+  String alertErrPositive(String field);
+
+  /// No description provided for @alertErrCooldown.
+  ///
+  /// In en, this message translates to:
+  /// **'{field} must be at least 1 minute.'**
+  String alertErrCooldown(String field);
+
+  /// No description provided for @alertErrExpiry.
+  ///
+  /// In en, this message translates to:
+  /// **'The expiry must be in the future and within 90 days.'**
+  String get alertErrExpiry;
+
+  /// No description provided for @alertErrNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'{field} must be a number.'**
+  String alertErrNumber(String field);
 }
 
 class _AppLocalizationsDelegate
