@@ -8,6 +8,7 @@ import '../../features/auth/presentation/admin_notice_screen.dart';
 import '../../features/auth/presentation/forgot_password_screen.dart';
 import '../../features/auth/presentation/login_screen.dart';
 import '../../features/auth/presentation/reset_password_screen.dart';
+import '../../features/home/presentation/home_screen.dart';
 import '../../features/market/presentation/markets_screen.dart';
 import '../../features/notifications/presentation/notification_bell.dart';
 import '../../features/notifications/presentation/notifications_screen.dart';
@@ -115,10 +116,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (_, _, shell) =>
             NotificationBanner(child: HomeShell(navigationShell: shell)),
         branches: [
-          branch(
-            Routes.home,
-            (l) => l.navHome,
-            actions: const [NotificationBell()],
+          StatefulShellBranch(
+            routes: [
+              GoRoute(path: Routes.home, builder: (_, _) => const HomeScreen()),
+            ],
           ),
           StatefulShellBranch(
             routes: [

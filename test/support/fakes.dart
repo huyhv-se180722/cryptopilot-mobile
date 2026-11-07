@@ -12,10 +12,16 @@ import 'package:cryptopilot_mobile/features/account/domain/profile.dart';
 import 'package:cryptopilot_mobile/features/alerts/data/alert_api.dart';
 import 'package:cryptopilot_mobile/features/alerts/domain/alert.dart';
 import 'package:cryptopilot_mobile/features/auth/data/auth_api.dart';
+import 'package:cryptopilot_mobile/features/journal/data/performance_api.dart';
+import 'package:cryptopilot_mobile/features/journal/domain/performance.dart';
 import 'package:cryptopilot_mobile/features/market/data/market_api.dart';
 import 'package:cryptopilot_mobile/features/market/domain/market.dart';
+import 'package:cryptopilot_mobile/features/news/data/news_api.dart';
+import 'package:cryptopilot_mobile/features/news/domain/news.dart';
 import 'package:cryptopilot_mobile/features/notifications/data/notification_api.dart';
 import 'package:cryptopilot_mobile/features/notifications/domain/notification.dart';
+import 'package:cryptopilot_mobile/features/plans/data/plan_api.dart';
+import 'package:cryptopilot_mobile/features/plans/domain/plan.dart';
 import 'package:cryptopilot_mobile/features/watchlist/data/watchlist_api.dart';
 import 'package:cryptopilot_mobile/features/watchlist/domain/watchlist.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
@@ -154,6 +160,9 @@ List<Override> baseOverrides({
   WatchlistApi? watchlist,
   AlertApi? alerts,
   NotificationApi? notifications,
+  PlanApi? plans,
+  NewsApi? news,
+  PerformanceApi? performance,
 }) => [
   tokenStoreProvider.overrideWithValue(store),
   authTokenApiProvider.overrideWithValue(tokens),
@@ -169,6 +178,9 @@ List<Override> baseOverrides({
   notificationApiProvider.overrideWithValue(
     notifications ?? FakeNotificationApi(),
   ),
+  planApiProvider.overrideWithValue(plans ?? FakePlanApi()),
+  newsApiProvider.overrideWithValue(news ?? FakeNewsApi()),
+  performanceApiProvider.overrideWithValue(performance ?? FakePerformanceApi()),
 ];
 
 class FakeWatchlistApi implements WatchlistApi {
@@ -526,5 +538,88 @@ class FakeNotificationApi implements NotificationApi {
     calls.add('read-all');
     items = [for (final n in items) n.asRead(now)];
     return 0;
+  }
+}
+
+PlanSummary planOf(
+  String id, {
+  String base = 'BTC',
+  Market market = Market.spot,
+  PlanDirection direction = PlanDirection.long,
+  PlanStatus status = PlanStatus.active,
+  PositionState? position,
+  int? leverage,
+}) => PlanSummary(
+  id: id,
+  pairId: 'pair-$base',
+  market: market,
+  direction: direction,
+  entryType: 'LIMIT',
+  entryPrice: '74000.000000000000',
+  stopLoss: '72000.000000000000',
+  takeProfit: '80000.000000000000',
+  leverage: leverage,
+  status: status,
+  positionState: position,
+  createdAt: now,
+);
+
+class FakePlanApi implements PlanApi {
+  List<PlanSummary> active = [planOf('p1')];
+  List<PlanSummary> executed = [
+    planOf(
+      'p2',
+      base: 'ETH',
+      status: PlanStatus.executed,
+      position: PositionState.open,
+    ),
+    planOf('p3', status: PlanStatus.executed, position: PositionState.closed),
+  ];
+  final List<String> calls = [];
+  Object? error;
+
+  @override
+  Future<PlanPage> list({PlanTab? tab, int page = 1, int pageSize = 20}) async {
+    calls.add('${tab?.wire} $pageSize');
+    if (error != null) throw error!;
+    final rows = tab == PlanTab.executed ? executed : active;
+    return PlanPage(items: rows.take(pageSize).toList(), total: rows.length);
+  }
+}
+
+class FakeNewsApi implements NewsApi {
+  List<NewsArticle> articles = [
+    NewsArticle(
+      id: 'a1',
+      title: 'Bitcoin holds above 75,000 as funding cools',
+      source: 'CoinDesk',
+      publishedAt: now.subtract(const Duration(hours: 2)),
+      sentiment: NewsSentiment.bullish,
+      coins: const ['BTC'],
+    ),
+  ];
+  Object? error;
+
+  @override
+  Future<List<NewsArticle>> latest({int pageSize = 3}) async {
+    if (error != null) throw error!;
+    return articles.take(pageSize).toList();
+  }
+}
+
+class FakePerformanceApi implements PerformanceApi {
+  PerformanceSummary summaryValue = const PerformanceSummary(
+    trades: 8,
+    wins: 5,
+    losses: 3,
+    winRate: '0.625000',
+    totalNetPnl: '-304.12000000',
+  );
+  Object? error;
+
+  @override
+  Future<PerformanceSummary> summary() async {
+    if (error != null) throw error!;
+    return summaryValue;
   }
 }

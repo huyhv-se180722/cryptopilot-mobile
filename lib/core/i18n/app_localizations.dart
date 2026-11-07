@@ -1485,6 +1485,216 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{n}d ago'**
   String notificationAgeDays(int n);
+
+  /// No description provided for @homeSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Search pairs'**
+  String get homeSearch;
+
+  /// No description provided for @homeSeeAll.
+  ///
+  /// In en, this message translates to:
+  /// **'See all'**
+  String get homeSeeAll;
+
+  /// No description provided for @homeWatchlist.
+  ///
+  /// In en, this message translates to:
+  /// **'Watchlist'**
+  String get homeWatchlist;
+
+  /// No description provided for @homeWatchlistEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No pairs watched yet.'**
+  String get homeWatchlistEmpty;
+
+  /// No description provided for @homePlans.
+  ///
+  /// In en, this message translates to:
+  /// **'Plans and positions'**
+  String get homePlans;
+
+  /// No description provided for @homePlansActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get homePlansActive;
+
+  /// No description provided for @homePlansActiveCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Active ({count})'**
+  String homePlansActiveCount(int count);
+
+  /// No description provided for @homePlansExecuted.
+  ///
+  /// In en, this message translates to:
+  /// **'Executed'**
+  String get homePlansExecuted;
+
+  /// No description provided for @homeOpenPositions.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No open positions} =1{1 open position} other{{count} open positions}}'**
+  String homeOpenPositions(int count);
+
+  /// No description provided for @homeOpenPositionsMore.
+  ///
+  /// In en, this message translates to:
+  /// **'{count}+ open positions'**
+  String homeOpenPositionsMore(int count);
+
+  /// No description provided for @homePlansEmptyActive.
+  ///
+  /// In en, this message translates to:
+  /// **'No active plans.'**
+  String get homePlansEmptyActive;
+
+  /// No description provided for @homePlansEmptyExecuted.
+  ///
+  /// In en, this message translates to:
+  /// **'No executed plans.'**
+  String get homePlansEmptyExecuted;
+
+  /// No description provided for @homeCreatePlanWeb.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a plan on the web'**
+  String get homeCreatePlanWeb;
+
+  /// No description provided for @homePlanLevels.
+  ///
+  /// In en, this message translates to:
+  /// **'Entry {entry} · SL {stop} · TP {target}'**
+  String homePlanLevels(String entry, String stop, String target);
+
+  /// No description provided for @homeDirectionLong.
+  ///
+  /// In en, this message translates to:
+  /// **'Long'**
+  String get homeDirectionLong;
+
+  /// No description provided for @homeDirectionShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Short'**
+  String get homeDirectionShort;
+
+  /// No description provided for @homePositionOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Position open'**
+  String get homePositionOpen;
+
+  /// No description provided for @homePositionClosed.
+  ///
+  /// In en, this message translates to:
+  /// **'Position closed'**
+  String get homePositionClosed;
+
+  /// No description provided for @planStatusDraft.
+  ///
+  /// In en, this message translates to:
+  /// **'Draft'**
+  String get planStatusDraft;
+
+  /// No description provided for @planStatusActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get planStatusActive;
+
+  /// No description provided for @planStatusExecuted.
+  ///
+  /// In en, this message translates to:
+  /// **'Executed'**
+  String get planStatusExecuted;
+
+  /// No description provided for @planStatusCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get planStatusCancelled;
+
+  /// No description provided for @planStatusExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'Expired'**
+  String get planStatusExpired;
+
+  /// No description provided for @planStatusInvalidated.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalidated'**
+  String get planStatusInvalidated;
+
+  /// No description provided for @homePerformance.
+  ///
+  /// In en, this message translates to:
+  /// **'Performance'**
+  String get homePerformance;
+
+  /// No description provided for @homePerformanceTrades.
+  ///
+  /// In en, this message translates to:
+  /// **'Trades'**
+  String get homePerformanceTrades;
+
+  /// No description provided for @homePerformanceWinRate.
+  ///
+  /// In en, this message translates to:
+  /// **'Win rate'**
+  String get homePerformanceWinRate;
+
+  /// No description provided for @homePerformanceNetPnl.
+  ///
+  /// In en, this message translates to:
+  /// **'Net P/L (USDT)'**
+  String get homePerformanceNetPnl;
+
+  /// No description provided for @homePerformanceEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No closed trades yet.'**
+  String get homePerformanceEmpty;
+
+  /// No description provided for @homePerformanceUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Performance is not available yet.'**
+  String get homePerformanceUnavailable;
+
+  /// No description provided for @homeNews.
+  ///
+  /// In en, this message translates to:
+  /// **'Latest news'**
+  String get homeNews;
+
+  /// No description provided for @homeNewsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No news in the last 7 days.'**
+  String get homeNewsEmpty;
+
+  /// No description provided for @newsBullish.
+  ///
+  /// In en, this message translates to:
+  /// **'Bullish'**
+  String get newsBullish;
+
+  /// No description provided for @newsNeutral.
+  ///
+  /// In en, this message translates to:
+  /// **'Neutral'**
+  String get newsNeutral;
+
+  /// No description provided for @newsBearish.
+  ///
+  /// In en, this message translates to:
+  /// **'Bearish'**
+  String get newsBearish;
 }
 
 class _AppLocalizationsDelegate

@@ -91,3 +91,22 @@ int compareDecimal(String? a, String? b) {
   }
   return x.compareTo(y);
 }
+
+/// An amount with its sign always shown ("+12.4" → "+12.40", "-7.0095" →
+/// "−7.01"), so a gain or a loss never relies on colour alone.
+String formatSignedDecimal(String? value, {int places = 2}) {
+  final parsed = value == null ? null : Decimal.tryParse(value.trim());
+  if (parsed == null) return '--';
+  final text = groupThousands(parsed.abs().toStringAsFixed(places));
+  final zero =
+      Decimal.parse(parsed.abs().toStringAsFixed(places)) == Decimal.zero;
+  if (zero) return text;
+  return '${parsed > Decimal.zero ? '+' : '−'}$text';
+}
+
+/// A fraction from 0 to 1 as a percent without sign ("0.625" → "62.5%").
+String formatRatioAsPercent(String? value, {int places = 1}) {
+  final parsed = value == null ? null : Decimal.tryParse(value.trim());
+  if (parsed == null) return '--';
+  return '${parsed.shift(2).toStringAsFixed(places)}%';
+}

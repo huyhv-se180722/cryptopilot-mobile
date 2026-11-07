@@ -490,5 +490,74 @@
         "type": "int"
       }
     }
-  }
+  },
+  "homeSearch": "Search pairs",
+  "homeSeeAll": "See all",
+  "homeWatchlist": "Watchlist",
+  "homeWatchlistEmpty": "No pairs watched yet.",
+  "homePlans": "Plans and positions",
+  "homePlansActive": "Active",
+  "homePlansActiveCount": "Active ({count})",
+  "@homePlansActiveCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "homePlansExecuted": "Executed",
+  "homeOpenPositions": "{count, plural, =0{No open positions} =1{1 open position} other{{count} open positions}}",
+  "@homeOpenPositions": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "homeOpenPositionsMore": "{count}+ open positions",
+  "@homeOpenPositionsMore": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "homePlansEmptyActive": "No active plans.",
+  "homePlansEmptyExecuted": "No executed plans.",
+  "homeCreatePlanWeb": "Create a plan on the web",
+  "homePlanLevels": "Entry {entry} · SL {stop} · TP {target}",
+  "@homePlanLevels": {
+    "placeholders": {
+      "entry": {
+        "type": "String"
+      },
+      "stop": {
+        "type": "String"
+      },
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "homeDirectionLong": "Long",
+  "homeDirectionShort": "Short",
+  "homePositionOpen": "Position open",
+  "homePositionClosed": "Position closed",
+  "planStatusDraft": "Draft",
+  "planStatusActive": "Active",
+  "planStatusExecuted": "Executed",
+  "planStatusCancelled": "Cancelled",
+  "planStatusExpired": "Expired",
+  "planStatusInvalidated": "Invalidated",
+  "homePerformance": "Performance",
+  "homePerformanceTrades": "Trades",
+  "homePerformanceWinRate": "Win rate",
+  "homePerformanceNetPnl": "Net P/L (USDT)",
+  "homePerformanceEmpty": "No closed trades yet.",
+  "homePerformanceUnavailable": "Performance is not available yet.",
+  "homeNews": "Latest news",
+  "homeNewsEmpty": "No news in the last 7 days.",
+  "newsBullish": "Bullish",
+  "newsNeutral": "Neutral",
+  "newsBearish": "Bearish"
 }

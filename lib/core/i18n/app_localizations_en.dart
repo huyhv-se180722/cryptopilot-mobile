@@ -817,4 +817,124 @@ class AppLocalizationsEn extends AppLocalizations {
   String notificationAgeDays(int n) {
     return '${n}d ago';
   }
+
+  @override
+  String get homeSearch => 'Search pairs';
+
+  @override
+  String get homeSeeAll => 'See all';
+
+  @override
+  String get homeWatchlist => 'Watchlist';
+
+  @override
+  String get homeWatchlistEmpty => 'No pairs watched yet.';
+
+  @override
+  String get homePlans => 'Plans and positions';
+
+  @override
+  String get homePlansActive => 'Active';
+
+  @override
+  String homePlansActiveCount(int count) {
+    return 'Active ($count)';
+  }
+
+  @override
+  String get homePlansExecuted => 'Executed';
+
+  @override
+  String homeOpenPositions(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count open positions',
+      one: '1 open position',
+      zero: 'No open positions',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String homeOpenPositionsMore(int count) {
+    return '$count+ open positions';
+  }
+
+  @override
+  String get homePlansEmptyActive => 'No active plans.';
+
+  @override
+  String get homePlansEmptyExecuted => 'No executed plans.';
+
+  @override
+  String get homeCreatePlanWeb => 'Create a plan on the web';
+
+  @override
+  String homePlanLevels(String entry, String stop, String target) {
+    return 'Entry $entry · SL $stop · TP $target';
+  }
+
+  @override
+  String get homeDirectionLong => 'Long';
+
+  @override
+  String get homeDirectionShort => 'Short';
+
+  @override
+  String get homePositionOpen => 'Position open';
+
+  @override
+  String get homePositionClosed => 'Position closed';
+
+  @override
+  String get planStatusDraft => 'Draft';
+
+  @override
+  String get planStatusActive => 'Active';
+
+  @override
+  String get planStatusExecuted => 'Executed';
+
+  @override
+  String get planStatusCancelled => 'Cancelled';
+
+  @override
+  String get planStatusExpired => 'Expired';
+
+  @override
+  String get planStatusInvalidated => 'Invalidated';
+
+  @override
+  String get homePerformance => 'Performance';
+
+  @override
+  String get homePerformanceTrades => 'Trades';
+
+  @override
+  String get homePerformanceWinRate => 'Win rate';
+
+  @override
+  String get homePerformanceNetPnl => 'Net P/L (USDT)';
+
+  @override
+  String get homePerformanceEmpty => 'No closed trades yet.';
+
+  @override
+  String get homePerformanceUnavailable => 'Performance is not available yet.';
+
+  @override
+  String get homeNews => 'Latest news';
+
+  @override
+  String get homeNewsEmpty => 'No news in the last 7 days.';
+
+  @override
+  String get newsBullish => 'Bullish';
+
+  @override
+  String get newsNeutral => 'Neutral';
+
+  @override
+  String get newsBearish => 'Bearish';
 }

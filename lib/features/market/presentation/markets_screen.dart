@@ -11,6 +11,25 @@ import '../domain/market.dart';
 import 'market_widgets.dart';
 import 'pair_sheet.dart';
 
+/// The segments of the Markets tab.
+enum MarketsSegment { watchlist, spot, futures }
+
+/// A request to show a segment, e.g. Home's "See all" of its watchlist; the
+/// Markets tab follows it and clears it.
+final marketsSegmentRequestProvider =
+    NotifierProvider<MarketsSegmentRequest, MarketsSegment?>(
+      MarketsSegmentRequest.new,
+    );
+
+class MarketsSegmentRequest extends Notifier<MarketsSegment?> {
+  @override
+  MarketsSegment? build() => null;
+
+  void request(MarketsSegment segment) => state = segment;
+
+  void clear() => state = null;
+}
+
 /// The Markets tab: Watchlist (SCR-12) first, as the exchanges put their
 /// favourites, then SCR-09 Spot and Futures.
 class MarketsScreen extends StatelessWidget {
@@ -56,15 +75,51 @@ class MarketsScreen extends StatelessWidget {
             ],
           ),
         ),
-        body: TabBarView(
-          children: [
-            watchlist ?? Center(child: Text(l.tabComingTitle)),
-            const MarketBoardView(market: Market.spot),
-            const MarketBoardView(market: Market.futures),
-          ],
+        body: _FollowSegmentRequests(
+          child: TabBarView(
+            children: [
+              watchlist ?? Center(child: Text(l.tabComingTitle)),
+              const MarketBoardView(market: Market.spot),
+              const MarketBoardView(market: Market.futures),
+            ],
+          ),
         ),
       ),
     );
+  }
+}
+
+class _FollowSegmentRequests extends ConsumerStatefulWidget {
+  const _FollowSegmentRequests({required this.child});
+
+  final Widget child;
+
+  @override
+  ConsumerState<_FollowSegmentRequests> createState() =>
+      _FollowSegmentRequestsState();
+}
+
+class _FollowSegmentRequestsState
+    extends ConsumerState<_FollowSegmentRequests> {
+  void _follow(MarketsSegment? segment) {
+    if (segment == null) return;
+    DefaultTabController.of(context).animateTo(segment.index);
+    ref.read(marketsSegmentRequestProvider.notifier).clear();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    // A request made before the tab was first built.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _follow(ref.read(marketsSegmentRequestProvider));
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    ref.listen(marketsSegmentRequestProvider, (_, next) => _follow(next));
+    return widget.child;
   }
 }
 
