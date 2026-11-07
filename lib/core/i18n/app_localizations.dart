@@ -952,6 +952,42 @@ abstract class AppLocalizations {
   /// **'Watching'**
   String get watchWatching;
 
+  /// No description provided for @watchReorder.
+  ///
+  /// In en, this message translates to:
+  /// **'Reorder'**
+  String get watchReorder;
+
+  /// No description provided for @watchReorderHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Drag ≡ to change the order'**
+  String get watchReorderHint;
+
+  /// No description provided for @watchReorderDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get watchReorderDone;
+
+  /// No description provided for @watchReorderHandle.
+  ///
+  /// In en, this message translates to:
+  /// **'Drag to reorder'**
+  String get watchReorderHandle;
+
+  /// No description provided for @watchMoveUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Move up'**
+  String get watchMoveUp;
+
+  /// No description provided for @watchMoveDown.
+  ///
+  /// In en, this message translates to:
+  /// **'Move down'**
+  String get watchMoveDown;
+
   /// No description provided for @alertsTitle.
   ///
   /// In en, this message translates to:

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cryptopilot_mobile/core/auth/token_store.dart';
 import 'package:cryptopilot_mobile/core/errors/api_failure.dart';
 import 'package:cryptopilot_mobile/core/format/decimal_format.dart';
@@ -285,6 +287,32 @@ void main() {
       await tester.tap(find.byKey(const Key('home-news-a1')));
       await tester.pump();
       expect(web.opened, ['/news/a1']);
+      await unmount(tester);
+    });
+
+    testWidgets('a block still reading shows its progress bar', (tester) async {
+      final gate = Completer<void>();
+      await pump(tester, setUp: () => plans.hold = gate.future);
+      await scrollTo(tester, find.byKey(const Key('home-plans')));
+      expect(
+        find.descendant(
+          of: find.byKey(const Key('home-plans')),
+          matching: find.byType(LinearProgressIndicator),
+        ),
+        findsWidgets,
+      );
+
+      gate.complete();
+      for (var i = 0; i < 4; i++) {
+        await tester.pump();
+      }
+      expect(
+        find.descendant(
+          of: find.byKey(const Key('home-plans')),
+          matching: find.byType(LinearProgressIndicator),
+        ),
+        findsNothing,
+      );
       await unmount(tester);
     });
 

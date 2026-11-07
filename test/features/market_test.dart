@@ -5,6 +5,7 @@ import 'package:cryptopilot_mobile/core/i18n/app_localizations.dart';
 import 'package:cryptopilot_mobile/core/theme/app_theme.dart';
 import 'package:cryptopilot_mobile/features/market/application/market_board.dart';
 import 'package:cryptopilot_mobile/features/market/domain/market.dart';
+import 'package:cryptopilot_mobile/features/market/presentation/market_widgets.dart';
 import 'package:cryptopilot_mobile/features/market/presentation/markets_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -249,6 +250,38 @@ void main() {
       expect(find.byType(BottomSheet), findsOneWidget);
       expect(find.text('24h high'), findsOneWidget);
       expect(find.text('Best bid'), findsOneWidget);
+      await unmount(tester);
+    });
+
+    testWidgets('the first read shows the list skeleton', (tester) async {
+      final gate = Completer<void>();
+      transport = FakeTransport();
+      api = FakeMarketApi()..hold = gate.future;
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: baseOverrides(
+            store: MemoryTokenStore(),
+            tokens: FakeAuthTokenApi(),
+            transport: transport,
+            market: api,
+          ),
+          retry: (_, _) => null,
+          child: const MaterialApp(
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: MarketsScreen(),
+          ),
+        ),
+      );
+      await tester.pump();
+      await tester.pump();
+      expect(find.byType(ListSkeleton), findsOneWidget);
+
+      gate.complete();
+      await tester.pump();
+      await tester.pump();
+      expect(find.byType(ListSkeleton), findsNothing);
+      expect(find.byKey(const Key('row-spot-BTCUSDT')), findsOneWidget);
       await unmount(tester);
     });
 

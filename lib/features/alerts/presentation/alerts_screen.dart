@@ -130,11 +130,40 @@ class _Filters extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context);
     final controller = ref.read(alertsControllerProvider.notifier);
+    // The type filter (SRS 3.4.3) leads the row so a 360 dp screen shows it
+    // without scrolling. Its entries are records: a popup treats a null value
+    // as "dismissed", so "All types" must not be a bare null.
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
       child: Row(
         children: [
+          Padding(
+            padding: const EdgeInsets.only(right: 8),
+            child: PopupMenuButton<({AlertType? type})>(
+              key: const Key('alert-filter-type'),
+              tooltip: l.alertTypeAll,
+              initialValue: (type: state.type),
+              onSelected: (choice) =>
+                  controller.setFilter(status: state.status, type: choice.type),
+              itemBuilder: (_) => [
+                PopupMenuItem(value: (type: null), child: Text(l.alertTypeAll)),
+                for (final type in AlertType.values)
+                  PopupMenuItem(
+                    value: (type: type),
+                    child: Text(typeLabel(l, type)),
+                  ),
+              ],
+              child: Chip(
+                avatar: const Icon(Icons.tune, size: 16),
+                label: Text(
+                  state.type == null
+                      ? l.alertTypeAll
+                      : typeLabel(l, state.type!),
+                ),
+              ),
+            ),
+          ),
           for (final status in <AlertStatus?>[null, ...AlertStatus.values])
             Padding(
               padding: const EdgeInsets.only(right: 8),
@@ -148,23 +177,6 @@ class _Filters extends ConsumerWidget {
                     controller.setFilter(status: status, type: state.type),
               ),
             ),
-          PopupMenuButton<AlertType?>(
-            key: const Key('alert-filter-type'),
-            initialValue: state.type,
-            onSelected: (type) =>
-                controller.setFilter(status: state.status, type: type),
-            itemBuilder: (_) => [
-              PopupMenuItem(value: null, child: Text(l.alertTypeAll)),
-              for (final type in AlertType.values)
-                PopupMenuItem(value: type, child: Text(typeLabel(l, type))),
-            ],
-            child: Chip(
-              avatar: const Icon(Icons.tune, size: 16),
-              label: Text(
-                state.type == null ? l.alertTypeAll : typeLabel(l, state.type!),
-              ),
-            ),
-          ),
         ],
       ),
     );

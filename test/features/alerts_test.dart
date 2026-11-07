@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cryptopilot_mobile/core/auth/token_store.dart';
 import 'package:cryptopilot_mobile/core/i18n/app_localizations.dart';
 import 'package:cryptopilot_mobile/core/i18n/app_localizations_en.dart';
@@ -9,6 +11,7 @@ import 'package:cryptopilot_mobile/features/alerts/presentation/alert_format.dar
 import 'package:cryptopilot_mobile/features/alerts/presentation/alert_sheet.dart';
 import 'package:cryptopilot_mobile/features/alerts/presentation/alerts_screen.dart';
 import 'package:cryptopilot_mobile/features/market/domain/market.dart';
+import 'package:cryptopilot_mobile/features/market/presentation/market_widgets.dart';
 import 'package:cryptopilot_mobile/features/market/presentation/markets_screen.dart';
 import 'package:cryptopilot_mobile/features/market/presentation/pair_sheet.dart';
 import 'package:cryptopilot_mobile/features/watchlist/domain/watchlist.dart';
@@ -358,9 +361,10 @@ void main() {
       List<Alert>? alerts,
       List<WatchItem>? watched,
       Brightness brightness = Brightness.light,
+      Future<void>? hold,
     }) async {
       transport = FakeTransport();
-      api = FakeAlertApi();
+      api = FakeAlertApi()..hold = hold;
       watchlist = FakeWatchlistApi();
       if (alerts != null) api.alerts = alerts;
       if (watched != null) watchlist.items = watched;
@@ -428,6 +432,42 @@ void main() {
       await tester.pump();
       await tester.pump();
       expect(find.text('No alerts match these filters.'), findsOneWidget);
+      await unmount(tester);
+    });
+
+    testWidgets('the type filter asks the server and All types clears it', (
+      tester,
+    ) async {
+      await pump(tester);
+      await tester.tap(find.byKey(const Key('alert-filter-type')));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+      await tester.tap(find.text('Indicator').last);
+      await tester.pump();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+
+      expect(api.calls.last, 'list null INDICATOR 1');
+      expect(find.text('Crosses above 68,000.00'), findsNothing);
+      expect(find.text('RSI (14) 4h · Less than 30'), findsOneWidget);
+      expect(
+        find.descendant(
+          of: find.byKey(const Key('alert-filter-type')),
+          matching: find.text('Indicator'),
+        ),
+        findsOneWidget,
+      );
+
+      await tester.tap(find.byKey(const Key('alert-filter-type')));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+      await tester.tap(find.text('All types').last);
+      await tester.pump();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+
+      expect(api.calls.last, 'list null null 1');
+      expect(find.text('Crosses above 68,000.00'), findsOneWidget);
       await unmount(tester);
     });
 
@@ -556,6 +596,19 @@ void main() {
       await unmount(tester);
     });
 
+    testWidgets('the first read shows the list skeleton', (tester) async {
+      final gate = Completer<void>();
+      await pump(tester, hold: gate.future);
+      expect(find.byType(ListSkeleton), findsOneWidget);
+
+      gate.complete();
+      await tester.pump();
+      await tester.pump();
+      expect(find.byType(ListSkeleton), findsNothing);
+      expect(find.byKey(const Key('alert-row-a1')), findsOneWidget);
+      await unmount(tester);
+    });
+
     testWidgets('nothing yet offers to create one', (tester) async {
       await pump(tester, alerts: []);
       expect(find.text('No alerts yet.'), findsOneWidget);
@@ -591,6 +644,11 @@ void main() {
           ],
         );
         expect(tester.takeException(), isNull);
+        // The type filter leads the row, inside the 360 dp screen.
+        expect(
+          tester.getRect(find.byKey(const Key('alert-filter-type'))).right,
+          lessThanOrEqualTo(360),
+        );
         await tester.tap(find.byKey(const Key('alert-row-a1')));
         await tester.pump();
         await tester.pump(const Duration(milliseconds: 400));

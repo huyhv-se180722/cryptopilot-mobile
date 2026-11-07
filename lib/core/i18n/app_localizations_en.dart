@@ -499,6 +499,24 @@ class AppLocalizationsEn extends AppLocalizations {
   String get watchWatching => 'Watching';
 
   @override
+  String get watchReorder => 'Reorder';
+
+  @override
+  String get watchReorderHint => 'Drag ≡ to change the order';
+
+  @override
+  String get watchReorderDone => 'Done';
+
+  @override
+  String get watchReorderHandle => 'Drag to reorder';
+
+  @override
+  String get watchMoveUp => 'Move up';
+
+  @override
+  String get watchMoveDown => 'Move down';
+
+  @override
   String get alertsTitle => 'Alerts';
 
   @override

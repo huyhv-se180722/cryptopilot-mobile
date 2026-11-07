@@ -194,8 +194,35 @@ class FakeWatchlistApi implements WatchlistApi {
   final List<String> added = [];
   Object? addError;
 
+  /// Every PATCH, e.g. `watch-SOL sortOrder=0` or `watch-BTC label=A note=`.
+  final List<String> updates = [];
+  Object? updateError;
+
+  /// Next `list()` throws this once (then reads normally).
+  Object? listError;
+
+  /// While set, `list()` waits for it (the loading state).
+  Future<void>? hold;
+
+  /// As the backend: by `sortOrder`, rows on the same position in the order
+  /// they were added ([items] keeps that order).
   @override
-  Future<Watchlist> list() async => Watchlist(items: [...items], limit: limit);
+  Future<Watchlist> list() async {
+    if (hold case final gate?) await gate;
+    if (listError case final error?) {
+      listError = null;
+      throw error;
+    }
+    final indexed = [for (var i = 0; i < items.length; i++) (i, items[i])]
+      ..sort((a, b) {
+        final bySort = a.$2.sortOrder.compareTo(b.$2.sortOrder);
+        return bySort != 0 ? bySort : a.$1.compareTo(b.$1);
+      });
+    return Watchlist(
+      items: [for (final (_, item) in indexed) item],
+      limit: limit,
+    );
+  }
 
   @override
   Future<WatchItem> add(String pairId) async {
@@ -206,9 +233,43 @@ class FakeWatchlistApi implements WatchlistApi {
     return item;
   }
 
+  /// Changes only the row it names, as the backend's `moveTo`.
   @override
-  Future<WatchItem> update(String id, {String? label, String? note}) async =>
-      items.firstWhere((item) => item.id == id);
+  Future<WatchItem> update(
+    String id, {
+    String? label,
+    String? note,
+    int? sortOrder,
+  }) async {
+    updates.add(
+      [
+        id,
+        if (label != null) 'label=$label',
+        if (note != null) 'note=$note',
+        if (sortOrder != null) 'sortOrder=$sortOrder',
+      ].join(' '),
+    );
+    if (updateError case final error?) throw error;
+    late WatchItem changed;
+    items = [
+      for (final item in items)
+        if (item.id == id)
+          changed = WatchItem(
+            id: item.id,
+            pairId: item.pairId,
+            symbol: item.symbol,
+            spotListed: item.spotListed,
+            futuresListed: item.futuresListed,
+            label: label == null ? item.label : (label.isEmpty ? null : label),
+            note: note == null ? item.note : (note.isEmpty ? null : note),
+            sortOrder: sortOrder ?? item.sortOrder,
+            activeAlerts: item.activeAlerts,
+          )
+        else
+          item,
+    ];
+    return changed;
+  }
 
   @override
   Future<void> remove(
@@ -263,8 +324,12 @@ class FakeMarketApi implements MarketApi {
   final List<String> statsCalls = [];
   Object? pairsError;
 
+  /// While set, `pairs()` waits for it (the loading state).
+  Future<void>? hold;
+
   @override
   Future<List<MarketPair>> pairs(Market market) async {
+    if (hold case final gate?) await gate;
     if (pairsError != null) throw pairsError!;
     return pairsBy[market]!;
   }
@@ -351,6 +416,9 @@ class FakeAlertApi implements AlertApi {
   Object? createError;
   Object? resumeError;
 
+  /// While set, `list()` waits for it (the loading state).
+  Future<void>? hold;
+
   @override
   Future<AlertPage> list({
     AlertStatus? status,
@@ -358,6 +426,7 @@ class FakeAlertApi implements AlertApi {
     int page = 1,
     int pageSize = 20,
   }) async {
+    if (hold case final gate?) await gate;
     calls.add('list ${status?.wire} ${type?.wire} $page');
     final matching = [
       for (final alert in alerts)
@@ -496,6 +565,9 @@ class FakeNotificationApi implements NotificationApi {
   Object? listError;
   Object? readError;
 
+  /// While set, `list()` waits for it (the loading state).
+  Future<void>? hold;
+
   int get _unread => items.where((n) => !n.read).length;
 
   @override
@@ -505,6 +577,7 @@ class FakeNotificationApi implements NotificationApi {
     int pageSize = 20,
   }) async {
     calls.add('list $unreadOnly $page');
+    if (hold case final gate?) await gate;
     if (listError != null) throw listError!;
     final matching = [
       for (final n in items)
@@ -578,9 +651,13 @@ class FakePlanApi implements PlanApi {
   final List<String> calls = [];
   Object? error;
 
+  /// While set, `list()` waits for it (the loading state).
+  Future<void>? hold;
+
   @override
   Future<PlanPage> list({PlanTab? tab, int page = 1, int pageSize = 20}) async {
     calls.add('${tab?.wire} $pageSize');
+    if (hold case final gate?) await gate;
     if (error != null) throw error!;
     final rows = tab == PlanTab.executed ? executed : active;
     return PlanPage(items: rows.take(pageSize).toList(), total: rows.length);

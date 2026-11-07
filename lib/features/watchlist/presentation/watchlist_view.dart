@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/errors/api_failure.dart';
@@ -48,19 +51,43 @@ final watchRowActionsProvider = Provider<WatchRowActionsBuilder?>(
 
 /// SCR-12 on the Markets tab: groups by label, live price and change from the
 /// market boards, the setup score of the Trader's preset and the number of
-/// active alerts. Swipe left removes (MSG26 when alerts go with it).
-class WatchlistView extends ConsumerWidget {
+/// active alerts. Swipe left removes (MSG26 when alerts go with it); "Reorder"
+/// lets the Trader drag rows inside their label group (SRS 3.4.1).
+class WatchlistView extends ConsumerStatefulWidget {
   const WatchlistView({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<WatchlistView> createState() => _WatchlistViewState();
+}
+
+class _WatchlistViewState extends ConsumerState<WatchlistView> {
+  bool _reorder = false;
+
+  Future<void> _move(int group, int from, int to) async {
+    final l = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      await ref
+          .read(watchlistControllerProvider.notifier)
+          .reorder(group, from, to);
+    } on ApiFailure catch (failure) {
+      messenger.showSnackBar(SnackBar(content: Text(failureText(l, failure))));
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     final state = ref.watch(watchlistControllerProvider);
     final controller = ref.read(watchlistControllerProvider.notifier);
     final watchlist = state.watchlist;
+    final canReorder = watchlist != null && watchlist.items.length >= 2;
+    final reorder = _reorder && canReorder;
 
     Widget body;
-    if (watchlist == null && state.failure != null) {
+    if (reorder) {
+      body = _ReorderList(state: state, onMove: _move);
+    } else if (watchlist == null && state.failure != null) {
       body = _Centered(
         icon: Icons.cloud_off,
         title: failureText(l, state.failure!),
@@ -109,9 +136,28 @@ class WatchlistView extends ConsumerWidget {
     return Scaffold(
       body: Column(
         children: [
-          if (watchlist != null && watchlist.items.isNotEmpty)
+          if (reorder)
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+              padding: const EdgeInsets.fromLTRB(16, 4, 4, 0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      l.watchReorderHint,
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  ),
+                  TextButton(
+                    key: const Key('watch-reorder-done'),
+                    onPressed: () => setState(() => _reorder = false),
+                    child: Text(l.watchReorderDone),
+                  ),
+                ],
+              ),
+            )
+          else if (watchlist != null && watchlist.items.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 4, 4, 0),
               child: Row(
                 children: [
                   Text(
@@ -126,15 +172,28 @@ class WatchlistView extends ConsumerWidget {
                       marketBoardProvider(Market.spot).select((s) => s.delayed),
                     ),
                   ),
+                  if (canReorder)
+                    IconButton(
+                      key: const Key('watch-reorder'),
+                      tooltip: l.watchReorder,
+                      icon: const Icon(Icons.swap_vert),
+                      onPressed: () => setState(() => _reorder = true),
+                    )
+                  else
+                    const SizedBox(width: 12),
                 ],
               ),
             ),
+          if (state.saving) const LinearProgressIndicator(minHeight: 2),
           Expanded(
-            child: RefreshIndicator(onRefresh: controller.load, child: body),
+            child: reorder
+                ? body
+                : RefreshIndicator(onRefresh: controller.load, child: body),
           ),
         ],
       ),
-      floatingActionButton: watchlist != null && watchlist.items.isNotEmpty
+      floatingActionButton:
+          !reorder && watchlist != null && watchlist.items.isNotEmpty
           ? FloatingActionButton.extended(
               key: const Key('add-pair'),
               onPressed: () => showAddPairSheet(context),
@@ -142,6 +201,110 @@ class WatchlistView extends ConsumerWidget {
               label: Text(l.watchAddPair),
             )
           : null,
+    );
+  }
+}
+
+/// The reorder mode of SCR-12: each label group is its own list, so a row
+/// moves only inside its group (another group means another label: "Edit").
+/// Prices, menu, swipe and the add button are hidden; each row offers a drag
+/// handle and, for screen readers, "Move up" / "Move down".
+class _ReorderList extends ConsumerWidget {
+  const _ReorderList({required this.state, required this.onMove});
+
+  final WatchlistState state;
+  final Future<void> Function(int group, int from, int to) onMove;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context);
+    final text = Theme.of(context).textTheme;
+    final groups = state.groups;
+    return CustomScrollView(
+      key: const Key('watch-reorder-list'),
+      slivers: [
+        for (var g = 0; g < groups.length; g++) ...[
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
+              child: Text(
+                (groups[g].$1 ?? l.watchUnlabelled).toUpperCase(),
+                style: text.labelSmall?.copyWith(
+                  color: context.cp.muted,
+                  letterSpacing: 0.8,
+                ),
+              ),
+            ),
+          ),
+          SliverReorderableList(
+            itemCount: groups[g].$2.length,
+            // [to] is already counted after the row leaves its place.
+            onReorderItem: (from, to) => unawaited(onMove(g, from, to)),
+            itemBuilder: (context, i) {
+              final item = groups[g].$2[i];
+              final last = groups[g].$2.length - 1;
+              final pair = pairFor(ref, item);
+              return Semantics(
+                key: ValueKey('reorder-${item.id}'),
+                customSemanticsActions: {
+                  if (i > 0)
+                    CustomSemanticsAction(label: l.watchMoveUp): () =>
+                        unawaited(onMove(g, i, i - 1)),
+                  if (i < last)
+                    CustomSemanticsAction(label: l.watchMoveDown): () =>
+                        unawaited(onMove(g, i, i + 1)),
+                },
+                child: Material(
+                  color: Theme.of(context).colorScheme.surface,
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 4, 4, 4),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Text.rich(
+                            TextSpan(
+                              children: [
+                                TextSpan(
+                                  text: pair?.baseAsset ?? item.symbol,
+                                  style: text.titleSmall?.copyWith(
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                                if (pair != null)
+                                  TextSpan(
+                                    text: '/${pair.quoteAsset}',
+                                    style: text.bodySmall?.copyWith(
+                                      color: context.cp.muted,
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        ReorderableDragStartListener(
+                          index: i,
+                          enabled: !state.saving,
+                          child: Tooltip(
+                            message: l.watchReorderHandle,
+                            child: SizedBox.square(
+                              key: Key('watch-drag-${item.symbol}'),
+                              dimension: 48,
+                              child: Icon(
+                                Icons.drag_handle,
+                                color: state.saving ? context.cp.muted : null,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        ],
+      ],
     );
   }
 }

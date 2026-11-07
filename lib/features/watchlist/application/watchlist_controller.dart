@@ -10,10 +10,18 @@ import '../domain/watchlist.dart';
 
 @immutable
 class WatchlistState {
-  const WatchlistState({this.watchlist, this.failure, this.scores = const {}});
+  const WatchlistState({
+    this.watchlist,
+    this.failure,
+    this.scores = const {},
+    this.saving = false,
+  });
 
   final Watchlist? watchlist;
   final ApiFailure? failure;
+
+  /// A new order is being written ([WatchlistController.reorder]).
+  final bool saving;
 
   /// By symbol; read once per load (≤ 4 at a time, as the web).
   final Map<String, SetupScore?> scores;
@@ -45,10 +53,12 @@ class WatchlistState {
     ApiFailure? failure,
     bool clearFailure = false,
     Map<String, SetupScore?>? scores,
+    bool? saving,
   }) => WatchlistState(
     watchlist: watchlist ?? this.watchlist,
     failure: clearFailure ? null : failure ?? this.failure,
     scores: scores ?? this.scores,
+    saving: saving ?? this.saving,
   );
 }
 
@@ -137,6 +147,45 @@ class WatchlistController extends Notifier<WatchlistState> {
     required String note,
   }) async {
     await _api.update(item.id, label: label.trim(), note: note.trim());
+    await load();
+  }
+
+  /// SRS 3.4.1 "drag to reorder": moves the row at [from] of label group
+  /// [group] to [to] (both counted in the group, [to] after the removal).
+  ///
+  /// The new order shows at once. The server moves one row per request and
+  /// leaves the others where they are, so the whole list, in the order shown,
+  /// is numbered 0…n-1 and only the rows whose number changes are sent, one
+  /// after the other; the list is then read again. On a failure the server's
+  /// order comes back and the [ApiFailure] is rethrown for the screen to show.
+  Future<void> reorder(int group, int from, int to) async {
+    final watchlist = state.watchlist;
+    final groups = state.groups;
+    if (watchlist == null || state.saving || group >= groups.length) return;
+    final moved = [...groups[group].$2];
+    if (from == to || from >= moved.length || to >= moved.length) return;
+    moved.insert(to, moved.removeAt(from));
+    final ordered = [
+      for (var g = 0; g < groups.length; g++)
+        ...(g == group ? moved : groups[g].$2),
+    ];
+    state = state.copyWith(
+      watchlist: Watchlist(items: ordered, limit: watchlist.limit),
+      saving: true,
+    );
+    try {
+      for (var i = 0; i < ordered.length; i++) {
+        if (ordered[i].sortOrder != i) {
+          await _api.update(ordered[i].id, sortOrder: i);
+          if (!ref.mounted) return;
+        }
+      }
+    } on ApiFailure {
+      await load();
+      rethrow;
+    } finally {
+      if (ref.mounted) state = state.copyWith(saving: false);
+    }
     await load();
   }
 
