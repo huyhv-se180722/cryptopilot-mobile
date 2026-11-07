@@ -1407,6 +1407,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{field} must be a number.'**
   String alertErrNumber(String field);
+
+  /// No description provided for @notificationsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get notificationsTitle;
+
+  /// No description provided for @notificationsAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get notificationsAll;
+
+  /// No description provided for @notificationsUnread.
+  ///
+  /// In en, this message translates to:
+  /// **'Unread'**
+  String get notificationsUnread;
+
+  /// No description provided for @notificationsMarkAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark all as read'**
+  String get notificationsMarkAll;
+
+  /// No description provided for @notificationsAllRead.
+  ///
+  /// In en, this message translates to:
+  /// **'All notifications marked as read.'**
+  String get notificationsAllRead;
+
+  /// No description provided for @notificationsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No notifications yet.'**
+  String get notificationsEmpty;
+
+  /// No description provided for @notificationsEmptyUnread.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re all caught up.'**
+  String get notificationsEmptyUnread;
+
+  /// No description provided for @notificationsView.
+  ///
+  /// In en, this message translates to:
+  /// **'View'**
+  String get notificationsView;
+
+  /// No description provided for @notificationsUnreadCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 unread notification} other{{count} unread notifications}}'**
+  String notificationsUnreadCount(int count);
+
+  /// No description provided for @notificationAgeNow.
+  ///
+  /// In en, this message translates to:
+  /// **'now'**
+  String get notificationAgeNow;
+
+  /// No description provided for @notificationAgeMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{n}m ago'**
+  String notificationAgeMinutes(int n);
+
+  /// No description provided for @notificationAgeHours.
+  ///
+  /// In en, this message translates to:
+  /// **'{n}h ago'**
+  String notificationAgeHours(int n);
+
+  /// No description provided for @notificationAgeDays.
+  ///
+  /// In en, this message translates to:
+  /// **'{n}d ago'**
+  String notificationAgeDays(int n);
 }
 
 class _AppLocalizationsDelegate

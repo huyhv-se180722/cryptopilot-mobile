@@ -449,5 +449,46 @@
         "type": "String"
       }
     }
+  },
+  "notificationsTitle": "Notifications",
+  "notificationsAll": "All",
+  "notificationsUnread": "Unread",
+  "notificationsMarkAll": "Mark all as read",
+  "notificationsAllRead": "All notifications marked as read.",
+  "notificationsEmpty": "No notifications yet.",
+  "notificationsEmptyUnread": "You're all caught up.",
+  "notificationsView": "View",
+  "notificationsUnreadCount": "{count, plural, =1{1 unread notification} other{{count} unread notifications}}",
+  "@notificationsUnreadCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "notificationAgeNow": "now",
+  "notificationAgeMinutes": "{n}m ago",
+  "@notificationAgeMinutes": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "notificationAgeHours": "{n}h ago",
+  "@notificationAgeHours": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "notificationAgeDays": "{n}d ago",
+  "@notificationAgeDays": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
   }
 }

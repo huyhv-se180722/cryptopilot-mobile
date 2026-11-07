@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'app.dart';
+import 'features/alerts/application/alerts_controller.dart';
 import 'features/alerts/presentation/alert_sheet.dart';
 import 'features/market/presentation/pair_sheet.dart';
+import 'features/notifications/application/notifications_controller.dart';
+import 'features/notifications/domain/notification.dart';
 import 'features/watchlist/presentation/watchlist_view.dart';
 
 void main() {
@@ -32,6 +35,13 @@ void main() {
             ),
           ],
         ),
+        notificationHooksProvider.overrideWithValue([
+          (ref, arrived) {
+            if (arrived.type == NotificationType.alert) {
+              ref.read(alertsControllerProvider.notifier).triggered();
+            }
+          },
+        ]),
       ],
       child: const CryptoPilotApp(),
     ),

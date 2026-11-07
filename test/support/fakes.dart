@@ -14,6 +14,8 @@ import 'package:cryptopilot_mobile/features/alerts/domain/alert.dart';
 import 'package:cryptopilot_mobile/features/auth/data/auth_api.dart';
 import 'package:cryptopilot_mobile/features/market/data/market_api.dart';
 import 'package:cryptopilot_mobile/features/market/domain/market.dart';
+import 'package:cryptopilot_mobile/features/notifications/data/notification_api.dart';
+import 'package:cryptopilot_mobile/features/notifications/domain/notification.dart';
 import 'package:cryptopilot_mobile/features/watchlist/data/watchlist_api.dart';
 import 'package:cryptopilot_mobile/features/watchlist/domain/watchlist.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
@@ -151,6 +153,7 @@ List<Override> baseOverrides({
   MarketApi? market,
   WatchlistApi? watchlist,
   AlertApi? alerts,
+  NotificationApi? notifications,
 }) => [
   tokenStoreProvider.overrideWithValue(store),
   authTokenApiProvider.overrideWithValue(tokens),
@@ -163,6 +166,9 @@ List<Override> baseOverrides({
   marketApiProvider.overrideWithValue(market ?? FakeMarketApi()),
   watchlistApiProvider.overrideWithValue(watchlist ?? FakeWatchlistApi()),
   alertApiProvider.overrideWithValue(alerts ?? FakeAlertApi()),
+  notificationApiProvider.overrideWithValue(
+    notifications ?? FakeNotificationApi(),
+  ),
 ];
 
 class FakeWatchlistApi implements WatchlistApi {
@@ -414,5 +420,111 @@ class FakeAlertApi implements AlertApi {
     calls.add('resume $id');
     if (resumeError != null) throw resumeError!;
     return _with(id, AlertStatus.active);
+  }
+}
+
+/// A notification as the backend writes it; [minutesAgo] before [now].
+AppNotification notificationOf(
+  String id, {
+  NotificationType type = NotificationType.alert,
+  NotificationReference? reference = NotificationReference.alert,
+  String? referenceId = 'alert-1',
+  bool read = false,
+  int minutesAgo = 5,
+  String title = 'Alert triggered',
+  String content = 'BTCUSDT: Greater than 72,162.67 (75,958.20)',
+}) => AppNotification(
+  id: id,
+  type: type,
+  title: title,
+  content: content,
+  referenceType: reference,
+  referenceId: referenceId,
+  read: read,
+  createdAt: now.subtract(Duration(minutes: minutesAgo)),
+);
+
+/// The JSON of [notification], as pushed on `/user/queue/notifications`.
+Map<String, Object?> notificationJson(AppNotification notification) => {
+  'id': notification.id,
+  'type': notification.type.wire,
+  'title': notification.title,
+  'content': notification.content,
+  'referenceType': notification.referenceType?.wire,
+  'referenceId': notification.referenceId,
+  'read': notification.read,
+  'readAt': null,
+  'createdAt': notification.createdAt.toIso8601String(),
+};
+
+class FakeNotificationApi implements NotificationApi {
+  List<AppNotification> items = [
+    notificationOf('n1'),
+    notificationOf(
+      'n2',
+      type: NotificationType.plan,
+      reference: NotificationReference.plan,
+      referenceId: 'plan-7',
+      title: 'Entry filled',
+      content: 'Your plan on ETHUSDT entered at 2,243.00.',
+      minutesAgo: 90,
+    ),
+    notificationOf(
+      'n3',
+      type: NotificationType.system,
+      reference: null,
+      referenceId: null,
+      title: 'Welcome',
+      content: 'Your account is ready.',
+      read: true,
+      minutesAgo: 60 * 24 * 10,
+    ),
+  ];
+  final List<String> calls = [];
+  Object? listError;
+  Object? readError;
+
+  int get _unread => items.where((n) => !n.read).length;
+
+  @override
+  Future<NotificationPage> list({
+    bool unreadOnly = false,
+    int page = 1,
+    int pageSize = 20,
+  }) async {
+    calls.add('list $unreadOnly $page');
+    if (listError != null) throw listError!;
+    final matching = [
+      for (final n in items)
+        if (!unreadOnly || !n.read) n,
+    ];
+    return NotificationPage(
+      items: matching.skip((page - 1) * pageSize).take(pageSize).toList(),
+      page: page,
+      pageSize: pageSize,
+      total: matching.length,
+    );
+  }
+
+  @override
+  Future<int> unreadCount() async {
+    calls.add('count');
+    return _unread;
+  }
+
+  @override
+  Future<AppNotification> markRead(String id) async {
+    calls.add('read $id');
+    if (readError != null) throw readError!;
+    final read = items.firstWhere((n) => n.id == id).asRead(now);
+    items = [for (final n in items) n.id == id ? read : n];
+    return read;
+  }
+
+  @override
+  Future<int> markAllRead() async {
+    calls.add('read-all');
+    items = [for (final n in items) n.asRead(now)];
+    return 0;
   }
 }

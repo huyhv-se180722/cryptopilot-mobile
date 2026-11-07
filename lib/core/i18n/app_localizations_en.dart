@@ -764,4 +764,57 @@ class AppLocalizationsEn extends AppLocalizations {
   String alertErrNumber(String field) {
     return '$field must be a number.';
   }
+
+  @override
+  String get notificationsTitle => 'Notifications';
+
+  @override
+  String get notificationsAll => 'All';
+
+  @override
+  String get notificationsUnread => 'Unread';
+
+  @override
+  String get notificationsMarkAll => 'Mark all as read';
+
+  @override
+  String get notificationsAllRead => 'All notifications marked as read.';
+
+  @override
+  String get notificationsEmpty => 'No notifications yet.';
+
+  @override
+  String get notificationsEmptyUnread => 'You\'re all caught up.';
+
+  @override
+  String get notificationsView => 'View';
+
+  @override
+  String notificationsUnreadCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count unread notifications',
+      one: '1 unread notification',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get notificationAgeNow => 'now';
+
+  @override
+  String notificationAgeMinutes(int n) {
+    return '${n}m ago';
+  }
+
+  @override
+  String notificationAgeHours(int n) {
+    return '${n}h ago';
+  }
+
+  @override
+  String notificationAgeDays(int n) {
+    return '${n}d ago';
+  }
 }

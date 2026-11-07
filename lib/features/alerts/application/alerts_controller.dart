@@ -174,6 +174,10 @@ class AlertsController extends Notifier<AlertsState> {
     await _changed();
   }
 
+  /// An alert fired (an ALERT notification arrived): its status, count and
+  /// last trigger changed, and a ONCE alert left the active count.
+  Future<void> triggered() => _changed();
+
   Future<void> _changed() async {
     // Only reload what someone already looked at.
     final reloads = [

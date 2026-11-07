@@ -50,9 +50,12 @@ class HomeShell extends StatelessWidget {
 
 /// A tab whose screens arrive with T-089…T-091. It says so and shows no data.
 class PendingTab extends StatelessWidget {
-  const PendingTab({required this.title, super.key});
+  const PendingTab({required this.title, this.actions = const [], super.key});
 
   final String title;
+
+  /// Header actions other features add (the bell), composed by the router.
+  final List<Widget> actions;
 
   @override
   Widget build(BuildContext context) {
@@ -62,6 +65,7 @@ class PendingTab extends StatelessWidget {
       appBar: AppBar(
         title: Text(title),
         actions: [
+          ...actions,
           IconButton(
             key: const Key('open-account'),
             tooltip: l.navAccount,

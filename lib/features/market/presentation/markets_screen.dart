@@ -14,10 +14,13 @@ import 'pair_sheet.dart';
 /// The Markets tab: Watchlist (SCR-12) first, as the exchanges put their
 /// favourites, then SCR-09 Spot and Futures.
 class MarketsScreen extends StatelessWidget {
-  const MarketsScreen({this.watchlist, super.key});
+  const MarketsScreen({this.watchlist, this.actions = const [], super.key});
 
   /// The watchlist segment; filled by T-089 slice 3.
   final Widget? watchlist;
+
+  /// Header actions other features add (the bell), composed by the router.
+  final List<Widget> actions;
 
   @override
   Widget build(BuildContext context) {
@@ -35,6 +38,7 @@ class MarketsScreen extends StatelessWidget {
               icon: const Icon(Icons.alarm),
               onPressed: () => context.push('/alerts'),
             ),
+            ...actions,
             IconButton(
               key: const Key('open-account'),
               tooltip: l.navAccount,
