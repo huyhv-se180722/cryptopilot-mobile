@@ -796,11 +796,245 @@ abstract class AppLocalizations {
   /// **'Next funding in'**
   String get marketNextFunding;
 
-  /// No description provided for @marketAnalysisNext.
+  /// No description provided for @analysisPairGone.
   ///
   /// In en, this message translates to:
-  /// **'Charts, indicators and the setup score arrive in the next build.'**
-  String get marketAnalysisNext;
+  /// **'This pair is no longer available.'**
+  String get analysisPairGone;
+
+  /// No description provided for @analysisDayRange.
+  ///
+  /// In en, this message translates to:
+  /// **'H {high} · L {low} · Vol {volume}'**
+  String analysisDayRange(String high, String low, String volume);
+
+  /// No description provided for @analysisIndicators.
+  ///
+  /// In en, this message translates to:
+  /// **'Indicators'**
+  String get analysisIndicators;
+
+  /// No description provided for @analysisOverlays.
+  ///
+  /// In en, this message translates to:
+  /// **'Overlays'**
+  String get analysisOverlays;
+
+  /// No description provided for @analysisPanels.
+  ///
+  /// In en, this message translates to:
+  /// **'Panels'**
+  String get analysisPanels;
+
+  /// No description provided for @indicatorSma20.
+  ///
+  /// In en, this message translates to:
+  /// **'SMA 20'**
+  String get indicatorSma20;
+
+  /// No description provided for @indicatorEma20.
+  ///
+  /// In en, this message translates to:
+  /// **'EMA 20'**
+  String get indicatorEma20;
+
+  /// No description provided for @indicatorEma50.
+  ///
+  /// In en, this message translates to:
+  /// **'EMA 50'**
+  String get indicatorEma50;
+
+  /// No description provided for @indicatorEma200.
+  ///
+  /// In en, this message translates to:
+  /// **'EMA 200'**
+  String get indicatorEma200;
+
+  /// No description provided for @indicatorBollinger.
+  ///
+  /// In en, this message translates to:
+  /// **'Bollinger Bands (20, 2)'**
+  String get indicatorBollinger;
+
+  /// No description provided for @indicatorVolume.
+  ///
+  /// In en, this message translates to:
+  /// **'Volume with Volume SMA 20'**
+  String get indicatorVolume;
+
+  /// No description provided for @indicatorRsi.
+  ///
+  /// In en, this message translates to:
+  /// **'RSI 14'**
+  String get indicatorRsi;
+
+  /// No description provided for @indicatorMacd.
+  ///
+  /// In en, this message translates to:
+  /// **'MACD (12, 26, 9)'**
+  String get indicatorMacd;
+
+  /// No description provided for @analysisSupport.
+  ///
+  /// In en, this message translates to:
+  /// **'Support'**
+  String get analysisSupport;
+
+  /// No description provided for @analysisResistance.
+  ///
+  /// In en, this message translates to:
+  /// **'Resistance'**
+  String get analysisResistance;
+
+  /// No description provided for @analysisInsufficient.
+  ///
+  /// In en, this message translates to:
+  /// **'Insufficient data'**
+  String get analysisInsufficient;
+
+  /// No description provided for @analysisInsufficientNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'Fewer than 200 closed candles: some indicators and the setup score cannot be computed yet.'**
+  String get analysisInsufficientNotice;
+
+  /// No description provided for @analysisScoreTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Setup score'**
+  String get analysisScoreTitle;
+
+  /// No description provided for @analysisScoreOutOf.
+  ///
+  /// In en, this message translates to:
+  /// **'/ 100'**
+  String get analysisScoreOutOf;
+
+  /// No description provided for @analysisScoreLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Setup score {score} out of 100'**
+  String analysisScoreLabel(String score);
+
+  /// No description provided for @analysisPresetLine.
+  ///
+  /// In en, this message translates to:
+  /// **'{preset} {version} · {timeframe}'**
+  String analysisPresetLine(String preset, String version, String timeframe);
+
+  /// No description provided for @presetScalping.
+  ///
+  /// In en, this message translates to:
+  /// **'Scalping'**
+  String get presetScalping;
+
+  /// No description provided for @presetDayTrading.
+  ///
+  /// In en, this message translates to:
+  /// **'Day trading'**
+  String get presetDayTrading;
+
+  /// No description provided for @presetSwing.
+  ///
+  /// In en, this message translates to:
+  /// **'Swing'**
+  String get presetSwing;
+
+  /// No description provided for @analysisScoreCapped.
+  ///
+  /// In en, this message translates to:
+  /// **'Score capped: little room to the next level.'**
+  String get analysisScoreCapped;
+
+  /// No description provided for @analysisComponents.
+  ///
+  /// In en, this message translates to:
+  /// **'Components'**
+  String get analysisComponents;
+
+  /// No description provided for @componentTrend.
+  ///
+  /// In en, this message translates to:
+  /// **'Trend'**
+  String get componentTrend;
+
+  /// No description provided for @componentMomentum.
+  ///
+  /// In en, this message translates to:
+  /// **'Momentum'**
+  String get componentMomentum;
+
+  /// No description provided for @componentVolume.
+  ///
+  /// In en, this message translates to:
+  /// **'Volume'**
+  String get componentVolume;
+
+  /// No description provided for @componentLevel.
+  ///
+  /// In en, this message translates to:
+  /// **'Level'**
+  String get componentLevel;
+
+  /// No description provided for @componentDerivatives.
+  ///
+  /// In en, this message translates to:
+  /// **'Derivatives'**
+  String get componentDerivatives;
+
+  /// No description provided for @analysisStatsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Market statistics'**
+  String get analysisStatsTitle;
+
+  /// No description provided for @statLastPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Last price'**
+  String get statLastPrice;
+
+  /// No description provided for @statSpread.
+  ///
+  /// In en, this message translates to:
+  /// **'Spread'**
+  String get statSpread;
+
+  /// No description provided for @statChange24h.
+  ///
+  /// In en, this message translates to:
+  /// **'24h change'**
+  String get statChange24h;
+
+  /// No description provided for @analysisNewsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Latest {coin} news'**
+  String analysisNewsTitle(String coin);
+
+  /// No description provided for @analysisNewsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No {coin} news in the last 7 days.'**
+  String analysisNewsEmpty(String coin);
+
+  /// No description provided for @analysisCreatePlan.
+  ///
+  /// In en, this message translates to:
+  /// **'Create plan'**
+  String get analysisCreatePlan;
+
+  /// No description provided for @analysisCreatePlanHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Create trading plan on the web'**
+  String get analysisCreatePlanHint;
+
+  /// No description provided for @alertShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Alert'**
+  String get alertShort;
 
   /// No description provided for @msg25.
   ///

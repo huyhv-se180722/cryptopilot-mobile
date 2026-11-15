@@ -92,6 +92,26 @@ enum DominantSide {
   final String wire;
 }
 
+/// Why a score sits below its weighted sum (BR-13, setup score v2).
+enum CapReason {
+  /// Too little room to the next level on the scored side.
+  lowRoom('LOW_ROOM');
+
+  const CapReason(this.wire);
+  final String wire;
+}
+
+/// The side every component was scored for (BR-13, setup score v2): LONG on
+/// Spot, the trend's side on Futures. Information about the score, never a
+/// trade recommendation (BR-51).
+enum ScoredSide {
+  long('LONG'),
+  short('SHORT');
+
+  const ScoredSide(this.wire);
+  final String wire;
+}
+
 /// The score of the Trader's preset (BR-13, BR-60): null with fewer than
 /// 200 closed candles ("Insufficient data").
 class AnalysisScore {
@@ -102,6 +122,8 @@ class AnalysisScore {
     required this.timeframe,
     this.components,
     this.dominantSide,
+    this.capReason,
+    this.scoredSide,
   });
 
   final int? score;
@@ -114,6 +136,24 @@ class AnalysisScore {
   /// Null on a plan without SCORE_COMPONENTS (CR-08).
   final Components? components;
   final DominantSide? dominantSide;
+
+  /// Null when the score is its weighted sum.
+  final CapReason? capReason;
+
+  /// Null on scores stored before the side was (v1) and without a candle.
+  final ScoredSide? scoredSide;
+}
+
+/// An optional enum by its wire name; a value the app does not know is a
+/// bad answer, not a silent null.
+T? _wireOrNull<T>(
+  Map<String, Object?> json,
+  String key,
+  Map<String, T> byWire,
+) {
+  final wire = readOptionalString(json, key);
+  if (wire == null) return null;
+  return byWire[wire] ?? (throw DecodeException('$key $wire is unknown'));
 }
 
 AnalysisScore decodeAnalysisScore(Object? body, Market market) {
@@ -122,7 +162,6 @@ AnalysisScore decodeAnalysisScore(Object? body, Market market) {
   if (score != null && score is! int) {
     throw const DecodeException('score is not a whole number');
   }
-  final side = readOptionalString(json, 'dominantSide');
   return AnalysisScore(
     score: score as int?,
     preset: readString(json, 'preset'),
@@ -131,10 +170,15 @@ AnalysisScore decodeAnalysisScore(Object? body, Market market) {
     components: json['components'] == null
         ? null
         : decodeComponents(json['components'], market),
-    dominantSide: side == null
-        ? null
-        : DominantSide.values.where((s) => s.wire == side).firstOrNull ??
-              (throw DecodeException('dominantSide $side is unknown')),
+    dominantSide: _wireOrNull(json, 'dominantSide', {
+      for (final side in DominantSide.values) side.wire: side,
+    }),
+    capReason: _wireOrNull(json, 'capReason', {
+      for (final reason in CapReason.values) reason.wire: reason,
+    }),
+    scoredSide: _wireOrNull(json, 'scoredSide', {
+      for (final side in ScoredSide.values) side.wire: side,
+    }),
   );
 }
 

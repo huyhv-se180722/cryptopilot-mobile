@@ -240,19 +240,6 @@ void main() {
       },
     );
 
-    testWidgets('a pair opens its 24 h sheet', (tester) async {
-      await pump(tester);
-      await push(tester, [tick('BTCUSDT', '76166.01', '-5.658', '1')]);
-      await tester.tap(find.byKey(const Key('row-spot-BTCUSDT')));
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 400));
-
-      expect(find.byType(BottomSheet), findsOneWidget);
-      expect(find.text('24h high'), findsOneWidget);
-      expect(find.text('Best bid'), findsOneWidget);
-      await unmount(tester);
-    });
-
     testWidgets('the first read shows the list skeleton', (tester) async {
       final gate = Completer<void>();
       transport = FakeTransport();

@@ -12,7 +12,7 @@ import '../../../core/theme/cp_colors.dart';
 import '../../market/application/market_board.dart';
 import '../../market/domain/market.dart';
 import '../../market/presentation/market_widgets.dart';
-import '../../market/presentation/pair_sheet.dart';
+import '../../market/presentation/pair_actions.dart';
 import '../application/watchlist_controller.dart';
 import '../domain/watchlist.dart';
 import 'add_pair_sheet.dart';
@@ -402,7 +402,7 @@ class WatchRow extends ConsumerWidget {
       ),
       child: InkWell(
         key: Key('watch-row-${item.symbol}'),
-        onTap: pair == null ? null : () => showPairSheet(context, pair),
+        onTap: pair == null ? null : () => openPairAnalysis(context, pair),
         child: Padding(
           padding: const EdgeInsets.fromLTRB(16, 10, 4, 10),
           child: Row(
@@ -559,8 +559,9 @@ Future<bool> removeWatchItem(
   return false;
 }
 
-/// "Add to watchlist" / "Watching" under a pair's figures (SRS 3.4.1: add from
-/// SCR-09, SCR-10, SCR-11).
+/// The star of a pair's analysis screen: "Add to watchlist" / "Watching"
+/// (SRS 3.4.1: add from SCR-10, SCR-11). The words are the tooltip and the
+/// screen reader's label; the filled star is the state.
 class WatchToggle extends ConsumerStatefulWidget {
   const WatchToggle({required this.pair, super.key});
 
@@ -597,8 +598,9 @@ class _WatchToggleState extends ConsumerState<WatchToggle> {
         .where((item) => item.pairId == widget.pair.pairId)
         .firstOrNull;
     if (item != null) {
-      return OutlinedButton.icon(
+      return IconButton.filledTonal(
         key: const Key('watch-toggle'),
+        tooltip: l.watchWatching,
         onPressed: _pending
             ? null
             : () async {
@@ -607,14 +609,13 @@ class _WatchToggleState extends ConsumerState<WatchToggle> {
                 if (mounted) setState(() => _pending = false);
               },
         icon: const Icon(Icons.star),
-        label: Text(l.watchWatching),
       );
     }
-    return FilledButton.icon(
+    return IconButton.outlined(
       key: const Key('watch-toggle'),
+      tooltip: l.watchAddToWatchlist,
       onPressed: _pending || state.watchlist == null ? null : _add,
       icon: const Icon(Icons.star_border),
-      label: Text(l.watchAddToWatchlist),
     );
   }
 }

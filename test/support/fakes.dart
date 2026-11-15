@@ -348,7 +348,10 @@ class FakeMarketApi implements MarketApi {
   @override
   Future<Ticker> stats(Market market, String symbol) async {
     statsCalls.add(symbol);
-    return Ticker(symbol: symbol, lastPrice: '100.5', changePercent24h: '1');
+    // The Futures stats carry mark, index and funding only (Q-91).
+    return market == Market.futures
+        ? Ticker(symbol: symbol, markPrice: '100.4', indexPrice: '100.3')
+        : Ticker(symbol: symbol, lastPrice: '100.5', changePercent24h: '1');
   }
 
   /// Closed candles by `MARKET SYMBOL tf`; older pages by `… before`.
@@ -719,10 +722,17 @@ class FakeNewsApi implements NewsApi {
   ];
   Object? error;
 
+  /// The `coin` of every read (null: every coin).
+  final List<String?> coinCalls = [];
+
   @override
-  Future<List<NewsArticle>> latest({int pageSize = 3}) async {
+  Future<List<NewsArticle>> latest({int pageSize = 3, String? coin}) async {
+    coinCalls.add(coin);
     if (error != null) throw error!;
-    return articles.take(pageSize).toList();
+    return articles
+        .where((article) => coin == null || article.coins.contains(coin))
+        .take(pageSize)
+        .toList();
   }
 }
 
@@ -743,14 +753,19 @@ class FakePerformanceApi implements PerformanceApi {
   }
 }
 
-/// `GET /analysis/{m}/{s}` as backend develop 25ba960 answers it (T-107:
-/// `componentsLocked`; D-126 push without score).
+/// `GET /analysis/{m}/{s}` as backend develop answers it (T-107:
+/// `componentsLocked`; D-126 push without score). [capReason] and
+/// [scoredSide] are the optional fields of setup score v2 (9090dc07); a
+/// [short] history has no EMA 200 yet.
 Map<String, Object?> analysisJson({
   String market = 'SPOT',
   String symbol = 'BTCUSDT',
   bool locked = false,
   int? score = 56,
   String support = '75790.0000000000',
+  String? capReason,
+  String? scoredSide,
+  bool short = false,
 }) => {
   'symbol': symbol,
   'market': market,
@@ -761,7 +776,7 @@ Map<String, Object?> analysisJson({
     'sma20': '75926.1660000001',
     'ema20': '76039.2154406578',
     'ema50': '76577.2345805825',
-    'ema200': '77867.9229098132',
+    'ema200': short ? null : '77867.9229098132',
     'rsi14': '51.8182579316',
     'macdLine': '-106.1115449333',
     'macdSignal': '-199.4043185456',
@@ -801,6 +816,8 @@ Map<String, Object?> analysisJson({
             if (market == 'FUTURES') 'derivatives': '50.07',
           },
     if (market == 'FUTURES') 'dominantSide': 'LONG',
+    'capReason': ?capReason,
+    'scoredSide': ?scoredSide,
   },
 };
 
@@ -812,10 +829,14 @@ class FakeAnalysisApi implements AnalysisApi {
   Object? error;
   Object? metricsError;
 
+  /// While set, `analysis()` waits for it (the loading state).
+  Future<void>? hold;
+
   @override
   Future<Analysis> analysis(Market market, String symbol, Timeframe tf) async {
     final key = '${market.wire} $symbol ${tf.wire}';
     calls.add(key);
+    if (hold case final gate?) await gate;
     if (error case final e?) throw e;
     return decodeAnalysis(
       answers[key] ?? analysisJson(market: market.wire, symbol: symbol),

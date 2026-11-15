@@ -4,11 +4,13 @@ import 'package:go_router/go_router.dart';
 
 import '../../features/account/presentation/account_screen.dart';
 import '../../features/alerts/presentation/alerts_screen.dart';
+import '../../features/analysis/presentation/analysis_screen.dart';
 import '../../features/auth/presentation/admin_notice_screen.dart';
 import '../../features/auth/presentation/forgot_password_screen.dart';
 import '../../features/auth/presentation/login_screen.dart';
 import '../../features/auth/presentation/reset_password_screen.dart';
 import '../../features/home/presentation/home_screen.dart';
+import '../../features/market/domain/market.dart';
 import '../../features/market/presentation/markets_screen.dart';
 import '../../features/notifications/presentation/notification_bell.dart';
 import '../../features/notifications/presentation/notifications_screen.dart';
@@ -32,6 +34,9 @@ abstract final class Routes {
   static const journal = '/journal';
   static const account = '/account';
   static const notifications = '/notifications';
+
+  /// SCR-10 (spot) and SCR-11 (futures).
+  static const analysis = '/analysis/:market/:symbol';
 }
 
 const _publicRoutes = {
@@ -59,6 +64,10 @@ String? redirectFor(SessionState session, String location) {
       return outside ? Routes.home : null;
   }
 }
+
+Market? _marketOf(GoRouterState state) => Market.values
+    .where((market) => market.path == state.pathParameters['market'])
+    .firstOrNull;
 
 final appRouterProvider = Provider<GoRouter>((ref) {
   final session = ValueNotifier<SessionState>(
@@ -110,6 +119,16 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: Routes.notifications,
         builder: (_, _) => const NotificationsScreen(),
+      ),
+      // Pushed over the tabs from a row of Markets, Watchlist or Home.
+      GoRoute(
+        path: Routes.analysis,
+        redirect: (_, state) =>
+            _marketOf(state) == null ? Routes.markets : null,
+        builder: (_, state) => AnalysisScreen(
+          market: _marketOf(state)!,
+          symbol: state.pathParameters['symbol']!,
+        ),
       ),
       StatefulShellRoute.indexedStack(
         // A notification pushed while a tab is shown appears as a banner.

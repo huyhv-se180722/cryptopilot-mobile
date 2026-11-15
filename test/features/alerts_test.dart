@@ -10,10 +10,11 @@ import 'package:cryptopilot_mobile/features/alerts/domain/alert.dart';
 import 'package:cryptopilot_mobile/features/alerts/presentation/alert_format.dart';
 import 'package:cryptopilot_mobile/features/alerts/presentation/alert_sheet.dart';
 import 'package:cryptopilot_mobile/features/alerts/presentation/alerts_screen.dart';
+import 'package:cryptopilot_mobile/features/analysis/presentation/analysis_screen.dart';
 import 'package:cryptopilot_mobile/features/market/domain/market.dart';
 import 'package:cryptopilot_mobile/features/market/presentation/market_widgets.dart';
 import 'package:cryptopilot_mobile/features/market/presentation/markets_screen.dart';
-import 'package:cryptopilot_mobile/features/market/presentation/pair_sheet.dart';
+import 'package:cryptopilot_mobile/features/market/presentation/pair_actions.dart';
 import 'package:cryptopilot_mobile/features/watchlist/domain/watchlist.dart';
 import 'package:cryptopilot_mobile/features/watchlist/presentation/watchlist_view.dart';
 import 'package:flutter/material.dart';
@@ -658,11 +659,13 @@ void main() {
     }
   });
 
-  group('SCR-14 from the pair sheet', () {
+  group('SCR-14 from the analysis screen (SCR-10)', () {
     late FakeTransport transport;
     late FakeAlertApi api;
 
-    Future<void> openSheet(WidgetTester tester) async {
+    /// [home] as `main.dart` composes it: the analysis screen's bar carries
+    /// the alerts' button through [pairActionsProvider].
+    Future<void> mount(WidgetTester tester, Widget home) async {
       transport = FakeTransport();
       api = FakeAlertApi();
       await tester.pumpWidget(
@@ -697,7 +700,7 @@ void main() {
             theme: appTheme(Brightness.light),
             localizationsDelegates: AppLocalizations.localizationsDelegates,
             supportedLocales: AppLocalizations.supportedLocales,
-            home: const MarketsScreen(watchlist: WatchlistView()),
+            home: home,
           ),
         ),
       );
@@ -719,9 +722,13 @@ void main() {
       });
       await tester.pump();
       await tester.pump();
-      await tester.tap(find.byKey(const Key('row-spot-BTCUSDT')));
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 400));
+    }
+
+    Future<void> openSheet(WidgetTester tester) async {
+      await mount(
+        tester,
+        const AnalysisScreen(market: Market.spot, symbol: 'BTCUSDT'),
+      );
       await tester.tap(find.byKey(const Key('create-alert')));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 400));
@@ -770,12 +777,7 @@ void main() {
     });
 
     testWidgets('the watchlist row menu opens the same sheet', (tester) async {
-      await openSheet(tester);
-      // Back to the list, then to the Watchlist segment.
-      await tester.tapAt(const Offset(20, 20));
-      await tester.pump(const Duration(milliseconds: 400));
-      await tester.tapAt(const Offset(20, 20));
-      await tester.pump(const Duration(milliseconds: 400));
+      await mount(tester, const MarketsScreen(watchlist: WatchlistView()));
       await tester.tap(find.text('Watchlist'));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 400));

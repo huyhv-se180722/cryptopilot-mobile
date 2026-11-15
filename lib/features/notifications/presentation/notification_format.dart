@@ -1,19 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
+import '../../../core/format/age_format.dart';
 import '../../../core/i18n/app_localizations.dart';
 import '../domain/notification.dart';
 
-/// "now", "5m ago" … up to a week, then the date in the device's zone, as
-/// the web words it.
-String notificationAge(AppLocalizations l, DateTime createdAt, DateTime now) {
-  final elapsed = now.difference(createdAt);
-  if (elapsed.isNegative || elapsed.inMinutes < 1) return l.notificationAgeNow;
-  if (elapsed.inHours < 1) return l.notificationAgeMinutes(elapsed.inMinutes);
-  if (elapsed.inDays < 1) return l.notificationAgeHours(elapsed.inHours);
-  if (elapsed.inDays < 7) return l.notificationAgeDays(elapsed.inDays);
-  return DateFormat('d MMM yyyy', 'en_US').format(createdAt.toLocal());
-}
+/// The age of a notification, worded as every age in the app.
+String notificationAge(AppLocalizations l, DateTime createdAt, DateTime now) =>
+    formatAge(l, createdAt, now);
 
 /// The bell's badge: the count, 99+ above that.
 String badgeText(int count) => count > 99 ? '99+' : '$count';

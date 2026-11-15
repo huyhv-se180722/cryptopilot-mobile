@@ -12,7 +12,7 @@ import '../support/fakes.dart';
 import '../support/realtime_fakes.dart';
 
 void main() {
-  group('decoders (backend develop 25ba960 payloads)', () {
+  group('decoders (backend develop 9090dc07 payloads)', () {
     test('a Spot analysis with indicators, levels, components and score', () {
       final a = decodeAnalysis(analysisJson());
       expect(a.market, Market.spot);
@@ -57,6 +57,46 @@ void main() {
         () => decodeAnalysis(unknownSide),
         throwsA(isA<DecodeException>()),
       );
+    });
+
+    test('setup score v2: the scored side and why the score was capped', () {
+      final spot = decodeAnalysis(
+        analysisJson(capReason: 'LOW_ROOM', scoredSide: 'LONG'),
+      );
+      expect(spot.setupScore!.capReason, CapReason.lowRoom);
+      expect(spot.setupScore!.scoredSide, ScoredSide.long);
+      final futures = decodeAnalysis(
+        analysisJson(market: 'FUTURES', scoredSide: 'SHORT'),
+      );
+      expect(futures.setupScore!.scoredSide, ScoredSide.short);
+      expect(futures.setupScore!.capReason, isNull);
+
+      // A v1 row, or a server before v2: both absent.
+      final v1 = decodeAnalysis(analysisJson());
+      expect(v1.setupScore!.capReason, isNull);
+      expect(v1.setupScore!.scoredSide, isNull);
+      // Sent as null (no candle analysed yet).
+      final nulls = analysisJson();
+      (nulls['setupScore']! as Map)
+        ..['capReason'] = null
+        ..['scoredSide'] = null;
+      expect(decodeAnalysis(nulls).setupScore!.scoredSide, isNull);
+    });
+
+    test('a scored side or cap reason the app does not know is refused', () {
+      for (final (key, value) in [
+        ('capReason', 'TOO_HIGH'),
+        ('scoredSide', 'NEUTRAL'),
+        ('scoredSide', 1),
+      ]) {
+        final json = analysisJson();
+        (json['setupScore']! as Map)[key] = value;
+        expect(
+          () => decodeAnalysis(json),
+          throwsA(isA<DecodeException>()),
+          reason: '$key $value',
+        );
+      }
     });
 
     test('Futures metrics with the stored period (BR-10)', () {
