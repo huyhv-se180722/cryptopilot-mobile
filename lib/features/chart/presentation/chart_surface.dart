@@ -108,6 +108,10 @@ abstract interface class ChartSurface {
   /// Decimals of the pair's tick size.
   Future<void> setPrecision(int digits);
 
+  /// Seconds added to every time the page draws (BR-08: the library draws
+  /// UTC only); set before the candles it applies to.
+  Future<void> setTimeOffset(int seconds);
+
   /// Completes once the page painted them; [shift] keeps the visible range
   /// after older candles went in front.
   Future<void> setCandles(List<Candle> candles, {int shift = 0});
@@ -186,6 +190,9 @@ class WebViewChartSurface implements ChartSurface {
 
   @override
   Future<void> setPrecision(int digits) => _run('setPrecision($digits)');
+
+  @override
+  Future<void> setTimeOffset(int seconds) => _run('setTimeOffset($seconds)');
 
   @override
   Future<void> setCandles(List<Candle> candles, {int shift = 0}) async {

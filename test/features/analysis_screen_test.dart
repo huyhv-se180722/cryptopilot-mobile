@@ -60,6 +60,7 @@ void main() {
       String symbol = 'BTCUSDT',
       Brightness brightness = Brightness.light,
       bool actions = false,
+      Duration zone = Duration.zero,
     }) async {
       await tester.pumpWidget(
         ProviderScope(
@@ -74,6 +75,7 @@ void main() {
               web: web,
               chart: chart,
               settings: settings,
+              zone: zone,
             ),
             if (actions)
               pairActionsProvider.overrideWithValue(
@@ -376,6 +378,36 @@ void main() {
         contains('/topic/analysis.SPOT.BTCUSDT.4h'),
       );
       expect(chart.candles!.last.openTime, DateTime.utc(2026, 11, 6, 8));
+      await unmount(tester);
+    });
+
+    testWidgets('the axis follows the timeframe: the device zone intraday, '
+        'UTC for daily candles (BR-08)', (tester) async {
+      market.candlesBy['SPOT BTCUSDT 1d'] = candleRun(
+        500,
+        step: const Duration(days: 1),
+      );
+      await mount(tester, zone: const Duration(hours: 7));
+      expect(find.text('Times in UTC+7'), findsOneWidget);
+      expect(chart.calls.where((c) => c.startsWith('offset')), [
+        'offset 25200',
+      ]);
+
+      await tester.tap(find.text('1d'));
+      for (var i = 0; i < 8; i++) {
+        await tester.pump();
+      }
+
+      expect(find.text('Times in UTC'), findsOneWidget);
+      expect(chart.calls.where((c) => c.startsWith('offset')), [
+        'offset 25200',
+        'offset 0',
+      ]);
+      // The new offset is on the page before the daily candles.
+      expect(
+        chart.calls.lastIndexOf('offset 0'),
+        lessThan(chart.calls.lastIndexOf('candles 500 shift 0')),
+      );
       await unmount(tester);
     });
 

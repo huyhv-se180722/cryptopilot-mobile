@@ -5,8 +5,10 @@ import 'package:cryptopilot_mobile/core/i18n/app_localizations.dart';
 import 'package:cryptopilot_mobile/core/json/json_read.dart';
 import 'package:cryptopilot_mobile/core/settings/settings.dart';
 import 'package:cryptopilot_mobile/core/theme/app_theme.dart';
+import 'package:cryptopilot_mobile/features/chart/application/candles_controller.dart';
 import 'package:cryptopilot_mobile/features/chart/data/candle_cache.dart';
 import 'package:cryptopilot_mobile/features/chart/domain/chart_indicators.dart';
+import 'package:cryptopilot_mobile/features/chart/domain/chart_time.dart';
 import 'package:cryptopilot_mobile/features/chart/presentation/chart_surface.dart';
 import 'package:cryptopilot_mobile/features/chart/presentation/chart_view.dart';
 import 'package:cryptopilot_mobile/features/market/domain/candle.dart';
@@ -148,6 +150,24 @@ void main() {
     });
   });
 
+  group('time axis (BR-08)', () {
+    test('intraday candles move by the device zone, daily ones stay UTC', () {
+      const vietNam = Duration(hours: 7);
+      for (final tf in [Timeframe.m15, Timeframe.h1, Timeframe.h4]) {
+        expect(chartOffset(tf, vietNam), vietNam, reason: tf.wire);
+      }
+      expect(chartOffset(Timeframe.d1, vietNam), Duration.zero);
+    });
+
+    test('the zone is named as an exchange names it', () {
+      expect(zoneLabel(Duration.zero), 'UTC');
+      expect(zoneLabel(const Duration(hours: 7)), 'UTC+7');
+      expect(zoneLabel(const Duration(hours: 5, minutes: 30)), 'UTC+5:30');
+      expect(zoneLabel(-const Duration(hours: 3, minutes: 30)), 'UTC-3:30');
+      expect(zoneLabel(-const Duration(hours: 8)), 'UTC-8');
+    });
+  });
+
   group('ChartView', () {
     late FakeTransport transport;
     late FakeMarketApi market;
@@ -160,6 +180,8 @@ void main() {
       Set<ChartIndicator> indicators = ChartIndicator.defaults,
       Brightness brightness = Brightness.light,
       bool fresh = true,
+      Duration zone = Duration.zero,
+      CandleKey candleKey = key,
     }) async {
       transport = FakeTransport();
       surface = FakeChartSurface();
@@ -180,6 +202,7 @@ void main() {
             market: market,
             chart: surface,
             settings: settings,
+            zone: zone,
           ),
           retry: (_, _) => null,
           child: MaterialApp(
@@ -190,7 +213,7 @@ void main() {
               body: ListView(
                 children: [
                   ChartView(
-                    candleKey: key,
+                    candleKey: candleKey,
                     precision: 2,
                     indicators: indicators,
                     lines: const [
@@ -252,6 +275,34 @@ void main() {
       expect(surface.calls.last, 'indicators');
       expect(surface.lines.single.price, '760.00');
       expect(find.byKey(const Key('chart-skeleton')), findsNothing);
+      await unmount(tester);
+    });
+
+    testWidgets('the axis shows the device zone and says so; the offset '
+        'reaches the page before the candles (BR-08)', (tester) async {
+      await pump(tester, zone: const Duration(hours: 7));
+
+      expect(surface.calls, contains('offset 25200'));
+      expect(
+        surface.calls.indexOf('offset 25200'),
+        lessThan(surface.calls.indexOf('candles 500 shift 0')),
+      );
+      expect(find.text('Times in UTC+7'), findsOneWidget);
+      await unmount(tester);
+    });
+
+    testWidgets('daily candles keep UTC whatever the device zone', (
+      tester,
+    ) async {
+      await pump(
+        tester,
+        zone: const Duration(hours: 7),
+        candleKey: (market: Market.spot, symbol: 'BTCUSDT', tf: Timeframe.d1),
+      );
+
+      expect(surface.calls, contains('offset 0'));
+      expect(surface.calls, isNot(contains('offset 25200')));
+      expect(find.text('Times in UTC'), findsOneWidget);
       await unmount(tester);
     });
 

@@ -5,6 +5,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/settings/settings.dart';
 import '../domain/chart_indicators.dart';
 
+/// The device's offset from UTC when the app started: one fixed offset for
+/// every chart (BR-08; see `chartOffset`).
+final chartZoneProvider = Provider<Duration>(
+  (ref) => DateTime.now().timeZoneOffset,
+);
+
 final chartIndicatorsProvider =
     NotifierProvider<ChartIndicatorChoice, Set<ChartIndicator>>(
       ChartIndicatorChoice.new,

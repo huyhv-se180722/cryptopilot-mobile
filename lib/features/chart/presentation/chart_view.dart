@@ -8,7 +8,9 @@ import '../../../core/i18n/app_localizations.dart';
 import '../../../core/theme/cp_colors.dart';
 import '../../market/domain/candle.dart';
 import '../application/candles_controller.dart';
+import '../application/chart_prefs.dart';
 import '../domain/chart_indicators.dart';
+import '../domain/chart_time.dart';
 import 'chart_surface.dart';
 
 /// The candle chart of one pair and timeframe, shared by analysis and, later,
@@ -45,6 +47,10 @@ class _ChartViewState extends ConsumerState<ChartView> {
   ChartTheme? _theme;
   int _closedCount = -1;
 
+  /// What the axis adds to UTC for this timeframe (BR-08).
+  Duration get _offset =>
+      chartOffset(widget.candleKey.tf, ref.read(chartZoneProvider));
+
   @override
   void initState() {
     super.initState();
@@ -60,6 +66,7 @@ class _ChartViewState extends ConsumerState<ChartView> {
             .loadOlder(),
       );
     });
+    unawaited(_surface.setTimeOffset(_offset.inSeconds));
     unawaited(_surface.setPrecision(widget.precision));
     unawaited(_surface.setLines(widget.lines));
     // Candles already held (the provider outlived an earlier chart).
@@ -90,6 +97,8 @@ class _ChartViewState extends ConsumerState<ChartView> {
         .candles;
     if (old.candleKey != widget.candleKey) {
       _closedCount = -1;
+      // Before the candles of the new timeframe go to the page.
+      unawaited(_surface.setTimeOffset(_offset.inSeconds));
     } else if (!_sameSet(old.indicators, widget.indicators) &&
         candles != null) {
       unawaited(
@@ -137,7 +146,7 @@ class _ChartViewState extends ConsumerState<ChartView> {
     final state = ref.watch(candlesControllerProvider(widget.candleKey));
     final first = state.candles == null || state.candles!.isEmpty;
 
-    return SizedBox(
+    final chart = SizedBox(
       key: const Key('chart-view'),
       height: ChartView.heightFor(widget.indicators),
       child: Stack(
@@ -178,6 +187,25 @@ class _ChartViewState extends ConsumerState<ChartView> {
             ),
         ],
       ),
+    );
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        chart,
+        // The axis has no zone of its own: say which one it shows.
+        Padding(
+          padding: const EdgeInsets.only(top: 4),
+          child: Text(
+            l.chartTimeZone(zoneLabel(_offset)),
+            key: const Key('chart-zone'),
+            textAlign: TextAlign.end,
+            style: Theme.of(
+              context,
+            ).textTheme.bodySmall?.copyWith(color: context.cp.muted),
+          ),
+        ),
+      ],
     );
   }
 }

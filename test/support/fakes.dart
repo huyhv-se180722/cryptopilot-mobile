@@ -20,6 +20,7 @@ import 'package:cryptopilot_mobile/features/journal/domain/performance.dart';
 import 'package:cryptopilot_mobile/features/market/data/market_api.dart';
 import 'package:cryptopilot_mobile/features/market/domain/candle.dart';
 import 'package:cryptopilot_mobile/features/market/domain/market.dart';
+import 'package:cryptopilot_mobile/features/chart/application/chart_prefs.dart';
 import 'package:cryptopilot_mobile/features/chart/presentation/chart_surface.dart';
 import 'package:cryptopilot_mobile/features/news/data/news_api.dart';
 import 'package:cryptopilot_mobile/features/news/domain/news.dart';
@@ -172,6 +173,7 @@ List<Override> baseOverrides({
   FakeChartSurface? chart,
   SettingsStore? settings,
   AnalysisApi? analysis,
+  Duration zone = Duration.zero,
 }) => [
   tokenStoreProvider.overrideWithValue(store),
   authTokenApiProvider.overrideWithValue(tokens),
@@ -191,6 +193,8 @@ List<Override> baseOverrides({
   newsApiProvider.overrideWithValue(news ?? FakeNewsApi()),
   performanceApiProvider.overrideWithValue(performance ?? FakePerformanceApi()),
   chartSurfaceProvider.overrideWithValue(chart ?? FakeChartSurface()),
+  // Never the zone of the machine that runs the tests.
+  chartZoneProvider.overrideWithValue(zone),
   analysisApiProvider.overrideWithValue(analysis ?? FakeAnalysisApi()),
 ];
 

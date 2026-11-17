@@ -808,6 +808,12 @@ abstract class AppLocalizations {
   /// **'H {high} · L {low} · Vol {volume}'**
   String analysisDayRange(String high, String low, String volume);
 
+  /// No description provided for @chartTimeZone.
+  ///
+  /// In en, this message translates to:
+  /// **'Times in {zone}'**
+  String chartTimeZone(String zone);
+
   /// No description provided for @analysisIndicators.
   ///
   /// In en, this message translates to:

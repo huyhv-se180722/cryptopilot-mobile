@@ -34,6 +34,9 @@ class FakeChartSurface implements ChartSurface {
   Future<void> setPrecision(int digits) async => calls.add('precision $digits');
 
   @override
+  Future<void> setTimeOffset(int seconds) async => calls.add('offset $seconds');
+
+  @override
   Future<void> setCandles(List<Candle> candles, {int shift = 0}) async {
     this.candles = candles;
     calls.add('candles ${candles.length} shift $shift');

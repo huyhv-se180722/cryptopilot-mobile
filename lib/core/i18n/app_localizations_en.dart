@@ -402,6 +402,11 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String chartTimeZone(String zone) {
+    return 'Times in $zone';
+  }
+
+  @override
   String get analysisIndicators => 'Indicators';
 
   @override

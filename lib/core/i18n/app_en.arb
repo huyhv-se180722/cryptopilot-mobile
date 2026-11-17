@@ -215,6 +215,14 @@
       }
     }
   },
+  "chartTimeZone": "Times in {zone}",
+  "@chartTimeZone": {
+    "placeholders": {
+      "zone": {
+        "type": "String"
+      }
+    }
+  },
   "analysisIndicators": "Indicators",
   "analysisOverlays": "Overlays",
   "analysisPanels": "Panels",

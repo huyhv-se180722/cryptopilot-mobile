@@ -4,6 +4,8 @@
 (function () {
   const L = LightweightCharts;
   let chart, candles, theme, lines = [], extra = [], asking = false, payload = null;
+  // Seconds added to every time: the library draws UTC only (BR-08).
+  let offset = 0, payloadOffset = 0;
 
   function post(m) { Host.postMessage(JSON.stringify(m)); }
 
@@ -46,14 +48,17 @@
     theme = t;
     chart.applyOptions(layout(t));
     candles.applyOptions(candleColors(t));
-    if (payload) setIndicators(payload);
+    if (payload) setIndicators(payload, true);
   };
 
   window.setPrecision = function (p) {
     candles.applyOptions({ priceFormat: { type: 'price', precision: p, minMove: Math.pow(10, -p) } });
   };
 
-  function time(c) { return Date.parse(c.openTime) / 1000; }
+  // Set before the candles of a pair and timeframe; 0 for daily candles.
+  window.setTimeOffset = function (seconds) { offset = seconds; };
+
+  function time(c) { return Date.parse(c.openTime) / 1000 + offset; }
 
   // A forming candle (SRS 3.3.2: provisional) is drawn faded.
   function bar(c) {
@@ -80,14 +85,19 @@
 
   window.update = function (c) { candles.update(bar(c)); };
 
-  function points(times, values) {
-    return values.map(function (v, i) { return v == null ? { time: times[i] } : { time: times[i], value: v }; });
+  function points(times, values, by) {
+    return values.map(function (v, i) {
+      return v == null ? { time: times[i] + by } : { time: times[i] + by, value: v };
+    });
   }
 
   // Overlays on the price pane, panels below it (Volume, RSI, MACD), rebuilt
   // whenever the candles or the Trader's choice change.
-  function setIndicators(p) {
+  // again: the same payload redrawn (a new theme), at the offset it came with.
+  function setIndicators(p, again) {
     payload = p;
+    if (!again) payloadOffset = offset;
+    const by = payloadOffset;
     extra.forEach(function (s) { chart.removeSeries(s); });
     extra = [];
     while (chart.panes().length > 1) chart.removePane(chart.panes().length - 1);
@@ -95,7 +105,7 @@
       const s = chart.addSeries(L.LineSeries, {
         color: o.color, lineWidth: 1, priceLineVisible: false, lastValueVisible: false, crosshairMarkerVisible: false,
       }, 0);
-      s.setData(points(p.times, o.values));
+      s.setData(points(p.times, o.values, by));
       extra.push(s);
     });
     p.panels.forEach(function (panel, k) {
@@ -108,11 +118,11 @@
         }, k + 1);
         if (histogram) {
           s.setData(d.values.map(function (v, i) {
-            return v == null ? { time: p.times[i] }
-              : { time: p.times[i], value: v, color: (d.up[i] ? theme.up : theme.down) + '66' };
+            return v == null ? { time: p.times[i] + by }
+              : { time: p.times[i] + by, value: v, color: (d.up[i] ? theme.up : theme.down) + '66' };
           }));
         } else {
-          s.setData(points(p.times, d.values));
+          s.setData(points(p.times, d.values, by));
         }
         (d.levels || []).forEach(function (level) {
           s.createPriceLine({ price: level, color: theme.text, lineWidth: 1, lineStyle: 2, axisLabelVisible: false });
@@ -122,7 +132,7 @@
     });
     chart.panes().forEach(function (pane, i) { if (i > 0) pane.setHeight(80); });
   }
-  window.setIndicators = setIndicators;
+  window.setIndicators = function (p) { setIndicators(p, false); };
 
   // Price lines: BR-14 levels now; entry, stop loss, take profit later.
   window.setLines = function (ls) {
