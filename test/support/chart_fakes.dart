@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:cryptopilot_mobile/features/chart/presentation/chart_surface.dart';
+import 'package:cryptopilot_mobile/features/chart/presentation/metric_surface.dart';
 import 'package:cryptopilot_mobile/features/market/domain/candle.dart';
 import 'package:flutter/material.dart';
 
@@ -65,6 +66,36 @@ class FakeChartSurface implements ChartSurface {
 
   @override
   Widget view() => const SizedBox.expand(key: Key('chart-surface'));
+}
+
+/// The metric chart page (SCR-11) without a WebView. Keeps every payload.
+class FakeMetricSurface implements MetricSurface {
+  final List<String> calls = [];
+  final List<Map<String, Object?>> payloads = [];
+  int warms = 0;
+  ChartTheme? theme;
+
+  /// The lines of the last payload.
+  List<Map<String, Object?>> get lines =>
+      (payloads.last['lines']! as List).cast<Map<String, Object?>>();
+
+  @override
+  Future<void> warm() async => warms++;
+
+  @override
+  Future<void> setTheme(ChartTheme theme) async {
+    this.theme = theme;
+    calls.add('theme');
+  }
+
+  @override
+  Future<void> setLines(Map<String, Object?> payload) async {
+    payloads.add(payload);
+    calls.add('lines ${(payload['lines']! as List).length}');
+  }
+
+  @override
+  Widget view() => const SizedBox.expand(key: Key('metric-surface'));
 }
 
 /// [count] closed candles one [step] apart, ending before [end]; closes rise

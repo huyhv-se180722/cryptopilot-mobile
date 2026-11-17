@@ -11,6 +11,7 @@ import 'package:cryptopilot_mobile/features/chart/domain/chart_indicators.dart';
 import 'package:cryptopilot_mobile/features/chart/domain/chart_time.dart';
 import 'package:cryptopilot_mobile/features/chart/presentation/chart_surface.dart';
 import 'package:cryptopilot_mobile/features/chart/presentation/chart_view.dart';
+import 'package:cryptopilot_mobile/features/chart/presentation/metric_surface.dart';
 import 'package:cryptopilot_mobile/features/market/domain/candle.dart';
 import 'package:cryptopilot_mobile/features/market/domain/market.dart';
 import 'package:flutter/material.dart';
@@ -165,6 +166,46 @@ void main() {
       expect(zoneLabel(const Duration(hours: 5, minutes: 30)), 'UTC+5:30');
       expect(zoneLabel(-const Duration(hours: 3, minutes: 30)), 'UTC-3:30');
       expect(zoneLabel(-const Duration(hours: 8)), 'UTC-8');
+    });
+  });
+
+  group('metric lines (SCR-11)', () {
+    test('times in seconds, values as they came, the colour as hex; a point '
+        'that does not come after the one before it is left out', () {
+      final payload = metricPayload([
+        MetricLine(
+          color: const Color(0xFF2563EB),
+          scale: MetricScale.left,
+          format: MetricFormat.amount,
+          points: [
+            (DateTime.utc(2026, 11, 6, 9, 30), '1.5'),
+            (DateTime.utc(2026, 11, 6, 9, 30), '1.6'),
+            (DateTime.utc(2026, 11, 6, 9, 25), '1.4'),
+            (DateTime.utc(2026, 11, 6, 9, 35), '1.70000000'),
+          ],
+        ),
+        const MetricLine(
+          color: Color(0xFFF59E0B),
+          scale: MetricScale.right,
+          format: MetricFormat.ratio,
+          points: [],
+        ),
+      ], const Duration(hours: 7));
+
+      int seconds(int minute) =>
+          DateTime.utc(2026, 11, 6, 9, minute).millisecondsSinceEpoch ~/ 1000;
+      expect(payload['offset'], 7 * 3600);
+      final lines = (payload['lines']! as List).cast<Map<String, Object?>>();
+      expect(lines.first['color'], '#2563eb');
+      expect(lines.first['scale'], 'left');
+      expect(lines.first['format'], 'amount');
+      expect(lines.first['points'], [
+        [seconds(30), '1.5'],
+        [seconds(35), '1.70000000'],
+      ]);
+      expect(lines.last['scale'], 'right');
+      expect(lines.last['format'], 'ratio');
+      expect(lines.last['points'], isEmpty);
     });
   });
 
