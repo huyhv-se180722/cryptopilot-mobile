@@ -60,7 +60,9 @@ class Components {
     this.derivatives,
   });
 
-  final String formulaVersion;
+  /// Null when no candle of the timeframe is analysed yet (the backend
+  /// then sends every component as null too).
+  final String? formulaVersion;
   final String? trend;
   final String? momentum;
   final String? volume;
@@ -71,7 +73,7 @@ class Components {
 Components decodeComponents(Object? body, Market market) {
   final json = asJsonObject(body, 'components');
   return Components(
-    formulaVersion: readString(json, 'formulaVersion'),
+    formulaVersion: readOptionalString(json, 'formulaVersion'),
     trend: _decimalOrNull(json, 'trend'),
     momentum: _decimalOrNull(json, 'momentum'),
     volume: _decimalOrNull(json, 'volume'),

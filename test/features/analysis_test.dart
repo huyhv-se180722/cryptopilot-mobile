@@ -99,6 +99,29 @@ void main() {
       }
     });
 
+    test('a timeframe without an analysed candle: components all null, the '
+        'preset score still there (found on the emulator, 1d)', () {
+      final json = analysisJson()
+        ..['openTime'] = null
+        ..['calculatedAt'] = null
+        ..['nearestSupport'] = null
+        ..['nearestResistance'] = null
+        ..['indicators'] = {for (final key in Indicators.keys) key: null}
+        ..['components'] = {
+          'formulaVersion': null,
+          'trend': null,
+          'momentum': null,
+          'volume': null,
+          'level': null,
+        };
+      final a = decodeAnalysis(json);
+      expect(a.components!.formulaVersion, isNull);
+      expect(a.components!.trend, isNull);
+      expect(a.indicators['ema200'], isNull);
+      expect(a.setupScore!.score, 56);
+      expect(a.setupScore!.components!.formulaVersion, 'v1');
+    });
+
     test('Futures metrics with the stored period (BR-10)', () {
       final m = decodeFuturesMetrics({
         'symbol': 'BTCUSDT',
