@@ -20,12 +20,16 @@ import '../../market/presentation/market_widgets.dart';
 import '../../market/presentation/pair_actions.dart';
 import '../application/analysis_controller.dart';
 import 'analysis_card.dart';
+import 'futures_metrics_card.dart';
+import 'futures_strip.dart';
 import 'pair_news.dart';
 import 'score_card.dart';
 import 'stats_card.dart';
 
-/// SCR-10 Spot pair analysis (SRS 3.3.2); a Futures pair opens the same
-/// content on its own candles (SRS 3.3.3, its Futures blocks are SCR-11's).
+/// SCR-10 Spot pair analysis (SRS 3.3.2) and SCR-11 Futures pair analysis
+/// (SRS 3.3.3): a Futures pair shows the same content on its own candles
+/// plus mark, index and funding, and the open interest and long/short
+/// charts.
 /// The pair comes from the market board, so an unknown or disabled pair
 /// says so and returns to SCR-09.
 class AnalysisScreen extends ConsumerStatefulWidget {
@@ -138,6 +142,10 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
                   if (state.notInPlan)
                     _NotInPlan(state: state)
                   else ...[
+                    if (futures) ...[
+                      FuturesStrip(pair: pair, ticker: ticker),
+                      const SizedBox(height: 8),
+                    ],
                     _ChartBlock(
                       pair: pair,
                       timeframe: _tf,
@@ -152,6 +160,10 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
                           .load(),
                     ),
                     StatsCard(pair: pair, ticker: ticker),
+                    // Once the analysis was read: the metrics need the same
+                    // plan (MSG29), so they are not asked for before it.
+                    if (futures && state.analysis != null)
+                      FuturesMetricsCard(pair: pair),
                     PairNews(coin: pair.baseAsset),
                   ],
                 ],

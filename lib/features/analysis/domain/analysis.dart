@@ -249,14 +249,26 @@ Analysis decodeAnalysis(Object? body) {
 
 /// One point of a Futures metric series (BR-10).
 class MetricPoint {
-  const MetricPoint(this.time, this.value, [this.second]);
+  const MetricPoint(
+    this.time,
+    this.value, {
+    this.second,
+    this.longShare,
+    this.shortShare,
+  });
+
   final DateTime time;
 
   /// Open interest, or the long/short account ratio.
   final String value;
 
-  /// Open interest value (USDT), or none.
+  /// Open interest value (quote asset), or none.
   final String? second;
+
+  /// The shares of accounts that are long and short, fractions of 1 (a
+  /// long/short point only).
+  final String? longShare;
+  final String? shortShare;
 }
 
 /// `GET /market/futures/{symbol}/metrics?from=&to=` (SRS 3.3.3, BR-10).
@@ -299,7 +311,7 @@ FuturesMetrics decodeFuturesMetrics(Object? body) {
             readInstant(p, 'time'),
             _decimalOrNull(p, 'openInterest') ??
                 (throw const DecodeException('openInterest is missing')),
-            _decimalOrNull(p, 'openInterestValue'),
+            second: _decimalOrNull(p, 'openInterestValue'),
           );
         }(),
     ],
@@ -311,6 +323,8 @@ FuturesMetrics decodeFuturesMetrics(Object? body) {
             readInstant(p, 'time'),
             _decimalOrNull(p, 'longShortRatio') ??
                 (throw const DecodeException('longShortRatio is missing')),
+            longShare: _decimalOrNull(p, 'longAccountRatio'),
+            shortShare: _decimalOrNull(p, 'shortAccountRatio'),
           );
         }(),
     ],

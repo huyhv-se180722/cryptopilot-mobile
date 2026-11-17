@@ -1036,6 +1036,120 @@ abstract class AppLocalizations {
   /// **'Create trading plan on the web'**
   String get analysisCreatePlanHint;
 
+  /// No description provided for @analysisScoredSide.
+  ///
+  /// In en, this message translates to:
+  /// **'Scored side'**
+  String get analysisScoredSide;
+
+  /// No description provided for @analysisDominantSide.
+  ///
+  /// In en, this message translates to:
+  /// **'Dominant side'**
+  String get analysisDominantSide;
+
+  /// No description provided for @sideLong.
+  ///
+  /// In en, this message translates to:
+  /// **'Long'**
+  String get sideLong;
+
+  /// No description provided for @sideShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Short'**
+  String get sideShort;
+
+  /// No description provided for @sideNeutral.
+  ///
+  /// In en, this message translates to:
+  /// **'Neutral'**
+  String get sideNeutral;
+
+  /// No description provided for @analysisSidesNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Sides describe the score. They are not a trade recommendation.'**
+  String get analysisSidesNote;
+
+  /// No description provided for @metricsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Futures data'**
+  String get metricsTitle;
+
+  /// No description provided for @metricOpenInterest.
+  ///
+  /// In en, this message translates to:
+  /// **'Open interest'**
+  String get metricOpenInterest;
+
+  /// No description provided for @metricLongShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Long/short ratio'**
+  String get metricLongShort;
+
+  /// No description provided for @metricRange.
+  ///
+  /// In en, this message translates to:
+  /// **'{days}D'**
+  String metricRange(int days);
+
+  /// No description provided for @metricOiContracts.
+  ///
+  /// In en, this message translates to:
+  /// **'Open interest ({asset})'**
+  String metricOiContracts(String asset);
+
+  /// No description provided for @metricOiValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Open interest value ({asset})'**
+  String metricOiValue(String asset);
+
+  /// No description provided for @metricLsRatio.
+  ///
+  /// In en, this message translates to:
+  /// **'Long/short account ratio'**
+  String get metricLsRatio;
+
+  /// No description provided for @metricLongAccounts.
+  ///
+  /// In en, this message translates to:
+  /// **'Long accounts'**
+  String get metricLongAccounts;
+
+  /// No description provided for @metricShortAccounts.
+  ///
+  /// In en, this message translates to:
+  /// **'Short accounts'**
+  String get metricShortAccounts;
+
+  /// No description provided for @metricsChartLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'{symbol} {metric}, last {days, plural, =1{day} other{{days} days}}'**
+  String metricsChartLabel(String symbol, String metric, int days);
+
+  /// No description provided for @metricsPartial.
+  ///
+  /// In en, this message translates to:
+  /// **'Data is stored from {from} only, a shorter period than the one selected.'**
+  String metricsPartial(String from);
+
+  /// No description provided for @metricsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No data stored for this period yet.'**
+  String get metricsEmpty;
+
+  /// No description provided for @metricsUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Every 5 minutes · latest {time}'**
+  String metricsUpdated(String time);
+
   /// No description provided for @alertShort.
   ///
   /// In en, this message translates to:

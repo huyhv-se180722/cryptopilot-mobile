@@ -22,6 +22,7 @@ import 'package:cryptopilot_mobile/features/market/domain/candle.dart';
 import 'package:cryptopilot_mobile/features/market/domain/market.dart';
 import 'package:cryptopilot_mobile/features/chart/application/chart_prefs.dart';
 import 'package:cryptopilot_mobile/features/chart/presentation/chart_surface.dart';
+import 'package:cryptopilot_mobile/features/chart/presentation/metric_surface.dart';
 import 'package:cryptopilot_mobile/features/news/data/news_api.dart';
 import 'package:cryptopilot_mobile/features/news/domain/news.dart';
 import 'package:cryptopilot_mobile/features/notifications/data/notification_api.dart';
@@ -171,13 +172,15 @@ List<Override> baseOverrides({
   NewsApi? news,
   PerformanceApi? performance,
   FakeChartSurface? chart,
+  FakeMetricSurface? metricChart,
   SettingsStore? settings,
   AnalysisApi? analysis,
   Duration zone = Duration.zero,
+  DateTime Function()? clock,
 }) => [
   tokenStoreProvider.overrideWithValue(store),
   authTokenApiProvider.overrideWithValue(tokens),
-  clockProvider.overrideWithValue(() => now),
+  clockProvider.overrideWithValue(clock ?? () => now),
   settingsStoreProvider.overrideWithValue(settings ?? MemorySettingsStore()),
   authApiProvider.overrideWithValue(auth ?? FakeAuthApi()),
   profileApiProvider.overrideWithValue(profile ?? FakeProfileApi()),
@@ -193,6 +196,7 @@ List<Override> baseOverrides({
   newsApiProvider.overrideWithValue(news ?? FakeNewsApi()),
   performanceApiProvider.overrideWithValue(performance ?? FakePerformanceApi()),
   chartSurfaceProvider.overrideWithValue(chart ?? FakeChartSurface()),
+  metricSurfaceProvider.overrideWithValue(metricChart ?? FakeMetricSurface()),
   // Never the zone of the machine that runs the tests.
   chartZoneProvider.overrideWithValue(zone),
   analysisApiProvider.overrideWithValue(analysis ?? FakeAnalysisApi()),
@@ -833,6 +837,12 @@ class FakeAnalysisApi implements AnalysisApi {
   Object? error;
   Object? metricsError;
 
+  /// The metrics body; missing → `metricsJson` of the asked range.
+  Map<String, Object?>? metricsAnswer;
+
+  /// While set, `metrics()` waits for it (the loading state).
+  Future<void>? metricsHold;
+
   /// While set, `analysis()` waits for it (the loading state).
   Future<void>? hold;
 
@@ -850,19 +860,50 @@ class FakeAnalysisApi implements AnalysisApi {
   @override
   Future<FuturesMetrics> metrics(String symbol, DateTime from) async {
     metricCalls.add('$symbol ${from.toIso8601String()}');
+    if (metricsHold case final gate?) await gate;
     if (metricsError case final e?) throw e;
-    return decodeFuturesMetrics({
-      'symbol': symbol,
-      'from': from.toIso8601String(),
-      'to': now.toIso8601String(),
-      'openInterest': [
+    return decodeFuturesMetrics(
+      metricsAnswer ?? metricsJson(symbol: symbol, from: from),
+    );
+  }
+}
+
+/// `GET /market/futures/{s}/metrics` as backend develop answers it
+/// (9090dc07): sparse points, oldest first, and the first stored instant of
+/// each series.
+Map<String, Object?> metricsJson({
+  String symbol = 'BTCUSDT',
+  DateTime? from,
+  List<Object?>? openInterest,
+  List<Object?>? longShortRatio,
+  String? since = '2026-11-05T00:00:00Z',
+}) => {
+  'symbol': symbol,
+  'from': (from ?? now.subtract(const Duration(days: 1))).toIso8601String(),
+  'to': now.toIso8601String(),
+  'openInterest':
+      openInterest ??
+      [
+        {
+          'time': '2026-11-06T09:30:00Z',
+          'openInterest': '95410.118000000000',
+          'openInterestValue': '7264410223.10220000',
+        },
         {
           'time': '2026-11-06T09:35:00Z',
           'openInterest': '95532.229000000000',
           'openInterestValue': '7273680617.71650000',
         },
       ],
-      'longShortRatio': [
+  'longShortRatio':
+      longShortRatio ??
+      [
+        {
+          'time': '2026-11-06T09:30:00Z',
+          'longShortRatio': '3.19870000',
+          'longAccountRatio': '0.76180000',
+          'shortAccountRatio': '0.23820000',
+        },
         {
           'time': '2026-11-06T09:35:00Z',
           'longShortRatio': '3.23010000',
@@ -870,12 +911,10 @@ class FakeAnalysisApi implements AnalysisApi {
           'shortAccountRatio': '0.23640000',
         },
       ],
-      'fundingSettlements': <Object?>[],
-      'availableFrom': {
-        'openInterest': '2026-11-05T00:00:00Z',
-        'longShortRatio': '2026-11-05T00:00:00Z',
-        'fundingSettlements': null,
-      },
-    });
-  }
-}
+  'fundingSettlements': <Object?>[],
+  'availableFrom': {
+    'openInterest': since,
+    'longShortRatio': since,
+    'fundingSettlements': null,
+  },
+};

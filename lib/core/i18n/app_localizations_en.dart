@@ -528,6 +528,82 @@ class AppLocalizationsEn extends AppLocalizations {
   String get analysisCreatePlanHint => 'Create trading plan on the web';
 
   @override
+  String get analysisScoredSide => 'Scored side';
+
+  @override
+  String get analysisDominantSide => 'Dominant side';
+
+  @override
+  String get sideLong => 'Long';
+
+  @override
+  String get sideShort => 'Short';
+
+  @override
+  String get sideNeutral => 'Neutral';
+
+  @override
+  String get analysisSidesNote =>
+      'Sides describe the score. They are not a trade recommendation.';
+
+  @override
+  String get metricsTitle => 'Futures data';
+
+  @override
+  String get metricOpenInterest => 'Open interest';
+
+  @override
+  String get metricLongShort => 'Long/short ratio';
+
+  @override
+  String metricRange(int days) {
+    return '${days}D';
+  }
+
+  @override
+  String metricOiContracts(String asset) {
+    return 'Open interest ($asset)';
+  }
+
+  @override
+  String metricOiValue(String asset) {
+    return 'Open interest value ($asset)';
+  }
+
+  @override
+  String get metricLsRatio => 'Long/short account ratio';
+
+  @override
+  String get metricLongAccounts => 'Long accounts';
+
+  @override
+  String get metricShortAccounts => 'Short accounts';
+
+  @override
+  String metricsChartLabel(String symbol, String metric, int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: '$days days',
+      one: 'day',
+    );
+    return '$symbol $metric, last $_temp0';
+  }
+
+  @override
+  String metricsPartial(String from) {
+    return 'Data is stored from $from only, a shorter period than the one selected.';
+  }
+
+  @override
+  String get metricsEmpty => 'No data stored for this period yet.';
+
+  @override
+  String metricsUpdated(String time) {
+    return 'Every 5 minutes · latest $time';
+  }
+
+  @override
   String get alertShort => 'Alert';
 
   @override

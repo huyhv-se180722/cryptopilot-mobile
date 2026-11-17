@@ -159,6 +159,10 @@ void main() {
       expect(m.from, DateTime.utc(2026, 11, 6, 9, 33, 15, 396, 665));
       expect(m.openInterest.single.second, '7273680617.71650000');
       expect(m.longShortRatio.single.value, '3.23010000');
+      // The shares of the accounts, fractions of 1.
+      expect(m.longShortRatio.single.longShare, '0.76360000');
+      expect(m.longShortRatio.single.shortShare, '0.23640000');
+      expect(m.openInterest.single.longShare, isNull);
       expect(m.openInterestSince, DateTime.utc(2026, 9, 29, 14, 20));
     });
   });

@@ -11,6 +11,7 @@ import 'package:cryptopilot_mobile/core/theme/app_theme.dart';
 import 'package:cryptopilot_mobile/core/theme/cp_colors.dart';
 import 'package:cryptopilot_mobile/features/analysis/presentation/analysis_screen.dart';
 import 'package:cryptopilot_mobile/features/chart/application/chart_prefs.dart';
+import 'package:cryptopilot_mobile/features/chart/presentation/chart_surface.dart';
 import 'package:cryptopilot_mobile/features/market/domain/market.dart';
 import 'package:cryptopilot_mobile/features/market/presentation/markets_screen.dart';
 import 'package:cryptopilot_mobile/features/market/presentation/pair_actions.dart';
@@ -37,10 +38,12 @@ void main() {
     late FakeNewsApi news;
     late FakeWebLinks web;
     late FakeChartSurface chart;
+    late FakeMetricSurface metricChart;
     late MemorySettingsStore settings;
 
     setUp(() {
       transport = FakeTransport();
+      metricChart = FakeMetricSurface();
       market = FakeMarketApi()
         ..candlesBy['SPOT BTCUSDT 1h'] = candleRun(500)
         ..candlesBy['SPOT BTCUSDT 4h'] = candleRun(
@@ -62,6 +65,7 @@ void main() {
       Brightness brightness = Brightness.light,
       bool actions = false,
       Duration zone = Duration.zero,
+      DateTime Function()? clock,
     }) async {
       await tester.pumpWidget(
         ProviderScope(
@@ -75,8 +79,10 @@ void main() {
               news: news,
               web: web,
               chart: chart,
+              metricChart: metricChart,
               settings: settings,
               zone: zone,
+              clock: clock,
             ),
             if (actions)
               pairActionsProvider.overrideWithValue(
@@ -107,6 +113,13 @@ void main() {
     Future<void> unmount(WidgetTester tester) async {
       await tester.pumpWidget(const SizedBox());
       await tester.pump(const Duration(seconds: 31));
+    }
+
+    /// A push goes through the hub's stream before a widget sees it.
+    Future<void> pushed(WidgetTester tester) async {
+      for (var i = 0; i < 3; i++) {
+        await tester.pump();
+      }
     }
 
     Future<void> show(WidgetTester tester, Finder finder) async {
@@ -617,10 +630,328 @@ void main() {
       );
       expect(find.byKey(const Key('chart-view')), findsNothing);
       expect(find.byKey(const Key('score-card')), findsNothing);
+      // The metrics need the same plan: not shown and never asked for.
+      expect(find.byKey(const Key('futures-strip')), findsNothing);
+      expect(find.byKey(const Key('futures-metrics')), findsNothing);
+      expect(analysis.metricCalls, isEmpty);
       await tester.tap(find.byKey(const Key('upgrade-open-web')));
       expect(web.opened, ['/subscription']);
       await unmount(tester);
     });
+
+    testWidgets('a Spot pair has no Futures blocks and names no side, even '
+        'when the backend sends its scored side', (tester) async {
+      analysis.answers['SPOT BTCUSDT 1h'] = analysisJson(scoredSide: 'LONG');
+      await mount(tester);
+
+      expect(find.byKey(const Key('futures-strip')), findsNothing);
+      expect(find.byKey(const Key('futures-metrics')), findsNothing);
+      expect(analysis.metricCalls, isEmpty);
+      // On Spot the scored side is always LONG and is not shown (SRS 3.3.2).
+      expect(find.byKey(const Key('score-sides')), findsNothing);
+      expect(find.byKey(const Key('score-sides-note')), findsNothing);
+      await unmount(tester);
+    });
+
+    testWidgets('SCR-11: mark, index, the funding rate with its sign and the '
+        'countdown to the next funding time of the source (BR-11)', (
+      tester,
+    ) async {
+      var clock = now;
+      await mount(tester, on: Market.futures, clock: () => clock);
+
+      // The stored price first; no funding in it yet.
+      expect(within('futures-mark', '100.40'), findsOneWidget);
+      expect(within('futures-index', '100.30'), findsOneWidget);
+      expect(within('futures-funding', '--'), findsOneWidget);
+      expect(within('futures-next-funding', '--'), findsOneWidget);
+
+      transport.last.push('/topic/ticker.FUTURES.BTCUSDT', {
+        'market': 'FUTURES',
+        'symbol': 'BTCUSDT',
+        'markPrice': '76170.10',
+        'indexPrice': '76168.554',
+        'fundingRate': '-0.00012345',
+        'nextFundingTime': '2026-11-06T13:12:45Z',
+      });
+      await pushed(tester);
+      expect(within('futures-mark', '76,170.10'), findsOneWidget);
+      expect(within('futures-index', '76,168.55'), findsOneWidget);
+      expect(within('futures-funding', '−0.0123%'), findsOneWidget);
+      // now = 2026-11-06T10:00Z.
+      expect(within('futures-next-funding', '03:12:45'), findsOneWidget);
+
+      clock = now.add(const Duration(seconds: 5));
+      await tester.pump(const Duration(seconds: 1));
+      expect(within('futures-next-funding', '03:12:40'), findsOneWidget);
+      await unmount(tester);
+    });
+
+    testWidgets('SCR-11: open interest with its value, then the long/short '
+        'ratio with the account shares; a price does not redraw the chart', (
+      tester,
+    ) async {
+      await mount(tester, on: Market.futures);
+
+      // now = 2026-11-06T10:00Z: one day back plus a minute.
+      expect(analysis.metricCalls, ['BTCUSDT 2026-11-05T10:01:00.000Z']);
+      expect(find.text('Open interest (BTC)'), findsOneWidget);
+      expect(within('metric-oi', '95,532.229'), findsOneWidget);
+      expect(find.text('Open interest value (USDT)'), findsOneWidget);
+      expect(within('metric-oi-value', '7.27B'), findsOneWidget);
+      expect(
+        within('metrics-updated', 'Every 5 minutes · latest 6 Nov 09:35'),
+        findsOneWidget,
+      );
+      // The whole day asked for is stored.
+      expect(find.byKey(const Key('metrics-partial')), findsNothing);
+      expect(find.byKey(const Key('metrics-loading')), findsNothing);
+      expect(within('metric-zone', 'Times in UTC'), findsOneWidget);
+
+      int seconds(int minute) =>
+          DateTime.utc(2026, 11, 6, 9, minute).millisecondsSinceEpoch ~/ 1000;
+      expect(metricChart.warms, 1);
+      expect(metricChart.payloads.last['offset'], 0);
+      expect(
+        [for (final l in metricChart.lines) '${l['scale']} ${l['format']}'],
+        ['left amount', 'right amount'],
+      );
+      expect(metricChart.lines.first['points'], [
+        [seconds(30), '95410.118000000000'],
+        [seconds(35), '95532.229000000000'],
+      ]);
+      expect(metricChart.lines.last['points'], [
+        [seconds(30), '7264410223.10220000'],
+        [seconds(35), '7273680617.71650000'],
+      ]);
+
+      final sent = metricChart.payloads.length;
+      transport.last.push('/topic/ticker.FUTURES.BTCUSDT', {
+        'market': 'FUTURES',
+        'symbol': 'BTCUSDT',
+        'markPrice': '76170.10',
+      });
+      await pushed(tester);
+      expect(within('futures-mark', '76,170.10'), findsOneWidget);
+      expect(metricChart.payloads, hasLength(sent));
+
+      await show(tester, find.text('Long/short ratio'));
+      await tester.tap(find.text('Long/short ratio'));
+      await tester.pump();
+      expect(analysis.metricCalls, hasLength(1), reason: 'the same answer');
+      expect(find.byKey(const Key('metric-oi')), findsNothing);
+      expect(find.text('Long/short account ratio'), findsOneWidget);
+      expect(within('metric-ls-ratio', '3.2301'), findsOneWidget);
+      expect(within('metric-ls-long', '76.36%'), findsOneWidget);
+      expect(within('metric-ls-short', '23.64%'), findsOneWidget);
+      expect(metricChart.payloads, hasLength(sent + 1));
+      expect(metricChart.lines.single['scale'], 'right');
+      expect(metricChart.lines.single['format'], 'ratio');
+      expect(metricChart.lines.single['points'], [
+        [seconds(30), '3.19870000'],
+        [seconds(35), '3.23010000'],
+      ]);
+      await unmount(tester);
+    });
+
+    testWidgets('SCR-11: another range is read again; less stored than '
+        'selected says since when, in the zone of the chart (BR-10, BR-08)', (
+      tester,
+    ) async {
+      await mount(tester, on: Market.futures, zone: const Duration(hours: 7));
+      expect(metricChart.payloads.last['offset'], 7 * 3600);
+      expect(within('metric-zone', 'Times in UTC+7'), findsOneWidget);
+      expect(
+        within('metrics-updated', 'Every 5 minutes · latest 6 Nov 16:35'),
+        findsOneWidget,
+      );
+
+      await show(tester, find.text('3D'));
+      await tester.tap(find.text('3D'));
+      await tester.pump();
+      await tester.pump();
+      expect(analysis.metricCalls.last, 'BTCUSDT 2026-11-03T10:01:00.000Z');
+      // Stored from 2026-11-05T00:00Z, asked from 2026-11-03.
+      expect(
+        within(
+          'metrics-partial',
+          'Data is stored from 5 Nov 07:00 only, a shorter period than the '
+              'one selected.',
+        ),
+        findsOneWidget,
+      );
+      await unmount(tester);
+    });
+
+    testWidgets('SCR-11 metrics: loading, nothing stored, and a failure with '
+        'Try again', (tester) async {
+      final gate = Completer<void>();
+      analysis.metricsHold = gate.future;
+      await mount(tester, on: Market.futures);
+      expect(find.byKey(const Key('metrics-loading')), findsOneWidget);
+      expect(find.byKey(const Key('metric-oi')), findsNothing);
+
+      analysis
+        ..metricsHold = null
+        ..metricsAnswer = metricsJson(
+          openInterest: [],
+          longShortRatio: [],
+          since: null,
+        );
+      gate.complete();
+      await tester.pump();
+      await tester.pump();
+      expect(find.byKey(const Key('metrics-loading')), findsNothing);
+      expect(
+        within('metrics-empty', 'No data stored for this period yet.'),
+        findsOneWidget,
+      );
+      expect(find.byKey(const Key('metric-oi')), findsNothing);
+      expect(find.byKey(const Key('metrics-updated')), findsNothing);
+
+      analysis
+        ..metricsAnswer = null
+        ..metricsError = networkDown;
+      await show(tester, find.text('7D'));
+      await tester.tap(find.text('7D'));
+      await tester.pump();
+      await tester.pump();
+      final retry = find.descendant(
+        of: find.byKey(const Key('futures-metrics')),
+        matching: find.text('Try again'),
+      );
+      expect(retry, findsOneWidget);
+      expect(find.byKey(const Key('metric-oi')), findsNothing);
+
+      analysis.metricsError = null;
+      await show(tester, retry);
+      await tester.tap(retry);
+      await tester.pump();
+      await tester.pump();
+      expect(retry, findsNothing);
+      expect(within('metric-oi', '95,532.229'), findsOneWidget);
+      await unmount(tester);
+    });
+
+    testWidgets('SCR-11: the scored side and the dominant side with the '
+        'score, as information and in plain text (BR-13)', (tester) async {
+      analysis.answers['FUTURES BTCUSDT 1h'] = analysisJson(
+        market: 'FUTURES',
+        scoredSide: 'SHORT',
+      );
+      await mount(tester, on: Market.futures);
+
+      expect(within('score-card', 'Scored side'), findsOneWidget);
+      expect(within('side-scored', 'Short'), findsOneWidget);
+      expect(within('score-card', 'Dominant side'), findsOneWidget);
+      expect(within('side-dominant', 'Long'), findsOneWidget);
+      expect(
+        within(
+          'score-sides-note',
+          'Sides describe the score. They are not a trade recommendation.',
+        ),
+        findsOneWidget,
+      );
+      // Neither side takes the colour of a gain or a loss.
+      for (final key in ['side-scored', 'side-dominant']) {
+        final color = tester.widget<Text>(find.byKey(Key(key))).style?.color;
+        expect(color, isNot(CpColors.light.positive), reason: key);
+        expect(color, isNot(CpColors.light.negative), reason: key);
+      }
+      await unmount(tester);
+    });
+
+    testWidgets('SCR-11 without a score yet: Insufficient data, the dominant '
+        'side still named', (tester) async {
+      analysis.answers['FUTURES BTCUSDT 1h'] = analysisJson(
+        market: 'FUTURES',
+        score: null,
+      );
+      await mount(tester, on: Market.futures);
+
+      expect(find.byKey(const Key('score-insufficient')), findsOneWidget);
+      expect(find.byKey(const Key('side-scored')), findsNothing);
+      expect(within('side-dominant', 'Long'), findsOneWidget);
+      await unmount(tester);
+    });
+
+    for (final brightness in Brightness.values) {
+      testWidgets('SCR-11 at 360 dp, ${brightness.name}: nothing overflows, '
+          'with the longest content', (tester) async {
+        tester.view
+          ..physicalSize = const Size(360 * 3, 760 * 3)
+          ..devicePixelRatio = 3;
+        addTearDown(tester.view.reset);
+        analysis
+          ..answers['FUTURES BTCUSDT 1h'] = analysisJson(
+            market: 'FUTURES',
+            locked: true,
+            score: 100,
+            capReason: 'LOW_ROOM',
+            scoredSide: 'SHORT',
+          )
+          ..metricsAnswer = metricsJson(
+            openInterest: [
+              {
+                'time': '2026-11-06T09:35:00Z',
+                'openInterest': '123456789012.123456789000',
+                'openInterestValue': '9876543210987.65430000',
+              },
+            ],
+            since: '2026-11-05T23:55:00Z',
+          );
+        await mount(
+          tester,
+          on: Market.futures,
+          brightness: brightness,
+          actions: true,
+        );
+        transport.last.push('/topic/ticker.FUTURES.BTCUSDT', {
+          'market': 'FUTURES',
+          'symbol': 'BTCUSDT',
+          'lastPrice': '1234567.12345678',
+          'markPrice': '1234567.12345678',
+          'indexPrice': '1234567.12345678',
+          'fundingRate': '-0.00123456',
+          'nextFundingTime': '2026-11-07T09:59:59Z',
+        });
+        await pushed(tester);
+        expect(within('futures-mark', '1,234,567.12'), findsOneWidget);
+        expect(tester.takeException(), isNull);
+        expect(find.byKey(const Key('futures-strip')), findsOneWidget);
+        expect(find.byKey(const Key('score-sides')), findsOneWidget);
+        expect(find.byKey(const Key('metrics-partial')), findsOneWidget);
+        expect(
+          metricChart.theme,
+          ChartTheme.of(
+            brightness == Brightness.dark ? CpColors.dark : CpColors.light,
+          ),
+        );
+
+        await show(tester, find.byKey(const Key('metric-kind')));
+        expect(tester.takeException(), isNull);
+        for (final key in ['metric-kind', 'metric-range']) {
+          expect(
+            tester.getSize(find.byKey(Key(key))).height,
+            greaterThanOrEqualTo(48),
+            reason: key,
+          );
+        }
+        await tester.tap(find.text('Long/short ratio'));
+        await tester.pump();
+        expect(tester.takeException(), isNull);
+        expect(find.byKey(const Key('metric-ls-short')), findsOneWidget);
+
+        await tester.drag(
+          find.byKey(const Key('analysis-scroll')),
+          const Offset(0, -3000),
+        );
+        await tester.pump();
+        expect(tester.takeException(), isNull);
+        expect(find.byKey(const Key('pair-news')), findsOneWidget);
+        await unmount(tester);
+      });
+    }
 
     for (final brightness in Brightness.values) {
       testWidgets('360 dp, ${brightness.name}: nothing overflows, with the '

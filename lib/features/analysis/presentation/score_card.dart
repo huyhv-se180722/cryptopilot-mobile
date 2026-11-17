@@ -12,7 +12,8 @@ import 'analysis_card.dart';
 
 /// The Setup Score card of SCR-10 / SCR-11 (SRS 3.3.2, BR-13): the 0–100
 /// score read with the Trader's preset, the preset's name, version and
-/// timeframe, why it was capped, and the MSG42 disclaimer (BR-60). The
+/// timeframe, the scored and dominant sides, why it was capped, and the
+/// MSG42 disclaimer (BR-60). The
 /// component scores are locked with MSG29 on a plan without them (CR-08). A
 /// missing score is "Insufficient data", never 0.
 class ScoreCard extends ConsumerWidget {
@@ -59,6 +60,12 @@ class ScoreCard extends ConsumerWidget {
     final score = setup?.score;
     final components = setup?.components;
 
+    // SRS 3.3.3: the sides belong to the Futures score. On Spot the scored
+    // side is always LONG and is not shown (SRS 3.3.2).
+    final hasSides =
+        analysis.market == Market.futures &&
+        (setup?.scoredSide != null || setup?.dominantSide != null);
+
     return [
       if (score == null)
         Text(
@@ -100,6 +107,16 @@ class ScoreCard extends ConsumerWidget {
             borderRadius: BorderRadius.circular(2),
             backgroundColor: cp.raised,
           ),
+        ),
+      ],
+      if (hasSides) ...[
+        const SizedBox(height: 8),
+        _Sides(setup: setup),
+        const SizedBox(height: 2),
+        Text(
+          l.analysisSidesNote,
+          key: const Key('score-sides-note'),
+          style: text.bodySmall?.copyWith(color: cp.muted),
         ),
       ],
       if (setup != null) ...[
@@ -149,6 +166,72 @@ class ScoreCard extends ConsumerWidget {
           style: text.bodySmall?.copyWith(color: cp.muted),
         ),
     ];
+  }
+}
+
+/// SRS 3.3.3 (BR-13, setup score v2): the side every component of a
+/// Futures score was scored for and the dominant side of the trend, with
+/// the score.
+/// Information about the score, never a recommendation to trade (BR-51):
+/// plain text, no green or red, no arrow.
+class _Sides extends StatelessWidget {
+  const _Sides({required this.setup});
+
+  final AnalysisScore? setup;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final text = Theme.of(context).textTheme;
+    final cp = context.cp;
+    final rows = [
+      if (setup?.scoredSide case final side?)
+        (
+          'scored',
+          l.analysisScoredSide,
+          switch (side) {
+            ScoredSide.long => l.sideLong,
+            ScoredSide.short => l.sideShort,
+          },
+        ),
+      if (setup?.dominantSide case final side?)
+        (
+          'dominant',
+          l.analysisDominantSide,
+          switch (side) {
+            DominantSide.long => l.sideLong,
+            DominantSide.short => l.sideShort,
+            DominantSide.neutral => l.sideNeutral,
+          },
+        ),
+    ];
+    return Wrap(
+      key: const Key('score-sides'),
+      spacing: 16,
+      runSpacing: 2,
+      children: [
+        for (final (id, label, value) in rows)
+          MergeSemantics(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 1),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(label, style: text.bodySmall?.copyWith(color: cp.muted)),
+                  const SizedBox(width: 6),
+                  Text(
+                    value,
+                    key: Key('side-$id'),
+                    style: text.bodySmall?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+      ],
+    );
   }
 }
 

@@ -294,6 +294,73 @@
   },
   "analysisCreatePlan": "Create plan",
   "analysisCreatePlanHint": "Create trading plan on the web",
+  "analysisScoredSide": "Scored side",
+  "analysisDominantSide": "Dominant side",
+  "sideLong": "Long",
+  "sideShort": "Short",
+  "sideNeutral": "Neutral",
+  "analysisSidesNote": "Sides describe the score. They are not a trade recommendation.",
+  "metricsTitle": "Futures data",
+  "metricOpenInterest": "Open interest",
+  "metricLongShort": "Long/short ratio",
+  "metricRange": "{days}D",
+  "@metricRange": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "metricOiContracts": "Open interest ({asset})",
+  "@metricOiContracts": {
+    "placeholders": {
+      "asset": {
+        "type": "String"
+      }
+    }
+  },
+  "metricOiValue": "Open interest value ({asset})",
+  "@metricOiValue": {
+    "placeholders": {
+      "asset": {
+        "type": "String"
+      }
+    }
+  },
+  "metricLsRatio": "Long/short account ratio",
+  "metricLongAccounts": "Long accounts",
+  "metricShortAccounts": "Short accounts",
+  "metricsChartLabel": "{symbol} {metric}, last {days, plural, =1{day} other{{days} days}}",
+  "@metricsChartLabel": {
+    "placeholders": {
+      "symbol": {
+        "type": "String"
+      },
+      "metric": {
+        "type": "String"
+      },
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "metricsPartial": "Data is stored from {from} only, a shorter period than the one selected.",
+  "@metricsPartial": {
+    "placeholders": {
+      "from": {
+        "type": "String"
+      }
+    }
+  },
+  "metricsEmpty": "No data stored for this period yet.",
+  "metricsUpdated": "Every 5 minutes · latest {time}",
+  "@metricsUpdated": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
   "alertShort": "Alert",
   "msg25": "{pair} added to watchlist.",
   "@msg25": {
