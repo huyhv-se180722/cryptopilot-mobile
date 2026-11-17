@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:cryptopilot_mobile/app.dart';
 import 'package:cryptopilot_mobile/core/auth/token_store.dart';
@@ -408,6 +409,48 @@ void main() {
         chart.calls.lastIndexOf('offset 0'),
         lessThan(chart.calls.lastIndexOf('candles 500 shift 0')),
       );
+      await unmount(tester);
+    });
+
+    testWidgets('a timeframe with old candles on the device: the fresh ones '
+        'are the last on the page and only their indicators follow', (
+      tester,
+    ) async {
+      // Found on the emulator: the cached list's indicators, sent after the
+      // fresh candles, moved the view back to where the cache ended.
+      final cached = candleRun(
+        500,
+        end: DateTime.utc(2026, 11, 1),
+        step: const Duration(hours: 4),
+        first: 9000,
+      );
+      settings.values['chart.candles.SPOT.BTCUSDT.4h'] = jsonEncode([
+        for (final candle in cached) candle.toJson(),
+      ]);
+      chart.paintTime = const Duration(milliseconds: 100);
+      await mount(tester);
+      await tester.pump(const Duration(milliseconds: 200));
+      chart.calls.clear();
+
+      await tester.tap(find.text('4h'));
+      for (var i = 0; i < 10; i++) {
+        await tester.pump(const Duration(milliseconds: 50));
+      }
+
+      final sent = [
+        for (final call in chart.calls)
+          if (call.startsWith('candles') || call == 'indicators') call,
+      ];
+      expect(sent, [
+        'candles 500 shift 0',
+        'candles 500 shift 0',
+        'indicators',
+      ]);
+      final fresh = market.candlesBy['SPOT BTCUSDT 4h']!;
+      expect(chart.candles!.last.openTime, fresh.last.openTime);
+      final times = chart.indicators!['times']! as List;
+      expect(times.last, fresh.last.openTime.millisecondsSinceEpoch ~/ 1000);
+      expect(times, hasLength(500));
       await unmount(tester);
     });
 

@@ -47,6 +47,14 @@ class _ChartViewState extends ConsumerState<ChartView> {
   ChartTheme? _theme;
   int _closedCount = -1;
 
+  /// Counts the candle lists sent to the page. A list waits until the
+  /// page painted it; when a newer one went meanwhile (the fresh candles
+  /// after the cached ones, or another timeframe), the older one must not
+  /// send its indicators any more: their times would join the time scale
+  /// of the newer candles and move what the Trader sees away from the
+  /// latest candle.
+  int _lists = 0;
+
   /// What the axis adds to UTC for this timeframe (BR-08).
   Duration get _offset =>
       chartOffset(widget.candleKey.tf, ref.read(chartZoneProvider));
@@ -97,6 +105,8 @@ class _ChartViewState extends ConsumerState<ChartView> {
         .candles;
     if (old.candleKey != widget.candleKey) {
       _closedCount = -1;
+      // What the old timeframe still has under way is out of date.
+      _lists++;
       // Before the candles of the new timeframe go to the page.
       unawaited(_surface.setTimeOffset(_offset.inSeconds));
     } else if (!_sameSet(old.indicators, widget.indicators) &&
@@ -120,9 +130,13 @@ class _ChartViewState extends ConsumerState<ChartView> {
     final closed = candles.where((c) => c.closed).length;
     switch (state.change) {
       case CandleChange.reset:
+        final list = ++_lists;
         await _surface.setCandles(candles);
+        if (list != _lists) return;
       case CandleChange.prepend:
+        final list = ++_lists;
         await _surface.setCandles(candles, shift: state.prepended);
+        if (list != _lists) return;
       case CandleChange.update:
         await _surface.update(candles.last);
         // Indicators move only when a candle closes, not on every tick.

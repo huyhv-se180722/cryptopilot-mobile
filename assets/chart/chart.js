@@ -70,9 +70,21 @@
     return b;
   }
 
+  function clearIndicators() {
+    extra.forEach(function (s) { chart.removeSeries(s); });
+    extra = [];
+    while (chart.panes().length > 1) chart.removePane(chart.panes().length - 1);
+  }
+
   // shift > 0: older candles went in front; keep what the Trader looks at.
+  // Otherwise the list is a new one (another pair or timeframe, or the fresh
+  // candles after the cached ones): the indicators on the page belong to the
+  // old list, and every series shares one time scale, so their times would
+  // join these candles' and the last candles would no longer be the ones
+  // shown. They go first; setIndicators draws the new ones.
   window.setCandles = function (list, tag, shift) {
     const r = shift > 0 ? chart.timeScale().getVisibleLogicalRange() : null;
+    if (!(shift > 0)) { clearIndicators(); payload = null; }
     candles.setData(list.map(bar));
     if (r) {
       chart.timeScale().setVisibleLogicalRange({ from: r.from + shift, to: r.to + shift });
@@ -98,9 +110,7 @@
     payload = p;
     if (!again) payloadOffset = offset;
     const by = payloadOffset;
-    extra.forEach(function (s) { chart.removeSeries(s); });
-    extra = [];
-    while (chart.panes().length > 1) chart.removePane(chart.panes().length - 1);
+    clearIndicators();
     p.overlays.forEach(function (o) {
       const s = chart.addSeries(L.LineSeries, {
         color: o.color, lineWidth: 1, priceLineVisible: false, lastValueVisible: false, crosshairMarkerVisible: false,

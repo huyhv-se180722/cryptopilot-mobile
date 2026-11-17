@@ -15,6 +15,10 @@ class FakeChartSurface implements ChartSurface {
   List<ChartPriceLine> lines = const [];
   ChartTheme? theme;
 
+  /// How long the page takes to paint a list of candles (the WebView
+  /// answers after two frames).
+  Duration paintTime = Duration.zero;
+
   /// The page asks for older candles (the Trader reached the left edge).
   void askMore() => _requests.add('more');
 
@@ -40,6 +44,7 @@ class FakeChartSurface implements ChartSurface {
   Future<void> setCandles(List<Candle> candles, {int shift = 0}) async {
     this.candles = candles;
     calls.add('candles ${candles.length} shift $shift');
+    if (paintTime > Duration.zero) await Future<void>.delayed(paintTime);
   }
 
   @override
