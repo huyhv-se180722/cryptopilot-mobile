@@ -147,6 +147,7 @@
   "accountProfileLink": "Profile and security",
   "accountSubscriptionLink": "Subscription",
   "accountAbout": "About",
+  "accountLicences": "Open-source licenses",
   "accountSignOut": "Sign out",
   "accountSignOutConfirm": "Sign out of CryptoPilot on this device?",
   "marketLive": "Live",
@@ -199,7 +200,168 @@
   "marketIndexPrice": "Index price",
   "marketFundingRate": "Funding rate",
   "marketNextFunding": "Next funding in",
-  "marketAnalysisNext": "Charts, indicators and the setup score arrive in the next build.",
+  "analysisPairGone": "This pair is no longer available.",
+  "analysisDayRange": "H {high} · L {low} · Vol {volume}",
+  "@analysisDayRange": {
+    "placeholders": {
+      "high": {
+        "type": "String"
+      },
+      "low": {
+        "type": "String"
+      },
+      "volume": {
+        "type": "String"
+      }
+    }
+  },
+  "chartTimeZone": "Times in {zone}",
+  "@chartTimeZone": {
+    "placeholders": {
+      "zone": {
+        "type": "String"
+      }
+    }
+  },
+  "analysisIndicators": "Indicators",
+  "analysisOverlays": "Overlays",
+  "analysisPanels": "Panels",
+  "indicatorSma20": "SMA 20",
+  "indicatorEma20": "EMA 20",
+  "indicatorEma50": "EMA 50",
+  "indicatorEma200": "EMA 200",
+  "indicatorBollinger": "Bollinger Bands (20, 2)",
+  "indicatorVolume": "Volume with Volume SMA 20",
+  "indicatorRsi": "RSI 14",
+  "indicatorMacd": "MACD (12, 26, 9)",
+  "analysisSupport": "Support",
+  "analysisResistance": "Resistance",
+  "analysisInsufficient": "Insufficient data",
+  "analysisInsufficientNotice": "Fewer than 200 closed candles: some indicators and the setup score cannot be computed yet.",
+  "analysisScoreTitle": "Setup score",
+  "analysisScoreOutOf": "/ 100",
+  "analysisScoreLabel": "Setup score {score} out of 100",
+  "@analysisScoreLabel": {
+    "placeholders": {
+      "score": {
+        "type": "String"
+      }
+    }
+  },
+  "analysisPresetLine": "{preset} {version} · {timeframe}",
+  "@analysisPresetLine": {
+    "placeholders": {
+      "preset": {
+        "type": "String"
+      },
+      "version": {
+        "type": "String"
+      },
+      "timeframe": {
+        "type": "String"
+      }
+    }
+  },
+  "presetScalping": "Scalping",
+  "presetDayTrading": "Day trading",
+  "presetSwing": "Swing",
+  "analysisScoreCapped": "Score capped: little room to the next level.",
+  "analysisComponents": "Components",
+  "componentTrend": "Trend",
+  "componentMomentum": "Momentum",
+  "componentVolume": "Volume",
+  "componentLevel": "Level",
+  "componentDerivatives": "Derivatives",
+  "analysisStatsTitle": "Market statistics",
+  "statLastPrice": "Last price",
+  "statSpread": "Spread",
+  "statChange24h": "24h change",
+  "analysisNewsTitle": "Latest {coin} news",
+  "@analysisNewsTitle": {
+    "placeholders": {
+      "coin": {
+        "type": "String"
+      }
+    }
+  },
+  "analysisNewsEmpty": "No {coin} news in the last 7 days.",
+  "@analysisNewsEmpty": {
+    "placeholders": {
+      "coin": {
+        "type": "String"
+      }
+    }
+  },
+  "analysisCreatePlan": "Create plan",
+  "analysisCreatePlanHint": "Create trading plan on the web",
+  "analysisScoredSide": "Scored side",
+  "analysisDominantSide": "Dominant side",
+  "sideLong": "Long",
+  "sideShort": "Short",
+  "sideNeutral": "Neutral",
+  "analysisSidesNote": "Sides describe the score. They are not a trade recommendation.",
+  "metricsTitle": "Futures data",
+  "metricOpenInterest": "Open interest",
+  "metricLongShort": "Long/short ratio",
+  "metricRange": "{days}D",
+  "@metricRange": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "metricOiContracts": "Open interest ({asset})",
+  "@metricOiContracts": {
+    "placeholders": {
+      "asset": {
+        "type": "String"
+      }
+    }
+  },
+  "metricOiValue": "Open interest value ({asset})",
+  "@metricOiValue": {
+    "placeholders": {
+      "asset": {
+        "type": "String"
+      }
+    }
+  },
+  "metricLsRatio": "Long/short account ratio",
+  "metricLongAccounts": "Long accounts",
+  "metricShortAccounts": "Short accounts",
+  "metricsChartLabel": "{symbol} {metric}, last {days, plural, =1{day} other{{days} days}}",
+  "@metricsChartLabel": {
+    "placeholders": {
+      "symbol": {
+        "type": "String"
+      },
+      "metric": {
+        "type": "String"
+      },
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "metricsPartial": "Data is stored from {from} only, a shorter period than the one selected.",
+  "@metricsPartial": {
+    "placeholders": {
+      "from": {
+        "type": "String"
+      }
+    }
+  },
+  "metricsEmpty": "No data stored for this period yet.",
+  "metricsUpdated": "Every 5 minutes · latest {time}",
+  "@metricsUpdated": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "alertShort": "Alert",
   "msg25": "{pair} added to watchlist.",
   "@msg25": {
     "placeholders": {

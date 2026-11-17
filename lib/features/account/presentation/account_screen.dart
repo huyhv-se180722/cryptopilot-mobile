@@ -183,6 +183,18 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
             l.msg42,
             style: text.bodySmall?.copyWith(color: context.cp.muted),
           ),
+          ListTile(
+            key: const Key('open-licences'),
+            contentPadding: EdgeInsets.zero,
+            title: Text(l.accountLicences),
+            trailing: const Icon(Icons.chevron_right),
+            // Third-party notices, e.g. TradingView Lightweight Charts
+            // (ADR-012 item 7).
+            onTap: () => showLicensePage(
+              context: context,
+              applicationName: l.productName,
+            ),
+          ),
           const SizedBox(height: 32),
           OutlinedButton.icon(
             key: const Key('sign-out'),

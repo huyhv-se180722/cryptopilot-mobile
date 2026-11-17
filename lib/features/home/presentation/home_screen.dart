@@ -16,7 +16,7 @@ import '../../market/application/market_board.dart';
 import '../../market/domain/market.dart';
 import '../../market/presentation/market_widgets.dart';
 import '../../market/presentation/markets_screen.dart';
-import '../../market/presentation/pair_sheet.dart';
+import '../../market/presentation/pair_actions.dart';
 import '../../news/domain/news.dart';
 import '../../notifications/presentation/notification_bell.dart';
 import '../../notifications/presentation/notification_format.dart';
@@ -252,7 +252,7 @@ class _WatchRow extends ConsumerWidget {
     final text = Theme.of(context).textTheme;
     return InkWell(
       key: Key('home-watch-${item.symbol}'),
-      onTap: pair == null ? null : () => showPairSheet(context, pair),
+      onTap: pair == null ? null : () => openPairAnalysis(context, pair),
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 8),
         child: Row(

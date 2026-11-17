@@ -4,9 +4,11 @@ import 'package:cryptopilot_mobile/core/auth/token_store.dart';
 import 'package:cryptopilot_mobile/core/errors/api_failure.dart';
 import 'package:cryptopilot_mobile/core/i18n/app_localizations.dart';
 import 'package:cryptopilot_mobile/core/theme/app_theme.dart';
+import 'package:cryptopilot_mobile/features/analysis/presentation/analysis_screen.dart';
+import 'package:cryptopilot_mobile/features/market/domain/market.dart';
 import 'package:cryptopilot_mobile/features/market/presentation/market_widgets.dart';
 import 'package:cryptopilot_mobile/features/market/presentation/markets_screen.dart';
-import 'package:cryptopilot_mobile/features/market/presentation/pair_sheet.dart';
+import 'package:cryptopilot_mobile/features/market/presentation/pair_actions.dart';
 import 'package:cryptopilot_mobile/features/watchlist/domain/watchlist.dart';
 import 'package:cryptopilot_mobile/features/watchlist/presentation/watchlist_view.dart';
 import 'package:flutter/material.dart';
@@ -505,12 +507,12 @@ void main() {
     });
   });
 
-  group('SCR-09 pair sheet: WatchToggle', () {
+  group('SCR-10 action bar: WatchToggle', () {
     late FakeTransport transport;
     late FakeWatchlistApi api;
 
-    /// The Markets tab as `main.dart` composes it: the pair sheet carries the
-    /// watchlist's toggle through [pairActionsProvider].
+    /// The analysis screen as `main.dart` composes it: its bar carries the
+    /// watchlist's star through [pairActionsProvider].
     Future<void> openSheet(
       WidgetTester tester, {
       required List<WatchItem> items,
@@ -536,7 +538,7 @@ void main() {
             theme: appTheme(Brightness.light),
             localizationsDelegates: AppLocalizations.localizationsDelegates,
             supportedLocales: AppLocalizations.supportedLocales,
-            home: const MarketsScreen(watchlist: WatchlistView()),
+            home: AnalysisScreen(market: Market.spot, symbol: symbol),
           ),
         ),
       );
@@ -545,9 +547,7 @@ void main() {
       }
       transport.last.onConnected();
       await tester.pump();
-      await tester.tap(find.byKey(Key('row-spot-$symbol')));
       await tester.pump();
-      await tester.pump(const Duration(milliseconds: 400));
     }
 
     Future<void> unmount(WidgetTester tester) async {
@@ -555,9 +555,10 @@ void main() {
       await tester.pump(const Duration(seconds: 31));
     }
 
+    /// The star says its state as a tooltip (and to a screen reader).
     Finder toggleText(String text) => find.descendant(
-      of: find.byKey(const Key('watch-toggle')),
-      matching: find.text(text),
+      of: find.byKey(const Key('analysis-actions')),
+      matching: find.byTooltip(text),
     );
 
     testWidgets('an unwatched pair is added with MSG25 and shows Watching', (
