@@ -1020,6 +1020,9 @@
   "assetsTransfer": "Transfer",
   "assetsHistory": "History",
   "assetsTradeDemo": "Trade (demo)",
+  "assetsFuturesPnl": "Unrealized PnL",
+  "assetsFuturesMargin": "Margin balance",
+  "assetsFuturesAvailable": "Available",
   "transferTitle": "Transfer USDT",
   "transferFrom": "From {wallet}",
   "@transferFrom": {
@@ -1044,6 +1047,7 @@
   "transferDone": "Transferred.",
   "transferOver": "More than the wallet holds.",
   "transferTooPrecise": "At most 8 decimals.",
+  "transferOverFutures": "More than can leave Futures: margin in use and unrealized profit stay.",
   "historyOrders": "Orders",
   "historyFills": "Fills",
   "historyLedger": "Ledger",

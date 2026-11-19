@@ -2770,6 +2770,24 @@ abstract class AppLocalizations {
   /// **'Trade (demo)'**
   String get assetsTradeDemo;
 
+  /// No description provided for @assetsFuturesPnl.
+  ///
+  /// In en, this message translates to:
+  /// **'Unrealized PnL'**
+  String get assetsFuturesPnl;
+
+  /// No description provided for @assetsFuturesMargin.
+  ///
+  /// In en, this message translates to:
+  /// **'Margin balance'**
+  String get assetsFuturesMargin;
+
+  /// No description provided for @assetsFuturesAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Available'**
+  String get assetsFuturesAvailable;
+
   /// No description provided for @transferTitle.
   ///
   /// In en, this message translates to:
@@ -2829,6 +2847,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'At most 8 decimals.'**
   String get transferTooPrecise;
+
+  /// No description provided for @transferOverFutures.
+  ///
+  /// In en, this message translates to:
+  /// **'More than can leave Futures: margin in use and unrealized profit stay.'**
+  String get transferOverFutures;
 
   /// No description provided for @historyOrders.
   ///

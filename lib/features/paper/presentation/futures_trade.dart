@@ -18,18 +18,6 @@ import '../domain/paper.dart';
 import '../domain/paper_refusal.dart';
 import 'paper_text.dart';
 
-/// The Futures pair the Trade tab shows (the first listed until chosen).
-final futuresPairProvider = NotifierProvider<FuturesPair, String?>(
-  FuturesPair.new,
-);
-
-class FuturesPair extends Notifier<String?> {
-  @override
-  String? build() => null;
-
-  void select(String symbol) => state = symbol;
-}
-
 /// Futures on the Trade tab (D-154, T-129): the pair, margin mode and
 /// leverage, the form with Buy/Long and Sell/Short, then the positions and
 /// the open orders. A margin call shows as a banner.

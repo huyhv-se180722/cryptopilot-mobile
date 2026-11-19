@@ -8,6 +8,7 @@ import '../../../core/errors/api_failure.dart';
 import '../../../core/settings/settings.dart';
 import '../data/paper_api.dart';
 import '../data/paper_repository.dart';
+import '../domain/futures.dart';
 import '../domain/paper.dart';
 
 /// A coin is "small" below this value in USDT (plan 9.3).
@@ -181,9 +182,14 @@ class TransferController extends Notifier<TransferState> {
     state = TransferState(from: state.from, amount: amount.trim());
   }
 
-  /// What the source wallet holds free in USDT.
-  String? available(Wallet? spot, Wallet? futures) =>
-      (state.from == PaperWallet.spot ? spot : futures)?.of('USDT')?.free;
+  /// What can leave the source wallet in USDT: the Spot USDT free, or out
+  /// of Futures its `maxWithdrawAmount` (TR-18: neither the margin in use
+  /// nor unrealized profit leaves), the wallet's free USDT until the
+  /// account is read.
+  String? available(Wallet? spot, Wallet? futures, [FuturesAccount? account]) =>
+      state.from == PaperWallet.spot
+      ? spot?.of('USDT')?.free
+      : account?.maxWithdrawAmount ?? futures?.of('USDT')?.free;
 
   /// True when the transfer went.
   Future<bool> send({required String? available}) async {

@@ -16,6 +16,32 @@ class TradePair extends Notifier<String?> {
   void select(String symbol) => state = symbol;
 }
 
+/// The Futures pair the Trade tab shows, chosen there or handed over by
+/// "Trade (demo)" on a Futures pair (T-129); the first listed until then.
+final futuresPairProvider = NotifierProvider<FuturesPair, String?>(
+  FuturesPair.new,
+);
+
+class FuturesPair extends Notifier<String?> {
+  @override
+  String? build() => null;
+
+  void select(String symbol) => state = symbol;
+}
+
+/// Whether the Trade tab shows Futures rather than Spot: switched there,
+/// or by a "Trade (demo)" entry for a pair of that market.
+final tradeFuturesProvider = NotifierProvider<TradeFutures, bool>(
+  TradeFutures.new,
+);
+
+class TradeFutures extends Notifier<bool> {
+  @override
+  bool build() => false;
+
+  void show({required bool futures}) => state = futures;
+}
+
 /// The pair to show: the chosen one when it is still listed, else the
 /// first Spot pair.
 MarketPair? tradePairOf(String? chosen, List<MarketPair>? pairs) {

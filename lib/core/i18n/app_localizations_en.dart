@@ -1564,6 +1564,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get assetsTradeDemo => 'Trade (demo)';
 
   @override
+  String get assetsFuturesPnl => 'Unrealized PnL';
+
+  @override
+  String get assetsFuturesMargin => 'Margin balance';
+
+  @override
+  String get assetsFuturesAvailable => 'Available';
+
+  @override
   String get transferTitle => 'Transfer USDT';
 
   @override
@@ -1596,6 +1605,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get transferTooPrecise => 'At most 8 decimals.';
+
+  @override
+  String get transferOverFutures =>
+      'More than can leave Futures: margin in use and unrealized profit stay.';
 
   @override
   String get historyOrders => 'Orders';

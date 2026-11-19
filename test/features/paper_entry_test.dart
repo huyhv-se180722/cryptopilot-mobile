@@ -101,15 +101,20 @@ void main() {
     await unmount(tester);
   });
 
-  testWidgets('Trade (demo) on a Spot pair\'s analysis opens Trade on that '
-      'pair; a Futures pair has none yet', (tester) async {
+  testWidgets('Trade (demo) on a pair\'s analysis opens Trade on that pair, '
+      'in Futures for a Futures pair', (tester) async {
     await start(tester);
     final router = ProviderScope.containerOf(
       tester.element(find.byType(CryptoPilotApp)),
     ).read(appRouterProvider);
-    router.go('/analysis/futures/BTCUSDT');
+    // FE owner 2026-11-19: T-129 gives Futures pairs the entry T-128 held
+    // back ("a Futures pair has none yet").
+    router.go('/analysis/futures/ETHUSDT');
     await frames(tester);
-    expect(find.byKey(const Key('trade-demo-BTCUSDT')), findsNothing);
+    await tester.tap(find.byKey(const Key('trade-demo-ETHUSDT')));
+    await frames(tester);
+    expect(find.byKey(const Key('trade-futures')), findsOneWidget);
+    expect(find.text('ETHUSDT Perp'), findsOneWidget);
 
     router.go('/analysis/spot/ETHUSDT');
     await frames(tester);
