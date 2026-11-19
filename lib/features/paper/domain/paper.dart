@@ -531,6 +531,30 @@ PaperPage<T> decodePaperPage<T>(Object? body, T Function(Object?) item) {
   );
 }
 
+/// The demo account's worth (`EquityResponse`; the daily history is left
+/// for T-123).
+@immutable
+class PaperEquity {
+  const PaperEquity({
+    required this.totalEquity,
+    required this.todayPnl,
+    this.todayPnlPercent,
+  });
+
+  final String totalEquity;
+  final String todayPnl;
+  final String? todayPnlPercent;
+}
+
+PaperEquity decodeEquity(Object? body) {
+  final json = asJsonObject(body, 'equity');
+  return PaperEquity(
+    totalEquity: _decimal(json, 'totalEquity'),
+    todayPnl: _decimal(json, 'todayPnl'),
+    todayPnlPercent: _optionalDecimal(json, 'todayPnlPercent'),
+  );
+}
+
 /// When the account was opened (`PaperAccountResponse`).
 DateTime decodeAccount(Object? body) {
   final json = asJsonObject(body, 'paper account');

@@ -1636,4 +1636,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get historyAllTypes => 'Any type';
+
+  @override
+  String get homeDemo => 'Demo account';
+
+  @override
+  String homeDemoToday(String pnl) {
+    return 'Today $pnl';
+  }
+
+  @override
+  String get homeDemoStart => 'Practise trading with virtual funds';
 }

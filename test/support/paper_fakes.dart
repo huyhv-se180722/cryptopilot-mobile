@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:cryptopilot_mobile/core/errors/api_failure.dart';
+import 'package:cryptopilot_mobile/core/errors/api_problem.dart';
 import 'package:cryptopilot_mobile/features/paper/data/paper_api.dart';
 import 'package:cryptopilot_mobile/features/paper/domain/paper.dart';
 
@@ -280,5 +282,26 @@ class FakePaperApi implements PaperApi {
   }) async {
     calls.add('fills page=$page');
     return PaperPage(items: fillList, page: page, total: fillList.length);
+  }
+
+  @override
+  Future<PaperEquity> equity() async {
+    calls.add('equity');
+    if (!opened) {
+      throw const ProblemFailure(
+        ApiProblem(
+          status: 404,
+          code: 'NOT_FOUND',
+          messageCode: 'MSG41',
+          messageArgs: [],
+          fieldErrors: {},
+        ),
+      );
+    }
+    return const PaperEquity(
+      totalEquity: '15000.00',
+      todayPnl: '-12.50',
+      todayPnlPercent: '-0.08',
+    );
   }
 }

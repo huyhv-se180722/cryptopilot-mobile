@@ -97,7 +97,13 @@ void main() {
     expect(find.text('BTC/USDT'), findsOneWidget);
     expect(find.byKey(const Key('trade-book')), findsOneWidget);
     expect(find.text('Avbl 10,000.00 USDT'), findsOneWidget);
-    expect(paper.calls.take(2), ['open', 'wallet SPOT']);
+    // Home reads the demo worth first (never opening the account); entering
+    // Trade opens it, then reads the wallet.
+    expect(
+      paper.calls.indexOf('open'),
+      lessThan(paper.calls.indexOf('wallet SPOT')),
+    );
+    expect(paper.calls.first, 'equity');
     await unmount(tester);
   });
 

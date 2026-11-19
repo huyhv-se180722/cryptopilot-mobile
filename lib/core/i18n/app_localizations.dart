@@ -2907,6 +2907,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Any type'**
   String get historyAllTypes;
+
+  /// No description provided for @homeDemo.
+  ///
+  /// In en, this message translates to:
+  /// **'Demo account'**
+  String get homeDemo;
+
+  /// No description provided for @homeDemoToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today {pnl}'**
+  String homeDemoToday(String pnl);
+
+  /// No description provided for @homeDemoStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Practise trading with virtual funds'**
+  String get homeDemoStart;
 }
 
 class _AppLocalizationsDelegate

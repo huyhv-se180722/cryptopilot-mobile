@@ -1056,5 +1056,15 @@
   "historyQuarter": "3M",
   "historyEmpty": "Nothing in this period.",
   "historyAllStatuses": "Any status",
-  "historyAllTypes": "Any type"
+  "historyAllTypes": "Any type",
+  "homeDemo": "Demo account",
+  "homeDemoToday": "Today {pnl}",
+  "@homeDemoToday": {
+    "placeholders": {
+      "pnl": {
+        "type": "String"
+      }
+    }
+  },
+  "homeDemoStart": "Practise trading with virtual funds"
 }

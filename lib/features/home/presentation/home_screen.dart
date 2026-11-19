@@ -13,6 +13,7 @@ import '../../../core/theme/cp_colors.dart';
 import '../../../core/web/web_links.dart';
 import '../../academy/data/academy_progress_repository.dart';
 import '../../journal/domain/performance.dart';
+import '../../paper/application/home_demo.dart';
 import '../../market/data/market_repository.dart';
 import '../../market/domain/market.dart';
 import '../../market/presentation/market_widgets.dart';
@@ -69,6 +70,7 @@ class HomeScreen extends ConsumerWidget {
             refreshHome(ref),
             ref.read(watchlistControllerProvider.notifier).load(),
             ref.read(academyProgressProvider.notifier).load(),
+            ref.refresh(homeDemoProvider.future),
           ]);
         },
         child: ListView(
@@ -79,6 +81,7 @@ class HomeScreen extends ConsumerWidget {
             const _NotificationsBlock(),
             const _PerformanceBlock(),
             const _NewsBlock(),
+            const _DemoCard(),
             const _AcademyCard(),
             const SizedBox(height: 8),
             Text(
@@ -617,6 +620,52 @@ class _NewsBlock extends ConsumerWidget {
       // SCR-28 is on the web only (SRS 3.1.1).
       onSeeAll: () => web.open('/news'),
       child: child,
+    );
+  }
+}
+
+/// The demo account (plan 9.1): its worth and today's PnL, or an
+/// invitation before it is opened; both lead to Assets.
+class _DemoCard extends ConsumerWidget {
+  const _DemoCard();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context);
+    final demo = ref.watch(homeDemoProvider);
+    final equity = demo.value;
+    final pnl = equity?.todayPnl;
+    final color = switch (directionOf(pnl)) {
+      Direction.up => context.cp.positive,
+      Direction.down => context.cp.negative,
+      Direction.flat => context.cp.muted,
+    };
+    return Card(
+      key: const Key('home-demo'),
+      margin: const EdgeInsets.only(bottom: 12),
+      child: ListTile(
+        leading: const Icon(Icons.account_balance_wallet_outlined),
+        title: Text(l.homeDemo),
+        subtitle: equity == null
+            ? Text(l.homeDemoStart)
+            : Text.rich(
+                TextSpan(
+                  children: [
+                    TextSpan(
+                      text: '${formatDecimal(equity.totalEquity, 2)} USDT · ',
+                    ),
+                    TextSpan(
+                      text: l.homeDemoToday(
+                        '${pnl!.startsWith('-') ? '' : '+'}${formatDecimal(pnl, 2)}',
+                      ),
+                      style: TextStyle(color: color),
+                    ),
+                  ],
+                ),
+              ),
+        trailing: const Icon(Icons.chevron_right),
+        onTap: () => context.go('/assets'),
+      ),
     );
   }
 }

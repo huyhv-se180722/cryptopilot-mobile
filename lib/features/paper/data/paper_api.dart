@@ -67,6 +67,9 @@ abstract interface class PaperApi {
     int page = 1,
     int pageSize = 20,
   });
+
+  /// Spot plus Futures and today's PnL; 404 MSG41 before the account opens.
+  Future<PaperEquity> equity();
 }
 
 class DioPaperApi implements PaperApi {
@@ -222,6 +225,12 @@ class DioPaperApi implements PaperApi {
       },
     ),
     (body) => decodePaperPage(body, decodeFill),
+  );
+
+  @override
+  Future<PaperEquity> equity() => apiCall(
+    () => _dio.get<Object?>('paper/equity', queryParameters: {'days': 1}),
+    decodeEquity,
   );
 }
 

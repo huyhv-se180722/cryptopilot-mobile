@@ -12,6 +12,19 @@ import 'paper_api.dart';
 const ordersQueue = '/user/queue/orders';
 const balancesQueue = '/user/queue/balances';
 
+/// True once the demo account is known to be open in this run: readers that
+/// must not open it themselves (the Home block) read again then.
+final paperOpenedProvider = NotifierProvider<PaperOpened, bool>(
+  PaperOpened.new,
+);
+
+class PaperOpened extends Notifier<bool> {
+  @override
+  bool build() => false;
+
+  void opened() => state = true;
+}
+
 @immutable
 class PaperAccountState {
   const PaperAccountState({this.spot, this.failure});
@@ -70,6 +83,7 @@ class PaperAccountRepository extends Notifier<PaperAccountState> {
         await _api.openAccount();
         // Open on the server whether this repository is still listened to.
         if (!_opened.isCompleted) _opened.complete();
+        ref.read(paperOpenedProvider.notifier).opened();
         if (!ref.mounted) return;
       }
       final spot = await _api.wallet(PaperWallet.spot);

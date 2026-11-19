@@ -9,6 +9,7 @@ import 'features/alerts/presentation/alert_sheet.dart';
 import 'features/market/presentation/pair_actions.dart';
 import 'features/notifications/application/notifications_controller.dart';
 import 'features/notifications/domain/notification.dart';
+import 'features/paper/presentation/trade_entry.dart';
 import 'features/watchlist/presentation/watchlist_view.dart';
 
 void main() {
@@ -32,6 +33,8 @@ void main() {
               WatchToggle(pair: pair),
               const SizedBox(width: 8),
               CreateAlertButton(pair: pair),
+              const SizedBox(width: 8),
+              TradeDemoButton(pair: pair),
             ],
           ),
         ),
