@@ -250,7 +250,8 @@ class FakeJournalApi implements JournalApi {
       for (final e in entries)
         if ((filter.source == null || e.source == filter.source) &&
             (filter.result == null || e.result == filter.result) &&
-            (filter.market == null || e.market == filter.market))
+            (filter.market == null || e.market == filter.market) &&
+            (filter.pairId == null || e.pairId == filter.pairId))
           e,
     ];
     return JournalPage(

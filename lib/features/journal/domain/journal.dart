@@ -154,6 +154,7 @@ class JournalFilter {
     this.result,
     this.status,
     this.strategyId,
+    this.pairId,
   });
 
   /// The last [days] days; null for no period.
@@ -164,6 +165,9 @@ class JournalFilter {
   final PositionState? status;
   final String? strategyId;
 
+  /// A pair of [market] (pair ids are per market).
+  final String? pairId;
+
   @override
   bool operator ==(Object other) =>
       other is JournalFilter &&
@@ -172,11 +176,12 @@ class JournalFilter {
       other.source == source &&
       other.result == result &&
       other.status == status &&
-      other.strategyId == strategyId;
+      other.strategyId == strategyId &&
+      other.pairId == pairId;
 
   @override
   int get hashCode =>
-      Object.hash(days, market, source, result, status, strategyId);
+      Object.hash(days, market, source, result, status, strategyId, pairId);
 }
 
 String? _decimal(Map<String, Object?> json, String key) {

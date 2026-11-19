@@ -835,6 +835,360 @@ class AppLocalizationsEn extends AppLocalizations {
   String get aiDone => 'Done';
 
   @override
+  String get planMarkPrice => 'Mark price';
+
+  @override
+  String get journalPair => 'Pair';
+
+  @override
+  String get planTabPositions => 'Positions';
+
+  @override
+  String get planTabActive => 'Active';
+
+  @override
+  String get planTabHistory => 'History';
+
+  @override
+  String get planTabJournal => 'Journal';
+
+  @override
+  String get planCreateOnWeb => 'Create a plan on the web';
+
+  @override
+  String get planDrafts => 'Drafts';
+
+  @override
+  String get planEmpty => 'Nothing here yet.';
+
+  @override
+  String get planEmptyHint =>
+      'Plans are created on the web; they show here once saved.';
+
+  @override
+  String get planHistoryExecuted => 'Executed';
+
+  @override
+  String get planHistoryCancelled => 'Cancelled · Expired';
+
+  @override
+  String get planPositionOpen => 'OPEN';
+
+  @override
+  String get planPositionClosed => 'CLOSED';
+
+  @override
+  String get planLong => 'LONG';
+
+  @override
+  String get planShort => 'SHORT';
+
+  @override
+  String get planEntry => 'Entry';
+
+  @override
+  String get planStopLoss => 'SL';
+
+  @override
+  String get planTakeProfit => 'TP';
+
+  @override
+  String get planDetailTitle => 'Trading plan';
+
+  @override
+  String get planEditOnWeb => 'Edit on the web';
+
+  @override
+  String get planSimulatedPosition => 'Simulated position';
+
+  @override
+  String get planInvalidTakeProfit =>
+      'Invalidated: take profit reached before the entry';
+
+  @override
+  String get planInvalidStopLoss =>
+      'Invalidated: stop loss reached before the entry';
+
+  @override
+  String get planInvalidPrice =>
+      'Invalidated: the invalidation price was reached';
+
+  @override
+  String get planUnrealized => 'Unrealized P/L';
+
+  @override
+  String get planUnrealizedHint =>
+      'By the current price; fees and funding not included.';
+
+  @override
+  String get planNetPnl => 'Net P/L';
+
+  @override
+  String get planProvisional => 'provisional';
+
+  @override
+  String get planEntryFill => 'Entry fill';
+
+  @override
+  String get planQuantity => 'Quantity';
+
+  @override
+  String get planCurrentPrice => 'Current price';
+
+  @override
+  String get planLiquidation => 'Liquidation';
+
+  @override
+  String get planBreakeven => 'Breakeven';
+
+  @override
+  String get planExit => 'Exit';
+
+  @override
+  String get planExitTime => 'Exit time';
+
+  @override
+  String get planRealized => 'Realized P/L';
+
+  @override
+  String get planFees => 'Fees';
+
+  @override
+  String get planFunding => 'Funding';
+
+  @override
+  String get planEntryTime => 'Entry time';
+
+  @override
+  String get planCloseTakeProfit => 'Take profit';
+
+  @override
+  String get planCloseStopLoss => 'Stop loss';
+
+  @override
+  String get planCloseManual => 'Closed manually';
+
+  @override
+  String get planCloseLiquidation => 'Liquidation';
+
+  @override
+  String get planSeverityBlocking => 'BLOCKING';
+
+  @override
+  String get planSeverityWarning => 'WARNING';
+
+  @override
+  String get planSeverityInfo => 'INFO';
+
+  @override
+  String get planInputs => 'Plan inputs';
+
+  @override
+  String get planEntryType => 'Entry type';
+
+  @override
+  String get planCapital => 'Capital (USDT)';
+
+  @override
+  String get planRiskPercent => 'Risk per trade';
+
+  @override
+  String get planLeverage => 'Leverage';
+
+  @override
+  String get planTimeframe => 'Timeframe';
+
+  @override
+  String get planExpires => 'Expires';
+
+  @override
+  String get planNote => 'Note';
+
+  @override
+  String get planSnapshot => 'Calculation snapshot';
+
+  @override
+  String get planRiskAmount => 'Risk (USDT)';
+
+  @override
+  String get planRewardAmount => 'Reward (USDT)';
+
+  @override
+  String get planRiskReward => 'Risk/reward';
+
+  @override
+  String get planNetRiskReward => 'Risk/reward after fees';
+
+  @override
+  String get planStatusHistory => 'Status history';
+
+  @override
+  String get planActivate => 'Activate';
+
+  @override
+  String get planCancel => 'Cancel plan';
+
+  @override
+  String get planKeep => 'Keep it';
+
+  @override
+  String get planSetLevels => 'Set SL/TP';
+
+  @override
+  String get planClosePosition => 'Close position';
+
+  @override
+  String get planConfirmClose => 'Confirm close';
+
+  @override
+  String get planClosed => 'Position closed.';
+
+  @override
+  String get planExitEstimate => 'Estimated exit price';
+
+  @override
+  String get planPriceResult => 'Price result';
+
+  @override
+  String get planEntryFeeLine => 'Entry fee';
+
+  @override
+  String get planExitFee => 'Exit fee (taker)';
+
+  @override
+  String get planNetEstimate => 'Estimated net P/L';
+
+  @override
+  String get planRuleLong =>
+      'stop loss below the last price, take profit above it';
+
+  @override
+  String get planRuleShort =>
+      'stop loss above the last price, take profit below it';
+
+  @override
+  String get planSave => 'Save';
+
+  @override
+  String get journalAll => 'All';
+
+  @override
+  String get journalAllTime => 'All time';
+
+  @override
+  String get journalApply => 'Apply';
+
+  @override
+  String get journalReset => 'Reset';
+
+  @override
+  String get journalWin => 'WIN';
+
+  @override
+  String get journalLoss => 'LOSS';
+
+  @override
+  String get journalBreakeven => 'BREAKEVEN';
+
+  @override
+  String get journalOpen => 'Open';
+
+  @override
+  String get journalClosed => 'Closed';
+
+  @override
+  String get journalSimulated => 'Simulated';
+
+  @override
+  String get journalManual => 'Manual';
+
+  @override
+  String get journalPeriod => 'Period';
+
+  @override
+  String get journalMarket => 'Market';
+
+  @override
+  String get journalSource => 'Source';
+
+  @override
+  String get journalResult => 'Result';
+
+  @override
+  String get journalStatus => 'Status';
+
+  @override
+  String get journalStrategy => 'Strategy';
+
+  @override
+  String get journalNoStrategy => 'No strategy';
+
+  @override
+  String get journalEmpty => 'No trades in this period.';
+
+  @override
+  String get journalRecordOnWeb => 'Record on the web';
+
+  @override
+  String get journalEntryTitle => 'Trade';
+
+  @override
+  String get journalOpenPlan => 'Open its trading plan';
+
+  @override
+  String get journalReview => 'Review';
+
+  @override
+  String get journalReviewImageNote =>
+      'This trade has a chart image; its review is edited on the web so the image is kept.';
+
+  @override
+  String get journalSetup => 'Setup description';
+
+  @override
+  String get journalLessons => 'Lessons learned';
+
+  @override
+  String get journalMistakes => 'Mistakes';
+
+  @override
+  String get journalImageFailed => 'The chart image could not be loaded.';
+
+  @override
+  String get journalImageOnWeb => 'Chart image on the web';
+
+  @override
+  String get journalEditOnWeb => 'Edit on the web';
+
+  @override
+  String get journalDelete => 'Delete';
+
+  @override
+  String get journalDeleteTitle => 'Delete this trade?';
+
+  @override
+  String get journalDeleteBody =>
+      'This manual trade and its review are removed from your journal and statistics.';
+
+  @override
+  String get journalDeleted => 'Trade deleted.';
+
+  @override
+  String journalLastDays(int days) {
+    return 'Last $days days';
+  }
+
+  @override
+  String planLevelHistory(int count) {
+    return 'Level changes ($count)';
+  }
+
+  @override
+  String planWarnings(int count) {
+    return 'Warnings ($count)';
+  }
+
+  @override
   String msg16(String direction, String rule) {
     return 'For $direction positions: $rule.';
   }

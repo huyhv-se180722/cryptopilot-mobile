@@ -66,6 +66,7 @@ class DioJournalApi implements JournalApi {
         'source': ?filter.source?.wire,
         'result': ?filter.result?.wire,
         'strategyId': ?filter.strategyId,
+        'pairId': ?filter.pairId,
         if (from != null) 'from': _date(from),
         if (to != null) 'to': _date(to),
         'page': page,
