@@ -29,6 +29,7 @@ String refusalText(AppLocalizations l, PaperRefusal refusal, String quote) {
     RefusalKind.maxPosition => l.paperErrMaxPosition,
     RefusalKind.leverageMargin => l.paperErrLeverageMargin,
     RefusalKind.marginTypeLocked => l.paperErrMarginTypeLocked,
+    RefusalKind.positionModeLocked => l.paperErrPositionModeLocked,
     RefusalKind.inLiquidation => l.paperErrInLiquidation,
     RefusalKind.positionMargin => l.paperErrPositionMargin,
   };

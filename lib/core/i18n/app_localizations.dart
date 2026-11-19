@@ -3496,6 +3496,66 @@ abstract class AppLocalizations {
   /// **'The margin mode cannot change while a position or an order is open.'**
   String get paperErrMarginTypeLocked;
 
+  /// No description provided for @paperErrPositionModeLocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Close every Futures position and cancel every order to change the position mode.'**
+  String get paperErrPositionModeLocked;
+
+  /// No description provided for @futModeOneWay.
+  ///
+  /// In en, this message translates to:
+  /// **'One-way'**
+  String get futModeOneWay;
+
+  /// No description provided for @futModeHedge.
+  ///
+  /// In en, this message translates to:
+  /// **'Hedge'**
+  String get futModeHedge;
+
+  /// No description provided for @futModeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Position mode'**
+  String get futModeTitle;
+
+  /// No description provided for @futModeOneWayHint.
+  ///
+  /// In en, this message translates to:
+  /// **'One position per pair, Long or Short.'**
+  String get futModeOneWayHint;
+
+  /// No description provided for @futModeHedgeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'A Long and a Short position per pair at once.'**
+  String get futModeHedgeHint;
+
+  /// No description provided for @futOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get futOpen;
+
+  /// No description provided for @futCloseTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get futCloseTab;
+
+  /// No description provided for @futCloseLong.
+  ///
+  /// In en, this message translates to:
+  /// **'Close Long'**
+  String get futCloseLong;
+
+  /// No description provided for @futCloseShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Close Short'**
+  String get futCloseShort;
+
   /// No description provided for @paperErrInLiquidation.
   ///
   /// In en, this message translates to:

@@ -313,67 +313,125 @@ class _Settings extends ConsumerWidget {
     final config = settings.config;
     if (config == null) return const SizedBox(height: 40);
     final repository = ref.read(futuresSettingsProvider(symbol).notifier);
-    return Row(
-      children: [
-        OutlinedButton(
-          key: const Key('futures-margin-mode'),
-          onPressed: () async {
-            final chosen = await _sheet<MarginType>(
-              context: context,
-              showDragHandle: true,
-              builder: (context) => SafeArea(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(l.futMarginTitle),
-                    for (final type in MarginType.values)
-                      ListTile(
-                        key: Key('margin-${type.wire}'),
-                        title: Text(
-                          type == MarginType.crossed
-                              ? l.futCross
-                              : l.futIsolated,
+    // One row at 360 dp: compact buttons, so the form keeps its place.
+    return OutlinedButtonTheme(
+      data: OutlinedButtonThemeData(
+        // Narrower, not lower: the form below keeps its place.
+        style: OutlinedButton.styleFrom(
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+        ),
+      ),
+      child: Row(
+        children: [
+          OutlinedButton(
+            key: const Key('futures-margin-mode'),
+            onPressed: () async {
+              final chosen = await _sheet<MarginType>(
+                context: context,
+                showDragHandle: true,
+                builder: (context) => SafeArea(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(l.futMarginTitle),
+                      for (final type in MarginType.values)
+                        ListTile(
+                          key: Key('margin-${type.wire}'),
+                          title: Text(
+                            type == MarginType.crossed
+                                ? l.futCross
+                                : l.futIsolated,
+                          ),
+                          selected: type == config.marginType,
+                          onTap: () => Navigator.of(context).pop(type),
                         ),
-                        selected: type == config.marginType,
-                        onTap: () => Navigator.of(context).pop(type),
-                      ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-            );
-            if (chosen != null &&
-                chosen != config.marginType &&
-                context.mounted) {
-              await _run(context, () => repository.setMarginType(chosen));
-            }
-          },
-          child: Text(
-            config.marginType == MarginType.crossed
-                ? l.futCross
-                : l.futIsolated,
+              );
+              if (chosen != null &&
+                  chosen != config.marginType &&
+                  context.mounted) {
+                await _run(context, () => repository.setMarginType(chosen));
+              }
+            },
+            child: Text(
+              config.marginType == MarginType.crossed
+                  ? l.futCross
+                  : l.futIsolated,
+            ),
           ),
-        ),
-        const SizedBox(width: 8),
-        OutlinedButton(
-          key: const Key('futures-leverage'),
-          onPressed: () async {
-            final chosen = await _sheet<int>(
-              context: context,
-              showDragHandle: true,
-              builder: (_) => _LeverageSheet(
-                current: config.leverage,
-                max: settings.maxLeverage ?? config.leverage,
-              ),
-            );
-            if (chosen != null &&
-                chosen != config.leverage &&
-                context.mounted) {
-              await _run(context, () => repository.setLeverage(chosen));
-            }
-          },
-          child: Text(l.futLeverage(config.leverage)),
-        ),
-      ],
+          const SizedBox(width: 8),
+          OutlinedButton(
+            key: const Key('futures-leverage'),
+            onPressed: () async {
+              final chosen = await _sheet<int>(
+                context: context,
+                showDragHandle: true,
+                builder: (_) => _LeverageSheet(
+                  current: config.leverage,
+                  max: settings.maxLeverage ?? config.leverage,
+                ),
+              );
+              if (chosen != null &&
+                  chosen != config.leverage &&
+                  context.mounted) {
+                await _run(context, () => repository.setLeverage(chosen));
+              }
+            },
+            child: Text(l.futLeverage(config.leverage)),
+          ),
+          const SizedBox(width: 8),
+          const _PositionModeButton(),
+        ],
+      ),
+    );
+  }
+}
+
+/// One-way or hedge mode (TR-14b, T-123), switched in a sheet; the server
+/// refuses while a position or an order is open.
+class _PositionModeButton extends ConsumerWidget {
+  const _PositionModeButton();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context);
+    final hedge = ref.watch(futuresModeProvider.select((s) => s.hedge));
+    if (hedge == null) return const SizedBox.shrink();
+    return OutlinedButton(
+      key: const Key('futures-position-mode'),
+      onPressed: () async {
+        final chosen = await _sheet<bool>(
+          context: context,
+          builder: (context) => SafeArea(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(l.futModeTitle),
+                for (final (value, title, hint) in [
+                  (false, l.futModeOneWay, l.futModeOneWayHint),
+                  (true, l.futModeHedge, l.futModeHedgeHint),
+                ])
+                  ListTile(
+                    key: Key('mode-${value ? 'hedge' : 'one-way'}'),
+                    title: Text(title),
+                    subtitle: Text(hint),
+                    selected: value == hedge,
+                    onTap: () => Navigator.of(context).pop(value),
+                  ),
+              ],
+            ),
+          ),
+        );
+        if (chosen != null && chosen != hedge && context.mounted) {
+          await _run(
+            context,
+            () => ref.read(futuresModeProvider.notifier).set(hedge: chosen),
+          );
+        }
+      },
+      child: Text(hedge ? l.futModeHedge : l.futModeOneWay),
     );
   }
 }
@@ -443,6 +501,9 @@ class _Form extends ConsumerWidget {
       futuresProvider.select((s) => s.account?.availableBalance),
     );
     final preview = ref.watch(futuresPreviewProvider(pair.symbol));
+    final hedge =
+        ref.watch(futuresModeProvider.select((s) => s.hedge)) ?? false;
+    final closing = hedge && state.closing;
 
     String label(FuturesField field) => switch (field) {
       FuturesField.price => l.tradePrice,
@@ -468,6 +529,17 @@ class _Form extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        // Hedge mode: Open or Close, as the exchange's two tabs (TR-14b).
+        if (hedge)
+          SegmentedButton<bool>(
+            key: const Key('futures-open-close'),
+            segments: [
+              ButtonSegment(value: false, label: Text(l.futOpen)),
+              ButtonSegment(value: true, label: Text(l.futCloseTab)),
+            ],
+            selected: {state.closing},
+            onSelectionChanged: (s) => c.setClosing(s.first),
+          ),
         // A Limit's time in force shares the kind's row (T-123).
         Row(
           children: [
@@ -583,18 +655,20 @@ class _Form extends ConsumerWidget {
                 ),
           ],
         ),
-        // Stacked: the form shares the width with the order book.
-        CheckboxListTile(
-          key: const Key('futures-reduce-only'),
-          contentPadding: EdgeInsets.zero,
-          dense: true,
-          visualDensity: VisualDensity.compact,
-          controlAffinity: ListTileControlAffinity.leading,
-          title: Text(l.futReduceOnly),
-          value: state.reduceOnly,
-          onChanged: (v) => c.setReduceOnly(v ?? false),
-        ),
-        if (!state.kind.conditional)
+        // Stacked: the form shares the width with the order book. Hedge
+        // mode has no reduce-only, and a close takes no TP/SL.
+        if (!hedge)
+          CheckboxListTile(
+            key: const Key('futures-reduce-only'),
+            contentPadding: EdgeInsets.zero,
+            dense: true,
+            visualDensity: VisualDensity.compact,
+            controlAffinity: ListTileControlAffinity.leading,
+            title: Text(l.futReduceOnly),
+            value: state.reduceOnly,
+            onChanged: (v) => c.setReduceOnly(v ?? false),
+          ),
+        if (!state.kind.conditional && !closing)
           CheckboxListTile(
             key: const Key('futures-tpsl'),
             contentPadding: EdgeInsets.zero,
@@ -617,6 +691,7 @@ class _Form extends ConsumerWidget {
         for (final side in OrderSide.values)
           _SideAction(
             side: side,
+            closing: closing,
             pair: pair,
             preview: preview.of(side),
             stale: preview.loading,
@@ -697,6 +772,7 @@ class _ShareSliderState extends State<_ShareSlider> {
 class _SideAction extends StatelessWidget {
   const _SideAction({
     required this.side,
+    required this.closing,
     required this.pair,
     required this.preview,
     required this.stale,
@@ -705,6 +781,9 @@ class _SideAction extends StatelessWidget {
   });
 
   final OrderSide side;
+
+  /// Hedge mode's Close tab: Buy closes the Short, Sell the Long.
+  final bool closing;
   final MarketPair pair;
   final SidePreview preview;
   final bool stale;
@@ -748,7 +827,11 @@ class _SideAction extends StatelessWidget {
               backgroundColor: buy ? context.cp.positive : context.cp.negative,
             ),
             onPressed: onPressed,
-            child: Text(buy ? l.futBuyLong : l.futSellShort),
+            child: Text(
+              closing
+                  ? (buy ? l.futCloseShort : l.futCloseLong)
+                  : (buy ? l.futBuyLong : l.futSellShort),
+            ),
           ),
           if (info != null)
             Opacity(

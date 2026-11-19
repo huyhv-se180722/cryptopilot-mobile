@@ -97,7 +97,11 @@ class FuturesFormState {
     this.activation = '',
     this.timeInForce = FuturesTimeInForce.gtc,
     this.gtdHours = 24,
+    this.closing = false,
   });
+
+  /// Hedge mode only: the Close tab (Buy closes the Short, Sell the Long).
+  final bool closing;
 
   /// Trailing stop: the pull-back in percent, and where it starts.
   final String callback;
@@ -160,6 +164,7 @@ class FuturesFormState {
     String? activation,
     FuturesTimeInForce? timeInForce,
     int? gtdHours,
+    bool? closing,
     FuturesKind? kind,
     String? price,
     String? size,
@@ -183,6 +188,7 @@ class FuturesFormState {
     activation: activation ?? this.activation,
     timeInForce: timeInForce ?? this.timeInForce,
     gtdHours: gtdHours ?? this.gtdHours,
+    closing: closing ?? this.closing,
     kind: kind ?? this.kind,
     price: price ?? this.price,
     size: size ?? this.size,
@@ -248,6 +254,17 @@ class FuturesFormController extends Notifier<FuturesFormState> {
   void setTimeInForce(FuturesTimeInForce value) =>
       _set(state.copyWith(timeInForce: value));
   void setGtdHours(int hours) => _set(state.copyWith(gtdHours: hours));
+  void setClosing(bool value) => _set(state.copyWith(closing: value));
+
+  bool get _hedge => ref.read(futuresModeProvider).hedge ?? false;
+
+  /// BOTH in one-way mode; in hedge mode the side an order opens (Buy
+  /// Long, Sell Short) or, on the Close tab, closes (TR-14b).
+  PositionSide _positionSide(OrderSide side) {
+    if (!_hedge) return PositionSide.both;
+    final long = side == OrderSide.buy;
+    return (long != state.closing) ? PositionSide.long : PositionSide.short;
+  }
 
   void edit(FuturesField field, String value) {
     final v = value.trim();
@@ -297,7 +314,7 @@ class FuturesFormController extends Notifier<FuturesFormState> {
         issues[field] = FuturesIssue.offStep;
       }
     }
-    if (state.tpSl && state.reduceOnly && !state.kind.conditional) {
+    if (state.tpSl && state.reduceOnly && !_hedge && !state.kind.conditional) {
       issues[FuturesField.takeProfit] = FuturesIssue.tpSlWithReduceOnly;
     }
     return issues;
@@ -329,8 +346,10 @@ class FuturesFormController extends Notifier<FuturesFormState> {
         side: side,
         type: state.kind.wire,
         quantity: quantity,
+        positionSide: _positionSide(side),
         price: state.kind == FuturesKind.limit ? state.price : null,
-        reduceOnly: state.reduceOnly,
+        // Hedge mode takes no reduce-only: the Close tab closes.
+        reduceOnly: !_hedge && state.reduceOnly,
         takeProfitPrice: state.tpSl && state.takeProfit.isNotEmpty
             ? state.takeProfit
             : null,
@@ -476,9 +495,10 @@ class FuturesFormController extends Notifier<FuturesFormState> {
             type: state.kind.wire,
             triggerPrice: state.kind.triggered ? state.trigger : null,
             working: state.working,
+            positionSide: _positionSide(side),
             quantity: quantity,
             price: state.kind.limitPrice ? state.price : null,
-            reduceOnly: state.reduceOnly,
+            reduceOnly: !_hedge && state.reduceOnly,
             callbackRate: state.kind == FuturesKind.trailingStop
                 ? state.callback
                 : null,

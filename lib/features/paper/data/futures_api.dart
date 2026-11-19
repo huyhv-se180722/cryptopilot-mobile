@@ -95,6 +95,12 @@ abstract interface class FuturesApi {
   /// A new price and quantity for an open Limit (T-123).
   Future<FuturesOrder> amendOrder(FuturesAmendRequest request);
 
+  /// True in hedge mode (a Long and a Short position per pair, TR-14b).
+  Future<bool> positionMode();
+
+  /// Answers the mode after the change.
+  Future<bool> setPositionMode({required bool hedge});
+
   Future<AlgoOrder> placeAlgoOrder(AlgoOrderRequest request);
 
   Future<void> cancelOrder(String symbol, String orderId);
@@ -335,6 +341,21 @@ class DioFuturesApi implements FuturesApi {
   Future<FuturesOrder> placeOrder(FuturesOrderRequest request) => apiCall(
     () => _dio.post<Object?>('$_base/order', data: request.toJson()),
     decodeFuturesOrder,
+  );
+
+  @override
+  Future<bool> positionMode() => apiCall(
+    () => _dio.get<Object?>('$_base/positionSide/dual'),
+    decodePositionMode,
+  );
+
+  @override
+  Future<bool> setPositionMode({required bool hedge}) => apiCall(
+    () => _dio.post<Object?>(
+      '$_base/positionSide/dual',
+      data: {'dualSidePosition': hedge},
+    ),
+    decodePositionMode,
   );
 
   @override

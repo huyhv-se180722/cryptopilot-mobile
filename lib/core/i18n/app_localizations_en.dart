@@ -1977,6 +1977,38 @@ class AppLocalizationsEn extends AppLocalizations {
       'The margin mode cannot change while a position or an order is open.';
 
   @override
+  String get paperErrPositionModeLocked =>
+      'Close every Futures position and cancel every order to change the position mode.';
+
+  @override
+  String get futModeOneWay => 'One-way';
+
+  @override
+  String get futModeHedge => 'Hedge';
+
+  @override
+  String get futModeTitle => 'Position mode';
+
+  @override
+  String get futModeOneWayHint => 'One position per pair, Long or Short.';
+
+  @override
+  String get futModeHedgeHint =>
+      'A Long and a Short position per pair at once.';
+
+  @override
+  String get futOpen => 'Open';
+
+  @override
+  String get futCloseTab => 'Close';
+
+  @override
+  String get futCloseLong => 'Close Long';
+
+  @override
+  String get futCloseShort => 'Close Short';
+
+  @override
   String get paperErrInLiquidation =>
       'The account is being liquidated. Try again in a moment.';
 

@@ -270,6 +270,22 @@ class FakeFuturesApi implements FuturesApi {
     );
   }
 
+  bool hedge = false;
+
+  @override
+  Future<bool> positionMode() async {
+    calls.add('mode');
+    return hedge;
+  }
+
+  @override
+  Future<bool> setPositionMode({required bool hedge}) async {
+    calls.add('set mode ${hedge ? 'hedge' : 'one-way'}');
+    if (changeError case final error?) throw error;
+    this.hedge = hedge;
+    return hedge;
+  }
+
   final List<FuturesAmendRequest> amended = [];
 
   @override

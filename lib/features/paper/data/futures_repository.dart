@@ -307,3 +307,45 @@ class FuturesSettingsRepository extends Notifier<FuturesSettings> {
     if (ref.mounted) await load();
   }
 }
+
+@immutable
+class FuturesMode {
+  const FuturesMode({this.hedge, this.failure});
+
+  /// Null until read: true in hedge mode (a Long and a Short per pair).
+  final bool? hedge;
+  final ApiFailure? failure;
+}
+
+final futuresModeProvider =
+    NotifierProvider<FuturesModeRepository, FuturesMode>(
+      FuturesModeRepository.new,
+    );
+
+/// One-way or hedge mode of the Futures account (TR-14b, T-123): read
+/// once the account is open; a switch the server refuses (an order or a
+/// position open, PAPER_POSITION_MODE) is thrown to the screen.
+class FuturesModeRepository extends Notifier<FuturesMode> {
+  @override
+  FuturesMode build() {
+    unawaited(Future.microtask(load));
+    return const FuturesMode();
+  }
+
+  Future<void> load() async {
+    try {
+      await ref.read(paperAccountProvider.notifier).opened;
+      final hedge = await ref.read(futuresApiProvider).positionMode();
+      state = FuturesMode(hedge: hedge);
+    } on ApiFailure catch (failure) {
+      state = FuturesMode(hedge: state.hedge, failure: failure);
+    }
+  }
+
+  Future<void> set({required bool hedge}) async {
+    final now = await ref
+        .read(futuresApiProvider)
+        .setPositionMode(hedge: hedge);
+    state = FuturesMode(hedge: now);
+  }
+}

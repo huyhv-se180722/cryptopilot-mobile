@@ -459,6 +459,10 @@ class AlgoOrderRequest {
   };
 }
 
+/// `FuturesPositionModeResponse`: true in hedge mode.
+bool decodePositionMode(Object? body) =>
+    readBool(asJsonObject(body, 'position mode'), 'dualSidePosition');
+
 /// A new price and quantity for a Limit still open (`PUT /futures/order`,
 /// T-123); a quantity at most what executed cancels the order.
 @immutable
