@@ -31,6 +31,9 @@ abstract interface class FuturesApi {
   /// TR-26: what the order would cost and what to warn about.
   Future<OrderWarnings> warnings(FuturesOrderRequest request);
 
+  /// The largest position a balance opens at a price (TR-25).
+  Future<MaxOpen> maxOpen(MaxOpenRequest request);
+
   Future<FuturesOrder> placeOrder(FuturesOrderRequest request);
 
   Future<AlgoOrder> placeAlgoOrder(AlgoOrderRequest request);
@@ -142,6 +145,13 @@ class DioFuturesApi implements FuturesApi {
   Future<OrderWarnings> warnings(FuturesOrderRequest request) => apiCall(
     () => _dio.post<Object?>('$_base/order/warnings', data: request.toJson()),
     decodeWarnings,
+  );
+
+  @override
+  Future<MaxOpen> maxOpen(MaxOpenRequest request) => apiCall(
+    () =>
+        _dio.post<Object?>('$_base/calculator/maxOpen', data: request.toJson()),
+    decodeMaxOpen,
   );
 
   @override

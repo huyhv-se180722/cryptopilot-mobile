@@ -1335,6 +1335,53 @@
   "futClose": "Close",
   "futMarketClose": "Market close",
   "futCloseAll": "Close all",
+  "futCostMax": "Cost {cost} · Max {max}",
+  "@futCostMax": {
+    "placeholders": {
+      "cost": {
+        "type": "String"
+      },
+      "max": {
+        "type": "String"
+      }
+    }
+  },
+  "futCostOnly": "Cost {cost}",
+  "@futCostOnly": {
+    "placeholders": {
+      "cost": {
+        "type": "String"
+      }
+    }
+  },
+  "futMaxOnly": "Max {max}",
+  "@futMaxOnly": {
+    "placeholders": {
+      "max": {
+        "type": "String"
+      }
+    }
+  },
+  "futStepUp": "One step up",
+  "futStepDown": "One step down",
+  "futTpSlLine": "TP {tp} · SL {sl}",
+  "@futTpSlLine": {
+    "placeholders": {
+      "tp": {
+        "type": "String"
+      },
+      "sl": {
+        "type": "String"
+      }
+    }
+  },
+  "futWarnInsufficientMargin": "Insufficient margin",
+  "futWarnSlBeyondLiquidation": "Stop loss past liquidation",
+  "futWarnHighLeverage": "High leverage",
+  "futWarnOversizedPosition": "Oversized position",
+  "futWarnLowRr": "Low reward to risk",
+  "futWarnHighFundingRate": "High funding rate",
+  "futWarnWideStopLoss": "Wide stop loss",
   "futCloseAllAsk": "Close every demo position at market?",
   "futMarketCloseAsk": "Close the whole {symbol} demo position at market?",
   "@futMarketCloseAsk": {

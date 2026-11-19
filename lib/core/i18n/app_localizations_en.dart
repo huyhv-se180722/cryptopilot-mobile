@@ -2048,6 +2048,53 @@ class AppLocalizationsEn extends AppLocalizations {
   String get futCloseAll => 'Close all';
 
   @override
+  String futCostMax(String cost, String max) {
+    return 'Cost $cost · Max $max';
+  }
+
+  @override
+  String futCostOnly(String cost) {
+    return 'Cost $cost';
+  }
+
+  @override
+  String futMaxOnly(String max) {
+    return 'Max $max';
+  }
+
+  @override
+  String get futStepUp => 'One step up';
+
+  @override
+  String get futStepDown => 'One step down';
+
+  @override
+  String futTpSlLine(String tp, String sl) {
+    return 'TP $tp · SL $sl';
+  }
+
+  @override
+  String get futWarnInsufficientMargin => 'Insufficient margin';
+
+  @override
+  String get futWarnSlBeyondLiquidation => 'Stop loss past liquidation';
+
+  @override
+  String get futWarnHighLeverage => 'High leverage';
+
+  @override
+  String get futWarnOversizedPosition => 'Oversized position';
+
+  @override
+  String get futWarnLowRr => 'Low reward to risk';
+
+  @override
+  String get futWarnHighFundingRate => 'High funding rate';
+
+  @override
+  String get futWarnWideStopLoss => 'Wide stop loss';
+
+  @override
   String get futCloseAllAsk => 'Close every demo position at market?';
 
   @override

@@ -269,6 +269,78 @@ class FuturesFormController extends Notifier<FuturesFormState> {
         clientOrderId: key,
       );
 
+  /// The order as it stands, to ask its warnings before any tap (T-131);
+  /// null for a conditional kind or while a field is missing or wrong.
+  /// Its key is thrown away: nothing is placed or stored.
+  FuturesOrderRequest? draft(OrderSide side) {
+    if (state.kind.conditional || validate().isNotEmpty) return null;
+    final quantity = this.quantity();
+    return quantity == null ? null : _order(side, quantity, newClientId());
+  }
+
+  /// The price an opening order is worked out at: the limit price, the
+  /// trigger of a conditional Market kind, else the mark.
+  String? entryPrice() {
+    String? valid(String text) {
+      final value = Decimal.tryParse(text);
+      return value != null && value > Decimal.zero ? text : null;
+    }
+
+    if (state.kind.limitPrice) return valid(state.price);
+    if (state.kind.conditional) return valid(state.trigger);
+    return _mark;
+  }
+
+  /// One step up or down (plan 9.2): a price by the tick, a size by the
+  /// step, or by 1 when typed in USDT. An empty price starts at the mark.
+  void step(FuturesField field, {required bool up}) {
+    final pair = _pair;
+    if (pair == null) return;
+    final size = field == FuturesField.size;
+    final step = Decimal.parse(
+      size ? (state.sizeInUsdt ? '1' : pair.stepSize) : pair.tickSize,
+    );
+    if (step <= Decimal.zero) return;
+    final start =
+        Decimal.tryParse(state.of(field)) ??
+        (size ? Decimal.zero : Decimal.tryParse(_mark ?? '')) ??
+        Decimal.zero;
+    final floored =
+        (start / step).toDecimal(scaleOnInfinitePrecision: 20).floor() * step;
+    var next = up
+        ? floored + step
+        : (floored == start ? start - step : floored);
+    if (next < step) next = step;
+    edit(field, next.toString());
+  }
+
+  /// [percent] of the [max] the balance opens (plan 9.2 slider): in the
+  /// coin down to the step, or in USDT down to the cent.
+  void useShare(int percent, MaxOpen max) {
+    final pair = _pair;
+    if (pair == null) return;
+    final share = Decimal.fromInt(percent.clamp(0, 100));
+    final hundred = Decimal.fromInt(100);
+    final String size;
+    if (state.sizeInUsdt) {
+      final cents = (Decimal.parse(max.maxNotional) * share)
+          .floor(); // hundredths of a USDT
+      size = (Decimal.fromBigInt(cents.toBigInt()) / hundred)
+          .toDecimal(scaleOnInfinitePrecision: 2)
+          .toStringAsFixed(2);
+    } else {
+      final step = Decimal.parse(pair.stepSize);
+      final coins = (Decimal.parse(max.maxQuantity) * share / hundred)
+          .toDecimal(scaleOnInfinitePrecision: 20);
+      final rounded = step <= Decimal.zero
+          ? coins
+          : (coins / step).toDecimal(scaleOnInfinitePrecision: 20).floor() *
+                step;
+      size = rounded.toString();
+    }
+    edit(FuturesField.size, Decimal.parse(size) > Decimal.zero ? size : '');
+  }
+
   /// Checks the order and, for Limit and Market, asks its warnings; true
   /// when it may go (the screen then confirms it).
   Future<bool> review(OrderSide side) async {

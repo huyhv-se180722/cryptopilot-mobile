@@ -1,4 +1,3 @@
-import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -12,13 +11,13 @@ import '../../../core/theme/cp_colors.dart';
 import '../../market/data/market_repository.dart';
 import '../../market/data/order_book_repository.dart';
 import '../../market/domain/market.dart';
-import '../../market/domain/order_book.dart';
 import '../application/spot_form_controller.dart';
 import '../application/trade_controller.dart';
 import '../data/paper_repository.dart';
 import '../domain/paper.dart';
 import '../domain/paper_refusal.dart';
 import 'futures_trade.dart';
+import 'order_book_panel.dart';
 import 'paper_text.dart';
 
 /// The Trade tab (D-154, plan 9.2): the demo banner, Spot or Futures, and
@@ -122,7 +121,16 @@ class _SpotTrade extends ConsumerWidget {
           children: [
             Expanded(flex: 6, child: _SpotForm(pair: pair)),
             const SizedBox(width: 8),
-            Expanded(flex: 5, child: _Book(pair: pair)),
+            Expanded(
+              flex: 5,
+              child: OrderBookPanel(
+                pair: pair,
+                market: Market.spot,
+                onPrice: ref
+                    .read(spotFormProvider(pair.symbol).notifier)
+                    .usePrice,
+              ),
+            ),
           ],
         ),
         const SizedBox(height: 16),
@@ -591,127 +599,6 @@ class _NumberFieldState extends State<_NumberField> {
 /// The order book: 7 asks above the last price, 7 bids below, on a chosen
 /// tick; a level tapped fills the price. Read only while the tab shows
 /// (an inactive tab has its tickers muted), so a hidden book costs nothing.
-class _Book extends ConsumerStatefulWidget {
-  const _Book({required this.pair});
-
-  final MarketPair pair;
-
-  @override
-  ConsumerState<_Book> createState() => _BookState();
-}
-
-class _BookState extends ConsumerState<_Book> {
-  int _scale = 0;
-
-  String get _step => _stepAt(_scale);
-
-  @override
-  Widget build(BuildContext context) {
-    final l = AppLocalizations.of(context);
-    if (!TickerMode.valuesOf(context).enabled) return const SizedBox.shrink();
-    final pair = widget.pair;
-    final book = ref.watch(
-      orderBookProvider((market: Market.spot, symbol: pair.symbol)),
-    );
-    final last = ref.watch(
-      marketRepositoryProvider(
-        Market.spot,
-      ).select((s) => s.tickers[pair.symbol]?.lastPrice),
-    );
-    final depth = book.depth;
-    final small = Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 11);
-    final places = decimalPlaces(_step);
-
-    Widget row(BookLevel level, Color color) => InkWell(
-      key: Key('book-${level.price}'),
-      onTap: () => ref
-          .read(spotFormProvider(pair.symbol).notifier)
-          .usePrice(level.price),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 2),
-        child: Row(
-          children: [
-            Expanded(
-              child: Text(
-                formatDecimal(level.price, places),
-                style: small?.copyWith(color: color),
-              ),
-            ),
-            Text(
-              formatDecimal(level.quantity, decimalPlaces(pair.stepSize)),
-              style: small,
-            ),
-          ],
-        ),
-      ),
-    );
-
-    if (depth == null) {
-      return const Padding(
-        padding: EdgeInsets.all(16),
-        child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
-      );
-    }
-    final asks = groupLevels(depth.asks, _step, bids: false);
-    final bids = groupLevels(depth.bids, _step, bids: true);
-    final share = bidShare(bids, asks);
-    return Column(
-      key: const Key('trade-book'),
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Row(
-          children: [
-            Expanded(child: Text(l.tradeBookPrice, style: small)),
-            Text(l.tradeBookAmount, style: small),
-          ],
-        ),
-        for (final level in asks.reversed) row(level, context.cp.negative),
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 4),
-          child: Text(
-            formatPrice(last, pair.tickSize),
-            key: const Key('book-last'),
-            style: Theme.of(context).textTheme.titleSmall,
-          ),
-        ),
-        for (final level in bids) row(level, context.cp.positive),
-        const SizedBox(height: 4),
-        ClipRRect(
-          borderRadius: BorderRadius.circular(2),
-          child: LinearProgressIndicator(
-            value: share,
-            minHeight: 4,
-            color: context.cp.positive,
-            backgroundColor: context.cp.negative,
-          ),
-        ),
-        DropdownButton<int>(
-          key: const Key('book-tick'),
-          isExpanded: true,
-          isDense: true,
-          value: _scale,
-          onChanged: (scale) => setState(() => _scale = scale!),
-          items: [
-            for (var i = 0; i < 3; i++)
-              DropdownMenuItem(
-                value: i,
-                child: Text(l.tradeTick(_stepAt(i)), style: small),
-              ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  String _stepAt(int scale) {
-    var step = Decimal.parse(widget.pair.tickSize);
-    for (var i = 0; i < scale; i++) {
-      step = step * Decimal.ten;
-    }
-    return step.toString();
-  }
-}
-
 class _OrdersAndTrades extends ConsumerStatefulWidget {
   const _OrdersAndTrades({required this.pair});
 
