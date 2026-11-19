@@ -2931,6 +2931,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Demo fill: {side} {quantity} {symbol} at {price}'**
   String tradeFilled(String side, String quantity, String symbol, String price);
+
+  /// No description provided for @paperErrInsufficientMargin.
+  ///
+  /// In en, this message translates to:
+  /// **'Not enough available margin for this order.'**
+  String get paperErrInsufficientMargin;
+
+  /// No description provided for @paperErrReduceOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'A reduce-only order cannot open or grow a position.'**
+  String get paperErrReduceOnly;
+
+  /// No description provided for @paperErrMaxPosition.
+  ///
+  /// In en, this message translates to:
+  /// **'This position is larger than the leverage allows. Lower the leverage or the size.'**
+  String get paperErrMaxPosition;
+
+  /// No description provided for @paperErrLeverageMargin.
+  ///
+  /// In en, this message translates to:
+  /// **'The leverage cannot change with the margin this position holds.'**
+  String get paperErrLeverageMargin;
+
+  /// No description provided for @paperErrMarginTypeLocked.
+  ///
+  /// In en, this message translates to:
+  /// **'The margin mode cannot change while a position or an order is open.'**
+  String get paperErrMarginTypeLocked;
+
+  /// No description provided for @paperErrInLiquidation.
+  ///
+  /// In en, this message translates to:
+  /// **'The account is being liquidated. Try again in a moment.'**
+  String get paperErrInLiquidation;
+
+  /// No description provided for @paperErrPositionMargin.
+  ///
+  /// In en, this message translates to:
+  /// **'The margin cannot change by that amount.'**
+  String get paperErrPositionMargin;
 }
 
 class _AppLocalizationsDelegate

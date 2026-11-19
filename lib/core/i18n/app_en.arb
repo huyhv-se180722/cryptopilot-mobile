@@ -1083,5 +1083,12 @@
         "type": "String"
       }
     }
-  }
+  },
+  "paperErrInsufficientMargin": "Not enough available margin for this order.",
+  "paperErrReduceOnly": "A reduce-only order cannot open or grow a position.",
+  "paperErrMaxPosition": "This position is larger than the leverage allows. Lower the leverage or the size.",
+  "paperErrLeverageMargin": "The leverage cannot change with the margin this position holds.",
+  "paperErrMarginTypeLocked": "The margin mode cannot change while a position or an order is open.",
+  "paperErrInLiquidation": "The account is being liquidated. Try again in a moment.",
+  "paperErrPositionMargin": "The margin cannot change by that amount."
 }

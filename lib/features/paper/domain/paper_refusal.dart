@@ -47,6 +47,27 @@ enum RefusalKind {
 
   /// The pair cannot be valued in USDT now.
   notValued,
+
+  /// Not enough margin for the Futures order.
+  insufficientMargin,
+
+  /// A reduce-only order would open or grow the position.
+  reduceOnlyRejected,
+
+  /// The position would pass what the leverage allows.
+  maxPosition,
+
+  /// The leverage cannot change with the margin the position holds.
+  leverageMargin,
+
+  /// The margin mode cannot change with an open position or order.
+  marginTypeLocked,
+
+  /// The account is being liquidated.
+  inLiquidation,
+
+  /// The isolated margin cannot change by that amount.
+  positionMargin,
 }
 
 @immutable
@@ -69,6 +90,8 @@ const _filterCodes = {
   'PAPER_MARKET_LOT_SIZE',
   'PAPER_NOTIONAL',
   'PAPER_PERCENT_PRICE',
+  'PAPER_LEVERAGE',
+  'PAPER_POSITION_SIDE',
 };
 
 /// The paper refusal [failure] carries, or null for any other failure.
@@ -95,6 +118,20 @@ PaperRefusal? paperRefusal(ApiFailure failure) {
       return const PaperRefusal(RefusalKind.notValued);
     case 'PAPER_MAX_NUM_ORDERS':
       return PaperRefusal(RefusalKind.tooManyOrders, limit: arg(2));
+    case 'PAPER_INSUFFICIENT_MARGIN':
+      return const PaperRefusal(RefusalKind.insufficientMargin);
+    case 'PAPER_REDUCE_ONLY_REJECTED':
+      return const PaperRefusal(RefusalKind.reduceOnlyRejected);
+    case 'PAPER_MAX_POSITION_AT_LEVERAGE':
+      return const PaperRefusal(RefusalKind.maxPosition);
+    case 'PAPER_LEVERAGE_MARGIN':
+      return const PaperRefusal(RefusalKind.leverageMargin);
+    case 'PAPER_MARGIN_TYPE':
+      return const PaperRefusal(RefusalKind.marginTypeLocked);
+    case 'PAPER_USER_IN_LIQUIDATION':
+      return const PaperRefusal(RefusalKind.inLiquidation);
+    case 'PAPER_POSITION_MARGIN':
+      return const PaperRefusal(RefusalKind.positionMargin);
     case 'PAPER_MAX_NUM_ALGO_ORDERS':
       return PaperRefusal(RefusalKind.tooManyStops, limit: arg(2));
   }

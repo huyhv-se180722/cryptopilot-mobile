@@ -1657,4 +1657,32 @@ class AppLocalizationsEn extends AppLocalizations {
   ) {
     return 'Demo fill: $side $quantity $symbol at $price';
   }
+
+  @override
+  String get paperErrInsufficientMargin =>
+      'Not enough available margin for this order.';
+
+  @override
+  String get paperErrReduceOnly =>
+      'A reduce-only order cannot open or grow a position.';
+
+  @override
+  String get paperErrMaxPosition =>
+      'This position is larger than the leverage allows. Lower the leverage or the size.';
+
+  @override
+  String get paperErrLeverageMargin =>
+      'The leverage cannot change with the margin this position holds.';
+
+  @override
+  String get paperErrMarginTypeLocked =>
+      'The margin mode cannot change while a position or an order is open.';
+
+  @override
+  String get paperErrInLiquidation =>
+      'The account is being liquidated. Try again in a moment.';
+
+  @override
+  String get paperErrPositionMargin =>
+      'The margin cannot change by that amount.';
 }
