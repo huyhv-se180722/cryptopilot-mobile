@@ -567,7 +567,12 @@ class _Form extends ConsumerWidget {
             preview: preview.of(side),
             stale: preview.loading,
             sizeInUsdt: state.sizeInUsdt,
-            onPressed: state.busy ? null : () => _go(context, ref, side),
+            // A BLOCKING warning disables its side (TR-26, plan 9.2; FE
+            // owner 2026-11-19); the sheet still blocks when the preview
+            // could not be read.
+            onPressed: state.busy || preview.of(side).blocked
+                ? null
+                : () => _go(context, ref, side),
           ),
       ],
     );
@@ -634,8 +639,7 @@ class _ShareSliderState extends State<_ShareSlider> {
 
 /// A side's button with, under it, what the server would make of the
 /// order (TR-26, plan 9.2): the cost and the Max, then each warning by its
-/// short name. A BLOCKING one is told here; the confirmation sheet holds
-/// the order back.
+/// short name. A BLOCKING one is told here and its side is disabled.
 class _SideAction extends StatelessWidget {
   const _SideAction({
     required this.side,

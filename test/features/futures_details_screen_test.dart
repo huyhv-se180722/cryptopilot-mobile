@@ -147,8 +147,9 @@ void main() {
   });
 
   testWidgets('while typed: each side shows its cost and Max, a BLOCKING '
-      'warning by its name under its side only; the sheet still holds the '
-      'order back', (tester) async {
+      'warning by its name under its side only, which is disabled', (
+    tester,
+  ) async {
     futures.warningsFor[OrderSide.sell] = const OrderWarnings(
       cost: '38.00',
       warnings: [
@@ -183,15 +184,14 @@ void main() {
     await frames(tester);
     expect(textOf(tester, 'futures-info-BUY'), contains('Max 97,500.00 USDT'));
 
+    // FE owner 2026-11-19: the blocked side is disabled, the other is not.
+    FilledButton button(String side) =>
+        tester.widget<FilledButton>(find.byKey(Key('futures-$side')));
+    expect(button('SELL').onPressed, isNull);
+    expect(button('BUY').onPressed, isNotNull);
     await tester.tap(find.byKey(const Key('futures-SELL')));
     await frames(tester);
-    expect(find.text('Not enough margin.'), findsOneWidget);
-    expect(
-      tester
-          .widget<FilledButton>(find.byKey(const Key('futures-confirm')))
-          .onPressed,
-      isNull,
-    );
+    expect(find.byKey(const Key('futures-review')), findsNothing);
     expect(futures.placed, isEmpty);
     await unmount(tester);
   });
