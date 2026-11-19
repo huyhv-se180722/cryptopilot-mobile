@@ -1192,6 +1192,372 @@ abstract class AppLocalizations {
   /// **'The AI Assistant is temporarily unavailable. Please try again.'**
   String get msg31;
 
+  /// No description provided for @aiTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'AI assistant'**
+  String get aiTitle;
+
+  /// No description provided for @aiAskAi.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask AI'**
+  String get aiAskAi;
+
+  /// No description provided for @aiNewConversation.
+  ///
+  /// In en, this message translates to:
+  /// **'New conversation'**
+  String get aiNewConversation;
+
+  /// No description provided for @aiUntitled.
+  ///
+  /// In en, this message translates to:
+  /// **'New conversation'**
+  String get aiUntitled;
+
+  /// No description provided for @aiFilterAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get aiFilterAll;
+
+  /// No description provided for @aiTopicMarket.
+  ///
+  /// In en, this message translates to:
+  /// **'Market analysis'**
+  String get aiTopicMarket;
+
+  /// No description provided for @aiTopicMine.
+  ///
+  /// In en, this message translates to:
+  /// **'My plan & performance'**
+  String get aiTopicMine;
+
+  /// No description provided for @aiTopicGeneral.
+  ///
+  /// In en, this message translates to:
+  /// **'General question'**
+  String get aiTopicGeneral;
+
+  /// No description provided for @aiTopicMarketHint.
+  ///
+  /// In en, this message translates to:
+  /// **'The assistant reads the current price, indicators and setup score of the coin you pick.'**
+  String get aiTopicMarketHint;
+
+  /// No description provided for @aiTopicMineHint.
+  ///
+  /// In en, this message translates to:
+  /// **'The assistant reads your plan (with the state of its coin) and your trading statistics.'**
+  String get aiTopicMineHint;
+
+  /// No description provided for @aiTopicGeneralHint.
+  ///
+  /// In en, this message translates to:
+  /// **'General question — the assistant reads no market data.'**
+  String get aiTopicGeneralHint;
+
+  /// No description provided for @aiChooseMode.
+  ///
+  /// In en, this message translates to:
+  /// **'What shall we look at?'**
+  String get aiChooseMode;
+
+  /// No description provided for @aiNoConversations.
+  ///
+  /// In en, this message translates to:
+  /// **'No conversations yet.'**
+  String get aiNoConversations;
+
+  /// No description provided for @aiNoConversationsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Start one and ask your first question.'**
+  String get aiNoConversationsHint;
+
+  /// No description provided for @aiGroupToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get aiGroupToday;
+
+  /// No description provided for @aiGroupYesterday.
+  ///
+  /// In en, this message translates to:
+  /// **'Yesterday'**
+  String get aiGroupYesterday;
+
+  /// No description provided for @aiGroupWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 7 days'**
+  String get aiGroupWeek;
+
+  /// No description provided for @aiGroupOlder.
+  ///
+  /// In en, this message translates to:
+  /// **'Older'**
+  String get aiGroupOlder;
+
+  /// No description provided for @aiRename.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename'**
+  String get aiRename;
+
+  /// No description provided for @aiRenameTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename conversation'**
+  String get aiRenameTitle;
+
+  /// No description provided for @aiRenameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Title'**
+  String get aiRenameLabel;
+
+  /// No description provided for @aiSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get aiSave;
+
+  /// No description provided for @aiDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get aiDelete;
+
+  /// No description provided for @aiDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this conversation?'**
+  String get aiDeleteTitle;
+
+  /// No description provided for @aiDeleteBody.
+  ///
+  /// In en, this message translates to:
+  /// **'It disappears from your list. Questions already asked today still count toward your quota.'**
+  String get aiDeleteBody;
+
+  /// No description provided for @aiDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Conversation deleted.'**
+  String get aiDeleted;
+
+  /// No description provided for @aiEmptyChat.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask a question to start.'**
+  String get aiEmptyChat;
+
+  /// No description provided for @aiThinking.
+  ///
+  /// In en, this message translates to:
+  /// **'The assistant is writing…'**
+  String get aiThinking;
+
+  /// No description provided for @aiTryAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get aiTryAgain;
+
+  /// No description provided for @aiSend.
+  ///
+  /// In en, this message translates to:
+  /// **'Send'**
+  String get aiSend;
+
+  /// No description provided for @aiCounter.
+  ///
+  /// In en, this message translates to:
+  /// **'{count}/1000'**
+  String aiCounter(int count);
+
+  /// No description provided for @aiQuota.
+  ///
+  /// In en, this message translates to:
+  /// **'{remaining}/{limit} today'**
+  String aiQuota(int remaining, int limit);
+
+  /// No description provided for @aiQuotaUnlimited.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlimited'**
+  String get aiQuotaUnlimited;
+
+  /// No description provided for @aiUpgradeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The AI assistant is on PRO and PREMIUM'**
+  String get aiUpgradeTitle;
+
+  /// No description provided for @aiUpgradeBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your conversations stay readable. Upgrade to ask new questions.'**
+  String get aiUpgradeBody;
+
+  /// No description provided for @aiPickPair.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a coin'**
+  String get aiPickPair;
+
+  /// No description provided for @aiSearchPairs.
+  ///
+  /// In en, this message translates to:
+  /// **'Search pairs'**
+  String get aiSearchPairs;
+
+  /// No description provided for @aiTimeframe.
+  ///
+  /// In en, this message translates to:
+  /// **'Timeframe'**
+  String get aiTimeframe;
+
+  /// No description provided for @aiPairChip.
+  ///
+  /// In en, this message translates to:
+  /// **'{symbol} · {market} · {timeframe}'**
+  String aiPairChip(String symbol, String market, String timeframe);
+
+  /// No description provided for @aiPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'One of my plans'**
+  String get aiPlan;
+
+  /// No description provided for @aiNoPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'No plan'**
+  String get aiNoPlan;
+
+  /// No description provided for @aiNoPlans.
+  ///
+  /// In en, this message translates to:
+  /// **'You have no plan to ask about yet.'**
+  String get aiNoPlans;
+
+  /// No description provided for @aiPlanChip.
+  ///
+  /// In en, this message translates to:
+  /// **'Plan {symbol} {direction}'**
+  String aiPlanChip(String symbol, String direction);
+
+  /// No description provided for @aiLong.
+  ///
+  /// In en, this message translates to:
+  /// **'Long'**
+  String get aiLong;
+
+  /// No description provided for @aiShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Short'**
+  String get aiShort;
+
+  /// No description provided for @aiPerformance.
+  ///
+  /// In en, this message translates to:
+  /// **'My trading performance'**
+  String get aiPerformance;
+
+  /// No description provided for @aiPerformanceLocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Trading performance: PREMIUM only'**
+  String get aiPerformanceLocked;
+
+  /// No description provided for @aiPairNeedsChoice.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a coin for the assistant to analyse.'**
+  String get aiPairNeedsChoice;
+
+  /// No description provided for @aiMineNeedsChoice.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a plan or tick the performance to ask.'**
+  String get aiMineNeedsChoice;
+
+  /// No description provided for @aiPrivacy.
+  ///
+  /// In en, this message translates to:
+  /// **'Your email, name and capital are never sent.'**
+  String get aiPrivacy;
+
+  /// No description provided for @aiPlaceholderGeneral.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask anything about trading…'**
+  String get aiPlaceholderGeneral;
+
+  /// No description provided for @aiPlaceholderPair.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask about {symbol}…'**
+  String aiPlaceholderPair(String symbol);
+
+  /// No description provided for @aiPlaceholderMine.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask about your plan or your trading performance…'**
+  String get aiPlaceholderMine;
+
+  /// No description provided for @aiDisclaimer.
+  ///
+  /// In en, this message translates to:
+  /// **'For reference only, not investment advice.'**
+  String get aiDisclaimer;
+
+  /// No description provided for @aiSources.
+  ///
+  /// In en, this message translates to:
+  /// **'Sources'**
+  String get aiSources;
+
+  /// No description provided for @aiCopy.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy'**
+  String get aiCopy;
+
+  /// No description provided for @aiCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Answer copied.'**
+  String get aiCopied;
+
+  /// No description provided for @aiYou.
+  ///
+  /// In en, this message translates to:
+  /// **'You'**
+  String get aiYou;
+
+  /// No description provided for @aiAssistant.
+  ///
+  /// In en, this message translates to:
+  /// **'Assistant'**
+  String get aiAssistant;
+
+  /// No description provided for @aiLoadOlder.
+  ///
+  /// In en, this message translates to:
+  /// **'Load earlier messages'**
+  String get aiLoadOlder;
+
+  /// No description provided for @aiDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get aiDone;
+
   /// No description provided for @msg45.
   ///
   /// In en, this message translates to:

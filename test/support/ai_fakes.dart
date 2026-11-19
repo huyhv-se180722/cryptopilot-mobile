@@ -1,7 +1,8 @@
 import 'package:cryptopilot_mobile/features/ai/data/ai_api.dart';
 import 'package:cryptopilot_mobile/features/ai/domain/ai.dart';
 
-final aiNow = DateTime.utc(2026, 11, 19, 7);
+/// The fake clock of `fakes.dart`, so "Today" groups as the app sees it.
+final aiNow = DateTime.utc(2026, 11, 6, 10);
 
 AiConversation conversationOf(
   String id, {
@@ -46,7 +47,7 @@ AiQuota quotaOf({
   limit: limit,
   used: used,
   remaining: remaining,
-  resetsAt: DateTime.utc(2026, 11, 19, 17),
+  resetsAt: DateTime.utc(2026, 11, 6, 17),
   canAsk: canAsk,
   performanceContext: performance,
 );

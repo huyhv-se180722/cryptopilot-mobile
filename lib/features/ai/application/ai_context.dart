@@ -30,6 +30,26 @@ class AiContext {
         : null,
   );
 
+  /// The seed of `/ai/new?…` (Ask AI from SCR-10/11); unknown values fall
+  /// back to the defaults, a missing topic to MARKET.
+  factory AiContext.fromQuery(Map<String, String> query) {
+    final topic =
+        ConversationTopic.values
+            .where((t) => t.wire == query['topic'])
+            .firstOrNull ??
+        ConversationTopic.market;
+    final pairId = topic == ConversationTopic.market ? query['pair'] : null;
+    return AiContext(
+      topic: topic,
+      pairId: pairId,
+      symbol: pairId == null ? null : query['symbol'],
+      market: query['market'] == Market.futures.wire
+          ? Market.futures
+          : Market.spot,
+      timeframe: Timeframe.fromWire(query['tf']) ?? Timeframe.h1,
+    );
+  }
+
   final ConversationTopic topic;
   final String? pairId;
 
@@ -61,6 +81,15 @@ class AiContext {
       includePerformance: includePerformance,
     ),
     ConversationTopic.general => AiQuestion(text: text),
+  };
+
+  /// The query of `/ai/new` that [AiContext.fromQuery] reads back.
+  Map<String, String> toQuery() => {
+    'topic': topic.wire,
+    'pair': ?pairId,
+    if (pairId != null && symbol != null) 'symbol': symbol!,
+    if (pairId != null) 'market': market.wire,
+    if (pairId != null) 'tf': timeframe.wire,
   };
 
   /// A pair of [pairMarket]; choosing a pair also chooses its market.

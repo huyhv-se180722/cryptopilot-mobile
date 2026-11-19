@@ -412,6 +412,114 @@
     }
   },
   "msg31": "The AI Assistant is temporarily unavailable. Please try again.",
+  "aiTitle": "AI assistant",
+  "aiAskAi": "Ask AI",
+  "aiNewConversation": "New conversation",
+  "aiUntitled": "New conversation",
+  "aiFilterAll": "All",
+  "aiTopicMarket": "Market analysis",
+  "aiTopicMine": "My plan & performance",
+  "aiTopicGeneral": "General question",
+  "aiTopicMarketHint": "The assistant reads the current price, indicators and setup score of the coin you pick.",
+  "aiTopicMineHint": "The assistant reads your plan (with the state of its coin) and your trading statistics.",
+  "aiTopicGeneralHint": "General question — the assistant reads no market data.",
+  "aiChooseMode": "What shall we look at?",
+  "aiNoConversations": "No conversations yet.",
+  "aiNoConversationsHint": "Start one and ask your first question.",
+  "aiGroupToday": "Today",
+  "aiGroupYesterday": "Yesterday",
+  "aiGroupWeek": "Last 7 days",
+  "aiGroupOlder": "Older",
+  "aiRename": "Rename",
+  "aiRenameTitle": "Rename conversation",
+  "aiRenameLabel": "Title",
+  "aiSave": "Save",
+  "aiDelete": "Delete",
+  "aiDeleteTitle": "Delete this conversation?",
+  "aiDeleteBody": "It disappears from your list. Questions already asked today still count toward your quota.",
+  "aiDeleted": "Conversation deleted.",
+  "aiEmptyChat": "Ask a question to start.",
+  "aiThinking": "The assistant is writing…",
+  "aiTryAgain": "Try again",
+  "aiSend": "Send",
+  "aiCounter": "{count}/1000",
+  "@aiCounter": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "aiQuota": "{remaining}/{limit} today",
+  "@aiQuota": {
+    "placeholders": {
+      "remaining": {
+        "type": "int"
+      },
+      "limit": {
+        "type": "int"
+      }
+    }
+  },
+  "aiQuotaUnlimited": "Unlimited",
+  "aiUpgradeTitle": "The AI assistant is on PRO and PREMIUM",
+  "aiUpgradeBody": "Your conversations stay readable. Upgrade to ask new questions.",
+  "aiPickPair": "Pick a coin",
+  "aiSearchPairs": "Search pairs",
+  "aiTimeframe": "Timeframe",
+  "aiPairChip": "{symbol} · {market} · {timeframe}",
+  "@aiPairChip": {
+    "placeholders": {
+      "symbol": {
+        "type": "String"
+      },
+      "market": {
+        "type": "String"
+      },
+      "timeframe": {
+        "type": "String"
+      }
+    }
+  },
+  "aiPlan": "One of my plans",
+  "aiNoPlan": "No plan",
+  "aiNoPlans": "You have no plan to ask about yet.",
+  "aiPlanChip": "Plan {symbol} {direction}",
+  "@aiPlanChip": {
+    "placeholders": {
+      "symbol": {
+        "type": "String"
+      },
+      "direction": {
+        "type": "String"
+      }
+    }
+  },
+  "aiLong": "Long",
+  "aiShort": "Short",
+  "aiPerformance": "My trading performance",
+  "aiPerformanceLocked": "Trading performance: PREMIUM only",
+  "aiPairNeedsChoice": "Pick a coin for the assistant to analyse.",
+  "aiMineNeedsChoice": "Pick a plan or tick the performance to ask.",
+  "aiPrivacy": "Your email, name and capital are never sent.",
+  "aiPlaceholderGeneral": "Ask anything about trading…",
+  "aiPlaceholderPair": "Ask about {symbol}…",
+  "@aiPlaceholderPair": {
+    "placeholders": {
+      "symbol": {
+        "type": "String"
+      }
+    }
+  },
+  "aiPlaceholderMine": "Ask about your plan or your trading performance…",
+  "aiDisclaimer": "For reference only, not investment advice.",
+  "aiSources": "Sources",
+  "aiCopy": "Copy",
+  "aiCopied": "Answer copied.",
+  "aiYou": "You",
+  "aiAssistant": "Assistant",
+  "aiLoadOlder": "Load earlier messages",
+  "aiDone": "Done",
   "msg45": "{pair} is already in your watchlist.",
   "@msg45": {
     "placeholders": {

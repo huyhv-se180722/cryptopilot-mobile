@@ -636,6 +636,205 @@ class AppLocalizationsEn extends AppLocalizations {
       'The AI Assistant is temporarily unavailable. Please try again.';
 
   @override
+  String get aiTitle => 'AI assistant';
+
+  @override
+  String get aiAskAi => 'Ask AI';
+
+  @override
+  String get aiNewConversation => 'New conversation';
+
+  @override
+  String get aiUntitled => 'New conversation';
+
+  @override
+  String get aiFilterAll => 'All';
+
+  @override
+  String get aiTopicMarket => 'Market analysis';
+
+  @override
+  String get aiTopicMine => 'My plan & performance';
+
+  @override
+  String get aiTopicGeneral => 'General question';
+
+  @override
+  String get aiTopicMarketHint =>
+      'The assistant reads the current price, indicators and setup score of the coin you pick.';
+
+  @override
+  String get aiTopicMineHint =>
+      'The assistant reads your plan (with the state of its coin) and your trading statistics.';
+
+  @override
+  String get aiTopicGeneralHint =>
+      'General question — the assistant reads no market data.';
+
+  @override
+  String get aiChooseMode => 'What shall we look at?';
+
+  @override
+  String get aiNoConversations => 'No conversations yet.';
+
+  @override
+  String get aiNoConversationsHint => 'Start one and ask your first question.';
+
+  @override
+  String get aiGroupToday => 'Today';
+
+  @override
+  String get aiGroupYesterday => 'Yesterday';
+
+  @override
+  String get aiGroupWeek => 'Last 7 days';
+
+  @override
+  String get aiGroupOlder => 'Older';
+
+  @override
+  String get aiRename => 'Rename';
+
+  @override
+  String get aiRenameTitle => 'Rename conversation';
+
+  @override
+  String get aiRenameLabel => 'Title';
+
+  @override
+  String get aiSave => 'Save';
+
+  @override
+  String get aiDelete => 'Delete';
+
+  @override
+  String get aiDeleteTitle => 'Delete this conversation?';
+
+  @override
+  String get aiDeleteBody =>
+      'It disappears from your list. Questions already asked today still count toward your quota.';
+
+  @override
+  String get aiDeleted => 'Conversation deleted.';
+
+  @override
+  String get aiEmptyChat => 'Ask a question to start.';
+
+  @override
+  String get aiThinking => 'The assistant is writing…';
+
+  @override
+  String get aiTryAgain => 'Try again';
+
+  @override
+  String get aiSend => 'Send';
+
+  @override
+  String aiCounter(int count) {
+    return '$count/1000';
+  }
+
+  @override
+  String aiQuota(int remaining, int limit) {
+    return '$remaining/$limit today';
+  }
+
+  @override
+  String get aiQuotaUnlimited => 'Unlimited';
+
+  @override
+  String get aiUpgradeTitle => 'The AI assistant is on PRO and PREMIUM';
+
+  @override
+  String get aiUpgradeBody =>
+      'Your conversations stay readable. Upgrade to ask new questions.';
+
+  @override
+  String get aiPickPair => 'Pick a coin';
+
+  @override
+  String get aiSearchPairs => 'Search pairs';
+
+  @override
+  String get aiTimeframe => 'Timeframe';
+
+  @override
+  String aiPairChip(String symbol, String market, String timeframe) {
+    return '$symbol · $market · $timeframe';
+  }
+
+  @override
+  String get aiPlan => 'One of my plans';
+
+  @override
+  String get aiNoPlan => 'No plan';
+
+  @override
+  String get aiNoPlans => 'You have no plan to ask about yet.';
+
+  @override
+  String aiPlanChip(String symbol, String direction) {
+    return 'Plan $symbol $direction';
+  }
+
+  @override
+  String get aiLong => 'Long';
+
+  @override
+  String get aiShort => 'Short';
+
+  @override
+  String get aiPerformance => 'My trading performance';
+
+  @override
+  String get aiPerformanceLocked => 'Trading performance: PREMIUM only';
+
+  @override
+  String get aiPairNeedsChoice => 'Pick a coin for the assistant to analyse.';
+
+  @override
+  String get aiMineNeedsChoice => 'Pick a plan or tick the performance to ask.';
+
+  @override
+  String get aiPrivacy => 'Your email, name and capital are never sent.';
+
+  @override
+  String get aiPlaceholderGeneral => 'Ask anything about trading…';
+
+  @override
+  String aiPlaceholderPair(String symbol) {
+    return 'Ask about $symbol…';
+  }
+
+  @override
+  String get aiPlaceholderMine =>
+      'Ask about your plan or your trading performance…';
+
+  @override
+  String get aiDisclaimer => 'For reference only, not investment advice.';
+
+  @override
+  String get aiSources => 'Sources';
+
+  @override
+  String get aiCopy => 'Copy';
+
+  @override
+  String get aiCopied => 'Answer copied.';
+
+  @override
+  String get aiYou => 'You';
+
+  @override
+  String get aiAssistant => 'Assistant';
+
+  @override
+  String get aiLoadOlder => 'Load earlier messages';
+
+  @override
+  String get aiDone => 'Done';
+
+  @override
   String msg45(String pair) {
     return '$pair is already in your watchlist.';
   }
