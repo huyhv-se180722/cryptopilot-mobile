@@ -261,10 +261,12 @@ class _PathStrip extends ConsumerWidget {
                                     ? context.cp.positive
                                     : context.cp.raised,
                                 child: learned
-                                    ? const Icon(
+                                    ? Icon(
                                         Icons.check,
                                         size: 14,
-                                        color: Colors.white,
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.onPrimary,
                                       )
                                     : Text(
                                         '${lesson.pathOrder ?? index + 1}',
