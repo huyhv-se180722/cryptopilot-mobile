@@ -1,19 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../core/auth/session_controller.dart';
-import '../../../core/errors/api_failure.dart';
 import '../../../core/errors/message_text.dart';
 import '../../../core/i18n/app_localizations.dart';
 import '../../../core/settings/settings.dart';
 import '../../../core/theme/cp_colors.dart';
 import '../../../core/web/web_links.dart';
-import '../data/profile_api.dart';
+import '../application/account_controller.dart';
 import '../domain/profile.dart';
 
 /// The account screen of A-59 (PENDING): who is signed in, the e-mail and push
 /// switches of the SCR-07 Notifications tab, appearance, links to the web
-/// screens, the disclaimer and Log out.
+/// screens, the disclaimer and Log out. The profile and its saving are
+/// [AccountController]'s.
 class AccountScreen extends ConsumerStatefulWidget {
   const AccountScreen({super.key});
 
@@ -22,45 +21,17 @@ class AccountScreen extends ConsumerStatefulWidget {
 }
 
 class _AccountScreenState extends ConsumerState<AccountScreen> {
-  Profile? _profile;
-  ApiFailure? _loadFailure;
-  bool _saving = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _load();
-  }
-
-  Future<void> _load() async {
-    setState(() => _loadFailure = null);
-    try {
-      final profile = await ref.read(profileApiProvider).profile();
-      if (mounted) setState(() => _profile = profile);
-    } on ApiFailure catch (failure) {
-      if (mounted) setState(() => _loadFailure = failure);
-    }
-  }
-
   Future<void> _save(Profile next) async {
     final l = AppLocalizations.of(context);
     final messenger = ScaffoldMessenger.of(context);
-    final before = _profile;
-    setState(() {
-      _profile = next;
-      _saving = true;
-    });
-    try {
-      await ref
-          .read(profileApiProvider)
-          .saveNotifications(email: next.notifyEmail, push: next.notifyPush);
-      messenger.showSnackBar(SnackBar(content: Text(l.msg14)));
-    } on ApiFailure catch (failure) {
-      if (mounted) setState(() => _profile = before);
-      messenger.showSnackBar(SnackBar(content: Text(failureText(l, failure))));
-    } finally {
-      if (mounted) setState(() => _saving = false);
-    }
+    final failure = await ref
+        .read(accountControllerProvider.notifier)
+        .saveNotifications(next);
+    messenger.showSnackBar(
+      SnackBar(
+        content: Text(failure == null ? l.msg14 : failureText(l, failure)),
+      ),
+    );
   }
 
   Future<void> _signOut() async {
@@ -82,7 +53,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
       ),
     );
     if (confirmed ?? false) {
-      await ref.read(sessionControllerProvider.notifier).signOut();
+      await ref.read(accountControllerProvider.notifier).signOut();
     }
   }
 
@@ -90,7 +61,8 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     final text = Theme.of(context).textTheme;
-    final profile = _profile;
+    final state = ref.watch(accountControllerProvider);
+    final profile = state.profile;
     final themeMode = ref.watch(themeModeProvider);
     final web = ref.read(webLinksProvider);
     return Scaffold(
@@ -111,12 +83,12 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
               title: Text(profile.displayName, style: text.titleMedium),
               subtitle: Text(profile.email),
             )
-          else if (_loadFailure != null)
+          else if (state.loadFailure case final failure?)
             ListTile(
               contentPadding: EdgeInsets.zero,
-              title: Text(failureText(l, _loadFailure!)),
+              title: Text(failureText(l, failure)),
               trailing: TextButton(
-                onPressed: _load,
+                onPressed: ref.read(accountControllerProvider.notifier).load,
                 child: Text(l.commonRetry),
               ),
             )
@@ -133,7 +105,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
             contentPadding: EdgeInsets.zero,
             title: Text(l.accountNotifyEmail),
             value: profile?.notifyEmail ?? false,
-            onChanged: profile == null || _saving
+            onChanged: profile == null || state.saving
                 ? null
                 : (value) => _save(profile.copyWith(notifyEmail: value)),
           ),
@@ -142,7 +114,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
             contentPadding: EdgeInsets.zero,
             title: Text(l.accountNotifyPush),
             value: profile?.notifyPush ?? false,
-            onChanged: profile == null || _saving
+            onChanged: profile == null || state.saving
                 ? null
                 : (value) => _save(profile.copyWith(notifyPush: value)),
           ),

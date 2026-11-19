@@ -13,7 +13,7 @@ import '../../chart/application/chart_prefs.dart';
 import '../../chart/presentation/chart_surface.dart';
 import '../../chart/presentation/chart_view.dart';
 import '../../chart/presentation/indicator_sheet.dart';
-import '../../market/application/market_board.dart';
+import '../../market/data/market_repository.dart';
 import '../../market/domain/candle.dart';
 import '../../market/domain/market.dart';
 import '../../market/presentation/market_widgets.dart';
@@ -64,7 +64,7 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
-    final board = marketBoardProvider(widget.market);
+    final board = marketRepositoryProvider(widget.market);
     final pairs = ref.watch(board.select((s) => s.pairs));
     final boardFailure = ref.watch(board.select((s) => s.failure));
     final pair = pairs?.where((p) => p.symbol == widget.symbol).firstOrNull;

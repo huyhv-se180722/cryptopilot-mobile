@@ -1,7 +1,9 @@
 import 'dart:async';
 
+import 'package:cryptopilot_mobile/app.dart';
 import 'package:cryptopilot_mobile/core/auth/token_store.dart';
 import 'package:cryptopilot_mobile/core/i18n/app_localizations.dart';
+import 'package:cryptopilot_mobile/core/router/app_router.dart';
 import 'package:cryptopilot_mobile/core/theme/app_theme.dart';
 import 'package:cryptopilot_mobile/features/market/application/market_board.dart';
 import 'package:cryptopilot_mobile/features/market/domain/market.dart';
@@ -306,6 +308,84 @@ void main() {
       await tester.pump();
       expect(find.byKey(const Key('row-spot-BTCUSDT')), findsOneWidget);
       unawaited(Future<void>.value());
+      await unmount(tester);
+    });
+  });
+
+  group('SCR-09 in the app (router)', () {
+    Future<void> frames(WidgetTester tester) async {
+      for (var i = 0; i < 10; i++) {
+        await tester.pump(const Duration(milliseconds: 50));
+      }
+    }
+
+    /// Searches Spot, goes to Futures and back; Home keeps the market's data
+    /// alive meanwhile. Returns the text of the Spot search field.
+    Future<String> searchAndSwitch(
+      WidgetTester tester, {
+      required bool closeKeyboard,
+    }) async {
+      final transport = FakeTransport();
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: baseOverrides(
+            store: MemoryTokenStore(storedFor('saved')),
+            tokens: FakeAuthTokenApi(),
+            transport: transport,
+          ),
+          retry: (_, _) => null,
+          child: const CryptoPilotApp(),
+        ),
+      );
+      await frames(tester);
+      transport.last.onConnected();
+      await frames(tester);
+      ProviderScope.containerOf(
+        tester.element(find.byType(CryptoPilotApp)),
+      ).read(appRouterProvider).go('/markets');
+      await frames(tester);
+
+      await tester.enterText(find.byKey(const Key('search-spot')), 'bitcoin');
+      await frames(tester);
+      expect(find.byKey(const Key('row-spot-ETHUSDT')), findsNothing);
+      if (closeKeyboard) {
+        FocusManager.instance.primaryFocus?.unfocus();
+        await frames(tester);
+      }
+
+      await tester.tap(find.text('Futures'));
+      await frames(tester);
+      await tester.tap(find.text('Spot'));
+      await frames(tester);
+      return tester
+          .widget<EditableText>(
+            find.descendant(
+              of: find.byKey(const Key('search-spot')),
+              matching: find.byType(EditableText),
+            ),
+          )
+          .controller
+          .text;
+    }
+
+    Future<void> unmount(WidgetTester tester) async {
+      await tester.pumpWidget(const SizedBox());
+      await tester.pump(const Duration(seconds: 31));
+    }
+
+    testWidgets('a focused search keeps its tab: the word and the narrowed '
+        'list stay', (tester) async {
+      expect(await searchAndSwitch(tester, closeKeyboard: false), 'bitcoin');
+      expect(find.byKey(const Key('row-spot-BTCUSDT')), findsOneWidget);
+      expect(find.byKey(const Key('row-spot-ETHUSDT')), findsNothing);
+      await unmount(tester);
+    });
+
+    testWidgets('with the keyboard closed the search ends with its tab, as '
+        'its field does: every pair again', (tester) async {
+      expect(await searchAndSwitch(tester, closeKeyboard: true), isEmpty);
+      expect(find.byKey(const Key('row-spot-BTCUSDT')), findsOneWidget);
+      expect(find.byKey(const Key('row-spot-ETHUSDT')), findsOneWidget);
       await unmount(tester);
     });
   });

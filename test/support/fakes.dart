@@ -102,6 +102,11 @@ class FakeAuthApi implements AuthApi {
   int forgotCalls = 0;
   int resendCalls = 0;
 
+  /// The address of every forgot password and resend call, as sent.
+  final List<String> emails = [];
+  Object? forgotError;
+  Object? resendError;
+
   @override
   Future<Session> login({
     required String email,
@@ -110,10 +115,18 @@ class FakeAuthApi implements AuthApi {
   }) => onLogin(email, password, rememberMe);
 
   @override
-  Future<void> forgotPassword(String email) async => forgotCalls++;
+  Future<void> forgotPassword(String email) async {
+    forgotCalls++;
+    emails.add(email);
+    if (forgotError case final error?) throw error;
+  }
 
   @override
-  Future<void> resendVerification(String email) async => resendCalls++;
+  Future<void> resendVerification(String email) async {
+    resendCalls++;
+    emails.add(email);
+    if (resendError case final error?) throw error;
+  }
 
   @override
   Future<void> resetPassword({
@@ -132,9 +145,13 @@ class FakeProfileApi implements ProfileApi {
   );
   final List<(bool, bool)> saved = [];
   Object? saveError;
+  Object? loadError;
 
   @override
-  Future<Profile> profile() async => current;
+  Future<Profile> profile() async {
+    if (loadError case final error?) throw error;
+    return current;
+  }
 
   @override
   Future<void> saveNotifications({

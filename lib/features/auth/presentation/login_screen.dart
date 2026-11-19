@@ -1,22 +1,17 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../core/auth/session_controller.dart';
-import '../../../core/errors/api_failure.dart';
 import '../../../core/errors/message_text.dart';
 import '../../../core/i18n/app_localizations.dart';
 import '../../../core/web/web_links.dart';
-import '../data/auth_api.dart';
-import '../domain/credentials_rules.dart';
+import '../application/login_controller.dart';
 import 'auth_scaffold.dart';
 import 'password_field.dart';
 
 /// SCR-04 Log in (UC-03). "Keep me signed in" starts on: a phone is a
 /// personal device, and the 30-day refresh token is what keeps the session
-/// across restarts.
+/// across restarts. The form's state and the calls are [LoginController]'s.
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
 
@@ -25,128 +20,42 @@ class LoginScreen extends ConsumerStatefulWidget {
 }
 
 class _LoginScreenState extends ConsumerState<LoginScreen> {
-  static const _resendCooldown = 60;
-
   final _email = TextEditingController();
   final _password = TextEditingController();
   bool _rememberMe = true;
-  bool _pending = false;
-  String? _banner;
-  bool _bannerPositive = false;
-  bool _offerResend = false;
-  int _resendWait = 0;
-  Timer? _resendTimer;
-  Map<String, String> _fieldErrors = const {};
-
-  @override
-  void initState() {
-    super.initState();
-    final state = ref.read(sessionControllerProvider);
-    if (state is SignedOut && state.expired) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) {
-          setState(() => _banner = AppLocalizations.of(context).msg44);
-        }
-      });
-    }
-  }
 
   @override
   void dispose() {
-    _resendTimer?.cancel();
     _email.dispose();
     _password.dispose();
     super.dispose();
   }
 
-  Map<String, String> _validate(AppLocalizations l) {
-    final errors = <String, String>{};
-    final email = _email.text.trim();
-    if (email.isEmpty) {
-      errors['email'] = l.msg01(l.authEmailField);
-    } else if (!looksLikeEmail(email)) {
-      errors['email'] = l.msg02;
-    }
-    if (_password.text.isEmpty) {
-      errors['password'] = l.msg01(l.authPasswordField);
-    }
-    return errors;
-  }
-
-  Future<void> _submit() async {
-    final l = AppLocalizations.of(context);
-    final errors = _validate(l);
-    setState(() {
-      _fieldErrors = errors;
-      _banner = null;
-      _offerResend = false;
-    });
-    if (errors.isNotEmpty) return;
-    setState(() => _pending = true);
-    try {
-      final session = await ref
-          .read(authApiProvider)
-          .login(
-            email: _email.text.trim(),
-            password: _password.text,
-            rememberMe: _rememberMe,
-          );
-      await ref.read(sessionControllerProvider.notifier).signIn(session);
-    } on ApiFailure catch (failure) {
-      if (!mounted) return;
-      setState(() => _showFailure(l, failure));
-    } finally {
-      if (mounted) setState(() => _pending = false);
-    }
-  }
-
-  void _showFailure(AppLocalizations l, ApiFailure failure) {
-    _bannerPositive = false;
-    if (failure is ProblemFailure && failure.problem.fieldErrors.isNotEmpty) {
-      _fieldErrors = {
-        for (final MapEntry(:key, :value)
-            in failure.problem.fieldErrors.entries)
-          key: messageText(
-            l,
-            value,
-            field: key == 'email' ? l.authEmailField : l.authPasswordField,
-          ),
-      };
-      return;
-    }
-    _offerResend =
-        failure is ProblemFailure && failure.code == 'EMAIL_NOT_VERIFIED';
-    _banner = failureText(l, failure);
-  }
-
-  Future<void> _resend() async {
-    final l = AppLocalizations.of(context);
-    setState(() => _resendWait = _resendCooldown);
-    _resendTimer?.cancel();
-    _resendTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (!mounted || _resendWait <= 1) {
-        timer.cancel();
-        if (mounted) setState(() => _resendWait = 0);
-        return;
-      }
-      setState(() => _resendWait--);
-    });
-    try {
-      await ref.read(authApiProvider).resendVerification(_email.text.trim());
-      if (!mounted) return;
-      setState(() {
-        _banner = l.authResendSent;
-        _bannerPositive = true;
-        _offerResend = false;
-      });
-    } on ApiFailure catch (failure) {
-      if (mounted) setState(() => _banner = failureText(l, failure));
-    }
-  }
+  void _submit() => ref
+      .read(loginControllerProvider.notifier)
+      .submit(
+        email: _email.text,
+        password: _password.text,
+        rememberMe: _rememberMe,
+      );
 
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
+    final state = ref.watch(loginControllerProvider);
+
+    String? fieldError(String field, String label) {
+      final code = state.fieldErrors[field];
+      return code == null ? null : messageText(l, code, field: label);
+    }
+
+    final banner = switch (state) {
+      LoginState(:final failure?) => failureText(l, failure),
+      LoginState(notice: LoginNotice.resendSent) => l.authResendSent,
+      LoginState(notice: LoginNotice.sessionExpired) => l.msg44,
+      _ => null,
+    };
+
     return AuthScaffold(
       title: l.authLoginTitle,
       subtitle: l.authLoginSubtitle,
@@ -154,18 +63,22 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            if (_banner != null)
+            if (banner != null)
               FormBanner(
-                message: _banner!,
-                positive: _bannerPositive,
-                action: _offerResend
+                message: banner,
+                positive: state.notice == LoginNotice.resendSent,
+                action: state.offerResend
                     ? Align(
                         alignment: Alignment.centerLeft,
                         child: TextButton(
-                          onPressed: _resendWait > 0 ? null : _resend,
+                          onPressed: state.resendWait > 0
+                              ? null
+                              : () => ref
+                                    .read(loginControllerProvider.notifier)
+                                    .resend(_email.text),
                           child: Text(
-                            _resendWait > 0
-                                ? l.authResendIn(_resendWait)
+                            state.resendWait > 0
+                                ? l.authResendIn(state.resendWait)
                                 : l.authResendVerification,
                           ),
                         ),
@@ -184,7 +97,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               textInputAction: TextInputAction.next,
               decoration: InputDecoration(
                 labelText: l.authEmailLabel,
-                errorText: _fieldErrors['email'],
+                errorText: fieldError('email', l.authEmailField),
               ),
             ),
             const SizedBox(height: 16),
@@ -192,7 +105,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               key: const Key('login-password'),
               controller: _password,
               label: l.authPasswordLabel,
-              errorText: _fieldErrors['password'],
+              errorText: fieldError('password', l.authPasswordField),
               onSubmitted: (_) => _submit(),
             ),
             const SizedBox(height: 4),
@@ -214,8 +127,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             const SizedBox(height: 8),
             FilledButton(
               key: const Key('login-submit'),
-              onPressed: _pending ? null : _submit,
-              child: _pending
+              onPressed: state.pending ? null : _submit,
+              child: state.pending
                   ? const SizedBox.square(
                       dimension: 20,
                       child: CircularProgressIndicator(strokeWidth: 2),

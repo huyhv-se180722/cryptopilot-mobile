@@ -9,7 +9,7 @@ import '../../../core/errors/message_text.dart';
 import '../../../core/format/decimal_format.dart';
 import '../../../core/i18n/app_localizations.dart';
 import '../../../core/theme/cp_colors.dart';
-import '../../market/application/market_board.dart';
+import '../../market/data/market_repository.dart';
 import '../../market/domain/market.dart';
 import '../../market/presentation/market_widgets.dart';
 import '../../market/presentation/pair_actions.dart';
@@ -20,7 +20,9 @@ import 'add_pair_sheet.dart';
 /// The pair behind a watched row: Spot when listed there, else Futures.
 MarketPair? pairFor(WidgetRef ref, WatchItem item) {
   MarketPair? find(Market market) {
-    final pairs = ref.watch(marketBoardProvider(market).select((s) => s.pairs));
+    final pairs = ref.watch(
+      marketRepositoryProvider(market).select((s) => s.pairs),
+    );
     return pairs?.where((pair) => pair.pairId == item.pairId).firstOrNull;
   }
 
@@ -169,7 +171,9 @@ class _WatchlistViewState extends ConsumerState<WatchlistView> {
                   const Spacer(),
                   LiveBadge(
                     delayed: ref.watch(
-                      marketBoardProvider(Market.spot).select((s) => s.delayed),
+                      marketRepositoryProvider(
+                        Market.spot,
+                      ).select((s) => s.delayed),
                     ),
                   ),
                   if (canReorder)
@@ -375,7 +379,7 @@ class WatchRow extends ConsumerWidget {
     final pair = pairFor(ref, item);
     final market = pair?.market ?? Market.spot;
     final ticker = ref.watch(
-      marketBoardProvider(market).select((s) => s.tickers[item.symbol]),
+      marketRepositoryProvider(market).select((s) => s.tickers[item.symbol]),
     );
     final score = ref.watch(
       watchlistControllerProvider.select((s) => s.scores[item.symbol]),
