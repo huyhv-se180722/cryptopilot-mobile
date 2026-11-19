@@ -51,6 +51,12 @@ class FakeFuturesApi implements FuturesApi {
   Object? placeError;
   Object? changeError;
 
+  /// The max open answers, by LONG / SHORT; each request is kept.
+  MaxOpen maxLong = const MaxOpen(maxQuantity: '1.300', maxNotional: '97500');
+  MaxOpen maxShort = const MaxOpen(maxQuantity: '1.200', maxNotional: '90000');
+  final List<MaxOpenRequest> maxRequests = [];
+  final List<FuturesOrderRequest> warningRequests = [];
+
   /// Thrown by every read of the account (a plan without Futures).
   Object? loadError;
 
@@ -117,7 +123,23 @@ class FakeFuturesApi implements FuturesApi {
   @override
   Future<OrderWarnings> warnings(FuturesOrderRequest request) async {
     calls.add('warnings ${request.side.wire} ${request.quantity}');
-    return warningsAnswer;
+    warningRequests.add(request);
+    return warningsFor[request.side] ?? warningsAnswer;
+  }
+
+  /// A side's own warnings, else [warningsAnswer].
+  final Map<OrderSide, OrderWarnings> warningsFor = {};
+  Object? maxError;
+
+  @override
+  Future<MaxOpen> maxOpen(MaxOpenRequest request) async {
+    calls.add(
+      'max ${request.long ? 'LONG' : 'SHORT'} ${request.leverage}x '
+      '${request.entryPrice} ${request.walletBalance}',
+    );
+    maxRequests.add(request);
+    if (maxError case final error?) throw error;
+    return request.long ? maxLong : maxShort;
   }
 
   @override

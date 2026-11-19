@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/web/web_links.dart';
+import '../../paper/application/trade_controller.dart';
 
 /// Where a lesson link leads on the phone (D-155 (4)). Lessons link web
 /// paths; those the app has open its screen, the others open the web.
@@ -19,6 +20,14 @@ class AppScreen extends AcademyLinkTarget {
   final bool tab;
 }
 
+/// The Trade tab in Spot or Futures, on a pair when the path names one
+/// (`/trade/spot`, `/trade/futures/BTCUSDT`).
+class TradeTab extends AcademyLinkTarget {
+  const TradeTab({required this.futures, this.symbol});
+  final bool futures;
+  final String? symbol;
+}
+
 /// A web path, opened in the browser on the web app.
 class WebPath extends AcademyLinkTarget {
   const WebPath(this.path);
@@ -31,13 +40,23 @@ class WebAddress extends AcademyLinkTarget {
   final String address;
 }
 
-/// The app screens a lesson path maps to today. `/trade/*` waits for the
-/// Trade tab (T-128) and `/journal` for the Journal screens (T-091): until
-/// then they open the web, as `/plans/new`, `/community` and any unknown
-/// path do.
+/// The app screens a lesson path maps to today. `/trade/spot` and
+/// `/trade/futures` open the Trade tab (T-131); `/journal` waits for the
+/// Journal screens (T-091) and opens the web until then, as `/plans/new`,
+/// `/community` and any unknown path do.
 AcademyLinkTarget academyLinkTarget(String href) {
   if (!href.startsWith('/')) return WebAddress(href);
   final path = Uri.parse(href).path;
+  final segments = path.split('/').where((s) => s.isNotEmpty).toList();
+  if (segments.length <= 3 &&
+      segments.length >= 2 &&
+      segments[0] == 'trade' &&
+      (segments[1] == 'spot' || segments[1] == 'futures')) {
+    return TradeTab(
+      futures: segments[1] == 'futures',
+      symbol: segments.length == 3 ? segments[2].toUpperCase() : null,
+    );
+  }
   return switch (path) {
     '/markets' => const AppScreen('/markets', tab: true),
     '/alerts' => const AppScreen('/alerts', tab: false),
@@ -52,6 +71,16 @@ void openAcademyLink(BuildContext context, WidgetRef ref, String href) {
       context.go(location);
     case AppScreen(:final location, tab: false):
       context.push(location);
+    case TradeTab(:final futures, :final symbol):
+      if (symbol != null) {
+        if (futures) {
+          ref.read(futuresPairProvider.notifier).select(symbol);
+        } else {
+          ref.read(tradePairProvider.notifier).select(symbol);
+        }
+      }
+      ref.read(tradeFuturesProvider.notifier).show(futures: futures);
+      context.go('/trade');
     case WebPath(:final path):
       web.open(path);
     case WebAddress(:final address):
