@@ -37,12 +37,20 @@ String _time(DateTime at) =>
 /// draft, Cancel on an active plan, Set SL/TP and Close position (SCR-19) on
 /// an open position. Every figure is the server one.
 class PlanDetailScreen extends ConsumerWidget {
-  const PlanDetailScreen({required this.id, this.extraActions, super.key});
+  const PlanDetailScreen({
+    required this.id,
+    this.extraActions,
+    this.journalLink,
+    super.key,
+  });
 
   final String id;
 
   /// Header actions other features add (Ask AI), composed by the router.
   final List<Widget> Function(PlanDetail plan)? extraActions;
+
+  /// The link to the plan's journal entry (SCR-21), composed by the router.
+  final Widget Function(PlanDetail plan)? journalLink;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -109,6 +117,7 @@ class PlanDetailScreen extends ConsumerWidget {
               const SizedBox(height: 12),
               _PositionCard(plan: plan, position: position),
             ],
+            if (plan.position != null) ?journalLink?.call(plan),
             const SizedBox(height: 8),
             _PlanSections(plan: plan),
           ],

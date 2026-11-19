@@ -835,6 +835,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get aiDone => 'Done';
 
   @override
+  String get planJournalEntry => 'Journal entry';
+
+  @override
   String get planMarkPrice => 'Mark price';
 
   @override

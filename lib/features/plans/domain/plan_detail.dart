@@ -239,6 +239,25 @@ class PlanDetail {
   final PlanPosition? position;
 
   bool get hasOpenPosition => position?.open ?? false;
+
+  /// The row this plan has in `GET /plans`, for the screens that take one
+  /// (the AI plan picker); created when its first status was.
+  PlanSummary get summary => PlanSummary(
+    id: id,
+    pairId: pairId,
+    market: market,
+    direction: direction,
+    entryType: entryType,
+    status: status,
+    createdAt: statusHistory.isEmpty
+        ? DateTime.fromMillisecondsSinceEpoch(0, isUtc: true)
+        : statusHistory.first.at,
+    entryPrice: entryPrice,
+    stopLoss: stopLoss,
+    takeProfit: takeProfit,
+    leverage: leverage,
+    positionState: position?.status,
+  );
 }
 
 /// SCR-19: what closing now would give (`CloseEstimateResponse`).

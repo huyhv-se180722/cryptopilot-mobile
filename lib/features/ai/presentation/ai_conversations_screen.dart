@@ -13,6 +13,7 @@ import '../../../core/theme/cp_colors.dart';
 import '../../market/domain/candle.dart';
 import '../../market/domain/market.dart';
 import '../../market/presentation/market_widgets.dart';
+import '../../plans/domain/plan.dart';
 import '../application/ai_context.dart';
 import '../application/ai_conversations_controller.dart';
 import '../application/ai_quota.dart';
@@ -51,6 +52,27 @@ void askAiOnPair(BuildContext context, MarketPair pair, Timeframe timeframe) =>
         ),
       ),
     );
+
+/// Ask AI on SCR-18 (SRS 3.9.1): a new "My plan & performance" chat on
+/// [plan], composed onto the plan detail by the router.
+class AskAiOnPlanButton extends StatelessWidget {
+  const AskAiOnPlanButton({required this.plan, super.key});
+
+  final PlanSummary plan;
+
+  @override
+  Widget build(BuildContext context) => IconButton(
+    key: const Key('plan-ask-ai'),
+    tooltip: AppLocalizations.of(context).aiAskAi,
+    icon: const Icon(Icons.auto_awesome),
+    onPressed: () => unawaited(
+      context.push(
+        '/ai/new',
+        extra: AiContext(topic: ConversationTopic.myTrading, plan: plan),
+      ),
+    ),
+  );
+}
 
 /// `/ai/c/{id}`; the conversation rides along as `extra`.
 String aiChatLocation(String id) => '/ai/c/${Uri.encodeComponent(id)}';

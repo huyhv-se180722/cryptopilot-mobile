@@ -4,6 +4,8 @@ import 'package:cryptopilot_mobile/app.dart';
 import 'package:cryptopilot_mobile/core/auth/token_store.dart';
 import 'package:cryptopilot_mobile/core/router/app_router.dart';
 import 'package:cryptopilot_mobile/core/settings/settings.dart';
+import 'package:cryptopilot_mobile/features/ai/data/ai_api.dart';
+import 'package:cryptopilot_mobile/features/ai/presentation/ai_chat_screen.dart';
 import 'package:cryptopilot_mobile/features/journal/data/journal_api.dart';
 import 'package:cryptopilot_mobile/features/journal/domain/journal.dart';
 import 'package:cryptopilot_mobile/features/journal/presentation/journal_entry_screen.dart';
@@ -16,6 +18,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../support/ai_fakes.dart';
 import '../support/fakes.dart';
 import '../support/plans_fakes.dart';
 import '../support/realtime_fakes.dart';
@@ -85,6 +88,7 @@ void main() {
           ),
           planDetailApiProvider.overrideWithValue(details),
           journalApiProvider.overrideWithValue(journal),
+          aiApiProvider.overrideWithValue(FakeAiApi()),
         ],
         retry: (_, _) => null,
         child: const CryptoPilotApp(),
@@ -214,6 +218,27 @@ void main() {
       // (60,150 − 67,000) / 67,000 = −10.22 %, not the −10.50 % of the last
       // price.
       expect(find.textContaining('−10.22%'), findsOneWidget);
+      await unmount(tester);
+    });
+
+    testWidgets('an executed plan links its journal entry; Ask AI opens a '
+        'plan chat on it (SRS 3.9.1)', (tester) async {
+      await open(tester, '/plan/p2');
+      expect(find.byKey(const Key('plan-journal-entry')), findsOneWidget);
+      expect(
+        journal.calls.firstWhere((c) => c.startsWith('list')),
+        startsWith('list SIMULATED'),
+      );
+      await tester.tap(find.byKey(const Key('plan-journal-entry')));
+      await frames(tester);
+      expect(find.byType(JournalEntryScreen), findsOneWidget);
+      await tester.pageBack();
+      await frames(tester);
+
+      await tester.tap(find.byKey(const Key('plan-ask-ai')));
+      await frames(tester);
+      expect(find.byType(AiChatScreen), findsOneWidget);
+      expect(find.text('Plan BTCUSDT Long'), findsOneWidget);
       await unmount(tester);
     });
 

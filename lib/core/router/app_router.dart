@@ -9,6 +9,7 @@ import '../../features/ai/presentation/ai_chat_screen.dart';
 import '../../features/ai/presentation/ai_conversations_screen.dart';
 import '../../features/journal/presentation/journal_entry_screen.dart';
 import '../../features/journal/presentation/journal_view.dart';
+import '../../features/journal/presentation/plan_journal_link.dart';
 import '../../features/plans/presentation/plan_detail_screen.dart';
 import '../../features/plans/presentation/plans_screen.dart';
 import '../../features/academy/presentation/academy_screen.dart';
@@ -150,8 +151,19 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: Routes.plan,
-        builder: (_, state) =>
-            PlanDetailScreen(id: state.pathParameters['id']!),
+        builder: (_, state) => PlanDetailScreen(
+          id: state.pathParameters['id']!,
+          // Features meet here: Ask AI (SCR-29) and the journal entry
+          // (SCR-21) of the plan.
+          extraActions: (plan) => [AskAiOnPlanButton(plan: plan.summary)],
+          journalLink: (plan) => PlanJournalLink(
+            journalKey: (
+              planId: plan.id,
+              pairId: plan.pairId,
+              market: plan.market,
+            ),
+          ),
+        ),
       ),
       GoRoute(
         path: Routes.journalEntry,
@@ -165,9 +177,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: Routes.aiNew,
         builder: (_, state) => AiChatScreen(
-          args: AiChatArgs.fresh(
-            AiContext.fromQuery(state.uri.queryParameters),
-          ),
+          args: AiChatArgs.fresh(switch (state.extra) {
+            // Ask AI on SCR-18 carries the plan itself.
+            final AiContext seed => seed,
+            _ => AiContext.fromQuery(state.uri.queryParameters),
+          }),
         ),
       ),
       GoRoute(

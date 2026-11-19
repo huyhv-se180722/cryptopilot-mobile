@@ -1558,6 +1558,12 @@ abstract class AppLocalizations {
   /// **'Done'**
   String get aiDone;
 
+  /// No description provided for @planJournalEntry.
+  ///
+  /// In en, this message translates to:
+  /// **'Journal entry'**
+  String get planJournalEntry;
+
   /// No description provided for @planMarkPrice.
   ///
   /// In en, this message translates to:
