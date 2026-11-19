@@ -835,6 +835,36 @@ class AppLocalizationsEn extends AppLocalizations {
   String get aiDone => 'Done';
 
   @override
+  String msg16(String direction, String rule) {
+    return 'For $direction positions: $rule.';
+  }
+
+  @override
+  String get msg18 =>
+      'This plan has blocking warnings and cannot be activated.';
+
+  @override
+  String get msg19 => 'Trading plan activated.';
+
+  @override
+  String get msg20 => 'Cancel this trading plan? This action cannot be undone.';
+
+  @override
+  String msg21(String price, String pnl) {
+    return 'Close this position at about $price? Estimated P/L: $pnl.';
+  }
+
+  @override
+  String msg51(String deviation, String quantity, String rr) {
+    return 'The price has moved ${deviation}R from your plan. New quantity $quantity, risk/reward $rr. Activate anyway?';
+  }
+
+  @override
+  String msg52(String deviation, String max) {
+    return 'The price has moved ${deviation}R from your plan, beyond the allowed ${max}R or past the take profit. The plan was not activated.';
+  }
+
+  @override
   String msg45(String pair) {
     return '$pair is already in your watchlist.';
   }

@@ -520,6 +520,56 @@
   "aiAssistant": "Assistant",
   "aiLoadOlder": "Load earlier messages",
   "aiDone": "Done",
+  "msg16": "For {direction} positions: {rule}.",
+  "@msg16": {
+    "placeholders": {
+      "direction": {
+        "type": "String"
+      },
+      "rule": {
+        "type": "String"
+      }
+    }
+  },
+  "msg18": "This plan has blocking warnings and cannot be activated.",
+  "msg19": "Trading plan activated.",
+  "msg20": "Cancel this trading plan? This action cannot be undone.",
+  "msg21": "Close this position at about {price}? Estimated P/L: {pnl}.",
+  "@msg21": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      },
+      "pnl": {
+        "type": "String"
+      }
+    }
+  },
+  "msg51": "The price has moved {deviation}R from your plan. New quantity {quantity}, risk/reward {rr}. Activate anyway?",
+  "@msg51": {
+    "placeholders": {
+      "deviation": {
+        "type": "String"
+      },
+      "quantity": {
+        "type": "String"
+      },
+      "rr": {
+        "type": "String"
+      }
+    }
+  },
+  "msg52": "The price has moved {deviation}R from your plan, beyond the allowed {max}R or past the take profit. The plan was not activated.",
+  "@msg52": {
+    "placeholders": {
+      "deviation": {
+        "type": "String"
+      },
+      "max": {
+        "type": "String"
+      }
+    }
+  },
   "msg45": "{pair} is already in your watchlist.",
   "@msg45": {
     "placeholders": {

@@ -1558,6 +1558,48 @@ abstract class AppLocalizations {
   /// **'Done'**
   String get aiDone;
 
+  /// No description provided for @msg16.
+  ///
+  /// In en, this message translates to:
+  /// **'For {direction} positions: {rule}.'**
+  String msg16(String direction, String rule);
+
+  /// No description provided for @msg18.
+  ///
+  /// In en, this message translates to:
+  /// **'This plan has blocking warnings and cannot be activated.'**
+  String get msg18;
+
+  /// No description provided for @msg19.
+  ///
+  /// In en, this message translates to:
+  /// **'Trading plan activated.'**
+  String get msg19;
+
+  /// No description provided for @msg20.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel this trading plan? This action cannot be undone.'**
+  String get msg20;
+
+  /// No description provided for @msg21.
+  ///
+  /// In en, this message translates to:
+  /// **'Close this position at about {price}? Estimated P/L: {pnl}.'**
+  String msg21(String price, String pnl);
+
+  /// No description provided for @msg51.
+  ///
+  /// In en, this message translates to:
+  /// **'The price has moved {deviation}R from your plan. New quantity {quantity}, risk/reward {rr}. Activate anyway?'**
+  String msg51(String deviation, String quantity, String rr);
+
+  /// No description provided for @msg52.
+  ///
+  /// In en, this message translates to:
+  /// **'The price has moved {deviation}R from your plan, beyond the allowed {max}R or past the take profit. The plan was not activated.'**
+  String msg52(String deviation, String max);
+
   /// No description provided for @msg45.
   ///
   /// In en, this message translates to:

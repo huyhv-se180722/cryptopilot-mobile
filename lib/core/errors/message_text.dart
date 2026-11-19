@@ -36,6 +36,16 @@ String messageText(
       return l.msg14;
     case 'MSG15':
       return l.msg15(field ?? '', arg(0), arg(1));
+    case 'MSG16':
+      return l.msg16(arg(0), arg(1));
+    case 'MSG18':
+      return l.msg18;
+    case 'MSG19':
+      return l.msg19;
+    case 'MSG20':
+      return l.msg20;
+    case 'MSG21':
+      return l.msg21(arg(0), arg(1));
     case 'MSG25':
       return l.msg25(arg(0));
     case 'MSG26':
@@ -48,6 +58,10 @@ String messageText(
       return l.msg30(arg(0));
     case 'MSG31':
       return l.msg31;
+    case 'MSG51':
+      return l.msg51(arg(0), arg(1), arg(2));
+    case 'MSG52':
+      return l.msg52(arg(0), arg(1));
     case 'MSG45':
       return l.msg45(arg(0));
     case 'MSG41':
