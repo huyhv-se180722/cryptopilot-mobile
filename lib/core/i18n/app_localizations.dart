@@ -2685,6 +2685,228 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'This pair cannot be valued in USDT right now.'**
   String get paperErrNotValued;
+
+  /// No description provided for @assetsTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Estimated total'**
+  String get assetsTotal;
+
+  /// No description provided for @assetsUsdt.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} USDT'**
+  String assetsUsdt(String amount);
+
+  /// No description provided for @assetsHidden.
+  ///
+  /// In en, this message translates to:
+  /// **'••••••'**
+  String get assetsHidden;
+
+  /// No description provided for @assetsShowBalances.
+  ///
+  /// In en, this message translates to:
+  /// **'Show balances'**
+  String get assetsShowBalances;
+
+  /// No description provided for @assetsHideBalances.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide balances'**
+  String get assetsHideBalances;
+
+  /// No description provided for @assetsSpot.
+  ///
+  /// In en, this message translates to:
+  /// **'Spot wallet'**
+  String get assetsSpot;
+
+  /// No description provided for @assetsFutures.
+  ///
+  /// In en, this message translates to:
+  /// **'Futures wallet'**
+  String get assetsFutures;
+
+  /// No description provided for @assetsHideSmall.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide coins under 1 USDT'**
+  String get assetsHideSmall;
+
+  /// No description provided for @assetsIncomplete.
+  ///
+  /// In en, this message translates to:
+  /// **'Some coins have no price now and are left out of the total.'**
+  String get assetsIncomplete;
+
+  /// No description provided for @assetsFree.
+  ///
+  /// In en, this message translates to:
+  /// **'Available {amount}'**
+  String assetsFree(String amount);
+
+  /// No description provided for @assetsLocked.
+  ///
+  /// In en, this message translates to:
+  /// **'In orders {amount}'**
+  String assetsLocked(String amount);
+
+  /// No description provided for @assetsNoCoins.
+  ///
+  /// In en, this message translates to:
+  /// **'No coins to show.'**
+  String get assetsNoCoins;
+
+  /// No description provided for @assetsTransfer.
+  ///
+  /// In en, this message translates to:
+  /// **'Transfer'**
+  String get assetsTransfer;
+
+  /// No description provided for @assetsHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'History'**
+  String get assetsHistory;
+
+  /// No description provided for @assetsTradeDemo.
+  ///
+  /// In en, this message translates to:
+  /// **'Trade (demo)'**
+  String get assetsTradeDemo;
+
+  /// No description provided for @transferTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Transfer USDT'**
+  String get transferTitle;
+
+  /// No description provided for @transferFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'From {wallet}'**
+  String transferFrom(String wallet);
+
+  /// No description provided for @transferTo.
+  ///
+  /// In en, this message translates to:
+  /// **'To {wallet}'**
+  String transferTo(String wallet);
+
+  /// No description provided for @transferSwap.
+  ///
+  /// In en, this message translates to:
+  /// **'Swap'**
+  String get transferSwap;
+
+  /// No description provided for @transferAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount (USDT)'**
+  String get transferAmount;
+
+  /// No description provided for @transferMax.
+  ///
+  /// In en, this message translates to:
+  /// **'Max'**
+  String get transferMax;
+
+  /// No description provided for @transferSend.
+  ///
+  /// In en, this message translates to:
+  /// **'Transfer'**
+  String get transferSend;
+
+  /// No description provided for @transferDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Transferred.'**
+  String get transferDone;
+
+  /// No description provided for @transferOver.
+  ///
+  /// In en, this message translates to:
+  /// **'More than the wallet holds.'**
+  String get transferOver;
+
+  /// No description provided for @transferTooPrecise.
+  ///
+  /// In en, this message translates to:
+  /// **'At most 8 decimals.'**
+  String get transferTooPrecise;
+
+  /// No description provided for @historyOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'Orders'**
+  String get historyOrders;
+
+  /// No description provided for @historyFills.
+  ///
+  /// In en, this message translates to:
+  /// **'Fills'**
+  String get historyFills;
+
+  /// No description provided for @historyLedger.
+  ///
+  /// In en, this message translates to:
+  /// **'Ledger'**
+  String get historyLedger;
+
+  /// No description provided for @historyTransfers.
+  ///
+  /// In en, this message translates to:
+  /// **'Transfers'**
+  String get historyTransfers;
+
+  /// No description provided for @historyAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get historyAll;
+
+  /// No description provided for @historyDay.
+  ///
+  /// In en, this message translates to:
+  /// **'1D'**
+  String get historyDay;
+
+  /// No description provided for @historyWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'1W'**
+  String get historyWeek;
+
+  /// No description provided for @historyMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'1M'**
+  String get historyMonth;
+
+  /// No description provided for @historyQuarter.
+  ///
+  /// In en, this message translates to:
+  /// **'3M'**
+  String get historyQuarter;
+
+  /// No description provided for @historyEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing in this period.'**
+  String get historyEmpty;
+
+  /// No description provided for @historyAllStatuses.
+  ///
+  /// In en, this message translates to:
+  /// **'Any status'**
+  String get historyAllStatuses;
+
+  /// No description provided for @historyAllTypes.
+  ///
+  /// In en, this message translates to:
+  /// **'Any type'**
+  String get historyAllTypes;
 }
 
 class _AppLocalizationsDelegate

@@ -984,5 +984,77 @@
       }
     }
   },
-  "paperErrNotValued": "This pair cannot be valued in USDT right now."
+  "paperErrNotValued": "This pair cannot be valued in USDT right now.",
+  "assetsTotal": "Estimated total",
+  "assetsUsdt": "{amount} USDT",
+  "@assetsUsdt": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "assetsHidden": "••••••",
+  "assetsShowBalances": "Show balances",
+  "assetsHideBalances": "Hide balances",
+  "assetsSpot": "Spot wallet",
+  "assetsFutures": "Futures wallet",
+  "assetsHideSmall": "Hide coins under 1 USDT",
+  "assetsIncomplete": "Some coins have no price now and are left out of the total.",
+  "assetsFree": "Available {amount}",
+  "@assetsFree": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "assetsLocked": "In orders {amount}",
+  "@assetsLocked": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "assetsNoCoins": "No coins to show.",
+  "assetsTransfer": "Transfer",
+  "assetsHistory": "History",
+  "assetsTradeDemo": "Trade (demo)",
+  "transferTitle": "Transfer USDT",
+  "transferFrom": "From {wallet}",
+  "@transferFrom": {
+    "placeholders": {
+      "wallet": {
+        "type": "String"
+      }
+    }
+  },
+  "transferTo": "To {wallet}",
+  "@transferTo": {
+    "placeholders": {
+      "wallet": {
+        "type": "String"
+      }
+    }
+  },
+  "transferSwap": "Swap",
+  "transferAmount": "Amount (USDT)",
+  "transferMax": "Max",
+  "transferSend": "Transfer",
+  "transferDone": "Transferred.",
+  "transferOver": "More than the wallet holds.",
+  "transferTooPrecise": "At most 8 decimals.",
+  "historyOrders": "Orders",
+  "historyFills": "Fills",
+  "historyLedger": "Ledger",
+  "historyTransfers": "Transfers",
+  "historyAll": "All",
+  "historyDay": "1D",
+  "historyWeek": "1W",
+  "historyMonth": "1M",
+  "historyQuarter": "3M",
+  "historyEmpty": "Nothing in this period.",
+  "historyAllStatuses": "Any status",
+  "historyAllTypes": "Any type"
 }

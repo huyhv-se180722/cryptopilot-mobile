@@ -1514,4 +1514,126 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get paperErrNotValued =>
       'This pair cannot be valued in USDT right now.';
+
+  @override
+  String get assetsTotal => 'Estimated total';
+
+  @override
+  String assetsUsdt(String amount) {
+    return '$amount USDT';
+  }
+
+  @override
+  String get assetsHidden => '••••••';
+
+  @override
+  String get assetsShowBalances => 'Show balances';
+
+  @override
+  String get assetsHideBalances => 'Hide balances';
+
+  @override
+  String get assetsSpot => 'Spot wallet';
+
+  @override
+  String get assetsFutures => 'Futures wallet';
+
+  @override
+  String get assetsHideSmall => 'Hide coins under 1 USDT';
+
+  @override
+  String get assetsIncomplete =>
+      'Some coins have no price now and are left out of the total.';
+
+  @override
+  String assetsFree(String amount) {
+    return 'Available $amount';
+  }
+
+  @override
+  String assetsLocked(String amount) {
+    return 'In orders $amount';
+  }
+
+  @override
+  String get assetsNoCoins => 'No coins to show.';
+
+  @override
+  String get assetsTransfer => 'Transfer';
+
+  @override
+  String get assetsHistory => 'History';
+
+  @override
+  String get assetsTradeDemo => 'Trade (demo)';
+
+  @override
+  String get transferTitle => 'Transfer USDT';
+
+  @override
+  String transferFrom(String wallet) {
+    return 'From $wallet';
+  }
+
+  @override
+  String transferTo(String wallet) {
+    return 'To $wallet';
+  }
+
+  @override
+  String get transferSwap => 'Swap';
+
+  @override
+  String get transferAmount => 'Amount (USDT)';
+
+  @override
+  String get transferMax => 'Max';
+
+  @override
+  String get transferSend => 'Transfer';
+
+  @override
+  String get transferDone => 'Transferred.';
+
+  @override
+  String get transferOver => 'More than the wallet holds.';
+
+  @override
+  String get transferTooPrecise => 'At most 8 decimals.';
+
+  @override
+  String get historyOrders => 'Orders';
+
+  @override
+  String get historyFills => 'Fills';
+
+  @override
+  String get historyLedger => 'Ledger';
+
+  @override
+  String get historyTransfers => 'Transfers';
+
+  @override
+  String get historyAll => 'All';
+
+  @override
+  String get historyDay => '1D';
+
+  @override
+  String get historyWeek => '1W';
+
+  @override
+  String get historyMonth => '1M';
+
+  @override
+  String get historyQuarter => '3M';
+
+  @override
+  String get historyEmpty => 'Nothing in this period.';
+
+  @override
+  String get historyAllStatuses => 'Any status';
+
+  @override
+  String get historyAllTypes => 'Any type';
 }
