@@ -26,6 +26,7 @@ import 'package:cryptopilot_mobile/features/chart/application/chart_prefs.dart';
 import 'package:cryptopilot_mobile/features/chart/presentation/chart_surface.dart';
 import 'package:cryptopilot_mobile/features/chart/presentation/metric_surface.dart';
 import 'package:cryptopilot_mobile/features/news/data/news_api.dart';
+import 'package:cryptopilot_mobile/features/paper/data/paper_api.dart';
 import 'package:cryptopilot_mobile/features/news/domain/news.dart';
 import 'package:cryptopilot_mobile/features/notifications/data/notification_api.dart';
 import 'package:cryptopilot_mobile/features/notifications/domain/notification.dart';
@@ -37,6 +38,7 @@ import 'package:flutter_riverpod/misc.dart' show Override;
 
 import 'academy_fakes.dart';
 import 'chart_fakes.dart';
+import 'paper_fakes.dart';
 import 'realtime_fakes.dart';
 
 final now = DateTime.utc(2026, 11, 6, 10);
@@ -202,6 +204,7 @@ List<Override> baseOverrides({
   SettingsStore? settings,
   AnalysisApi? analysis,
   AcademyApi? academy,
+  PaperApi? paper,
   Duration zone = Duration.zero,
   DateTime Function()? clock,
 }) => [
@@ -228,6 +231,7 @@ List<Override> baseOverrides({
   chartZoneProvider.overrideWithValue(zone),
   analysisApiProvider.overrideWithValue(analysis ?? FakeAnalysisApi()),
   academyApiProvider.overrideWithValue(academy ?? FakeAcademyApi()),
+  paperApiProvider.overrideWithValue(paper ?? FakePaperApi()),
 ];
 
 class FakeWatchlistApi implements WatchlistApi {
