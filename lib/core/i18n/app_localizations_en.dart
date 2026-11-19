@@ -1303,4 +1303,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get academyRetry => 'Thử lại';
+
+  @override
+  String get navTrade => 'Trade';
+
+  @override
+  String get navAssets => 'Assets';
 }

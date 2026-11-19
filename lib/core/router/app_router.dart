@@ -33,8 +33,9 @@ abstract final class Routes {
   static const home = '/home';
   static const markets = '/markets';
   static const alerts = '/alerts';
+  static const trade = '/trade';
   static const plans = '/plans';
-  static const journal = '/journal';
+  static const assets = '/assets';
   static const account = '/account';
   static const notifications = '/notifications';
 
@@ -169,8 +170,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               ),
             ],
           ),
+          // The paper exchange (D-154): Trade and Assets arrive with T-128.
+          branch(Routes.trade, (l) => l.navTrade),
           branch(Routes.plans, (l) => l.navPlans),
-          branch(Routes.journal, (l) => l.navJournal),
+          branch(Routes.assets, (l) => l.navAssets),
         ],
       ),
     ],

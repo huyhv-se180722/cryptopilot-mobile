@@ -7,8 +7,9 @@ import 'package:go_router/go_router.dart';
 import '../../../core/i18n/app_localizations.dart';
 import '../../chart/presentation/chart_surface.dart';
 
-/// The tabs until T-121 (Home, Markets, Plans, Journal); D-142 makes them
-/// Home, Markets, Trade, Plans, Assets. Each keeps its own navigation stack.
+/// The five tabs of D-154: Home, Markets, Trade, Plans, Assets. Alerts open
+/// from Markets and Home; the journal joins Plans (T-091). Each tab keeps
+/// its own navigation stack.
 class HomeShell extends ConsumerStatefulWidget {
   const HomeShell({required this.navigationShell, super.key});
 
@@ -51,14 +52,19 @@ class _HomeShellState extends ConsumerState<HomeShell> {
             label: l.navMarkets,
           ),
           NavigationDestination(
+            icon: const Icon(Icons.swap_horiz),
+            selectedIcon: const Icon(Icons.swap_horizontal_circle),
+            label: l.navTrade,
+          ),
+          NavigationDestination(
             icon: const Icon(Icons.assignment_outlined),
             selectedIcon: const Icon(Icons.assignment),
             label: l.navPlans,
           ),
           NavigationDestination(
-            icon: const Icon(Icons.menu_book_outlined),
-            selectedIcon: const Icon(Icons.menu_book),
-            label: l.navJournal,
+            icon: const Icon(Icons.account_balance_wallet_outlined),
+            selectedIcon: const Icon(Icons.account_balance_wallet),
+            label: l.navAssets,
           ),
         ],
       ),

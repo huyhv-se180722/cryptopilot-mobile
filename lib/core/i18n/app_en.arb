@@ -818,5 +818,7 @@
   "academyMarkLearned": "Đánh dấu đã học",
   "academyLearned": "Đã học",
   "academyUnmarkHint": "Bấm lần nữa để bỏ đánh dấu.",
-  "academyRetry": "Thử lại"
+  "academyRetry": "Thử lại",
+  "navTrade": "Trade",
+  "navAssets": "Assets"
 }

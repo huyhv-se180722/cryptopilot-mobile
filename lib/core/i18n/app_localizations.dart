@@ -2331,6 +2331,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Thử lại'**
   String get academyRetry;
+
+  /// No description provided for @navTrade.
+  ///
+  /// In en, this message translates to:
+  /// **'Trade'**
+  String get navTrade;
+
+  /// No description provided for @navAssets.
+  ///
+  /// In en, this message translates to:
+  /// **'Assets'**
+  String get navAssets;
 }
 
 class _AppLocalizationsDelegate
