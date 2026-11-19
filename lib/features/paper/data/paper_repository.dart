@@ -81,10 +81,12 @@ class PaperAccountRepository extends Notifier<PaperAccountState> {
   Future<void> load() async {
     try {
       if (!_opened.isCompleted) {
+        // Held before the wait: this repository may be gone after it.
+        final signal = ref.read(paperOpenedProvider.notifier);
         await _api.openAccount();
         // Open on the server whether this repository is still listened to.
         if (!_opened.isCompleted) _opened.complete();
-        ref.read(paperOpenedProvider.notifier).opened();
+        signal.opened();
         if (!ref.mounted) return;
       }
       final spot = await _api.wallet(PaperWallet.spot);
