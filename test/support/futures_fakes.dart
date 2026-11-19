@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:cryptopilot_mobile/features/paper/data/futures_api.dart';
 import 'package:cryptopilot_mobile/features/paper/domain/futures.dart';
+import 'package:cryptopilot_mobile/features/paper/domain/futures_history.dart';
 import 'package:cryptopilot_mobile/features/paper/domain/paper.dart';
 
 FuturesPosition positionOf({
@@ -126,6 +127,99 @@ class FakeFuturesApi implements FuturesApi {
     warningRequests.add(request);
     return warningsFor[request.side] ?? warningsAnswer;
   }
+
+  // Histories (T-123): each answer as set; every read is in [calls] with
+  // its filters, so a test can tell what the screen asked.
+  List<FuturesIncome> incomeList = [];
+  List<ClosedPosition> closedList = [];
+  List<FuturesOrder> allOrderList = [];
+  List<FuturesTrade> tradeList = [];
+  List<AlgoOrder> allAlgoList = [];
+  List<FuturesOrder> forceList = [];
+  List<MarginChange> marginList = [];
+  Object? historyError;
+
+  String _range(DateTime? from, DateTime? to, int? limit) =>
+      '${from == null ? '-' : from.toUtc().toIso8601String()}'
+      '..${to == null ? '-' : to.toUtc().toIso8601String()} $limit';
+
+  Future<T> _history<T>(String call, T answer) async {
+    calls.add(call);
+    if (historyError case final error?) throw error;
+    return answer;
+  }
+
+  @override
+  Future<List<FuturesIncome>> income({
+    String? symbol,
+    IncomeType? type,
+    DateTime? from,
+    DateTime? to,
+    int? limit,
+  }) => _history(
+    'income ${symbol ?? '*'} ${type?.wire ?? '*'} ${_range(from, to, limit)}',
+    incomeList,
+  );
+
+  @override
+  Future<List<ClosedPosition>> positionHistory({
+    String? symbol,
+    DateTime? from,
+    DateTime? to,
+    int? limit,
+  }) => _history(
+    'positionHistory ${symbol ?? '*'} ${_range(from, to, limit)}',
+    closedList,
+  );
+
+  @override
+  Future<List<FuturesOrder>> allOrders(
+    String symbol, {
+    DateTime? from,
+    DateTime? to,
+    int? limit,
+  }) => _history('allOrders $symbol ${_range(from, to, limit)}', allOrderList);
+
+  @override
+  Future<List<FuturesTrade>> userTrades(
+    String symbol, {
+    DateTime? from,
+    DateTime? to,
+    int? limit,
+  }) => _history('userTrades $symbol ${_range(from, to, limit)}', tradeList);
+
+  @override
+  Future<List<AlgoOrder>> allAlgoOrders(
+    String symbol, {
+    DateTime? from,
+    DateTime? to,
+    int? limit,
+  }) =>
+      _history('allAlgoOrders $symbol ${_range(from, to, limit)}', allAlgoList);
+
+  @override
+  Future<List<FuturesOrder>> forceOrders({
+    String? symbol,
+    DateTime? from,
+    DateTime? to,
+    int? limit,
+  }) => _history(
+    'forceOrders ${symbol ?? '*'} ${_range(from, to, limit)}',
+    forceList,
+  );
+
+  @override
+  Future<List<MarginChange>> marginHistory(
+    String symbol, {
+    bool? added,
+    DateTime? from,
+    DateTime? to,
+    int? limit,
+  }) => _history(
+    'marginHistory $symbol ${added == null ? '*' : (added ? 1 : 2)} '
+    '${_range(from, to, limit)}',
+    marginList,
+  );
 
   /// A side's own warnings, else [warningsAnswer].
   final Map<OrderSide, OrderWarnings> warningsFor = {};
