@@ -3256,6 +3256,60 @@ abstract class AppLocalizations {
   /// **'Transfers'**
   String get historyTransfers;
 
+  /// No description provided for @futHistPositions.
+  ///
+  /// In en, this message translates to:
+  /// **'Positions'**
+  String get futHistPositions;
+
+  /// No description provided for @futHistIncome.
+  ///
+  /// In en, this message translates to:
+  /// **'Income'**
+  String get futHistIncome;
+
+  /// No description provided for @futHistConditional.
+  ///
+  /// In en, this message translates to:
+  /// **'Conditional'**
+  String get futHistConditional;
+
+  /// No description provided for @futHistLiquidations.
+  ///
+  /// In en, this message translates to:
+  /// **'Liquidations'**
+  String get futHistLiquidations;
+
+  /// No description provided for @futHistMargin.
+  ///
+  /// In en, this message translates to:
+  /// **'Margin'**
+  String get futHistMargin;
+
+  /// No description provided for @futHistAllPairs.
+  ///
+  /// In en, this message translates to:
+  /// **'All pairs'**
+  String get futHistAllPairs;
+
+  /// No description provided for @futHistAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Added'**
+  String get futHistAdded;
+
+  /// No description provided for @futHistReduced.
+  ///
+  /// In en, this message translates to:
+  /// **'Reduced'**
+  String get futHistReduced;
+
+  /// No description provided for @futHistClosed.
+  ///
+  /// In en, this message translates to:
+  /// **'Closed {quantity}'**
+  String futHistClosed(String quantity);
+
   /// No description provided for @historyAll.
   ///
   /// In en, this message translates to:

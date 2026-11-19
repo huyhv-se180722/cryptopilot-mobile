@@ -5,41 +5,71 @@ import '../../../core/errors/message_text.dart';
 import '../../../core/format/decimal_format.dart';
 import '../../../core/i18n/app_localizations.dart';
 import '../../../core/theme/cp_colors.dart';
+import '../application/futures_history_controller.dart';
 import '../application/history_controller.dart';
 import '../domain/paper.dart';
+import 'futures_history_view.dart';
 import 'paper_text.dart';
 
-/// The paper histories (plan 9.3): orders, fills, the ledger and transfers,
-/// each with the filters its endpoint has, page after page.
-class HistoryScreen extends StatelessWidget {
+/// The paper histories (plan 9.3): for Spot the orders, fills, the ledger
+/// and transfers, page after page; for Futures (T-123) the closed
+/// positions, income, orders, fills, conditional orders, liquidations and
+/// margin changes. Each has the filters its endpoint has.
+class HistoryScreen extends ConsumerWidget {
   const HistoryScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context);
+    final futures = ref.watch(historyFuturesProvider);
     return DefaultTabController(
-      length: HistoryKind.values.length,
+      key: ValueKey(futures),
+      length: futures
+          ? FuturesHistoryKind.values.length
+          : HistoryKind.values.length,
       child: Scaffold(
         appBar: AppBar(
           title: Text(l.assetsHistory),
           bottom: TabBar(
             isScrollable: true,
-            tabs: [
-              Tab(text: l.historyOrders),
-              Tab(text: l.historyFills),
-              Tab(text: l.historyLedger),
-              Tab(text: l.historyTransfers),
-            ],
+            tabs: futures
+                ? futuresHistoryTabs(l)
+                : [
+                    Tab(text: l.historyOrders),
+                    Tab(text: l.historyFills),
+                    Tab(text: l.historyLedger),
+                    Tab(text: l.historyTransfers),
+                  ],
           ),
         ),
         body: Column(
           children: [
             const DemoBanner(),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+              child: SegmentedButton<bool>(
+                key: const Key('history-market'),
+                segments: [
+                  ButtonSegment(value: false, label: Text(l.tradeSpot)),
+                  ButtonSegment(value: true, label: Text(l.tradeFutures)),
+                ],
+                selected: {futures},
+                onSelectionChanged: (s) => ref
+                    .read(historyFuturesProvider.notifier)
+                    .show(futures: s.first),
+              ),
+            ),
             Expanded(
               child: TabBarView(
-                children: [
-                  for (final kind in HistoryKind.values) _History(kind: kind),
-                ],
+                children: futures
+                    ? [
+                        for (final kind in FuturesHistoryKind.values)
+                          FuturesHistoryView(kind: kind),
+                      ]
+                    : [
+                        for (final kind in HistoryKind.values)
+                          _History(kind: kind),
+                      ],
               ),
             ),
           ],

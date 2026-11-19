@@ -11,6 +11,19 @@ import '../data/futures_api.dart';
 import '../domain/futures_history.dart';
 import 'history_controller.dart';
 
+/// Whether the history screen shows Futures rather than Spot: switched
+/// there, or chosen by the Assets section it was opened from.
+final historyFuturesProvider = NotifierProvider<HistoryFutures, bool>(
+  HistoryFutures.new,
+);
+
+class HistoryFutures extends Notifier<bool> {
+  @override
+  bool build() => false;
+
+  void show({required bool futures}) => state = futures;
+}
+
 /// The Futures histories of plan 9.3 (T-123).
 enum FuturesHistoryKind {
   positions,

@@ -8,6 +8,7 @@ import '../../../core/format/decimal_format.dart';
 import '../../../core/i18n/app_localizations.dart';
 import '../../../core/theme/cp_colors.dart';
 import '../application/assets_controller.dart';
+import '../application/futures_history_controller.dart';
 import '../application/trade_controller.dart';
 import '../data/futures_repository.dart';
 import '../data/paper_repository.dart';
@@ -104,7 +105,12 @@ class AssetsScreen extends ConsumerWidget {
                 ),
                 OutlinedButton.icon(
                   key: const Key('assets-history'),
-                  onPressed: () => context.push('/assets/history'),
+                  onPressed: () {
+                    ref
+                        .read(historyFuturesProvider.notifier)
+                        .show(futures: false);
+                    context.push('/assets/history');
+                  },
                   icon: const Icon(Icons.history),
                   label: Text(l.assetsHistory),
                 ),
@@ -164,6 +170,17 @@ class AssetsScreen extends ConsumerWidget {
             Row(
               children: [
                 Expanded(child: Text(l.assetsFutures, style: text.titleMedium)),
+                IconButton(
+                  key: const Key('assets-futures-history'),
+                  tooltip: l.assetsHistory,
+                  icon: const Icon(Icons.history),
+                  onPressed: () {
+                    ref
+                        .read(historyFuturesProvider.notifier)
+                        .show(futures: true);
+                    context.push('/assets/history');
+                  },
+                ),
                 TextButton(
                   key: const Key('assets-trade-futures'),
                   onPressed: () {

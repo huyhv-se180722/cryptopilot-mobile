@@ -1169,6 +1169,22 @@
   "historyFills": "Fills",
   "historyLedger": "Ledger",
   "historyTransfers": "Transfers",
+  "futHistPositions": "Positions",
+  "futHistIncome": "Income",
+  "futHistConditional": "Conditional",
+  "futHistLiquidations": "Liquidations",
+  "futHistMargin": "Margin",
+  "futHistAllPairs": "All pairs",
+  "futHistAdded": "Added",
+  "futHistReduced": "Reduced",
+  "futHistClosed": "Closed {quantity}",
+  "@futHistClosed": {
+    "placeholders": {
+      "quantity": {
+        "type": "String"
+      }
+    }
+  },
   "historyAll": "All",
   "historyDay": "1D",
   "historyWeek": "1W",

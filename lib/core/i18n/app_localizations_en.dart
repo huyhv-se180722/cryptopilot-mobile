@@ -1831,6 +1831,35 @@ class AppLocalizationsEn extends AppLocalizations {
   String get historyTransfers => 'Transfers';
 
   @override
+  String get futHistPositions => 'Positions';
+
+  @override
+  String get futHistIncome => 'Income';
+
+  @override
+  String get futHistConditional => 'Conditional';
+
+  @override
+  String get futHistLiquidations => 'Liquidations';
+
+  @override
+  String get futHistMargin => 'Margin';
+
+  @override
+  String get futHistAllPairs => 'All pairs';
+
+  @override
+  String get futHistAdded => 'Added';
+
+  @override
+  String get futHistReduced => 'Reduced';
+
+  @override
+  String futHistClosed(String quantity) {
+    return 'Closed $quantity';
+  }
+
+  @override
   String get historyAll => 'All';
 
   @override
