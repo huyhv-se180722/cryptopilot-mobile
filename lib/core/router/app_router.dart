@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../features/academy/presentation/academy_screen.dart';
+import '../../features/academy/presentation/glossary_screen.dart';
+import '../../features/academy/presentation/lesson_screen.dart';
 import '../../features/account/presentation/account_screen.dart';
 import '../../features/alerts/presentation/alerts_screen.dart';
 import '../../features/analysis/presentation/analysis_screen.dart';
@@ -34,6 +37,11 @@ abstract final class Routes {
   static const journal = '/journal';
   static const account = '/account';
   static const notifications = '/notifications';
+
+  /// The Academy (D-155), pushed from Home and the account screen.
+  static const academy = '/academy';
+  static const academyGlossary = '/academy/glossary';
+  static const academyLesson = '/academy/lesson/:slug';
 
   /// SCR-10 (spot) and SCR-11 (futures).
   static const analysis = '/analysis/:market/:symbol';
@@ -119,6 +127,16 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: Routes.notifications,
         builder: (_, _) => const NotificationsScreen(),
+      ),
+      GoRoute(path: Routes.academy, builder: (_, _) => const AcademyScreen()),
+      GoRoute(
+        path: Routes.academyGlossary,
+        builder: (_, _) => const GlossaryScreen(),
+      ),
+      GoRoute(
+        path: Routes.academyLesson,
+        builder: (_, state) =>
+            LessonScreen(slug: state.pathParameters['slug']!),
       ),
       // Pushed over the tabs from a row of Markets, Watchlist or Home.
       GoRoute(

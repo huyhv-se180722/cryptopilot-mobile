@@ -2091,6 +2091,246 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Bearish'**
   String get newsBearish;
+
+  /// No description provided for @homeAcademy.
+  ///
+  /// In en, this message translates to:
+  /// **'Academy'**
+  String get homeAcademy;
+
+  /// No description provided for @homeAcademyPath.
+  ///
+  /// In en, this message translates to:
+  /// **'Beginner path {done}/{total}'**
+  String homeAcademyPath(int done, int total);
+
+  /// No description provided for @homeAcademyStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Learn crypto step by step'**
+  String get homeAcademyStart;
+
+  /// No description provided for @accountAcademy.
+  ///
+  /// In en, this message translates to:
+  /// **'Academy'**
+  String get accountAcademy;
+
+  /// No description provided for @academyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Học viện Crypto'**
+  String get academyTitle;
+
+  /// No description provided for @academySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Kiến thức crypto giải thích dễ hiểu, từ đồng coin đầu tiên đến quản lý rủi ro.'**
+  String get academySubtitle;
+
+  /// No description provided for @academyPathTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Lộ trình cho người mới'**
+  String get academyPathTitle;
+
+  /// No description provided for @academyPathProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Đã học {done}/{total} bài của lộ trình'**
+  String academyPathProgress(int done, int total);
+
+  /// No description provided for @academyReadProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Bạn đã đọc {done}/{total} bài'**
+  String academyReadProgress(int done, int total);
+
+  /// No description provided for @academyLessons.
+  ///
+  /// In en, this message translates to:
+  /// **'Bài học'**
+  String get academyLessons;
+
+  /// No description provided for @academyAllTopics.
+  ///
+  /// In en, this message translates to:
+  /// **'Tất cả chủ đề'**
+  String get academyAllTopics;
+
+  /// No description provided for @academyAllLevels.
+  ///
+  /// In en, this message translates to:
+  /// **'Mọi trình độ'**
+  String get academyAllLevels;
+
+  /// No description provided for @academyLevelBeginner.
+  ///
+  /// In en, this message translates to:
+  /// **'Cơ bản'**
+  String get academyLevelBeginner;
+
+  /// No description provided for @academyLevelIntermediate.
+  ///
+  /// In en, this message translates to:
+  /// **'Trung cấp'**
+  String get academyLevelIntermediate;
+
+  /// No description provided for @academyLevelAdvanced.
+  ///
+  /// In en, this message translates to:
+  /// **'Nâng cao'**
+  String get academyLevelAdvanced;
+
+  /// No description provided for @academySearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Tìm bài học…'**
+  String get academySearch;
+
+  /// No description provided for @academyNoLessons.
+  ///
+  /// In en, this message translates to:
+  /// **'Không có bài học nào khớp với bộ lọc.'**
+  String get academyNoLessons;
+
+  /// No description provided for @academyReadingTime.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} phút đọc'**
+  String academyReadingTime(int minutes);
+
+  /// No description provided for @academyGlossary.
+  ///
+  /// In en, this message translates to:
+  /// **'Thuật ngữ'**
+  String get academyGlossary;
+
+  /// No description provided for @academyGlossarySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Định nghĩa ngắn gọn các thuật ngữ thường gặp trong crypto.'**
+  String get academyGlossarySubtitle;
+
+  /// No description provided for @academyGlossaryTeaser.
+  ///
+  /// In en, this message translates to:
+  /// **'Gặp một từ chưa hiểu?'**
+  String get academyGlossaryTeaser;
+
+  /// No description provided for @academyOpenGlossary.
+  ///
+  /// In en, this message translates to:
+  /// **'Mở bảng thuật ngữ'**
+  String get academyOpenGlossary;
+
+  /// No description provided for @academySearchTerms.
+  ///
+  /// In en, this message translates to:
+  /// **'Tìm thuật ngữ…'**
+  String get academySearchTerms;
+
+  /// No description provided for @academyAllLetters.
+  ///
+  /// In en, this message translates to:
+  /// **'Tất cả'**
+  String get academyAllLetters;
+
+  /// No description provided for @academyNoTerms.
+  ///
+  /// In en, this message translates to:
+  /// **'Không có thuật ngữ nào khớp.'**
+  String get academyNoTerms;
+
+  /// No description provided for @academyReadLesson.
+  ///
+  /// In en, this message translates to:
+  /// **'Đọc bài học'**
+  String get academyReadLesson;
+
+  /// No description provided for @academySummary.
+  ///
+  /// In en, this message translates to:
+  /// **'Tóm tắt nhanh'**
+  String get academySummary;
+
+  /// No description provided for @academyTryInApp.
+  ///
+  /// In en, this message translates to:
+  /// **'Thử ngay trong ứng dụng'**
+  String get academyTryInApp;
+
+  /// No description provided for @academyPrevious.
+  ///
+  /// In en, this message translates to:
+  /// **'Bài trước'**
+  String get academyPrevious;
+
+  /// No description provided for @academyNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Bài tiếp theo'**
+  String get academyNext;
+
+  /// No description provided for @academyRelated.
+  ///
+  /// In en, this message translates to:
+  /// **'Bài liên quan'**
+  String get academyRelated;
+
+  /// No description provided for @academyUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Cập nhật {date}'**
+  String academyUpdated(String date);
+
+  /// No description provided for @academyPhotoCredit.
+  ///
+  /// In en, this message translates to:
+  /// **'Ảnh: {credit}'**
+  String academyPhotoCredit(String credit);
+
+  /// No description provided for @academyNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Bài học không tồn tại hoặc chưa được xuất bản.'**
+  String get academyNotFound;
+
+  /// No description provided for @academyBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Quay lại Học viện'**
+  String get academyBack;
+
+  /// No description provided for @academyDisclaimer.
+  ///
+  /// In en, this message translates to:
+  /// **'Nội dung chỉ nhằm mục đích giáo dục, không phải lời khuyên đầu tư.'**
+  String get academyDisclaimer;
+
+  /// No description provided for @academyMarkLearned.
+  ///
+  /// In en, this message translates to:
+  /// **'Đánh dấu đã học'**
+  String get academyMarkLearned;
+
+  /// No description provided for @academyLearned.
+  ///
+  /// In en, this message translates to:
+  /// **'Đã học'**
+  String get academyLearned;
+
+  /// No description provided for @academyUnmarkHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Bấm lần nữa để bỏ đánh dấu.'**
+  String get academyUnmarkHint;
+
+  /// No description provided for @academyRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Thử lại'**
+  String get academyRetry;
 }
 
 class _AppLocalizationsDelegate

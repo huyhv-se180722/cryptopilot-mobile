@@ -18,6 +18,9 @@ const password = String.fromEnvironment('LOGIN_PASSWORD');
 class NoBrowser implements WebLinks {
   @override
   Future<bool> open(String path) async => true;
+
+  @override
+  Future<bool> openAddress(String address) async => true;
 }
 
 Widget app() => ProviderScope(

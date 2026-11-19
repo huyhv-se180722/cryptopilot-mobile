@@ -173,6 +173,12 @@ class FakeWebLinks implements WebLinks {
     opened.add(path);
     return true;
   }
+
+  @override
+  Future<bool> openAddress(String address) async {
+    opened.add(address);
+    return true;
+  }
 }
 
 /// Overrides that keep tests off the platform channels and the network.
