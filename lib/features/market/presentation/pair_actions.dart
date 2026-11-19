@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../domain/candle.dart';
 import '../domain/market.dart';
 
 /// What other features offer on a pair (the watchlist's toggle, the alerts'
@@ -13,6 +14,13 @@ typedef PairActionsBuilder =
     Widget Function(BuildContext context, MarketPair pair);
 
 final pairActionsProvider = Provider<PairActionsBuilder?>((ref) => null);
+
+/// Ask AI about a pair at the timeframe on screen (SRS 3.9.1: "Ask AI" on
+/// SCR-10 and SCR-11); composed in `main.dart`, absent when not offered.
+typedef AskAiOnPair =
+    void Function(BuildContext context, MarketPair pair, Timeframe timeframe);
+
+final askAiOnPairProvider = Provider<AskAiOnPair?>((ref) => null);
 
 /// The location of a pair's analysis screen (SCR-10 Spot, SCR-11 Futures).
 String analysisLocation(Market market, String symbol) =>

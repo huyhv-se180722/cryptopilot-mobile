@@ -2,6 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../features/ai/application/ai_chat_controller.dart';
+import '../../features/ai/application/ai_context.dart';
+import '../../features/ai/domain/ai.dart';
+import '../../features/ai/presentation/ai_chat_screen.dart';
+import '../../features/ai/presentation/ai_conversations_screen.dart';
 import '../../features/academy/presentation/academy_screen.dart';
 import '../../features/academy/presentation/glossary_screen.dart';
 import '../../features/academy/presentation/lesson_screen.dart';
@@ -47,6 +52,11 @@ abstract final class Routes {
   static const academy = '/academy';
   static const academyGlossary = '/academy/glossary';
   static const academyLesson = '/academy/lesson/:slug';
+
+  /// SCR-29 (T-126), pushed from Home and from Ask AI on SCR-10/11.
+  static const ai = '/ai';
+  static const aiNew = '/ai/new';
+  static const aiChat = '/ai/c/:id';
 
   /// SCR-10 (spot) and SCR-11 (futures).
   static const analysis = '/analysis/:market/:symbol';
@@ -146,6 +156,27 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: Routes.academyLesson,
         builder: (_, state) =>
             LessonScreen(slug: state.pathParameters['slug']!),
+      ),
+      GoRoute(
+        path: Routes.ai,
+        builder: (_, _) => const AiConversationsScreen(),
+      ),
+      GoRoute(
+        path: Routes.aiNew,
+        builder: (_, state) => AiChatScreen(
+          args: AiChatArgs.fresh(
+            AiContext.fromQuery(state.uri.queryParameters),
+          ),
+        ),
+      ),
+      GoRoute(
+        path: Routes.aiChat,
+        builder: (_, state) => switch (state.extra) {
+          final AiConversation conversation => AiChatScreen(
+            args: AiChatArgs.existing(conversation),
+          ),
+          _ => AiChatLookup(id: state.pathParameters['id']!),
+        },
       ),
       // Pushed over the tabs from a row of Markets, Watchlist or Home.
       GoRoute(

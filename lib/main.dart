@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'app.dart';
+import 'features/ai/presentation/ai_conversations_screen.dart';
 import 'features/alerts/application/alerts_controller.dart';
 import 'features/alerts/presentation/alert_sheet.dart';
 import 'features/market/presentation/pair_actions.dart';
@@ -38,6 +39,7 @@ void main() {
             ],
           ),
         ),
+        askAiOnPairProvider.overrideWithValue(askAiOnPair),
         watchRowActionsProvider.overrideWithValue(
           (l) => [
             WatchRowAction(
