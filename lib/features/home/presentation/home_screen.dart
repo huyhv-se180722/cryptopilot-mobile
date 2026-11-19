@@ -411,8 +411,8 @@ class _PlanRow extends ConsumerWidget {
     final long = plan.direction == PlanDirection.long;
     return InkWell(
       key: Key('home-plan-${plan.id}'),
-      // SCR-18 arrives with T-091; until then the plan opens on the web.
-      onTap: () => ref.read(webLinksProvider).open('/plans/${plan.id}'),
+      // SCR-18 (T-091).
+      onTap: () => context.push('/plan/${Uri.encodeComponent(plan.id)}'),
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 8),
         child: Column(

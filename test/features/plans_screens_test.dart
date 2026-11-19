@@ -170,6 +170,16 @@ void main() {
       await unmount(tester);
     });
 
+    testWidgets('/plans?tab=journal (an Academy link) opens the journal', (
+      tester,
+    ) async {
+      await open(tester, '/plans');
+      containerOf(tester).read(appRouterProvider).go('/plans?tab=journal');
+      await frames(tester);
+      expect(find.byKey(const Key('journal-row-j1')), findsOneWidget);
+      await unmount(tester);
+    });
+
     testWidgets('empty Positions explain where plans come from; Create opens '
         'the web', (tester) async {
       plans.byTab[PlanTab.executed] = [];

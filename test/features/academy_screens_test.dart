@@ -527,7 +527,11 @@ void main() {
       // FE owner 2026-11-19 (T-131): `/trade/spot` opens the Trade tab now
       // that the app has it; it was a web path until then.
       expect(academyLinkTarget('/trade/spot'), isA<TradeTab>());
-      for (final path in ['/journal', '/plans/new', '/x']) {
+      // The journal is in the app since T-091 (it opened the web before).
+      final journal = academyLinkTarget('/journal');
+      expect(journal, isA<AppScreen>());
+      expect((journal as AppScreen).location, '/plans?tab=journal');
+      for (final path in ['/plans/new', '/x']) {
         expect(academyLinkTarget(path), isA<WebPath>(), reason: path);
       }
       expect(academyLinkTarget('https://a.test'), isA<WebAddress>());

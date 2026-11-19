@@ -143,6 +143,11 @@ void main() {
             path: '/notifications',
             builder: (_, _) => const Scaffold(body: Text('SCR-15')),
           ),
+          GoRoute(
+            path: '/plan/:id',
+            builder: (_, state) =>
+                Scaffold(body: Text('SCR-18 ${state.pathParameters['id']}')),
+          ),
         ],
       );
       await tester.pumpWidget(
@@ -232,8 +237,10 @@ void main() {
       expect(find.text('Position closed'), findsOneWidget);
 
       await tester.tap(find.byKey(const Key('home-plan-p2')));
-      await tester.pump();
-      expect(web.opened, ['/plans/p2']);
+      await tester.pumpAndSettle();
+      // SCR-18 is in the app since T-091 (it opened the web before).
+      expect(find.text('SCR-18 p2'), findsOneWidget);
+      expect(web.opened, isEmpty);
       await unmount(tester);
     });
 

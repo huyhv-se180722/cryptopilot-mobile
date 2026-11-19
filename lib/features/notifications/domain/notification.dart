@@ -162,9 +162,9 @@ NotificationTarget? targetOf(AppNotification notification) {
     null => null,
     // Alerts have no page of their own: the list opens, as on the web.
     NotificationReference.alert => const AppScreen('/alerts'),
-    // SCR-18 arrives with T-091.
+    // SCR-18 (T-091).
     NotificationReference.plan =>
-      id == null ? null : WebPage('/plans/$encoded'),
+      id == null ? null : AppScreen('/plan/$encoded'),
     NotificationReference.post =>
       id == null ? null : WebPage('/community/$encoded'),
     NotificationReference.member =>

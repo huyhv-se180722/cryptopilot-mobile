@@ -239,7 +239,15 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                 path: Routes.plans,
                 // The journal (SCR-20) is the Plans tab's fourth part
                 // (D-154), composed here so the features stay apart.
-                builder: (_, _) => const PlansScreen(journal: JournalView()),
+                builder: (_, state) {
+                  final tab = state.uri.queryParameters['tab'];
+                  return PlansScreen(
+                    // A new tab request builds the tabs again on it.
+                    key: ValueKey(tab),
+                    initialTab: tab,
+                    journal: const JournalView(),
+                  );
+                },
               ),
             ],
           ),

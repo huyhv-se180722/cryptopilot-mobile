@@ -23,10 +23,14 @@ class PlansScreen extends StatelessWidget {
   const PlansScreen({
     required this.journal,
     this.actions = const [],
+    this.initialTab,
     super.key,
   });
 
   final Widget journal;
+
+  /// `journal` opens the journal (`/plans?tab=journal`, an Academy link).
+  final String? initialTab;
 
   /// Header actions other features add (the bell), composed by the router.
   final List<Widget> actions;
@@ -36,6 +40,7 @@ class PlansScreen extends StatelessWidget {
     final l = AppLocalizations.of(context);
     return DefaultTabController(
       length: 4,
+      initialIndex: initialTab == 'journal' ? 3 : 0,
       child: Scaffold(
         appBar: AppBar(
           title: Text(l.navPlans),
