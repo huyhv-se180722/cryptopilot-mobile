@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/auth/session_controller.dart';
 import '../../../core/errors/api_failure.dart';
 import '../../../core/errors/message_text.dart';
 import '../../../core/format/decimal_format.dart';
@@ -9,6 +10,7 @@ import '../../../core/i18n/app_localizations.dart';
 import '../../../core/theme/cp_colors.dart';
 import '../../market/data/market_repository.dart';
 import '../../market/domain/market.dart';
+import '../../market/presentation/market_widgets.dart';
 import '../application/futures_form_controller.dart';
 import '../application/futures_preview_controller.dart';
 import '../application/trade_controller.dart';
@@ -17,6 +19,7 @@ import '../data/paper_repository.dart';
 import '../domain/futures.dart';
 import '../domain/paper.dart';
 import '../domain/paper_refusal.dart';
+import 'order_book_panel.dart';
 import 'paper_text.dart';
 
 /// Futures on the Trade tab (D-154, T-129): the pair, margin mode and
@@ -83,7 +86,23 @@ class FuturesTrade extends ConsumerWidget {
         _Header(pair: pair, pairs: pairs ?? const []),
         _Settings(symbol: pair.symbol),
         const SizedBox(height: 4),
-        _Form(pair: pair),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(flex: 6, child: _Form(pair: pair)),
+            const SizedBox(width: 8),
+            Expanded(
+              flex: 5,
+              child: OrderBookPanel(
+                pair: pair,
+                market: Market.futures,
+                onPrice: ref
+                    .read(futuresFormProvider(pair.symbol).notifier)
+                    .usePrice,
+              ),
+            ),
+          ],
+        ),
         const SizedBox(height: 16),
         _Positions(pair: pair),
         const SizedBox(height: 8),
@@ -190,11 +209,21 @@ class _Header extends ConsumerWidget {
             s.tickers[pair.symbol]?.displayPrice,
       ),
     );
-    final funding = ref.watch(
-      marketRepositoryProvider(
-        Market.futures,
-      ).select((s) => s.tickers[pair.symbol]?.fundingRate),
-    );
+    // The pair's own ticker carries the next funding time (as on SCR-11);
+    // the board's ticker gives the rate until it answers.
+    final ticker = ref
+        .watch(
+          pairTickerProvider((market: Market.futures, symbol: pair.symbol)),
+        )
+        .ticker;
+    final funding =
+        ticker?.fundingRate ??
+        ref.watch(
+          marketRepositoryProvider(
+            Market.futures,
+          ).select((s) => s.tickers[pair.symbol]?.fundingRate),
+        );
+    final next = ticker?.nextFundingTime;
     final text = Theme.of(context).textTheme;
     final header = Row(
       children: [
@@ -247,10 +276,24 @@ class _Header extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
         header,
-        Text(
-          l.marketFundingShort(formatFractionAsPercent(funding)),
-          key: const Key('futures-funding'),
-          style: text.bodySmall,
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              l.marketFundingShort(formatFractionAsPercent(funding)),
+              key: const Key('futures-funding'),
+              style: text.bodySmall,
+            ),
+            if (next != null) ...[
+              Text(' · ', style: text.bodySmall),
+              Countdown(
+                key: const Key('futures-funding-countdown'),
+                until: next,
+                now: ref.read(clockProvider),
+                style: text.bodySmall,
+              ),
+            ],
+          ],
         ),
       ],
     );
@@ -486,33 +529,28 @@ class _Form extends ConsumerWidget {
                 ),
           ],
         ),
-        Row(
-          children: [
-            Expanded(
-              child: CheckboxListTile(
-                key: const Key('futures-reduce-only'),
-                contentPadding: EdgeInsets.zero,
-                dense: true,
-                controlAffinity: ListTileControlAffinity.leading,
-                title: Text(l.futReduceOnly),
-                value: state.reduceOnly,
-                onChanged: (v) => c.setReduceOnly(v ?? false),
-              ),
-            ),
-            if (!state.kind.conditional)
-              Expanded(
-                child: CheckboxListTile(
-                  key: const Key('futures-tpsl'),
-                  contentPadding: EdgeInsets.zero,
-                  dense: true,
-                  controlAffinity: ListTileControlAffinity.leading,
-                  title: Text(l.futTpSl),
-                  value: state.tpSl,
-                  onChanged: (v) => c.setTpSl(v ?? false),
-                ),
-              ),
-          ],
+        // Stacked: the form shares the width with the order book.
+        CheckboxListTile(
+          key: const Key('futures-reduce-only'),
+          contentPadding: EdgeInsets.zero,
+          dense: true,
+          visualDensity: VisualDensity.compact,
+          controlAffinity: ListTileControlAffinity.leading,
+          title: Text(l.futReduceOnly),
+          value: state.reduceOnly,
+          onChanged: (v) => c.setReduceOnly(v ?? false),
         ),
+        if (!state.kind.conditional)
+          CheckboxListTile(
+            key: const Key('futures-tpsl'),
+            contentPadding: EdgeInsets.zero,
+            dense: true,
+            visualDensity: VisualDensity.compact,
+            controlAffinity: ListTileControlAffinity.leading,
+            title: Text(l.futTpSl),
+            value: state.tpSl,
+            onChanged: (v) => c.setTpSl(v ?? false),
+          ),
         Text(
           l.futAvailable(formatDecimal(available, 2)),
           key: const Key('futures-available'),

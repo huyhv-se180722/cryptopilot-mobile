@@ -18,6 +18,7 @@ import '../support/realtime_fakes.dart';
 void main() {
   late FakeTransport transport;
   late FakeFuturesApi futures;
+  late FakeMarketApi market;
 
   Future<void> frames(WidgetTester tester) async {
     for (var i = 0; i < 10; i++) {
@@ -37,6 +38,7 @@ void main() {
           tokens: FakeAuthTokenApi(),
           transport: transport,
           futures: futures,
+          market: market,
           settings: MemorySettingsStore(),
         ),
         retry: (_, _) => null,
@@ -139,7 +141,10 @@ void main() {
     closePosition: true,
   );
 
-  setUp(() => futures = FakeFuturesApi());
+  setUp(() {
+    futures = FakeFuturesApi();
+    market = FakeMarketApi();
+  });
 
   testWidgets('while typed: each side shows its cost and Max, a BLOCKING '
       'warning by its name under its side only; the sheet still holds the '
@@ -226,6 +231,42 @@ void main() {
     expect(textOf(tester, 'position-title-$key'), 'BTCUSDT · Long · 20x');
     expect(textOf(tester, 'position-pnl-$key'), 'PnL +1.00 (+2.63%)');
     expect(textOf(tester, 'tpsl-line-$key'), 'TP 80,000.00 · SL 72,000.00');
+    await unmount(tester);
+  });
+
+  testWidgets('the Futures order book beside the form, read on FUTURES; a '
+      'level tapped fills the price', (tester) async {
+    await open(tester);
+    expect(find.byKey(const Key('trade-book')), findsOneWidget);
+    expect(market.bookCalls, contains('depth FUTURES BTCUSDT'));
+    await tester.tap(find.byKey(const Key('book-76001')));
+    await tester.pump();
+    expect(fieldText(tester, 'price'), '76001');
+    await unmount(tester);
+  });
+
+  testWidgets('funding with its countdown from the pair ticker, as on SCR-11', (
+    tester,
+  ) async {
+    await open(tester);
+    expect(find.byKey(const Key('futures-funding-countdown')), findsNothing);
+    transport.last.push('/topic/ticker.FUTURES.BTCUSDT', {
+      'market': 'FUTURES',
+      'symbol': 'BTCUSDT',
+      'markPrice': '76000.00',
+      'fundingRate': '0.0001',
+      'nextFundingTime': '2026-11-06T13:12:45Z',
+    });
+    await frames(tester);
+    expect(textOf(tester, 'futures-funding'), contains('0.0100%'));
+    // now = 2026-11-06T10:00Z in the fakes.
+    expect(
+      find.descendant(
+        of: find.byKey(const Key('futures-funding-countdown')),
+        matching: find.text('03:12:45'),
+      ),
+      findsOneWidget,
+    );
     await unmount(tester);
   });
 
