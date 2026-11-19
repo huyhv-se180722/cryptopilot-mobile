@@ -146,14 +146,29 @@ void main() {
     await frames(tester);
     await tester.tap(find.text('Market').last);
     await frames(tester);
-    await type(tester, 'size', '100');
+    // FE owner 2026-11-19 (T-131 fix): a BLOCKING side is disabled once the
+    // form's preview has it; tapped before that, the sheet still blocks.
     await show(tester, find.byKey(const Key('futures-SELL')));
+    await type(tester, 'size', '100');
+    // Within the preview's 400 ms: back to the button at once, then tap.
+    await tester.pump(const Duration(milliseconds: 150));
+    await tester.ensureVisible(find.byKey(const Key('futures-SELL')));
+    await tester.pump();
     await tester.tap(find.byKey(const Key('futures-SELL')));
     await frames(tester);
     expect(find.text('Not enough margin.'), findsOneWidget);
     expect(
       tester
           .widget<FilledButton>(find.byKey(const Key('futures-confirm')))
+          .onPressed,
+      isNull,
+    );
+    await tester.tapAt(const Offset(10, 10));
+    await frames(tester);
+    expect(find.byKey(const Key('futures-confirm')), findsNothing);
+    expect(
+      tester
+          .widget<FilledButton>(find.byKey(const Key('futures-SELL')))
           .onPressed,
       isNull,
     );
