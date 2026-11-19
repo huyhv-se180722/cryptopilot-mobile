@@ -11,6 +11,7 @@ import '../../../core/format/decimal_format.dart';
 import '../../../core/i18n/app_localizations.dart';
 import '../../../core/theme/cp_colors.dart';
 import '../../../core/web/web_links.dart';
+import '../../academy/data/academy_progress_repository.dart';
 import '../../journal/domain/performance.dart';
 import '../../market/data/market_repository.dart';
 import '../../market/domain/market.dart';
@@ -67,6 +68,7 @@ class HomeScreen extends ConsumerWidget {
           await Future.wait([
             refreshHome(ref),
             ref.read(watchlistControllerProvider.notifier).load(),
+            ref.read(academyProgressProvider.notifier).load(),
           ]);
         },
         child: ListView(
@@ -77,6 +79,7 @@ class HomeScreen extends ConsumerWidget {
             const _NotificationsBlock(),
             const _PerformanceBlock(),
             const _NewsBlock(),
+            const _AcademyCard(),
             const SizedBox(height: 8),
             Text(
               l.msg42,
@@ -614,6 +617,46 @@ class _NewsBlock extends ConsumerWidget {
       // SCR-28 is on the web only (SRS 3.1.1).
       onSeeAll: () => web.open('/news'),
       child: child,
+    );
+  }
+}
+
+/// The way into the Academy (D-155 (5)) with the beginner path progress.
+class _AcademyCard extends ConsumerWidget {
+  const _AcademyCard();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context);
+    final path = ref.watch(
+      academyProgressProvider.select(
+        (s) => switch (s.progress) {
+          final p? => (done: p.pathCompleted, total: p.pathTotal),
+          null => null,
+        },
+      ),
+    );
+    return Card(
+      key: const Key('home-academy'),
+      margin: const EdgeInsets.only(bottom: 12),
+      child: ListTile(
+        leading: const Icon(Icons.school_outlined),
+        title: Text(l.homeAcademy),
+        subtitle: path == null
+            ? Text(l.homeAcademyStart)
+            : Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(l.homeAcademyPath(path.done, path.total)),
+                  const SizedBox(height: 6),
+                  LinearProgressIndicator(
+                    value: path.total == 0 ? 0 : path.done / path.total,
+                  ),
+                ],
+              ),
+        trailing: const Icon(Icons.chevron_right),
+        onTap: () => context.push('/academy'),
+      ),
     );
   }
 }

@@ -8,6 +8,7 @@ import 'package:cryptopilot_mobile/features/academy/presentation/academy_links.d
 import 'package:cryptopilot_mobile/features/academy/presentation/academy_screen.dart';
 import 'package:cryptopilot_mobile/features/academy/presentation/academy_widgets.dart';
 import 'package:cryptopilot_mobile/features/academy/presentation/lesson_screen.dart';
+import 'package:cryptopilot_mobile/features/home/presentation/home_screen.dart';
 import 'package:cryptopilot_mobile/features/market/presentation/markets_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -419,6 +420,104 @@ void main() {
       await unmount(tester);
     });
   }
+
+  group('ways in', () {
+    Future<void> home(WidgetTester tester) async {
+      transport = FakeTransport();
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: baseOverrides(
+            store: MemoryTokenStore(storedFor('saved')),
+            tokens: FakeAuthTokenApi(),
+            transport: transport,
+            web: web,
+            academy: api,
+          ),
+          retry: (_, _) => null,
+          child: const CryptoPilotApp(),
+        ),
+      );
+      await frames(tester);
+      transport.last.onConnected();
+      await frames(tester);
+    }
+
+    Finder homeList() => find
+        .descendant(
+          of: find.byType(HomeScreen),
+          matching: find.byType(Scrollable),
+        )
+        .first;
+
+    testWidgets('the Home card shows the path progress, opens the Academy and '
+        'follows a mark made there', (tester) async {
+      await home(tester);
+      await tester.scrollUntilVisible(
+        find.byKey(const Key('home-academy')),
+        300,
+        scrollable: homeList(),
+      );
+      expect(find.text('Beginner path 1/3'), findsOneWidget);
+      await tester.tap(find.byKey(const Key('home-academy')));
+      await frames(tester);
+      expect(find.byType(AcademyScreen), findsOneWidget);
+
+      unawaited(
+        containerOf(
+          tester,
+        ).read(appRouterProvider).push(lessonLocation('lesson-3')),
+      );
+      await frames(tester);
+      await tester.scrollUntilVisible(
+        find.byKey(const Key('lesson-mark')),
+        300,
+        scrollable: find
+            .descendant(
+              of: find.byKey(const Key('lesson-page')),
+              matching: find.byType(Scrollable),
+            )
+            .first,
+      );
+      await tester.tap(find.byKey(const Key('lesson-mark')));
+      await frames(tester);
+      // Both pages leave; Home was kept under them.
+      await tester.pageBack();
+      await frames(tester);
+      await tester.pageBack();
+      await frames(tester);
+      expect(find.text('Beginner path 2/3'), findsOneWidget);
+      await unmount(tester);
+    });
+
+    testWidgets('the account screen opens the Academy', (tester) async {
+      await home(tester);
+      await tester.tap(find.byKey(const Key('open-account')));
+      await frames(tester);
+      await tester.scrollUntilVisible(
+        find.byKey(const Key('open-academy')),
+        200,
+        scrollable: find.byType(Scrollable).last,
+      );
+      await tester.tap(find.byKey(const Key('open-academy')));
+      await frames(tester);
+      expect(find.byType(AcademyScreen), findsOneWidget);
+      await unmount(tester);
+    });
+
+    testWidgets('progress that cannot be read leaves the card without it', (
+      tester,
+    ) async {
+      api.progressError = problem(503, 'UNAVAILABLE', 'MSG43');
+      await home(tester);
+      await tester.scrollUntilVisible(
+        find.byKey(const Key('home-academy')),
+        300,
+        scrollable: homeList(),
+      );
+      expect(find.text('Learn crypto step by step'), findsOneWidget);
+      await unmount(tester);
+    });
+  });
 
   group('links and dates', () {
     test('lesson paths map to the app screens it has; the rest to the web', () {

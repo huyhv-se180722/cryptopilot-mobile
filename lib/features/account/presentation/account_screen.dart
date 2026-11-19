@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../core/errors/message_text.dart';
 import '../../../core/i18n/app_localizations.dart';
@@ -134,7 +135,16 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
             onSelectionChanged: (selection) =>
                 ref.read(themeModeProvider.notifier).select(selection.first),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 16),
+          ListTile(
+            key: const Key('open-academy'),
+            contentPadding: EdgeInsets.zero,
+            leading: const Icon(Icons.school_outlined),
+            title: Text(l.accountAcademy),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => context.push('/academy'),
+          ),
+          const SizedBox(height: 8),
           _Section(title: l.accountOnWeb),
           ListTile(
             contentPadding: EdgeInsets.zero,
