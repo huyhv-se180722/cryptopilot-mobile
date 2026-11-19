@@ -1180,6 +1180,18 @@ abstract class AppLocalizations {
   /// **'This feature is available on the {plan} plan or higher. View plans?'**
   String msg29(String plan);
 
+  /// No description provided for @msg30.
+  ///
+  /// In en, this message translates to:
+  /// **'You have used today\'s {quota} questions. Quota resets at 00:00.'**
+  String msg30(String quota);
+
+  /// No description provided for @msg31.
+  ///
+  /// In en, this message translates to:
+  /// **'The AI Assistant is temporarily unavailable. Please try again.'**
+  String get msg31;
+
   /// No description provided for @msg45.
   ///
   /// In en, this message translates to:

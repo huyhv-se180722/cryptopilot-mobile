@@ -627,6 +627,15 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String msg30(String quota) {
+    return 'You have used today\'s $quota questions. Quota resets at 00:00.';
+  }
+
+  @override
+  String get msg31 =>
+      'The AI Assistant is temporarily unavailable. Please try again.';
+
+  @override
   String msg45(String pair) {
     return '$pair is already in your watchlist.';
   }
