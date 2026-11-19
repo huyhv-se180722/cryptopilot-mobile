@@ -55,7 +55,7 @@ void main() {
           'market': 'FUTURES',
           'symbol': 'BTCUSDT',
           'sourceTime': '2026-11-19T02:00:00Z',
-          'lastPrice': '75990.00',
+          'lastPrice': '74000.00',
           'changePercent24h': null,
           'quoteVolume24h': null,
           'markPrice': '76000.00',

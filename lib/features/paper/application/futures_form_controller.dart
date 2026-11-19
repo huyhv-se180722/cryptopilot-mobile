@@ -169,10 +169,13 @@ class FuturesFormController extends Notifier<FuturesFormState> {
       ?.where((p) => p.symbol == symbol)
       .firstOrNull;
 
-  String? get _mark => ref
-      .read(marketRepositoryProvider(Market.futures))
-      .tickers[symbol]
-      ?.displayPrice;
+  /// The mark price (the last one until a mark arrives).
+  String? get _mark {
+    final ticker = ref
+        .read(marketRepositoryProvider(Market.futures))
+        .tickers[symbol];
+    return ticker?.markPrice ?? ticker?.displayPrice;
+  }
 
   void _set(FuturesFormState next) {
     _pendingKey = null;

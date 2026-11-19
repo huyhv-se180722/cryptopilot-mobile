@@ -1321,10 +1321,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tradeFutures => 'Futures';
 
   @override
-  String get tradeFuturesSoon =>
-      'Futures demo trading arrives in the next update.';
-
-  @override
   String get tradeChoosePair => 'Choose a pair';
 
   @override
@@ -1685,4 +1681,183 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get paperErrPositionMargin =>
       'The margin cannot change by that amount.';
+
+  @override
+  String get futBuyLong => 'Buy / Long';
+
+  @override
+  String get futSellShort => 'Sell / Short';
+
+  @override
+  String get futCross => 'Cross';
+
+  @override
+  String get futIsolated => 'Isolated';
+
+  @override
+  String futLeverage(int value) {
+    return '${value}x';
+  }
+
+  @override
+  String futLeverageTitle(int max) {
+    return 'Leverage (max ${max}x)';
+  }
+
+  @override
+  String get futMarginTitle => 'Margin mode';
+
+  @override
+  String get futSave => 'Save';
+
+  @override
+  String get futKindLimit => 'Limit';
+
+  @override
+  String get futKindMarket => 'Market';
+
+  @override
+  String get futKindStopLimit => 'Stop Limit';
+
+  @override
+  String get futKindStopMarket => 'Stop Market';
+
+  @override
+  String get futKindTakeProfitLimit => 'Take Profit Limit';
+
+  @override
+  String get futKindTakeProfitMarket => 'Take Profit Market';
+
+  @override
+  String get futTrigger => 'Trigger price';
+
+  @override
+  String get futSize => 'Size';
+
+  @override
+  String futSizeCoin(String asset) {
+    return '$asset';
+  }
+
+  @override
+  String get futSizeUsdt => 'USDT';
+
+  @override
+  String get futMark => 'Mark';
+
+  @override
+  String get futLast => 'Last';
+
+  @override
+  String get futReduceOnly => 'Reduce-only';
+
+  @override
+  String get futTpSl => 'TP/SL';
+
+  @override
+  String futAvailable(String amount) {
+    return 'Avbl $amount USDT';
+  }
+
+  @override
+  String futCost(String amount) {
+    return 'Cost $amount USDT';
+  }
+
+  @override
+  String futLiq(String price) {
+    return 'Est. liq. price $price';
+  }
+
+  @override
+  String get futConfirmTitle => 'Confirm the demo order';
+
+  @override
+  String get futBlocked => 'This order cannot go: fix what is marked.';
+
+  @override
+  String futPositions(int count) {
+    return 'Positions ($count)';
+  }
+
+  @override
+  String futOrders(int count) {
+    return 'Open orders ($count)';
+  }
+
+  @override
+  String get futNoPositions => 'No open positions.';
+
+  @override
+  String get futNoOrders => 'No open orders.';
+
+  @override
+  String get futLong => 'Long';
+
+  @override
+  String get futShort => 'Short';
+
+  @override
+  String futEntry(String price) {
+    return 'Entry $price';
+  }
+
+  @override
+  String futMarkPrice(String price) {
+    return 'Mark $price';
+  }
+
+  @override
+  String futLiqShort(String price) {
+    return 'Liq. $price';
+  }
+
+  @override
+  String futPnl(String amount) {
+    return 'PnL $amount';
+  }
+
+  @override
+  String get futClose => 'Close';
+
+  @override
+  String get futMarketClose => 'Market close';
+
+  @override
+  String get futCloseAll => 'Close all';
+
+  @override
+  String get futCloseTitle => 'Close the position';
+
+  @override
+  String get futCloseLimit => 'Limit price (empty: Market)';
+
+  @override
+  String get futMargin => 'Margin';
+
+  @override
+  String get futMarginAdd => 'Add';
+
+  @override
+  String get futMarginRemove => 'Remove';
+
+  @override
+  String get futAmountUsdt => 'Amount (USDT)';
+
+  @override
+  String get futTakeProfit => 'Take profit';
+
+  @override
+  String get futStopLoss => 'Stop loss';
+
+  @override
+  String get futDone => 'Done.';
+
+  @override
+  String futMarginCall(String symbol, String ratio) {
+    return 'Margin call on $symbol: margin ratio $ratio. Add margin or reduce the position.';
+  }
+
+  @override
+  String get futErrTpSlReduceOnly => 'TP/SL cannot go with reduce-only.';
 }

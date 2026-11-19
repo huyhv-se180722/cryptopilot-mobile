@@ -824,7 +824,6 @@
   "paperDemoBanner": "Demo · virtual funds. Orders never reach an exchange.",
   "tradeSpot": "Spot",
   "tradeFutures": "Futures",
-  "tradeFuturesSoon": "Futures demo trading arrives in the next update.",
   "tradeChoosePair": "Choose a pair",
   "tradeBuy": "Buy",
   "tradeSell": "Sell",
@@ -1090,5 +1089,150 @@
   "paperErrLeverageMargin": "The leverage cannot change with the margin this position holds.",
   "paperErrMarginTypeLocked": "The margin mode cannot change while a position or an order is open.",
   "paperErrInLiquidation": "The account is being liquidated. Try again in a moment.",
-  "paperErrPositionMargin": "The margin cannot change by that amount."
+  "paperErrPositionMargin": "The margin cannot change by that amount.",
+  "futBuyLong": "Buy / Long",
+  "futSellShort": "Sell / Short",
+  "futCross": "Cross",
+  "futIsolated": "Isolated",
+  "futLeverage": "{value}x",
+  "@futLeverage": {
+    "placeholders": {
+      "value": {
+        "type": "int"
+      }
+    }
+  },
+  "futLeverageTitle": "Leverage (max {max}x)",
+  "@futLeverageTitle": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "futMarginTitle": "Margin mode",
+  "futSave": "Save",
+  "futKindLimit": "Limit",
+  "futKindMarket": "Market",
+  "futKindStopLimit": "Stop Limit",
+  "futKindStopMarket": "Stop Market",
+  "futKindTakeProfitLimit": "Take Profit Limit",
+  "futKindTakeProfitMarket": "Take Profit Market",
+  "futTrigger": "Trigger price",
+  "futSize": "Size",
+  "futSizeCoin": "{asset}",
+  "@futSizeCoin": {
+    "placeholders": {
+      "asset": {
+        "type": "String"
+      }
+    }
+  },
+  "futSizeUsdt": "USDT",
+  "futMark": "Mark",
+  "futLast": "Last",
+  "futReduceOnly": "Reduce-only",
+  "futTpSl": "TP/SL",
+  "futAvailable": "Avbl {amount} USDT",
+  "@futAvailable": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "futCost": "Cost {amount} USDT",
+  "@futCost": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "futLiq": "Est. liq. price {price}",
+  "@futLiq": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "futConfirmTitle": "Confirm the demo order",
+  "futBlocked": "This order cannot go: fix what is marked.",
+  "futPositions": "Positions ({count})",
+  "@futPositions": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "futOrders": "Open orders ({count})",
+  "@futOrders": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "futNoPositions": "No open positions.",
+  "futNoOrders": "No open orders.",
+  "futLong": "Long",
+  "futShort": "Short",
+  "futEntry": "Entry {price}",
+  "@futEntry": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "futMarkPrice": "Mark {price}",
+  "@futMarkPrice": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "futLiqShort": "Liq. {price}",
+  "@futLiqShort": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "futPnl": "PnL {amount}",
+  "@futPnl": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "futClose": "Close",
+  "futMarketClose": "Market close",
+  "futCloseAll": "Close all",
+  "futCloseTitle": "Close the position",
+  "futCloseLimit": "Limit price (empty: Market)",
+  "futMargin": "Margin",
+  "futMarginAdd": "Add",
+  "futMarginRemove": "Remove",
+  "futAmountUsdt": "Amount (USDT)",
+  "futTakeProfit": "Take profit",
+  "futStopLoss": "Stop loss",
+  "futDone": "Done.",
+  "futMarginCall": "Margin call on {symbol}: margin ratio {ratio}. Add margin or reduce the position.",
+  "@futMarginCall": {
+    "placeholders": {
+      "symbol": {
+        "type": "String"
+      },
+      "ratio": {
+        "type": "String"
+      }
+    }
+  },
+  "futErrTpSlReduceOnly": "TP/SL cannot go with reduce-only."
 }
