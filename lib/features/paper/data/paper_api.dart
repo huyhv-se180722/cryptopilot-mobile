@@ -68,8 +68,12 @@ abstract interface class PaperApi {
     int pageSize = 20,
   });
 
-  /// Spot plus Futures and today's PnL; 404 MSG41 before the account opens.
-  Future<PaperEquity> equity();
+  /// Spot plus Futures and today's PnL, with the start of each of the last
+  /// [days] (1 to 365); 404 MSG41 before the account opens.
+  Future<PaperEquity> equity({int days = 1});
+
+  /// Each Spot coin's average cost and unrealised PnL (TR-13, T-123).
+  Future<SpotPnl> spotPnl();
 }
 
 class DioPaperApi implements PaperApi {
@@ -228,10 +232,14 @@ class DioPaperApi implements PaperApi {
   );
 
   @override
-  Future<PaperEquity> equity() => apiCall(
-    () => _dio.get<Object?>('paper/equity', queryParameters: {'days': 1}),
+  Future<PaperEquity> equity({int days = 1}) => apiCall(
+    () => _dio.get<Object?>('paper/equity', queryParameters: {'days': days}),
     decodeEquity,
   );
+
+  @override
+  Future<SpotPnl> spotPnl() =>
+      apiCall(() => _dio.get<Object?>('paper/spot/pnl'), decodeSpotPnl);
 }
 
 final paperApiProvider = Provider<PaperApi>(

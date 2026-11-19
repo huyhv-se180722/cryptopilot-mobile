@@ -3148,6 +3148,48 @@ abstract class AppLocalizations {
   /// **'Trade (demo)'**
   String get assetsTradeDemo;
 
+  /// No description provided for @assetsEquity.
+  ///
+  /// In en, this message translates to:
+  /// **'Equity'**
+  String get assetsEquity;
+
+  /// No description provided for @assetsEquityDays.
+  ///
+  /// In en, this message translates to:
+  /// **'{days}D'**
+  String assetsEquityDays(int days);
+
+  /// No description provided for @assetsEquityChart.
+  ///
+  /// In en, this message translates to:
+  /// **'Demo account equity, last {days} days'**
+  String assetsEquityChart(int days);
+
+  /// No description provided for @assetsEquityEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'The equity history starts after the first day.'**
+  String get assetsEquityEmpty;
+
+  /// No description provided for @assetsCoinPnl.
+  ///
+  /// In en, this message translates to:
+  /// **'Avg cost {cost} · PnL {pnl}'**
+  String assetsCoinPnl(String cost, String pnl);
+
+  /// No description provided for @assetsSpotUpnl.
+  ///
+  /// In en, this message translates to:
+  /// **'Spot unrealized PnL {amount} USDT'**
+  String assetsSpotUpnl(String amount);
+
+  /// No description provided for @assetsPnlIncomplete.
+  ///
+  /// In en, this message translates to:
+  /// **'Some coins have no cost or price yet; the totals leave them out.'**
+  String get assetsPnlIncomplete;
+
   /// No description provided for @assetsFuturesPnl.
   ///
   /// In en, this message translates to:

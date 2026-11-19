@@ -1772,6 +1772,37 @@ class AppLocalizationsEn extends AppLocalizations {
   String get assetsTradeDemo => 'Trade (demo)';
 
   @override
+  String get assetsEquity => 'Equity';
+
+  @override
+  String assetsEquityDays(int days) {
+    return '${days}D';
+  }
+
+  @override
+  String assetsEquityChart(int days) {
+    return 'Demo account equity, last $days days';
+  }
+
+  @override
+  String get assetsEquityEmpty =>
+      'The equity history starts after the first day.';
+
+  @override
+  String assetsCoinPnl(String cost, String pnl) {
+    return 'Avg cost $cost · PnL $pnl';
+  }
+
+  @override
+  String assetsSpotUpnl(String amount) {
+    return 'Spot unrealized PnL $amount USDT';
+  }
+
+  @override
+  String get assetsPnlIncomplete =>
+      'Some coins have no cost or price yet; the totals leave them out.';
+
+  @override
   String get assetsFuturesPnl => 'Unrealized PnL';
 
   @override

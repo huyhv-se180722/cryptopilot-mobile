@@ -531,28 +531,137 @@ PaperPage<T> decodePaperPage<T>(Object? body, T Function(Object?) item) {
   );
 }
 
-/// The demo account's worth (`EquityResponse`; the daily history is left
-/// for T-123).
+/// The demo account's worth (`EquityResponse`) with its daily history
+/// (T-123).
 @immutable
 class PaperEquity {
   const PaperEquity({
     required this.totalEquity,
     required this.todayPnl,
     this.todayPnlPercent,
+    this.spotEquity,
+    this.futuresEquity,
+    this.history = const [],
   });
 
   final String totalEquity;
-  final String todayPnl;
+
+  /// Null while the day has no snapshot yet (backend develop 5c2398cb).
+  final String? todayPnl;
   final String? todayPnlPercent;
+  final String? spotEquity;
+  final String? futuresEquity;
+
+  /// The start of each day asked for, oldest first.
+  final List<EquityPoint> history;
+}
+
+/// The worth at the start of a day, in UTC.
+@immutable
+class EquityPoint {
+  const EquityPoint({required this.date, required this.totalEquity});
+
+  final DateTime date;
+  final String totalEquity;
 }
 
 PaperEquity decodeEquity(Object? body) {
   final json = asJsonObject(body, 'equity');
+  final history = json['history'];
   return PaperEquity(
     totalEquity: _decimal(json, 'totalEquity'),
-    todayPnl: _decimal(json, 'todayPnl'),
+    todayPnl: _optionalDecimal(json, 'todayPnl'),
     todayPnlPercent: _optionalDecimal(json, 'todayPnlPercent'),
+    spotEquity: _optionalDecimal(json, 'spotEquity'),
+    futuresEquity: _optionalDecimal(json, 'futuresEquity'),
+    history: [
+      if (history != null)
+        for (final item in _listOf(history, 'equity history'))
+          () {
+            final point = asJsonObject(item, 'equity point');
+            final date = DateTime.tryParse(readString(point, 'date'));
+            if (date == null) throw const DecodeException('date');
+            return EquityPoint(
+              date: DateTime.utc(date.year, date.month, date.day),
+              totalEquity: _decimal(point, 'totalEquity'),
+            );
+          }(),
+    ],
   );
+}
+
+/// One coin of `GET /paper/spot/pnl`: what it cost and what it is worth;
+/// each figure null when the backend does not know it.
+@immutable
+class CoinPnl {
+  const CoinPnl({
+    required this.asset,
+    required this.quantity,
+    this.averageCost,
+    this.costBasis,
+    this.value,
+    this.unrealizedPnl,
+    this.unrealizedPnlPercent,
+  });
+
+  final String asset;
+  final String quantity;
+  final String? averageCost;
+  final String? costBasis;
+  final String? value;
+  final String? unrealizedPnl;
+  final String? unrealizedPnlPercent;
+}
+
+@immutable
+class SpotPnl {
+  const SpotPnl({
+    required this.coins,
+    required this.complete,
+    this.totalValue,
+    this.totalUnrealizedPnl,
+  });
+
+  final List<CoinPnl> coins;
+
+  /// False when some coin had no cost or price: the sums leave it out.
+  final bool complete;
+  final String? totalValue;
+  final String? totalUnrealizedPnl;
+
+  CoinPnl? of(String asset) => coins.where((c) => c.asset == asset).firstOrNull;
+}
+
+SpotPnl decodeSpotPnl(Object? body) {
+  final json = asJsonObject(body, 'spot pnl');
+  return SpotPnl(
+    coins: [
+      for (final item in _listOf(json['coins'], 'pnl coins'))
+        () {
+          final coin = asJsonObject(item, 'coin pnl');
+          return CoinPnl(
+            asset: readString(coin, 'asset'),
+            quantity: _decimal(coin, 'quantity'),
+            averageCost: _optionalDecimal(coin, 'averageCost'),
+            costBasis: _optionalDecimal(coin, 'costBasis'),
+            value: _optionalDecimal(coin, 'value'),
+            unrealizedPnl: _optionalDecimal(coin, 'unrealizedPnl'),
+            unrealizedPnlPercent: _optionalDecimal(
+              coin,
+              'unrealizedPnlPercent',
+            ),
+          );
+        }(),
+    ],
+    complete: readBool(json, 'complete'),
+    totalValue: _optionalDecimal(json, 'totalValue'),
+    totalUnrealizedPnl: _optionalDecimal(json, 'totalUnrealizedPnl'),
+  );
+}
+
+List<Object?> _listOf(Object? value, String what) {
+  if (value is List) return value;
+  throw DecodeException('$what is not a list');
 }
 
 /// When the account was opened (`PaperAccountResponse`).

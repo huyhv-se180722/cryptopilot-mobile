@@ -1137,6 +1137,44 @@
   "assetsTransfer": "Transfer",
   "assetsHistory": "History",
   "assetsTradeDemo": "Trade (demo)",
+  "assetsEquity": "Equity",
+  "assetsEquityDays": "{days}D",
+  "@assetsEquityDays": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "assetsEquityChart": "Demo account equity, last {days} days",
+  "@assetsEquityChart": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "assetsEquityEmpty": "The equity history starts after the first day.",
+  "assetsCoinPnl": "Avg cost {cost} · PnL {pnl}",
+  "@assetsCoinPnl": {
+    "placeholders": {
+      "cost": {
+        "type": "String"
+      },
+      "pnl": {
+        "type": "String"
+      }
+    }
+  },
+  "assetsSpotUpnl": "Spot unrealized PnL {amount} USDT",
+  "@assetsSpotUpnl": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "assetsPnlIncomplete": "Some coins have no cost or price yet; the totals leave them out.",
   "assetsFuturesPnl": "Unrealized PnL",
   "assetsFuturesMargin": "Margin balance",
   "assetsFuturesAvailable": "Available",
