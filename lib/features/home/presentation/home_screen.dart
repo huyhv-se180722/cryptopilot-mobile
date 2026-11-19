@@ -55,6 +55,12 @@ class HomeScreen extends ConsumerWidget {
               context.go('/markets');
             },
           ),
+          IconButton(
+            key: const Key('open-ai'),
+            tooltip: l.aiTitle,
+            icon: const Icon(Icons.auto_awesome),
+            onPressed: () => context.push('/ai'),
+          ),
           const NotificationBell(),
           IconButton(
             key: const Key('open-account'),

@@ -111,6 +111,7 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
     };
     final delayed = ref.watch(board.select((s) => s.delayed));
     final actions = ref.watch(pairActionsProvider);
+    final askAi = ref.watch(askAiOnPairProvider);
     final futures = pair.market == Market.futures;
 
     return Scaffold(
@@ -173,6 +174,7 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
           ? null
           : _ActionBar(
               pairActions: actions?.call(context, pair),
+              onAskAi: askAi == null ? null : () => askAi(context, pair, _tf),
               onCreatePlan: () => ref
                   .read(webLinksProvider)
                   .open(
@@ -419,13 +421,18 @@ class _NotInPlan extends ConsumerWidget {
 }
 
 /// The fixed bar of SRS 3.3.2's actions: Add to Watchlist and Create Alert
-/// (composed by `main.dart`) and Create Trading Plan, which opens the web.
-/// Ask AI (SCR-29) waits for T-119.
+/// (composed by `main.dart`), Ask AI (SCR-29, at the timeframe on screen)
+/// and Create Trading Plan, which opens the web.
 class _ActionBar extends StatelessWidget {
-  const _ActionBar({required this.pairActions, required this.onCreatePlan});
+  const _ActionBar({
+    required this.pairActions,
+    required this.onCreatePlan,
+    this.onAskAi,
+  });
 
   final Widget? pairActions;
   final VoidCallback onCreatePlan;
+  final VoidCallback? onAskAi;
 
   @override
   Widget build(BuildContext context) {
@@ -444,6 +451,15 @@ class _ActionBar extends StatelessWidget {
             children: [
               if (pairActions case final actions?) ...[
                 actions,
+                const SizedBox(width: 8),
+              ],
+              if (onAskAi case final ask?) ...[
+                IconButton.outlined(
+                  key: const Key('ask-ai'),
+                  tooltip: l.aiAskAi,
+                  onPressed: ask,
+                  icon: const Icon(Icons.auto_awesome),
+                ),
                 const SizedBox(width: 8),
               ],
               Expanded(
