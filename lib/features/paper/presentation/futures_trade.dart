@@ -10,6 +10,7 @@ import '../../../core/theme/cp_colors.dart';
 import '../../market/data/market_repository.dart';
 import '../../market/domain/market.dart';
 import '../application/futures_form_controller.dart';
+import '../application/futures_preview_controller.dart';
 import '../application/trade_controller.dart';
 import '../data/futures_repository.dart';
 import '../data/paper_repository.dart';
@@ -398,6 +399,7 @@ class _Form extends ConsumerWidget {
     final available = ref.watch(
       futuresProvider.select((s) => s.account?.availableBalance),
     );
+    final preview = ref.watch(futuresPreviewProvider(pair.symbol));
 
     String label(FuturesField field) => switch (field) {
       FuturesField.price => l.tradePrice,
@@ -449,8 +451,15 @@ class _Form extends ConsumerWidget {
               value: state.of(field),
               error: issueText(state.issues[field]),
               onChanged: (v) => c.edit(field, v),
+              stepKey: field.name,
+              onStep: (up) => c.step(field, up: up),
             ),
           ),
+        _ShareSlider(
+          key: ValueKey('share-${state.placed}-${state.sizeInUsdt}'),
+          max: preview.sharedMax,
+          onShare: (percent, max) => c.useShare(percent, max),
+        ),
         Wrap(
           spacing: 6,
           crossAxisAlignment: WrapCrossAlignment.center,
@@ -513,30 +522,15 @@ class _Form extends ConsumerWidget {
           _Red(refusalText(l, refusal, 'USDT')),
         if (state.failure case final failure?) _Red(failureText(l, failure)),
         const SizedBox(height: 6),
-        Row(
-          children: [
-            for (final side in OrderSide.values)
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 2),
-                  child: FilledButton(
-                    key: Key('futures-${side.wire}'),
-                    style: FilledButton.styleFrom(
-                      backgroundColor: side == OrderSide.buy
-                          ? context.cp.positive
-                          : context.cp.negative,
-                    ),
-                    onPressed: state.busy
-                        ? null
-                        : () => _go(context, ref, side),
-                    child: Text(
-                      side == OrderSide.buy ? l.futBuyLong : l.futSellShort,
-                    ),
-                  ),
-                ),
-              ),
-          ],
-        ),
+        for (final side in OrderSide.values)
+          _SideAction(
+            side: side,
+            pair: pair,
+            preview: preview.of(side),
+            stale: preview.loading,
+            sizeInUsdt: state.sizeInUsdt,
+            onPressed: state.busy ? null : () => _go(context, ref, side),
+          ),
       ],
     );
   }
@@ -566,6 +560,157 @@ class _Form extends ConsumerWidget {
     }
   }
 }
+
+/// A share of the Max the balance opens (plan 9.2): 0, 25, 50, 75, 100 %.
+class _ShareSlider extends StatefulWidget {
+  const _ShareSlider({required this.max, required this.onShare, super.key});
+
+  final MaxOpen? max;
+  final void Function(int percent, MaxOpen max) onShare;
+
+  @override
+  State<_ShareSlider> createState() => _ShareSliderState();
+}
+
+class _ShareSliderState extends State<_ShareSlider> {
+  double _value = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    final max = widget.max;
+    return Slider(
+      key: const Key('futures-share'),
+      value: _value,
+      max: 100,
+      divisions: 4,
+      label: '${_value.round()}%',
+      onChanged: max == null
+          ? null
+          : (v) {
+              setState(() => _value = v);
+              widget.onShare(v.round(), max);
+            },
+    );
+  }
+}
+
+/// A side's button with, under it, what the server would make of the
+/// order (TR-26, plan 9.2): the cost and the Max, then each warning by its
+/// short name. A BLOCKING one is told here; the confirmation sheet holds
+/// the order back.
+class _SideAction extends StatelessWidget {
+  const _SideAction({
+    required this.side,
+    required this.pair,
+    required this.preview,
+    required this.stale,
+    required this.sizeInUsdt,
+    required this.onPressed,
+  });
+
+  final OrderSide side;
+  final MarketPair pair;
+  final SidePreview preview;
+  final bool stale;
+  final bool sizeInUsdt;
+  final VoidCallback? onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final small = Theme.of(context).textTheme.bodySmall;
+    final buy = side == OrderSide.buy;
+    final cost = preview.warnings?.cost;
+    final max = preview.max;
+    final String? maxText;
+    if (max == null) {
+      maxText = null;
+    } else if (sizeInUsdt) {
+      maxText = '${formatDecimal(max.maxNotional, 2)} ${l.futSizeUsdt}';
+    } else {
+      maxText = '${groupThousands(max.maxQuantity)} ${pair.baseAsset}';
+    }
+    final String? info;
+    if (cost != null && maxText != null) {
+      info = l.futCostMax(formatDecimal(cost, 2), maxText);
+    } else if (cost != null) {
+      info = l.futCostOnly(formatDecimal(cost, 2));
+    } else if (maxText != null) {
+      info = l.futMaxOnly(maxText);
+    } else {
+      info = null;
+    }
+    final warnings = preview.warnings?.warnings ?? const <OrderWarning>[];
+    return Padding(
+      padding: const EdgeInsets.only(top: 6),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          FilledButton(
+            key: Key('futures-${side.wire}'),
+            style: FilledButton.styleFrom(
+              backgroundColor: buy ? context.cp.positive : context.cp.negative,
+            ),
+            onPressed: onPressed,
+            child: Text(buy ? l.futBuyLong : l.futSellShort),
+          ),
+          if (info != null)
+            Opacity(
+              opacity: stale ? 0.5 : 1,
+              child: Text(
+                info,
+                key: Key('futures-info-${side.wire}'),
+                style: small,
+              ),
+            ),
+          if (warnings.isNotEmpty)
+            Wrap(
+              spacing: 8,
+              children: [
+                for (final w in warnings)
+                  Row(
+                    key: Key('inline-warning-${side.wire}-${w.type}'),
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        _warningIcon(w.severity),
+                        size: 14,
+                        color: w.severity == WarningSeverity.blocking
+                            ? context.cp.negative
+                            : context.cp.warning,
+                      ),
+                      const SizedBox(width: 2),
+                      Flexible(
+                        child: Text(warningName(l, w.type), style: small),
+                      ),
+                    ],
+                  ),
+              ],
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+IconData _warningIcon(WarningSeverity severity) => switch (severity) {
+  WarningSeverity.blocking => Icons.block,
+  WarningSeverity.warning => Icons.warning_amber,
+  _ => Icons.info_outline,
+};
+
+/// The short name of a TR-26 warning; the server's message is shown in the
+/// confirmation sheet. An unknown type shows as sent.
+String warningName(AppLocalizations l, String type) => switch (type) {
+  'INSUFFICIENT_MARGIN' => l.futWarnInsufficientMargin,
+  'SL_BEYOND_LIQUIDATION' => l.futWarnSlBeyondLiquidation,
+  'HIGH_LEVERAGE' => l.futWarnHighLeverage,
+  'OVERSIZED_POSITION' => l.futWarnOversizedPosition,
+  'LOW_RR' => l.futWarnLowRr,
+  'HIGH_FUNDING_RATE' => l.futWarnHighFundingRate,
+  'WIDE_STOP_LOSS' => l.futWarnWideStopLoss,
+  _ => type,
+};
 
 class _ReviewSheet extends StatelessWidget {
   const _ReviewSheet({required this.review, required this.blocked});
@@ -648,6 +793,8 @@ class _Input extends StatefulWidget {
     required this.value,
     required this.onChanged,
     this.error,
+    this.stepKey,
+    this.onStep,
     super.key,
   });
 
@@ -655,6 +802,12 @@ class _Input extends StatefulWidget {
   final String value;
   final String? error;
   final ValueChanged<String> onChanged;
+
+  /// Names the −/+ buttons (`futures-minus-…`, `futures-plus-…`).
+  final String? stepKey;
+
+  /// One step down (false) or up (true); no buttons when null.
+  final void Function(bool up)? onStep;
 
   @override
   State<_Input> createState() => _InputState();
@@ -686,8 +839,31 @@ class _InputState extends State<_Input> {
       labelText: widget.label,
       errorText: widget.error,
       errorMaxLines: 3,
+      prefixIcon: _stepButton(up: false),
+      suffixIcon: _stepButton(up: true),
+      prefixIconConstraints: _stepBox,
+      suffixIconConstraints: _stepBox,
     ),
   );
+
+  static const _stepBox = BoxConstraints(minWidth: 32, minHeight: 32);
+
+  Widget? _stepButton({required bool up}) {
+    final onStep = widget.onStep;
+    if (onStep == null) return null;
+    final l = AppLocalizations.of(context);
+    final name = up ? 'plus' : 'minus';
+    return IconButton(
+      key: Key('futures-$name-${widget.stepKey}'),
+      tooltip: up ? l.futStepUp : l.futStepDown,
+      visualDensity: VisualDensity.compact,
+      padding: EdgeInsets.zero,
+      constraints: _stepBox,
+      iconSize: 18,
+      onPressed: () => onStep(up),
+      icon: Icon(up ? Icons.add : Icons.remove),
+    );
+  }
 }
 
 class _Positions extends ConsumerWidget {
@@ -760,6 +936,19 @@ class _PositionCard extends ConsumerWidget {
     };
     final small = Theme.of(context).textTheme.bodySmall;
     final key = '${position.symbol}-${position.side.wire}';
+    String signed(String value) =>
+        '${value.startsWith('-') ? '' : '+'}${formatDecimal(value, 2)}';
+    final roe = position.roePercent;
+    // The TP and SL waiting on this position (plan 9.2).
+    final guards = ref
+        .watch(futuresProvider.select((s) => s.algoOrders))
+        .where((order) => order.guards(position));
+    String? priceOf(bool takeProfit) => guards
+        .where((o) => takeProfit ? o.takeProfit : o.stopLoss)
+        .map((o) => groupThousands(o.triggerPrice))
+        .firstOrNull;
+    final tp = priceOf(true);
+    final sl = priceOf(false);
     return Card(
       key: Key('position-$key'),
       margin: const EdgeInsets.only(bottom: 8),
@@ -772,19 +961,34 @@ class _PositionCard extends ConsumerWidget {
               children: [
                 Expanded(
                   child: Text(
-                    '${position.symbol} · ${position.short ? l.futShort : l.futLong}',
+                    [
+                      position.symbol,
+                      position.short ? l.futShort : l.futLong,
+                      if (position.leverage case final leverage?)
+                        l.futLeverage(leverage),
+                    ].join(' · '),
+                    key: Key('position-title-$key'),
                     style: TextStyle(color: color, fontWeight: FontWeight.w600),
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
                 Text(
                   l.futPnl(
-                    '${pnl.startsWith('-') ? '' : '+'}${formatDecimal(pnl, 2)}',
+                    roe == null
+                        ? signed(pnl)
+                        : '${signed(pnl)} (${roe.startsWith('-') ? '' : '+'}$roe%)',
                   ),
+                  key: Key('position-pnl-$key'),
                   style: TextStyle(color: pnlColor),
                 ),
               ],
             ),
+            if (tp != null || sl != null)
+              Text(
+                l.futTpSlLine(tp ?? '--', sl ?? '--'),
+                key: Key('tpsl-line-$key'),
+                style: small,
+              ),
             Text(
               '${position.size} · ${l.futEntry(groupThousands(position.entryPrice))}'
               ' · ${l.futMarkPrice(groupThousands(position.markPrice))}',

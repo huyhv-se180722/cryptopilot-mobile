@@ -3232,6 +3232,84 @@ abstract class AppLocalizations {
   /// **'Close all'**
   String get futCloseAll;
 
+  /// No description provided for @futCostMax.
+  ///
+  /// In en, this message translates to:
+  /// **'Cost {cost} · Max {max}'**
+  String futCostMax(String cost, String max);
+
+  /// No description provided for @futCostOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Cost {cost}'**
+  String futCostOnly(String cost);
+
+  /// No description provided for @futMaxOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Max {max}'**
+  String futMaxOnly(String max);
+
+  /// No description provided for @futStepUp.
+  ///
+  /// In en, this message translates to:
+  /// **'One step up'**
+  String get futStepUp;
+
+  /// No description provided for @futStepDown.
+  ///
+  /// In en, this message translates to:
+  /// **'One step down'**
+  String get futStepDown;
+
+  /// No description provided for @futTpSlLine.
+  ///
+  /// In en, this message translates to:
+  /// **'TP {tp} · SL {sl}'**
+  String futTpSlLine(String tp, String sl);
+
+  /// No description provided for @futWarnInsufficientMargin.
+  ///
+  /// In en, this message translates to:
+  /// **'Insufficient margin'**
+  String get futWarnInsufficientMargin;
+
+  /// No description provided for @futWarnSlBeyondLiquidation.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop loss past liquidation'**
+  String get futWarnSlBeyondLiquidation;
+
+  /// No description provided for @futWarnHighLeverage.
+  ///
+  /// In en, this message translates to:
+  /// **'High leverage'**
+  String get futWarnHighLeverage;
+
+  /// No description provided for @futWarnOversizedPosition.
+  ///
+  /// In en, this message translates to:
+  /// **'Oversized position'**
+  String get futWarnOversizedPosition;
+
+  /// No description provided for @futWarnLowRr.
+  ///
+  /// In en, this message translates to:
+  /// **'Low reward to risk'**
+  String get futWarnLowRr;
+
+  /// No description provided for @futWarnHighFundingRate.
+  ///
+  /// In en, this message translates to:
+  /// **'High funding rate'**
+  String get futWarnHighFundingRate;
+
+  /// No description provided for @futWarnWideStopLoss.
+  ///
+  /// In en, this message translates to:
+  /// **'Wide stop loss'**
+  String get futWarnWideStopLoss;
+
   /// No description provided for @futCloseAllAsk.
   ///
   /// In en, this message translates to:
