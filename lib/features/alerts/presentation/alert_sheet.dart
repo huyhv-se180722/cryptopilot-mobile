@@ -734,12 +734,13 @@ Future<void> showUpgradeDialog(
   if (open ?? false) await ref.read(webLinksProvider).open('/subscription');
 }
 
-/// "Create alert" under a pair's figures (SRS 3.4.2: from SCR-10, SCR-11,
-/// SCR-12 and SCR-13; on the phone also the pair sheet of SCR-09).
 /// SCR-14 for a new alert on [pair], its market first.
 Future<bool> openAlertSheetFor(BuildContext context, MarketPair pair) =>
     showAlertSheet(context, pair: alertPairOf(pair), market: pair.market);
 
+/// "Create alert" in the bar of a pair's analysis screen (SRS 3.4.2: from
+/// SCR-10, SCR-11, SCR-12 and SCR-13): "Alert" there, the full words as the
+/// tooltip.
 class CreateAlertButton extends StatelessWidget {
   const CreateAlertButton({required this.pair, super.key});
 
@@ -748,11 +749,14 @@ class CreateAlertButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
-    return OutlinedButton.icon(
-      key: const Key('create-alert'),
-      onPressed: () => openAlertSheetFor(context, pair),
-      icon: const Icon(Icons.alarm_add),
-      label: Text(l.alertCreate),
+    return Tooltip(
+      message: l.alertCreate,
+      child: OutlinedButton.icon(
+        key: const Key('create-alert'),
+        onPressed: () => openAlertSheetFor(context, pair),
+        icon: const Icon(Icons.alarm_add, size: 18),
+        label: Text(l.alertShort),
+      ),
     );
   }
 }

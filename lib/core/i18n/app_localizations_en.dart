@@ -311,6 +311,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get accountAbout => 'About';
 
   @override
+  String get accountLicences => 'Open-source licenses';
+
+  @override
   String get accountSignOut => 'Sign out';
 
   @override
@@ -391,8 +394,217 @@ class AppLocalizationsEn extends AppLocalizations {
   String get marketNextFunding => 'Next funding in';
 
   @override
-  String get marketAnalysisNext =>
-      'Charts, indicators and the setup score arrive in the next build.';
+  String get analysisPairGone => 'This pair is no longer available.';
+
+  @override
+  String analysisDayRange(String high, String low, String volume) {
+    return 'H $high · L $low · Vol $volume';
+  }
+
+  @override
+  String chartTimeZone(String zone) {
+    return 'Times in $zone';
+  }
+
+  @override
+  String get analysisIndicators => 'Indicators';
+
+  @override
+  String get analysisOverlays => 'Overlays';
+
+  @override
+  String get analysisPanels => 'Panels';
+
+  @override
+  String get indicatorSma20 => 'SMA 20';
+
+  @override
+  String get indicatorEma20 => 'EMA 20';
+
+  @override
+  String get indicatorEma50 => 'EMA 50';
+
+  @override
+  String get indicatorEma200 => 'EMA 200';
+
+  @override
+  String get indicatorBollinger => 'Bollinger Bands (20, 2)';
+
+  @override
+  String get indicatorVolume => 'Volume with Volume SMA 20';
+
+  @override
+  String get indicatorRsi => 'RSI 14';
+
+  @override
+  String get indicatorMacd => 'MACD (12, 26, 9)';
+
+  @override
+  String get analysisSupport => 'Support';
+
+  @override
+  String get analysisResistance => 'Resistance';
+
+  @override
+  String get analysisInsufficient => 'Insufficient data';
+
+  @override
+  String get analysisInsufficientNotice =>
+      'Fewer than 200 closed candles: some indicators and the setup score cannot be computed yet.';
+
+  @override
+  String get analysisScoreTitle => 'Setup score';
+
+  @override
+  String get analysisScoreOutOf => '/ 100';
+
+  @override
+  String analysisScoreLabel(String score) {
+    return 'Setup score $score out of 100';
+  }
+
+  @override
+  String analysisPresetLine(String preset, String version, String timeframe) {
+    return '$preset $version · $timeframe';
+  }
+
+  @override
+  String get presetScalping => 'Scalping';
+
+  @override
+  String get presetDayTrading => 'Day trading';
+
+  @override
+  String get presetSwing => 'Swing';
+
+  @override
+  String get analysisScoreCapped =>
+      'Score capped: little room to the next level.';
+
+  @override
+  String get analysisComponents => 'Components';
+
+  @override
+  String get componentTrend => 'Trend';
+
+  @override
+  String get componentMomentum => 'Momentum';
+
+  @override
+  String get componentVolume => 'Volume';
+
+  @override
+  String get componentLevel => 'Level';
+
+  @override
+  String get componentDerivatives => 'Derivatives';
+
+  @override
+  String get analysisStatsTitle => 'Market statistics';
+
+  @override
+  String get statLastPrice => 'Last price';
+
+  @override
+  String get statSpread => 'Spread';
+
+  @override
+  String get statChange24h => '24h change';
+
+  @override
+  String analysisNewsTitle(String coin) {
+    return 'Latest $coin news';
+  }
+
+  @override
+  String analysisNewsEmpty(String coin) {
+    return 'No $coin news in the last 7 days.';
+  }
+
+  @override
+  String get analysisCreatePlan => 'Create plan';
+
+  @override
+  String get analysisCreatePlanHint => 'Create trading plan on the web';
+
+  @override
+  String get analysisScoredSide => 'Scored side';
+
+  @override
+  String get analysisDominantSide => 'Dominant side';
+
+  @override
+  String get sideLong => 'Long';
+
+  @override
+  String get sideShort => 'Short';
+
+  @override
+  String get sideNeutral => 'Neutral';
+
+  @override
+  String get analysisSidesNote =>
+      'Sides describe the score. They are not a trade recommendation.';
+
+  @override
+  String get metricsTitle => 'Futures data';
+
+  @override
+  String get metricOpenInterest => 'Open interest';
+
+  @override
+  String get metricLongShort => 'Long/short ratio';
+
+  @override
+  String metricRange(int days) {
+    return '${days}D';
+  }
+
+  @override
+  String metricOiContracts(String asset) {
+    return 'Open interest ($asset)';
+  }
+
+  @override
+  String metricOiValue(String asset) {
+    return 'Open interest value ($asset)';
+  }
+
+  @override
+  String get metricLsRatio => 'Long/short account ratio';
+
+  @override
+  String get metricLongAccounts => 'Long accounts';
+
+  @override
+  String get metricShortAccounts => 'Short accounts';
+
+  @override
+  String metricsChartLabel(String symbol, String metric, int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: '$days days',
+      one: 'day',
+    );
+    return '$symbol $metric, last $_temp0';
+  }
+
+  @override
+  String metricsPartial(String from) {
+    return 'Data is stored from $from only, a shorter period than the one selected.';
+  }
+
+  @override
+  String get metricsEmpty => 'No data stored for this period yet.';
+
+  @override
+  String metricsUpdated(String time) {
+    return 'Every 5 minutes · latest $time';
+  }
+
+  @override
+  String get alertShort => 'Alert';
 
   @override
   String msg25(String pair) {

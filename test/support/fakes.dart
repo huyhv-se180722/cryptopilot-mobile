@@ -10,12 +10,19 @@ import 'package:cryptopilot_mobile/core/web/web_links.dart';
 import 'package:cryptopilot_mobile/features/account/data/profile_api.dart';
 import 'package:cryptopilot_mobile/features/account/domain/profile.dart';
 import 'package:cryptopilot_mobile/features/alerts/data/alert_api.dart';
+import 'package:cryptopilot_mobile/features/analysis/data/analysis_api.dart';
+import 'package:cryptopilot_mobile/features/analysis/domain/analysis.dart'
+    show Analysis, FuturesMetrics, decodeAnalysis, decodeFuturesMetrics;
 import 'package:cryptopilot_mobile/features/alerts/domain/alert.dart';
 import 'package:cryptopilot_mobile/features/auth/data/auth_api.dart';
 import 'package:cryptopilot_mobile/features/journal/data/performance_api.dart';
 import 'package:cryptopilot_mobile/features/journal/domain/performance.dart';
 import 'package:cryptopilot_mobile/features/market/data/market_api.dart';
+import 'package:cryptopilot_mobile/features/market/domain/candle.dart';
 import 'package:cryptopilot_mobile/features/market/domain/market.dart';
+import 'package:cryptopilot_mobile/features/chart/application/chart_prefs.dart';
+import 'package:cryptopilot_mobile/features/chart/presentation/chart_surface.dart';
+import 'package:cryptopilot_mobile/features/chart/presentation/metric_surface.dart';
 import 'package:cryptopilot_mobile/features/news/data/news_api.dart';
 import 'package:cryptopilot_mobile/features/news/domain/news.dart';
 import 'package:cryptopilot_mobile/features/notifications/data/notification_api.dart';
@@ -26,6 +33,7 @@ import 'package:cryptopilot_mobile/features/watchlist/data/watchlist_api.dart';
 import 'package:cryptopilot_mobile/features/watchlist/domain/watchlist.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 
+import 'chart_fakes.dart';
 import 'realtime_fakes.dart';
 
 final now = DateTime.utc(2026, 11, 6, 10);
@@ -180,11 +188,17 @@ List<Override> baseOverrides({
   PlanApi? plans,
   NewsApi? news,
   PerformanceApi? performance,
+  FakeChartSurface? chart,
+  FakeMetricSurface? metricChart,
+  SettingsStore? settings,
+  AnalysisApi? analysis,
+  Duration zone = Duration.zero,
+  DateTime Function()? clock,
 }) => [
   tokenStoreProvider.overrideWithValue(store),
   authTokenApiProvider.overrideWithValue(tokens),
-  clockProvider.overrideWithValue(() => now),
-  settingsStoreProvider.overrideWithValue(MemorySettingsStore()),
+  clockProvider.overrideWithValue(clock ?? () => now),
+  settingsStoreProvider.overrideWithValue(settings ?? MemorySettingsStore()),
   authApiProvider.overrideWithValue(auth ?? FakeAuthApi()),
   profileApiProvider.overrideWithValue(profile ?? FakeProfileApi()),
   webLinksProvider.overrideWithValue(web ?? FakeWebLinks()),
@@ -198,6 +212,11 @@ List<Override> baseOverrides({
   planApiProvider.overrideWithValue(plans ?? FakePlanApi()),
   newsApiProvider.overrideWithValue(news ?? FakeNewsApi()),
   performanceApiProvider.overrideWithValue(performance ?? FakePerformanceApi()),
+  chartSurfaceProvider.overrideWithValue(chart ?? FakeChartSurface()),
+  metricSurfaceProvider.overrideWithValue(metricChart ?? FakeMetricSurface()),
+  // Never the zone of the machine that runs the tests.
+  chartZoneProvider.overrideWithValue(zone),
+  analysisApiProvider.overrideWithValue(analysis ?? FakeAnalysisApi()),
 ];
 
 class FakeWatchlistApi implements WatchlistApi {
@@ -354,7 +373,41 @@ class FakeMarketApi implements MarketApi {
   @override
   Future<Ticker> stats(Market market, String symbol) async {
     statsCalls.add(symbol);
-    return Ticker(symbol: symbol, lastPrice: '100.5', changePercent24h: '1');
+    // The Futures stats carry mark, index and funding only (Q-91).
+    return market == Market.futures
+        ? Ticker(symbol: symbol, markPrice: '100.4', indexPrice: '100.3')
+        : Ticker(symbol: symbol, lastPrice: '100.5', changePercent24h: '1');
+  }
+
+  /// Closed candles by `MARKET SYMBOL tf`; older pages by `… before`.
+  final Map<String, List<Candle>> candlesBy = {};
+  final List<String> candleCalls = [];
+  Object? candlesError;
+
+  /// While set, `candles()` waits for it.
+  Future<void>? candlesHold;
+
+  @override
+  Future<List<Candle>> candles(
+    Market market,
+    String symbol,
+    Timeframe tf, {
+    int limit = 500,
+    DateTime? to,
+  }) async {
+    candleCalls.add(
+      '${market.wire} $symbol ${tf.wire} $limit${to == null ? '' : ' to'}',
+    );
+    if (candlesHold case final gate?) await gate;
+    if (candlesError case final error?) throw error;
+    final all = candlesBy['${market.wire} $symbol ${tf.wire}'] ?? const [];
+    final before = [
+      for (final c in all)
+        if (to == null || c.openTime.isBefore(to)) c,
+    ];
+    return before.length > limit
+        ? before.sublist(before.length - limit)
+        : before;
   }
 }
 
@@ -694,10 +747,17 @@ class FakeNewsApi implements NewsApi {
   ];
   Object? error;
 
+  /// The `coin` of every read (null: every coin).
+  final List<String?> coinCalls = [];
+
   @override
-  Future<List<NewsArticle>> latest({int pageSize = 3}) async {
+  Future<List<NewsArticle>> latest({int pageSize = 3, String? coin}) async {
+    coinCalls.add(coin);
     if (error != null) throw error!;
-    return articles.take(pageSize).toList();
+    return articles
+        .where((article) => coin == null || article.coins.contains(coin))
+        .take(pageSize)
+        .toList();
   }
 }
 
@@ -717,3 +777,161 @@ class FakePerformanceApi implements PerformanceApi {
     return summaryValue;
   }
 }
+
+/// `GET /analysis/{m}/{s}` as backend develop answers it (T-107:
+/// `componentsLocked`; D-126 push without score). [capReason] and
+/// [scoredSide] are the optional fields of setup score v2 (9090dc07); a
+/// [short] history has no EMA 200 yet.
+Map<String, Object?> analysisJson({
+  String market = 'SPOT',
+  String symbol = 'BTCUSDT',
+  bool locked = false,
+  int? score = 56,
+  String support = '75790.0000000000',
+  String? capReason,
+  String? scoredSide,
+  bool short = false,
+}) => {
+  'symbol': symbol,
+  'market': market,
+  'timeframe': '1h',
+  'openTime': '2026-11-07T08:00:00Z',
+  'calculatedAt': '2026-11-07T09:00:01.339409Z',
+  'indicators': {
+    'sma20': '75926.1660000001',
+    'ema20': '76039.2154406578',
+    'ema50': '76577.2345805825',
+    'ema200': short ? null : '77867.9229098132',
+    'rsi14': '51.8182579316',
+    'macdLine': '-106.1115449333',
+    'macdSignal': '-199.4043185456',
+    'macdHistogram': '93.2927736123',
+    'bbUpper': '76195.7288915412',
+    'bbMiddle': '75926.1660000001',
+    'bbLower': '75656.6031084590',
+    'volumeSma20': '584.8379235000',
+  },
+  'nearestSupport': support,
+  'nearestResistance': '76208.2500000000',
+  'componentsLocked': locked,
+  'components': locked
+      ? null
+      : {
+          'formulaVersion': 'v1',
+          'trend': '25.00',
+          'momentum': '100.00',
+          'volume': '0.00',
+          'level': '1.09',
+          if (market == 'FUTURES') 'derivatives': '75.43',
+        },
+  'setupScore': {
+    'score': score,
+    'preset': 'SCALPING',
+    'presetVersion': 'v1',
+    'timeframe': '15m',
+    'openTime': '2026-11-07T09:15:00Z',
+    'components': locked
+        ? null
+        : {
+            'formulaVersion': 'v1',
+            'trend': '50.00',
+            'momentum': '80.00',
+            'volume': '25.54',
+            'level': '49.48',
+            if (market == 'FUTURES') 'derivatives': '50.07',
+          },
+    if (market == 'FUTURES') 'dominantSide': 'LONG',
+    'capReason': ?capReason,
+    'scoredSide': ?scoredSide,
+  },
+};
+
+class FakeAnalysisApi implements AnalysisApi {
+  /// By `MARKET SYMBOL tf`; missing → the default spot answer.
+  final Map<String, Object?> answers = {};
+  final List<String> calls = [];
+  final List<String> metricCalls = [];
+  Object? error;
+  Object? metricsError;
+
+  /// The metrics body; missing → `metricsJson` of the asked range.
+  Map<String, Object?>? metricsAnswer;
+
+  /// While set, `metrics()` waits for it (the loading state).
+  Future<void>? metricsHold;
+
+  /// While set, `analysis()` waits for it (the loading state).
+  Future<void>? hold;
+
+  @override
+  Future<Analysis> analysis(Market market, String symbol, Timeframe tf) async {
+    final key = '${market.wire} $symbol ${tf.wire}';
+    calls.add(key);
+    if (hold case final gate?) await gate;
+    if (error case final e?) throw e;
+    return decodeAnalysis(
+      answers[key] ?? analysisJson(market: market.wire, symbol: symbol),
+    );
+  }
+
+  @override
+  Future<FuturesMetrics> metrics(String symbol, DateTime from) async {
+    metricCalls.add('$symbol ${from.toIso8601String()}');
+    if (metricsHold case final gate?) await gate;
+    if (metricsError case final e?) throw e;
+    return decodeFuturesMetrics(
+      metricsAnswer ?? metricsJson(symbol: symbol, from: from),
+    );
+  }
+}
+
+/// `GET /market/futures/{s}/metrics` as backend develop answers it
+/// (9090dc07): sparse points, oldest first, and the first stored instant of
+/// each series.
+Map<String, Object?> metricsJson({
+  String symbol = 'BTCUSDT',
+  DateTime? from,
+  List<Object?>? openInterest,
+  List<Object?>? longShortRatio,
+  String? since = '2026-11-05T00:00:00Z',
+}) => {
+  'symbol': symbol,
+  'from': (from ?? now.subtract(const Duration(days: 1))).toIso8601String(),
+  'to': now.toIso8601String(),
+  'openInterest':
+      openInterest ??
+      [
+        {
+          'time': '2026-11-06T09:30:00Z',
+          'openInterest': '95410.118000000000',
+          'openInterestValue': '7264410223.10220000',
+        },
+        {
+          'time': '2026-11-06T09:35:00Z',
+          'openInterest': '95532.229000000000',
+          'openInterestValue': '7273680617.71650000',
+        },
+      ],
+  'longShortRatio':
+      longShortRatio ??
+      [
+        {
+          'time': '2026-11-06T09:30:00Z',
+          'longShortRatio': '3.19870000',
+          'longAccountRatio': '0.76180000',
+          'shortAccountRatio': '0.23820000',
+        },
+        {
+          'time': '2026-11-06T09:35:00Z',
+          'longShortRatio': '3.23010000',
+          'longAccountRatio': '0.76360000',
+          'shortAccountRatio': '0.23640000',
+        },
+      ],
+  'fundingSettlements': <Object?>[],
+  'availableFrom': {
+    'openInterest': since,
+    'longShortRatio': since,
+    'fundingSettlements': null,
+  },
+};

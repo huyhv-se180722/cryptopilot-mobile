@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../support/chart_fakes.dart';
 import '../support/fakes.dart';
 
 class Harness {
@@ -14,6 +15,7 @@ class Harness {
   final auth = FakeAuthApi();
   final profile = FakeProfileApi();
   final web = FakeWebLinks();
+  final chart = FakeChartSurface();
 
   Future<void> pump(WidgetTester tester) async {
     await tester.pumpWidget(
@@ -24,6 +26,7 @@ class Harness {
           auth: auth,
           profile: profile,
           web: web,
+          chart: chart,
         ),
         retry: (_, _) => null,
         child: const CryptoPilotApp(),
@@ -186,6 +189,9 @@ void main() {
 
     expect(h.tokens.refreshedWith, ['refresh-saved']);
     expect(find.byType(NavigationBar), findsOneWidget);
+    // Every tab can open an analysis: the chart page starts with the shell
+    // (ADR-012 item 2).
+    expect(h.chart.warms, 1);
   });
 
   testWidgets('offline at launch keeps the session and retries', (
@@ -272,6 +278,9 @@ void main() {
     testWidgets('sign out asks first, then returns to sign in', (tester) async {
       final h = await openAccount(tester);
       await tester.scrollUntilVisible(find.byKey(const Key('sign-out')), 100);
+      // Fully on screen, not just its top edge.
+      await tester.ensureVisible(find.byKey(const Key('sign-out')));
+      await tester.pump();
       await tester.tap(find.byKey(const Key('sign-out')));
       await frames(tester);
       expect(

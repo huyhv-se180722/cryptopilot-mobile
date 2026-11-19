@@ -9,7 +9,7 @@ import '../../../core/theme/cp_colors.dart';
 import '../application/market_board.dart';
 import '../domain/market.dart';
 import 'market_widgets.dart';
-import 'pair_sheet.dart';
+import 'pair_actions.dart';
 
 /// The segments of the Markets tab.
 enum MarketsSegment { watchlist, spot, futures }
@@ -313,7 +313,7 @@ class _MarketRowState extends ConsumerState<MarketRow> {
         : l.marketVolumeShort(formatCompact(ticker?.quoteVolume24h));
     return InkWell(
       key: Key('row-${pair.market.path}-${pair.symbol}'),
-      onTap: () => showPairSheet(context, pair),
+      onTap: () => openPairAnalysis(context, pair),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         child: Row(
