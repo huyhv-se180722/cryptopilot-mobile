@@ -818,5 +818,270 @@
   "academyMarkLearned": "Đánh dấu đã học",
   "academyLearned": "Đã học",
   "academyUnmarkHint": "Bấm lần nữa để bỏ đánh dấu.",
-  "academyRetry": "Thử lại"
+  "academyRetry": "Thử lại",
+  "navTrade": "Trade",
+  "navAssets": "Assets",
+  "paperDemoBanner": "Demo · virtual funds. Orders never reach an exchange.",
+  "tradeSpot": "Spot",
+  "tradeFutures": "Futures",
+  "tradeFuturesSoon": "Futures demo trading arrives in the next update.",
+  "tradeChoosePair": "Choose a pair",
+  "tradeBuy": "Buy",
+  "tradeSell": "Sell",
+  "tradeBuyAsset": "Buy {asset}",
+  "@tradeBuyAsset": {
+    "placeholders": {
+      "asset": {
+        "type": "String"
+      }
+    }
+  },
+  "tradeSellAsset": "Sell {asset}",
+  "@tradeSellAsset": {
+    "placeholders": {
+      "asset": {
+        "type": "String"
+      }
+    }
+  },
+  "tradeKindLimit": "Limit",
+  "tradeKindMarket": "Market",
+  "tradeKindStopLimit": "Stop Limit",
+  "tradeKindStopMarket": "Stop Market",
+  "tradeKindOco": "OCO",
+  "tradeKindLimitTpSl": "Limit TP/SL",
+  "tradePrice": "Price",
+  "tradeAmount": "Amount",
+  "tradeTotal": "Total",
+  "tradeStop": "Stop",
+  "tradeTakeProfit": "Take profit",
+  "tradeStopLoss": "Stop loss",
+  "tradeStopLimit": "Stop limit (optional)",
+  "tradeByAmount": "By amount",
+  "tradeByTotal": "By total",
+  "tradeAvailable": "Avbl {amount} {asset}",
+  "@tradeAvailable": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "asset": {
+        "type": "String"
+      }
+    }
+  },
+  "tradeConfirmTitle": "Confirm the demo order",
+  "tradeConfirm": "Confirm",
+  "tradePlaced": "Demo order placed.",
+  "tradeOpenOrders": "Open orders ({count})",
+  "@tradeOpenOrders": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "tradeMarketTrades": "Market trades",
+  "tradeCancel": "Cancel",
+  "tradeCancelAll": "Cancel all",
+  "tradeCanceled": "Order canceled.",
+  "tradeNoOpenOrders": "No open orders on this pair.",
+  "tradeNoTrades": "No trades yet.",
+  "tradeTick": "Tick {size}",
+  "@tradeTick": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "tradeBookPrice": "Price",
+  "tradeBookAmount": "Amount",
+  "accountConfirmOrders": "Confirm demo orders before they go",
+  "paperErrRequired": "Required.",
+  "paperErrPositive": "Enter a number above 0.",
+  "paperErrStep": "Enter a multiple of {limit}.",
+  "@paperErrStep": {
+    "placeholders": {
+      "limit": {
+        "type": "String"
+      }
+    }
+  },
+  "paperErrAtLeast": "Enter at least {limit}.",
+  "@paperErrAtLeast": {
+    "placeholders": {
+      "limit": {
+        "type": "String"
+      }
+    }
+  },
+  "paperErrAtMost": "Enter at most {limit}.",
+  "@paperErrAtMost": {
+    "placeholders": {
+      "limit": {
+        "type": "String"
+      }
+    }
+  },
+  "paperErrMinNotional": "The order value must be at least {limit} {asset}.",
+  "@paperErrMinNotional": {
+    "placeholders": {
+      "limit": {
+        "type": "String"
+      },
+      "asset": {
+        "type": "String"
+      }
+    }
+  },
+  "paperErrMaxNotional": "The order value must be at most {limit} {asset}.",
+  "@paperErrMaxNotional": {
+    "placeholders": {
+      "limit": {
+        "type": "String"
+      },
+      "asset": {
+        "type": "String"
+      }
+    }
+  },
+  "paperErrPercentBelow": "Too far below the last price: enter at least {limit}.",
+  "@paperErrPercentBelow": {
+    "placeholders": {
+      "limit": {
+        "type": "String"
+      }
+    }
+  },
+  "paperErrPercentAbove": "Too far above the last price: enter at most {limit}.",
+  "@paperErrPercentAbove": {
+    "placeholders": {
+      "limit": {
+        "type": "String"
+      }
+    }
+  },
+  "paperErrStopSide": "The stop is on the wrong side of the price.",
+  "paperErrTakeProfitSide": "The take profit is on the wrong side of the price.",
+  "paperErrInsufficient": "Not enough available balance for this order.",
+  "paperErrNotOpen": "This order is no longer open.",
+  "paperErrWouldTake": "A maker-only order would trade at once.",
+  "paperErrWouldTrigger": "The stop is already met at the last price.",
+  "paperErrTooManyOrders": "Too many open orders on this pair (at most {limit}).",
+  "@paperErrTooManyOrders": {
+    "placeholders": {
+      "limit": {
+        "type": "String"
+      }
+    }
+  },
+  "paperErrTooManyStops": "Too many open stops on this pair (at most {limit}).",
+  "@paperErrTooManyStops": {
+    "placeholders": {
+      "limit": {
+        "type": "String"
+      }
+    }
+  },
+  "paperErrNotValued": "This pair cannot be valued in USDT right now.",
+  "assetsTotal": "Estimated total",
+  "assetsUsdt": "{amount} USDT",
+  "@assetsUsdt": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "assetsHidden": "••••••",
+  "assetsShowBalances": "Show balances",
+  "assetsHideBalances": "Hide balances",
+  "assetsSpot": "Spot wallet",
+  "assetsFutures": "Futures wallet",
+  "assetsHideSmall": "Hide coins under 1 USDT",
+  "assetsIncomplete": "Some coins have no price now and are left out of the total.",
+  "assetsFree": "Available {amount}",
+  "@assetsFree": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "assetsLocked": "In orders {amount}",
+  "@assetsLocked": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "assetsNoCoins": "No coins to show.",
+  "assetsTransfer": "Transfer",
+  "assetsHistory": "History",
+  "assetsTradeDemo": "Trade (demo)",
+  "transferTitle": "Transfer USDT",
+  "transferFrom": "From {wallet}",
+  "@transferFrom": {
+    "placeholders": {
+      "wallet": {
+        "type": "String"
+      }
+    }
+  },
+  "transferTo": "To {wallet}",
+  "@transferTo": {
+    "placeholders": {
+      "wallet": {
+        "type": "String"
+      }
+    }
+  },
+  "transferSwap": "Swap",
+  "transferAmount": "Amount (USDT)",
+  "transferMax": "Max",
+  "transferSend": "Transfer",
+  "transferDone": "Transferred.",
+  "transferOver": "More than the wallet holds.",
+  "transferTooPrecise": "At most 8 decimals.",
+  "historyOrders": "Orders",
+  "historyFills": "Fills",
+  "historyLedger": "Ledger",
+  "historyTransfers": "Transfers",
+  "historyAll": "All",
+  "historyDay": "1D",
+  "historyWeek": "1W",
+  "historyMonth": "1M",
+  "historyQuarter": "3M",
+  "historyEmpty": "Nothing in this period.",
+  "historyAllStatuses": "Any status",
+  "historyAllTypes": "Any type",
+  "homeDemo": "Demo account",
+  "homeDemoToday": "Today {pnl}",
+  "@homeDemoToday": {
+    "placeholders": {
+      "pnl": {
+        "type": "String"
+      }
+    }
+  },
+  "homeDemoStart": "Practise trading with virtual funds",
+  "tradeFilled": "Demo fill: {side} {quantity} {symbol} at {price}",
+  "@tradeFilled": {
+    "placeholders": {
+      "side": {
+        "type": "String"
+      },
+      "quantity": {
+        "type": "String"
+      },
+      "symbol": {
+        "type": "String"
+      },
+      "price": {
+        "type": "String"
+      }
+    }
+  }
 }

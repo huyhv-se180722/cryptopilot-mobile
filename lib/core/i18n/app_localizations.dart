@@ -2331,6 +2331,606 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Thử lại'**
   String get academyRetry;
+
+  /// No description provided for @navTrade.
+  ///
+  /// In en, this message translates to:
+  /// **'Trade'**
+  String get navTrade;
+
+  /// No description provided for @navAssets.
+  ///
+  /// In en, this message translates to:
+  /// **'Assets'**
+  String get navAssets;
+
+  /// No description provided for @paperDemoBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'Demo · virtual funds. Orders never reach an exchange.'**
+  String get paperDemoBanner;
+
+  /// No description provided for @tradeSpot.
+  ///
+  /// In en, this message translates to:
+  /// **'Spot'**
+  String get tradeSpot;
+
+  /// No description provided for @tradeFutures.
+  ///
+  /// In en, this message translates to:
+  /// **'Futures'**
+  String get tradeFutures;
+
+  /// No description provided for @tradeFuturesSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Futures demo trading arrives in the next update.'**
+  String get tradeFuturesSoon;
+
+  /// No description provided for @tradeChoosePair.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a pair'**
+  String get tradeChoosePair;
+
+  /// No description provided for @tradeBuy.
+  ///
+  /// In en, this message translates to:
+  /// **'Buy'**
+  String get tradeBuy;
+
+  /// No description provided for @tradeSell.
+  ///
+  /// In en, this message translates to:
+  /// **'Sell'**
+  String get tradeSell;
+
+  /// No description provided for @tradeBuyAsset.
+  ///
+  /// In en, this message translates to:
+  /// **'Buy {asset}'**
+  String tradeBuyAsset(String asset);
+
+  /// No description provided for @tradeSellAsset.
+  ///
+  /// In en, this message translates to:
+  /// **'Sell {asset}'**
+  String tradeSellAsset(String asset);
+
+  /// No description provided for @tradeKindLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'Limit'**
+  String get tradeKindLimit;
+
+  /// No description provided for @tradeKindMarket.
+  ///
+  /// In en, this message translates to:
+  /// **'Market'**
+  String get tradeKindMarket;
+
+  /// No description provided for @tradeKindStopLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop Limit'**
+  String get tradeKindStopLimit;
+
+  /// No description provided for @tradeKindStopMarket.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop Market'**
+  String get tradeKindStopMarket;
+
+  /// No description provided for @tradeKindOco.
+  ///
+  /// In en, this message translates to:
+  /// **'OCO'**
+  String get tradeKindOco;
+
+  /// No description provided for @tradeKindLimitTpSl.
+  ///
+  /// In en, this message translates to:
+  /// **'Limit TP/SL'**
+  String get tradeKindLimitTpSl;
+
+  /// No description provided for @tradePrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Price'**
+  String get tradePrice;
+
+  /// No description provided for @tradeAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount'**
+  String get tradeAmount;
+
+  /// No description provided for @tradeTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Total'**
+  String get tradeTotal;
+
+  /// No description provided for @tradeStop.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop'**
+  String get tradeStop;
+
+  /// No description provided for @tradeTakeProfit.
+  ///
+  /// In en, this message translates to:
+  /// **'Take profit'**
+  String get tradeTakeProfit;
+
+  /// No description provided for @tradeStopLoss.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop loss'**
+  String get tradeStopLoss;
+
+  /// No description provided for @tradeStopLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop limit (optional)'**
+  String get tradeStopLimit;
+
+  /// No description provided for @tradeByAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'By amount'**
+  String get tradeByAmount;
+
+  /// No description provided for @tradeByTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'By total'**
+  String get tradeByTotal;
+
+  /// No description provided for @tradeAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Avbl {amount} {asset}'**
+  String tradeAvailable(String amount, String asset);
+
+  /// No description provided for @tradeConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm the demo order'**
+  String get tradeConfirmTitle;
+
+  /// No description provided for @tradeConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm'**
+  String get tradeConfirm;
+
+  /// No description provided for @tradePlaced.
+  ///
+  /// In en, this message translates to:
+  /// **'Demo order placed.'**
+  String get tradePlaced;
+
+  /// No description provided for @tradeOpenOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'Open orders ({count})'**
+  String tradeOpenOrders(int count);
+
+  /// No description provided for @tradeMarketTrades.
+  ///
+  /// In en, this message translates to:
+  /// **'Market trades'**
+  String get tradeMarketTrades;
+
+  /// No description provided for @tradeCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get tradeCancel;
+
+  /// No description provided for @tradeCancelAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel all'**
+  String get tradeCancelAll;
+
+  /// No description provided for @tradeCanceled.
+  ///
+  /// In en, this message translates to:
+  /// **'Order canceled.'**
+  String get tradeCanceled;
+
+  /// No description provided for @tradeNoOpenOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'No open orders on this pair.'**
+  String get tradeNoOpenOrders;
+
+  /// No description provided for @tradeNoTrades.
+  ///
+  /// In en, this message translates to:
+  /// **'No trades yet.'**
+  String get tradeNoTrades;
+
+  /// No description provided for @tradeTick.
+  ///
+  /// In en, this message translates to:
+  /// **'Tick {size}'**
+  String tradeTick(String size);
+
+  /// No description provided for @tradeBookPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Price'**
+  String get tradeBookPrice;
+
+  /// No description provided for @tradeBookAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount'**
+  String get tradeBookAmount;
+
+  /// No description provided for @accountConfirmOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm demo orders before they go'**
+  String get accountConfirmOrders;
+
+  /// No description provided for @paperErrRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Required.'**
+  String get paperErrRequired;
+
+  /// No description provided for @paperErrPositive.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a number above 0.'**
+  String get paperErrPositive;
+
+  /// No description provided for @paperErrStep.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a multiple of {limit}.'**
+  String paperErrStep(String limit);
+
+  /// No description provided for @paperErrAtLeast.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter at least {limit}.'**
+  String paperErrAtLeast(String limit);
+
+  /// No description provided for @paperErrAtMost.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter at most {limit}.'**
+  String paperErrAtMost(String limit);
+
+  /// No description provided for @paperErrMinNotional.
+  ///
+  /// In en, this message translates to:
+  /// **'The order value must be at least {limit} {asset}.'**
+  String paperErrMinNotional(String limit, String asset);
+
+  /// No description provided for @paperErrMaxNotional.
+  ///
+  /// In en, this message translates to:
+  /// **'The order value must be at most {limit} {asset}.'**
+  String paperErrMaxNotional(String limit, String asset);
+
+  /// No description provided for @paperErrPercentBelow.
+  ///
+  /// In en, this message translates to:
+  /// **'Too far below the last price: enter at least {limit}.'**
+  String paperErrPercentBelow(String limit);
+
+  /// No description provided for @paperErrPercentAbove.
+  ///
+  /// In en, this message translates to:
+  /// **'Too far above the last price: enter at most {limit}.'**
+  String paperErrPercentAbove(String limit);
+
+  /// No description provided for @paperErrStopSide.
+  ///
+  /// In en, this message translates to:
+  /// **'The stop is on the wrong side of the price.'**
+  String get paperErrStopSide;
+
+  /// No description provided for @paperErrTakeProfitSide.
+  ///
+  /// In en, this message translates to:
+  /// **'The take profit is on the wrong side of the price.'**
+  String get paperErrTakeProfitSide;
+
+  /// No description provided for @paperErrInsufficient.
+  ///
+  /// In en, this message translates to:
+  /// **'Not enough available balance for this order.'**
+  String get paperErrInsufficient;
+
+  /// No description provided for @paperErrNotOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'This order is no longer open.'**
+  String get paperErrNotOpen;
+
+  /// No description provided for @paperErrWouldTake.
+  ///
+  /// In en, this message translates to:
+  /// **'A maker-only order would trade at once.'**
+  String get paperErrWouldTake;
+
+  /// No description provided for @paperErrWouldTrigger.
+  ///
+  /// In en, this message translates to:
+  /// **'The stop is already met at the last price.'**
+  String get paperErrWouldTrigger;
+
+  /// No description provided for @paperErrTooManyOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'Too many open orders on this pair (at most {limit}).'**
+  String paperErrTooManyOrders(String limit);
+
+  /// No description provided for @paperErrTooManyStops.
+  ///
+  /// In en, this message translates to:
+  /// **'Too many open stops on this pair (at most {limit}).'**
+  String paperErrTooManyStops(String limit);
+
+  /// No description provided for @paperErrNotValued.
+  ///
+  /// In en, this message translates to:
+  /// **'This pair cannot be valued in USDT right now.'**
+  String get paperErrNotValued;
+
+  /// No description provided for @assetsTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Estimated total'**
+  String get assetsTotal;
+
+  /// No description provided for @assetsUsdt.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} USDT'**
+  String assetsUsdt(String amount);
+
+  /// No description provided for @assetsHidden.
+  ///
+  /// In en, this message translates to:
+  /// **'••••••'**
+  String get assetsHidden;
+
+  /// No description provided for @assetsShowBalances.
+  ///
+  /// In en, this message translates to:
+  /// **'Show balances'**
+  String get assetsShowBalances;
+
+  /// No description provided for @assetsHideBalances.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide balances'**
+  String get assetsHideBalances;
+
+  /// No description provided for @assetsSpot.
+  ///
+  /// In en, this message translates to:
+  /// **'Spot wallet'**
+  String get assetsSpot;
+
+  /// No description provided for @assetsFutures.
+  ///
+  /// In en, this message translates to:
+  /// **'Futures wallet'**
+  String get assetsFutures;
+
+  /// No description provided for @assetsHideSmall.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide coins under 1 USDT'**
+  String get assetsHideSmall;
+
+  /// No description provided for @assetsIncomplete.
+  ///
+  /// In en, this message translates to:
+  /// **'Some coins have no price now and are left out of the total.'**
+  String get assetsIncomplete;
+
+  /// No description provided for @assetsFree.
+  ///
+  /// In en, this message translates to:
+  /// **'Available {amount}'**
+  String assetsFree(String amount);
+
+  /// No description provided for @assetsLocked.
+  ///
+  /// In en, this message translates to:
+  /// **'In orders {amount}'**
+  String assetsLocked(String amount);
+
+  /// No description provided for @assetsNoCoins.
+  ///
+  /// In en, this message translates to:
+  /// **'No coins to show.'**
+  String get assetsNoCoins;
+
+  /// No description provided for @assetsTransfer.
+  ///
+  /// In en, this message translates to:
+  /// **'Transfer'**
+  String get assetsTransfer;
+
+  /// No description provided for @assetsHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'History'**
+  String get assetsHistory;
+
+  /// No description provided for @assetsTradeDemo.
+  ///
+  /// In en, this message translates to:
+  /// **'Trade (demo)'**
+  String get assetsTradeDemo;
+
+  /// No description provided for @transferTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Transfer USDT'**
+  String get transferTitle;
+
+  /// No description provided for @transferFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'From {wallet}'**
+  String transferFrom(String wallet);
+
+  /// No description provided for @transferTo.
+  ///
+  /// In en, this message translates to:
+  /// **'To {wallet}'**
+  String transferTo(String wallet);
+
+  /// No description provided for @transferSwap.
+  ///
+  /// In en, this message translates to:
+  /// **'Swap'**
+  String get transferSwap;
+
+  /// No description provided for @transferAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount (USDT)'**
+  String get transferAmount;
+
+  /// No description provided for @transferMax.
+  ///
+  /// In en, this message translates to:
+  /// **'Max'**
+  String get transferMax;
+
+  /// No description provided for @transferSend.
+  ///
+  /// In en, this message translates to:
+  /// **'Transfer'**
+  String get transferSend;
+
+  /// No description provided for @transferDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Transferred.'**
+  String get transferDone;
+
+  /// No description provided for @transferOver.
+  ///
+  /// In en, this message translates to:
+  /// **'More than the wallet holds.'**
+  String get transferOver;
+
+  /// No description provided for @transferTooPrecise.
+  ///
+  /// In en, this message translates to:
+  /// **'At most 8 decimals.'**
+  String get transferTooPrecise;
+
+  /// No description provided for @historyOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'Orders'**
+  String get historyOrders;
+
+  /// No description provided for @historyFills.
+  ///
+  /// In en, this message translates to:
+  /// **'Fills'**
+  String get historyFills;
+
+  /// No description provided for @historyLedger.
+  ///
+  /// In en, this message translates to:
+  /// **'Ledger'**
+  String get historyLedger;
+
+  /// No description provided for @historyTransfers.
+  ///
+  /// In en, this message translates to:
+  /// **'Transfers'**
+  String get historyTransfers;
+
+  /// No description provided for @historyAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get historyAll;
+
+  /// No description provided for @historyDay.
+  ///
+  /// In en, this message translates to:
+  /// **'1D'**
+  String get historyDay;
+
+  /// No description provided for @historyWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'1W'**
+  String get historyWeek;
+
+  /// No description provided for @historyMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'1M'**
+  String get historyMonth;
+
+  /// No description provided for @historyQuarter.
+  ///
+  /// In en, this message translates to:
+  /// **'3M'**
+  String get historyQuarter;
+
+  /// No description provided for @historyEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing in this period.'**
+  String get historyEmpty;
+
+  /// No description provided for @historyAllStatuses.
+  ///
+  /// In en, this message translates to:
+  /// **'Any status'**
+  String get historyAllStatuses;
+
+  /// No description provided for @historyAllTypes.
+  ///
+  /// In en, this message translates to:
+  /// **'Any type'**
+  String get historyAllTypes;
+
+  /// No description provided for @homeDemo.
+  ///
+  /// In en, this message translates to:
+  /// **'Demo account'**
+  String get homeDemo;
+
+  /// No description provided for @homeDemoToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today {pnl}'**
+  String homeDemoToday(String pnl);
+
+  /// No description provided for @homeDemoStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Practise trading with virtual funds'**
+  String get homeDemoStart;
+
+  /// No description provided for @tradeFilled.
+  ///
+  /// In en, this message translates to:
+  /// **'Demo fill: {side} {quantity} {symbol} at {price}'**
+  String tradeFilled(String side, String quantity, String symbol, String price);
 }
 
 class _AppLocalizationsDelegate

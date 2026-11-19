@@ -7,6 +7,7 @@ import '../../../core/i18n/app_localizations.dart';
 import '../../../core/settings/settings.dart';
 import '../../../core/theme/cp_colors.dart';
 import '../../../core/web/web_links.dart';
+import '../../paper/application/trade_controller.dart';
 import '../application/account_controller.dart';
 import '../domain/profile.dart';
 
@@ -136,6 +137,14 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                 ref.read(themeModeProvider.notifier).select(selection.first),
           ),
           const SizedBox(height: 16),
+          SwitchListTile(
+            key: const Key('confirm-orders'),
+            contentPadding: EdgeInsets.zero,
+            title: Text(l.accountConfirmOrders),
+            value: ref.watch(confirmOrdersProvider),
+            onChanged: (value) =>
+                ref.read(confirmOrdersProvider.notifier).set(value),
+          ),
           ListTile(
             key: const Key('open-academy'),
             contentPadding: EdgeInsets.zero,

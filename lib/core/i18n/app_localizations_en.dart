@@ -1303,4 +1303,358 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get academyRetry => 'Thử lại';
+
+  @override
+  String get navTrade => 'Trade';
+
+  @override
+  String get navAssets => 'Assets';
+
+  @override
+  String get paperDemoBanner =>
+      'Demo · virtual funds. Orders never reach an exchange.';
+
+  @override
+  String get tradeSpot => 'Spot';
+
+  @override
+  String get tradeFutures => 'Futures';
+
+  @override
+  String get tradeFuturesSoon =>
+      'Futures demo trading arrives in the next update.';
+
+  @override
+  String get tradeChoosePair => 'Choose a pair';
+
+  @override
+  String get tradeBuy => 'Buy';
+
+  @override
+  String get tradeSell => 'Sell';
+
+  @override
+  String tradeBuyAsset(String asset) {
+    return 'Buy $asset';
+  }
+
+  @override
+  String tradeSellAsset(String asset) {
+    return 'Sell $asset';
+  }
+
+  @override
+  String get tradeKindLimit => 'Limit';
+
+  @override
+  String get tradeKindMarket => 'Market';
+
+  @override
+  String get tradeKindStopLimit => 'Stop Limit';
+
+  @override
+  String get tradeKindStopMarket => 'Stop Market';
+
+  @override
+  String get tradeKindOco => 'OCO';
+
+  @override
+  String get tradeKindLimitTpSl => 'Limit TP/SL';
+
+  @override
+  String get tradePrice => 'Price';
+
+  @override
+  String get tradeAmount => 'Amount';
+
+  @override
+  String get tradeTotal => 'Total';
+
+  @override
+  String get tradeStop => 'Stop';
+
+  @override
+  String get tradeTakeProfit => 'Take profit';
+
+  @override
+  String get tradeStopLoss => 'Stop loss';
+
+  @override
+  String get tradeStopLimit => 'Stop limit (optional)';
+
+  @override
+  String get tradeByAmount => 'By amount';
+
+  @override
+  String get tradeByTotal => 'By total';
+
+  @override
+  String tradeAvailable(String amount, String asset) {
+    return 'Avbl $amount $asset';
+  }
+
+  @override
+  String get tradeConfirmTitle => 'Confirm the demo order';
+
+  @override
+  String get tradeConfirm => 'Confirm';
+
+  @override
+  String get tradePlaced => 'Demo order placed.';
+
+  @override
+  String tradeOpenOrders(int count) {
+    return 'Open orders ($count)';
+  }
+
+  @override
+  String get tradeMarketTrades => 'Market trades';
+
+  @override
+  String get tradeCancel => 'Cancel';
+
+  @override
+  String get tradeCancelAll => 'Cancel all';
+
+  @override
+  String get tradeCanceled => 'Order canceled.';
+
+  @override
+  String get tradeNoOpenOrders => 'No open orders on this pair.';
+
+  @override
+  String get tradeNoTrades => 'No trades yet.';
+
+  @override
+  String tradeTick(String size) {
+    return 'Tick $size';
+  }
+
+  @override
+  String get tradeBookPrice => 'Price';
+
+  @override
+  String get tradeBookAmount => 'Amount';
+
+  @override
+  String get accountConfirmOrders => 'Confirm demo orders before they go';
+
+  @override
+  String get paperErrRequired => 'Required.';
+
+  @override
+  String get paperErrPositive => 'Enter a number above 0.';
+
+  @override
+  String paperErrStep(String limit) {
+    return 'Enter a multiple of $limit.';
+  }
+
+  @override
+  String paperErrAtLeast(String limit) {
+    return 'Enter at least $limit.';
+  }
+
+  @override
+  String paperErrAtMost(String limit) {
+    return 'Enter at most $limit.';
+  }
+
+  @override
+  String paperErrMinNotional(String limit, String asset) {
+    return 'The order value must be at least $limit $asset.';
+  }
+
+  @override
+  String paperErrMaxNotional(String limit, String asset) {
+    return 'The order value must be at most $limit $asset.';
+  }
+
+  @override
+  String paperErrPercentBelow(String limit) {
+    return 'Too far below the last price: enter at least $limit.';
+  }
+
+  @override
+  String paperErrPercentAbove(String limit) {
+    return 'Too far above the last price: enter at most $limit.';
+  }
+
+  @override
+  String get paperErrStopSide => 'The stop is on the wrong side of the price.';
+
+  @override
+  String get paperErrTakeProfitSide =>
+      'The take profit is on the wrong side of the price.';
+
+  @override
+  String get paperErrInsufficient =>
+      'Not enough available balance for this order.';
+
+  @override
+  String get paperErrNotOpen => 'This order is no longer open.';
+
+  @override
+  String get paperErrWouldTake => 'A maker-only order would trade at once.';
+
+  @override
+  String get paperErrWouldTrigger =>
+      'The stop is already met at the last price.';
+
+  @override
+  String paperErrTooManyOrders(String limit) {
+    return 'Too many open orders on this pair (at most $limit).';
+  }
+
+  @override
+  String paperErrTooManyStops(String limit) {
+    return 'Too many open stops on this pair (at most $limit).';
+  }
+
+  @override
+  String get paperErrNotValued =>
+      'This pair cannot be valued in USDT right now.';
+
+  @override
+  String get assetsTotal => 'Estimated total';
+
+  @override
+  String assetsUsdt(String amount) {
+    return '$amount USDT';
+  }
+
+  @override
+  String get assetsHidden => '••••••';
+
+  @override
+  String get assetsShowBalances => 'Show balances';
+
+  @override
+  String get assetsHideBalances => 'Hide balances';
+
+  @override
+  String get assetsSpot => 'Spot wallet';
+
+  @override
+  String get assetsFutures => 'Futures wallet';
+
+  @override
+  String get assetsHideSmall => 'Hide coins under 1 USDT';
+
+  @override
+  String get assetsIncomplete =>
+      'Some coins have no price now and are left out of the total.';
+
+  @override
+  String assetsFree(String amount) {
+    return 'Available $amount';
+  }
+
+  @override
+  String assetsLocked(String amount) {
+    return 'In orders $amount';
+  }
+
+  @override
+  String get assetsNoCoins => 'No coins to show.';
+
+  @override
+  String get assetsTransfer => 'Transfer';
+
+  @override
+  String get assetsHistory => 'History';
+
+  @override
+  String get assetsTradeDemo => 'Trade (demo)';
+
+  @override
+  String get transferTitle => 'Transfer USDT';
+
+  @override
+  String transferFrom(String wallet) {
+    return 'From $wallet';
+  }
+
+  @override
+  String transferTo(String wallet) {
+    return 'To $wallet';
+  }
+
+  @override
+  String get transferSwap => 'Swap';
+
+  @override
+  String get transferAmount => 'Amount (USDT)';
+
+  @override
+  String get transferMax => 'Max';
+
+  @override
+  String get transferSend => 'Transfer';
+
+  @override
+  String get transferDone => 'Transferred.';
+
+  @override
+  String get transferOver => 'More than the wallet holds.';
+
+  @override
+  String get transferTooPrecise => 'At most 8 decimals.';
+
+  @override
+  String get historyOrders => 'Orders';
+
+  @override
+  String get historyFills => 'Fills';
+
+  @override
+  String get historyLedger => 'Ledger';
+
+  @override
+  String get historyTransfers => 'Transfers';
+
+  @override
+  String get historyAll => 'All';
+
+  @override
+  String get historyDay => '1D';
+
+  @override
+  String get historyWeek => '1W';
+
+  @override
+  String get historyMonth => '1M';
+
+  @override
+  String get historyQuarter => '3M';
+
+  @override
+  String get historyEmpty => 'Nothing in this period.';
+
+  @override
+  String get historyAllStatuses => 'Any status';
+
+  @override
+  String get historyAllTypes => 'Any type';
+
+  @override
+  String get homeDemo => 'Demo account';
+
+  @override
+  String homeDemoToday(String pnl) {
+    return 'Today $pnl';
+  }
+
+  @override
+  String get homeDemoStart => 'Practise trading with virtual funds';
+
+  @override
+  String tradeFilled(
+    String side,
+    String quantity,
+    String symbol,
+    String price,
+  ) {
+    return 'Demo fill: $side $quantity $symbol at $price';
+  }
 }

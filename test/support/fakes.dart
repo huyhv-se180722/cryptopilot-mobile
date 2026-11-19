@@ -21,10 +21,12 @@ import 'package:cryptopilot_mobile/features/journal/domain/performance.dart';
 import 'package:cryptopilot_mobile/features/market/data/market_api.dart';
 import 'package:cryptopilot_mobile/features/market/domain/candle.dart';
 import 'package:cryptopilot_mobile/features/market/domain/market.dart';
+import 'package:cryptopilot_mobile/features/market/domain/order_book.dart';
 import 'package:cryptopilot_mobile/features/chart/application/chart_prefs.dart';
 import 'package:cryptopilot_mobile/features/chart/presentation/chart_surface.dart';
 import 'package:cryptopilot_mobile/features/chart/presentation/metric_surface.dart';
 import 'package:cryptopilot_mobile/features/news/data/news_api.dart';
+import 'package:cryptopilot_mobile/features/paper/data/paper_api.dart';
 import 'package:cryptopilot_mobile/features/news/domain/news.dart';
 import 'package:cryptopilot_mobile/features/notifications/data/notification_api.dart';
 import 'package:cryptopilot_mobile/features/notifications/domain/notification.dart';
@@ -36,6 +38,7 @@ import 'package:flutter_riverpod/misc.dart' show Override;
 
 import 'academy_fakes.dart';
 import 'chart_fakes.dart';
+import 'paper_fakes.dart';
 import 'realtime_fakes.dart';
 
 final now = DateTime.utc(2026, 11, 6, 10);
@@ -201,6 +204,7 @@ List<Override> baseOverrides({
   SettingsStore? settings,
   AnalysisApi? analysis,
   AcademyApi? academy,
+  PaperApi? paper,
   Duration zone = Duration.zero,
   DateTime Function()? clock,
 }) => [
@@ -227,6 +231,7 @@ List<Override> baseOverrides({
   chartZoneProvider.overrideWithValue(zone),
   analysisApiProvider.overrideWithValue(analysis ?? FakeAnalysisApi()),
   academyApiProvider.overrideWithValue(academy ?? FakeAcademyApi()),
+  paperApiProvider.overrideWithValue(paper ?? FakePaperApi()),
 ];
 
 class FakeWatchlistApi implements WatchlistApi {
@@ -418,6 +423,31 @@ class FakeMarketApi implements MarketApi {
     return before.length > limit
         ? before.sublist(before.length - limit)
         : before;
+  }
+
+  DepthSnapshot depthAnswer = const DepthSnapshot(
+    bids: [BookLevel('76000.00', '1.5'), BookLevel('75999.50', '0.5')],
+    asks: [BookLevel('76000.50', '2'), BookLevel('76001.00', '1')],
+  );
+  List<MarketTrade> tradesAnswer = [];
+  Object? depthError;
+  final List<String> bookCalls = [];
+
+  @override
+  Future<DepthSnapshot> depth(Market market, String symbol) async {
+    bookCalls.add('depth ${market.wire} $symbol');
+    if (depthError case final error?) throw error;
+    return depthAnswer;
+  }
+
+  @override
+  Future<List<MarketTrade>> trades(
+    Market market,
+    String symbol, {
+    int limit = 50,
+  }) async {
+    bookCalls.add('trades ${market.wire} $symbol');
+    return tradesAnswer;
   }
 }
 

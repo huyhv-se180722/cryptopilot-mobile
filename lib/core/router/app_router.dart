@@ -16,6 +16,9 @@ import '../../features/home/presentation/home_screen.dart';
 import '../../features/market/domain/market.dart';
 import '../../features/market/presentation/markets_screen.dart';
 import '../../features/notifications/presentation/notification_bell.dart';
+import '../../features/paper/presentation/assets_screen.dart';
+import '../../features/paper/presentation/history_screen.dart';
+import '../../features/paper/presentation/trade_screen.dart';
 import '../../features/notifications/presentation/notifications_screen.dart';
 import '../../features/shell/presentation/home_shell.dart';
 import '../../features/watchlist/presentation/watchlist_view.dart';
@@ -33,8 +36,10 @@ abstract final class Routes {
   static const home = '/home';
   static const markets = '/markets';
   static const alerts = '/alerts';
+  static const trade = '/trade';
   static const plans = '/plans';
-  static const journal = '/journal';
+  static const assets = '/assets';
+  static const assetsHistory = '/assets/history';
   static const account = '/account';
   static const notifications = '/notifications';
 
@@ -128,6 +133,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: Routes.notifications,
         builder: (_, _) => const NotificationsScreen(),
       ),
+      GoRoute(
+        path: Routes.assetsHistory,
+        builder: (_, _) => const HistoryScreen(),
+      ),
       GoRoute(path: Routes.academy, builder: (_, _) => const AcademyScreen()),
       GoRoute(
         path: Routes.academyGlossary,
@@ -169,8 +178,24 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               ),
             ],
           ),
+          // The paper exchange (D-154).
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: Routes.trade,
+                builder: (_, _) => const TradeScreen(),
+              ),
+            ],
+          ),
           branch(Routes.plans, (l) => l.navPlans),
-          branch(Routes.journal, (l) => l.navJournal),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: Routes.assets,
+                builder: (_, _) => const AssetsScreen(),
+              ),
+            ],
+          ),
         ],
       ),
     ],
