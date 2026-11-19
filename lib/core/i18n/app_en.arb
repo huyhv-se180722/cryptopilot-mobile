@@ -727,5 +727,96 @@
   "homeNewsEmpty": "No news in the last 7 days.",
   "newsBullish": "Bullish",
   "newsNeutral": "Neutral",
-  "newsBearish": "Bearish"
+  "newsBearish": "Bearish",
+  "homeAcademy": "Academy",
+  "homeAcademyPath": "Beginner path {done}/{total}",
+  "@homeAcademyPath": {
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "homeAcademyStart": "Learn crypto step by step",
+  "accountAcademy": "Academy",
+  "academyTitle": "Học viện Crypto",
+  "academySubtitle": "Kiến thức crypto giải thích dễ hiểu, từ đồng coin đầu tiên đến quản lý rủi ro.",
+  "academyPathTitle": "Lộ trình cho người mới",
+  "academyPathProgress": "Đã học {done}/{total} bài của lộ trình",
+  "@academyPathProgress": {
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "academyReadProgress": "Bạn đã đọc {done}/{total} bài",
+  "@academyReadProgress": {
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "academyLessons": "Bài học",
+  "academyAllTopics": "Tất cả chủ đề",
+  "academyAllLevels": "Mọi trình độ",
+  "academyLevelBeginner": "Cơ bản",
+  "academyLevelIntermediate": "Trung cấp",
+  "academyLevelAdvanced": "Nâng cao",
+  "academySearch": "Tìm bài học…",
+  "academyNoLessons": "Không có bài học nào khớp với bộ lọc.",
+  "academyReadingTime": "{minutes} phút đọc",
+  "@academyReadingTime": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "academyGlossary": "Thuật ngữ",
+  "academyGlossarySubtitle": "Định nghĩa ngắn gọn các thuật ngữ thường gặp trong crypto.",
+  "academyGlossaryTeaser": "Gặp một từ chưa hiểu?",
+  "academyOpenGlossary": "Mở bảng thuật ngữ",
+  "academySearchTerms": "Tìm thuật ngữ…",
+  "academyAllLetters": "Tất cả",
+  "academyNoTerms": "Không có thuật ngữ nào khớp.",
+  "academyReadLesson": "Đọc bài học",
+  "academySummary": "Tóm tắt nhanh",
+  "academyTryInApp": "Thử ngay trong ứng dụng",
+  "academyPrevious": "Bài trước",
+  "academyNext": "Bài tiếp theo",
+  "academyRelated": "Bài liên quan",
+  "academyUpdated": "Cập nhật {date}",
+  "@academyUpdated": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "academyPhotoCredit": "Ảnh: {credit}",
+  "@academyPhotoCredit": {
+    "placeholders": {
+      "credit": {
+        "type": "String"
+      }
+    }
+  },
+  "academyNotFound": "Bài học không tồn tại hoặc chưa được xuất bản.",
+  "academyBack": "Quay lại Học viện",
+  "academyDisclaimer": "Nội dung chỉ nhằm mục đích giáo dục, không phải lời khuyên đầu tư.",
+  "academyMarkLearned": "Đánh dấu đã học",
+  "academyLearned": "Đã học",
+  "academyUnmarkHint": "Bấm lần nữa để bỏ đánh dấu.",
+  "academyRetry": "Thử lại"
 }

@@ -6,6 +6,9 @@ import '../config/config_provider.dart';
 /// Screens that exist only on the web (SRS 3.1.1) open in the browser.
 abstract interface class WebLinks {
   Future<bool> open(String path);
+
+  /// A full web address, such as a source a lesson cites (`https://…`).
+  Future<bool> openAddress(String address);
 }
 
 class BrowserWebLinks implements WebLinks {
@@ -18,6 +21,10 @@ class BrowserWebLinks implements WebLinks {
     Uri.parse('$webBaseUrl$path'),
     mode: LaunchMode.externalApplication,
   );
+
+  @override
+  Future<bool> openAddress(String address) =>
+      launchUrl(Uri.parse(address), mode: LaunchMode.externalApplication);
 }
 
 final webLinksProvider = Provider<WebLinks>(

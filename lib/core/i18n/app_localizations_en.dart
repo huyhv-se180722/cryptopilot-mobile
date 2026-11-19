@@ -1167,4 +1167,140 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get newsBearish => 'Bearish';
+
+  @override
+  String get homeAcademy => 'Academy';
+
+  @override
+  String homeAcademyPath(int done, int total) {
+    return 'Beginner path $done/$total';
+  }
+
+  @override
+  String get homeAcademyStart => 'Learn crypto step by step';
+
+  @override
+  String get accountAcademy => 'Academy';
+
+  @override
+  String get academyTitle => 'Học viện Crypto';
+
+  @override
+  String get academySubtitle =>
+      'Kiến thức crypto giải thích dễ hiểu, từ đồng coin đầu tiên đến quản lý rủi ro.';
+
+  @override
+  String get academyPathTitle => 'Lộ trình cho người mới';
+
+  @override
+  String academyPathProgress(int done, int total) {
+    return 'Đã học $done/$total bài của lộ trình';
+  }
+
+  @override
+  String academyReadProgress(int done, int total) {
+    return 'Bạn đã đọc $done/$total bài';
+  }
+
+  @override
+  String get academyLessons => 'Bài học';
+
+  @override
+  String get academyAllTopics => 'Tất cả chủ đề';
+
+  @override
+  String get academyAllLevels => 'Mọi trình độ';
+
+  @override
+  String get academyLevelBeginner => 'Cơ bản';
+
+  @override
+  String get academyLevelIntermediate => 'Trung cấp';
+
+  @override
+  String get academyLevelAdvanced => 'Nâng cao';
+
+  @override
+  String get academySearch => 'Tìm bài học…';
+
+  @override
+  String get academyNoLessons => 'Không có bài học nào khớp với bộ lọc.';
+
+  @override
+  String academyReadingTime(int minutes) {
+    return '$minutes phút đọc';
+  }
+
+  @override
+  String get academyGlossary => 'Thuật ngữ';
+
+  @override
+  String get academyGlossarySubtitle =>
+      'Định nghĩa ngắn gọn các thuật ngữ thường gặp trong crypto.';
+
+  @override
+  String get academyGlossaryTeaser => 'Gặp một từ chưa hiểu?';
+
+  @override
+  String get academyOpenGlossary => 'Mở bảng thuật ngữ';
+
+  @override
+  String get academySearchTerms => 'Tìm thuật ngữ…';
+
+  @override
+  String get academyAllLetters => 'Tất cả';
+
+  @override
+  String get academyNoTerms => 'Không có thuật ngữ nào khớp.';
+
+  @override
+  String get academyReadLesson => 'Đọc bài học';
+
+  @override
+  String get academySummary => 'Tóm tắt nhanh';
+
+  @override
+  String get academyTryInApp => 'Thử ngay trong ứng dụng';
+
+  @override
+  String get academyPrevious => 'Bài trước';
+
+  @override
+  String get academyNext => 'Bài tiếp theo';
+
+  @override
+  String get academyRelated => 'Bài liên quan';
+
+  @override
+  String academyUpdated(String date) {
+    return 'Cập nhật $date';
+  }
+
+  @override
+  String academyPhotoCredit(String credit) {
+    return 'Ảnh: $credit';
+  }
+
+  @override
+  String get academyNotFound =>
+      'Bài học không tồn tại hoặc chưa được xuất bản.';
+
+  @override
+  String get academyBack => 'Quay lại Học viện';
+
+  @override
+  String get academyDisclaimer =>
+      'Nội dung chỉ nhằm mục đích giáo dục, không phải lời khuyên đầu tư.';
+
+  @override
+  String get academyMarkLearned => 'Đánh dấu đã học';
+
+  @override
+  String get academyLearned => 'Đã học';
+
+  @override
+  String get academyUnmarkHint => 'Bấm lần nữa để bỏ đánh dấu.';
+
+  @override
+  String get academyRetry => 'Thử lại';
 }
