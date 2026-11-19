@@ -51,9 +51,13 @@ class FakeFuturesApi implements FuturesApi {
   Object? placeError;
   Object? changeError;
 
+  /// Thrown by every read of the account (a plan without Futures).
+  Object? loadError;
+
   @override
   Future<FuturesAccount> account() async {
     calls.add('account');
+    if (loadError case final error?) throw error;
     return accountAnswer;
   }
 

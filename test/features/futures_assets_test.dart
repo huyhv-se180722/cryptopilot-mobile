@@ -142,6 +142,22 @@ void main() {
     await unmount(tester);
   });
 
+  testWidgets('a plan without Futures leaves the Spot part whole and the '
+      'Futures account empty', (tester) async {
+    futures.loadError = problem(
+      403,
+      'PLAN_FEATURE_NOT_INCLUDED',
+      'MSG29',
+      args: ['PRO'],
+    );
+    await open(tester);
+    expect(find.byKey(const Key('coin-BTC')), findsOneWidget);
+    await show(tester, find.byKey(const Key('futures-available')));
+    expect(trailingOf(tester, 'futures-pnl'), '--');
+    expect(trailingOf(tester, 'futures-available'), '--');
+    await unmount(tester);
+  });
+
   testWidgets('Trade (demo) of the Futures wallet opens Trade on Futures', (
     tester,
   ) async {

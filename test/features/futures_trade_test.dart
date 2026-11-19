@@ -291,6 +291,28 @@ void main() {
     await unmount(tester);
   });
 
+  testWidgets('a plan without Futures: MSG29 from the server and Try again, no '
+      'lock up front', (tester) async {
+    futures.loadError = problem(
+      403,
+      'PLAN_FEATURE_NOT_INCLUDED',
+      'MSG29',
+      args: ['PRO'],
+    );
+    await open(tester);
+    expect(
+      find.text(
+        'This feature is available on the PRO plan or higher. View plans?',
+      ),
+      findsOneWidget,
+    );
+    futures.loadError = null;
+    await tester.tap(find.text('Try again'));
+    await frames(tester);
+    expect(find.byKey(const Key('trade-futures')), findsOneWidget);
+    await unmount(tester);
+  });
+
   testWidgets('a margin call shows its banner', (tester) async {
     await open(tester);
     transport.last.push('/user/queue/futures.marginCall', {
