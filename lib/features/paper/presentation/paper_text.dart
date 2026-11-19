@@ -24,6 +24,13 @@ String refusalText(AppLocalizations l, PaperRefusal refusal, String quote) {
     RefusalKind.tooManyOrders => l.paperErrTooManyOrders(limit),
     RefusalKind.tooManyStops => l.paperErrTooManyStops(limit),
     RefusalKind.notValued => l.paperErrNotValued,
+    RefusalKind.insufficientMargin => l.paperErrInsufficientMargin,
+    RefusalKind.reduceOnlyRejected => l.paperErrReduceOnly,
+    RefusalKind.maxPosition => l.paperErrMaxPosition,
+    RefusalKind.leverageMargin => l.paperErrLeverageMargin,
+    RefusalKind.marginTypeLocked => l.paperErrMarginTypeLocked,
+    RefusalKind.inLiquidation => l.paperErrInLiquidation,
+    RefusalKind.positionMargin => l.paperErrPositionMargin,
   };
 }
 

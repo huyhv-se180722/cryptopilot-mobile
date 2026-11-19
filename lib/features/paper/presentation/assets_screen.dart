@@ -9,6 +9,7 @@ import '../../../core/i18n/app_localizations.dart';
 import '../../../core/theme/cp_colors.dart';
 import '../application/assets_controller.dart';
 import '../application/trade_controller.dart';
+import '../data/futures_repository.dart';
 import '../data/paper_repository.dart';
 import '../domain/paper.dart';
 import 'paper_text.dart';
@@ -151,13 +152,28 @@ class AssetsScreen extends ConsumerWidget {
                           ref
                               .read(tradePairProvider.notifier)
                               .select('${coin.asset}USDT');
+                          ref
+                              .read(tradeFuturesProvider.notifier)
+                              .show(futures: false);
                           context.go('/trade');
                         },
                         child: Text(l.assetsTradeDemo),
                       ),
               ),
             const Divider(height: 32),
-            Text(l.assetsFutures, style: text.titleMedium),
+            Row(
+              children: [
+                Expanded(child: Text(l.assetsFutures, style: text.titleMedium)),
+                TextButton(
+                  key: const Key('assets-trade-futures'),
+                  onPressed: () {
+                    ref.read(tradeFuturesProvider.notifier).show(futures: true);
+                    context.go('/trade');
+                  },
+                  child: Text(l.assetsTradeDemo),
+                ),
+              ],
+            ),
             ListTile(
               key: const Key('futures-usdt'),
               contentPadding: EdgeInsets.zero,
@@ -168,6 +184,7 @@ class AssetsScreen extends ConsumerWidget {
                     : money(assets.futures!.of('USDT')?.total ?? '0'),
               ),
             ),
+            _FuturesAccountRows(money: money),
           ],
         ),
       );
@@ -191,6 +208,60 @@ class AssetsScreen extends ConsumerWidget {
           Expanded(child: body),
         ],
       ),
+    );
+  }
+}
+
+/// The Futures account (plan 9.3): unrealized PnL with its sign, margin
+/// balance and what is available, kept live by [FuturesRepository].
+class _FuturesAccountRows extends ConsumerWidget {
+  const _FuturesAccountRows({required this.money});
+
+  final String Function(String? value) money;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context);
+    final account = ref.watch(futuresProvider.select((s) => s.account));
+    final pnl = account?.unrealizedProfit;
+    final pnlColor = switch (pnl == null ? Direction.flat : directionOf(pnl)) {
+      Direction.up => context.cp.positive,
+      Direction.down => context.cp.negative,
+      Direction.flat => null,
+    };
+    final hidden = ref.watch(
+      assetsControllerProvider.select((s) => s.hideBalances),
+    );
+    String signed(String value) => hidden
+        ? money(value)
+        : '${value.startsWith('-') ? '' : '+'}${money(value)}';
+    Widget row(String key, String title, String value, {Color? color}) =>
+        ListTile(
+          key: Key(key),
+          contentPadding: EdgeInsets.zero,
+          dense: true,
+          title: Text(title),
+          trailing: Text(value, style: TextStyle(color: color)),
+        );
+    return Column(
+      children: [
+        row(
+          'futures-pnl',
+          l.assetsFuturesPnl,
+          pnl == null ? '--' : signed(pnl),
+          color: hidden ? null : pnlColor,
+        ),
+        row(
+          'futures-margin-balance',
+          l.assetsFuturesMargin,
+          account == null ? '--' : money(account.marginBalance),
+        ),
+        row(
+          'futures-available',
+          l.assetsFuturesAvailable,
+          account == null ? '--' : money(account.availableBalance),
+        ),
+      ],
     );
   }
 }
@@ -220,14 +291,18 @@ class _TransferSheetState extends ConsumerState<_TransferSheet> {
     final futures = ref.watch(
       assetsControllerProvider.select((s) => s.futures),
     );
-    final available = controller.available(spot, futures);
+    final account = ref.watch(futuresProvider.select((s) => s.account));
+    final available = controller.available(spot, futures, account);
     String name(PaperWallet w) =>
         w == PaperWallet.spot ? l.assetsSpot : l.assetsFutures;
     final error = switch (state.issue) {
       TransferIssue.required => l.paperErrRequired,
       TransferIssue.notPositive => l.paperErrPositive,
       TransferIssue.tooPrecise => l.transferTooPrecise,
-      TransferIssue.overAvailable => l.transferOver,
+      TransferIssue.overAvailable =>
+        state.from == PaperWallet.futures && account != null
+            ? l.transferOverFutures
+            : l.transferOver,
       null => switch (state.failure) {
         final failure? => failureText(l, failure),
         null => null,

@@ -2362,12 +2362,6 @@ abstract class AppLocalizations {
   /// **'Futures'**
   String get tradeFutures;
 
-  /// No description provided for @tradeFuturesSoon.
-  ///
-  /// In en, this message translates to:
-  /// **'Futures demo trading arrives in the next update.'**
-  String get tradeFuturesSoon;
-
   /// No description provided for @tradeChoosePair.
   ///
   /// In en, this message translates to:
@@ -2776,6 +2770,24 @@ abstract class AppLocalizations {
   /// **'Trade (demo)'**
   String get assetsTradeDemo;
 
+  /// No description provided for @assetsFuturesPnl.
+  ///
+  /// In en, this message translates to:
+  /// **'Unrealized PnL'**
+  String get assetsFuturesPnl;
+
+  /// No description provided for @assetsFuturesMargin.
+  ///
+  /// In en, this message translates to:
+  /// **'Margin balance'**
+  String get assetsFuturesMargin;
+
+  /// No description provided for @assetsFuturesAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Available'**
+  String get assetsFuturesAvailable;
+
   /// No description provided for @transferTitle.
   ///
   /// In en, this message translates to:
@@ -2835,6 +2847,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'At most 8 decimals.'**
   String get transferTooPrecise;
+
+  /// No description provided for @transferOverFutures.
+  ///
+  /// In en, this message translates to:
+  /// **'More than can leave Futures: margin in use and unrealized profit stay.'**
+  String get transferOverFutures;
 
   /// No description provided for @historyOrders.
   ///
@@ -2931,6 +2949,378 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Demo fill: {side} {quantity} {symbol} at {price}'**
   String tradeFilled(String side, String quantity, String symbol, String price);
+
+  /// No description provided for @paperErrInsufficientMargin.
+  ///
+  /// In en, this message translates to:
+  /// **'Not enough available margin for this order.'**
+  String get paperErrInsufficientMargin;
+
+  /// No description provided for @paperErrReduceOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'A reduce-only order cannot open or grow a position.'**
+  String get paperErrReduceOnly;
+
+  /// No description provided for @paperErrMaxPosition.
+  ///
+  /// In en, this message translates to:
+  /// **'This position is larger than the leverage allows. Lower the leverage or the size.'**
+  String get paperErrMaxPosition;
+
+  /// No description provided for @paperErrLeverageMargin.
+  ///
+  /// In en, this message translates to:
+  /// **'The leverage cannot change with the margin this position holds.'**
+  String get paperErrLeverageMargin;
+
+  /// No description provided for @paperErrMarginTypeLocked.
+  ///
+  /// In en, this message translates to:
+  /// **'The margin mode cannot change while a position or an order is open.'**
+  String get paperErrMarginTypeLocked;
+
+  /// No description provided for @paperErrInLiquidation.
+  ///
+  /// In en, this message translates to:
+  /// **'The account is being liquidated. Try again in a moment.'**
+  String get paperErrInLiquidation;
+
+  /// No description provided for @paperErrPositionMargin.
+  ///
+  /// In en, this message translates to:
+  /// **'The margin cannot change by that amount.'**
+  String get paperErrPositionMargin;
+
+  /// No description provided for @futBuyLong.
+  ///
+  /// In en, this message translates to:
+  /// **'Buy / Long'**
+  String get futBuyLong;
+
+  /// No description provided for @futSellShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Sell / Short'**
+  String get futSellShort;
+
+  /// No description provided for @futCross.
+  ///
+  /// In en, this message translates to:
+  /// **'Cross'**
+  String get futCross;
+
+  /// No description provided for @futIsolated.
+  ///
+  /// In en, this message translates to:
+  /// **'Isolated'**
+  String get futIsolated;
+
+  /// No description provided for @futLeverage.
+  ///
+  /// In en, this message translates to:
+  /// **'{value}x'**
+  String futLeverage(int value);
+
+  /// No description provided for @futLeverageTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Leverage (max {max}x)'**
+  String futLeverageTitle(int max);
+
+  /// No description provided for @futMarginTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Margin mode'**
+  String get futMarginTitle;
+
+  /// No description provided for @futSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get futSave;
+
+  /// No description provided for @futKindLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'Limit'**
+  String get futKindLimit;
+
+  /// No description provided for @futKindMarket.
+  ///
+  /// In en, this message translates to:
+  /// **'Market'**
+  String get futKindMarket;
+
+  /// No description provided for @futKindStopLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop Limit'**
+  String get futKindStopLimit;
+
+  /// No description provided for @futKindStopMarket.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop Market'**
+  String get futKindStopMarket;
+
+  /// No description provided for @futKindTakeProfitLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'Take Profit Limit'**
+  String get futKindTakeProfitLimit;
+
+  /// No description provided for @futKindTakeProfitMarket.
+  ///
+  /// In en, this message translates to:
+  /// **'Take Profit Market'**
+  String get futKindTakeProfitMarket;
+
+  /// No description provided for @futTrigger.
+  ///
+  /// In en, this message translates to:
+  /// **'Trigger price'**
+  String get futTrigger;
+
+  /// No description provided for @futSize.
+  ///
+  /// In en, this message translates to:
+  /// **'Size'**
+  String get futSize;
+
+  /// No description provided for @futSizeCoin.
+  ///
+  /// In en, this message translates to:
+  /// **'{asset}'**
+  String futSizeCoin(String asset);
+
+  /// No description provided for @futSizeUsdt.
+  ///
+  /// In en, this message translates to:
+  /// **'USDT'**
+  String get futSizeUsdt;
+
+  /// No description provided for @futMark.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark'**
+  String get futMark;
+
+  /// No description provided for @futLast.
+  ///
+  /// In en, this message translates to:
+  /// **'Last'**
+  String get futLast;
+
+  /// No description provided for @futReduceOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Reduce-only'**
+  String get futReduceOnly;
+
+  /// No description provided for @futTpSl.
+  ///
+  /// In en, this message translates to:
+  /// **'TP/SL'**
+  String get futTpSl;
+
+  /// No description provided for @futAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Avbl {amount} USDT'**
+  String futAvailable(String amount);
+
+  /// No description provided for @futCost.
+  ///
+  /// In en, this message translates to:
+  /// **'Cost {amount} USDT'**
+  String futCost(String amount);
+
+  /// No description provided for @futLiq.
+  ///
+  /// In en, this message translates to:
+  /// **'Est. liq. price {price}'**
+  String futLiq(String price);
+
+  /// No description provided for @futConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm the demo order'**
+  String get futConfirmTitle;
+
+  /// No description provided for @futBlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'This order cannot go: fix what is marked.'**
+  String get futBlocked;
+
+  /// No description provided for @futPositions.
+  ///
+  /// In en, this message translates to:
+  /// **'Positions ({count})'**
+  String futPositions(int count);
+
+  /// No description provided for @futOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'Open orders ({count})'**
+  String futOrders(int count);
+
+  /// No description provided for @futNoPositions.
+  ///
+  /// In en, this message translates to:
+  /// **'No open positions.'**
+  String get futNoPositions;
+
+  /// No description provided for @futNoOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'No open orders.'**
+  String get futNoOrders;
+
+  /// No description provided for @futLong.
+  ///
+  /// In en, this message translates to:
+  /// **'Long'**
+  String get futLong;
+
+  /// No description provided for @futShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Short'**
+  String get futShort;
+
+  /// No description provided for @futEntry.
+  ///
+  /// In en, this message translates to:
+  /// **'Entry {price}'**
+  String futEntry(String price);
+
+  /// No description provided for @futMarkPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark {price}'**
+  String futMarkPrice(String price);
+
+  /// No description provided for @futLiqShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Liq. {price}'**
+  String futLiqShort(String price);
+
+  /// No description provided for @futPnl.
+  ///
+  /// In en, this message translates to:
+  /// **'PnL {amount}'**
+  String futPnl(String amount);
+
+  /// No description provided for @futClose.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get futClose;
+
+  /// No description provided for @futMarketClose.
+  ///
+  /// In en, this message translates to:
+  /// **'Market close'**
+  String get futMarketClose;
+
+  /// No description provided for @futCloseAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Close all'**
+  String get futCloseAll;
+
+  /// No description provided for @futCloseAllAsk.
+  ///
+  /// In en, this message translates to:
+  /// **'Close every demo position at market?'**
+  String get futCloseAllAsk;
+
+  /// No description provided for @futMarketCloseAsk.
+  ///
+  /// In en, this message translates to:
+  /// **'Close the whole {symbol} demo position at market?'**
+  String futMarketCloseAsk(String symbol);
+
+  /// No description provided for @futMarginOf.
+  ///
+  /// In en, this message translates to:
+  /// **'Margin {amount}'**
+  String futMarginOf(String amount);
+
+  /// No description provided for @futMarginRatio.
+  ///
+  /// In en, this message translates to:
+  /// **'Margin ratio {percent}'**
+  String futMarginRatio(String percent);
+
+  /// No description provided for @futCloseTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Close the position'**
+  String get futCloseTitle;
+
+  /// No description provided for @futCloseLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'Limit price (empty: Market)'**
+  String get futCloseLimit;
+
+  /// No description provided for @futMargin.
+  ///
+  /// In en, this message translates to:
+  /// **'Margin'**
+  String get futMargin;
+
+  /// No description provided for @futMarginAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get futMarginAdd;
+
+  /// No description provided for @futMarginRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get futMarginRemove;
+
+  /// No description provided for @futAmountUsdt.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount (USDT)'**
+  String get futAmountUsdt;
+
+  /// No description provided for @futTakeProfit.
+  ///
+  /// In en, this message translates to:
+  /// **'Take profit'**
+  String get futTakeProfit;
+
+  /// No description provided for @futStopLoss.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop loss'**
+  String get futStopLoss;
+
+  /// No description provided for @futDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done.'**
+  String get futDone;
+
+  /// No description provided for @futMarginCall.
+  ///
+  /// In en, this message translates to:
+  /// **'Margin call on {symbol}: margin ratio {ratio}. Add margin or reduce the position.'**
+  String futMarginCall(String symbol, String ratio);
+
+  /// No description provided for @futErrTpSlReduceOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'TP/SL cannot go with reduce-only.'**
+  String get futErrTpSlReduceOnly;
 }
 
 class _AppLocalizationsDelegate

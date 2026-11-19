@@ -18,24 +18,19 @@ import '../application/trade_controller.dart';
 import '../data/paper_repository.dart';
 import '../domain/paper.dart';
 import '../domain/paper_refusal.dart';
+import 'futures_trade.dart';
 import 'paper_text.dart';
 
 /// The Trade tab (D-154, plan 9.2): the demo banner, Spot or Futures, and
 /// for Spot the pair, the order form beside the order book, then the open
-/// orders and the market trades. Futures arrives with T-129.
-class TradeScreen extends StatefulWidget {
+/// orders and the market trades; Futures as [FuturesTrade] (T-129).
+class TradeScreen extends ConsumerWidget {
   const TradeScreen({super.key});
 
   @override
-  State<TradeScreen> createState() => _TradeScreenState();
-}
-
-class _TradeScreenState extends State<TradeScreen> {
-  bool _futures = false;
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context);
+    final futures = ref.watch(tradeFuturesProvider);
     return Scaffold(
       appBar: AppBar(
         title: Text(l.navTrade),
@@ -59,24 +54,13 @@ class _TradeScreenState extends State<TradeScreen> {
                 ButtonSegment(value: false, label: Text(l.tradeSpot)),
                 ButtonSegment(value: true, label: Text(l.tradeFutures)),
               ],
-              selected: {_futures},
-              onSelectionChanged: (s) => setState(() => _futures = s.first),
+              selected: {futures},
+              onSelectionChanged: (s) => ref
+                  .read(tradeFuturesProvider.notifier)
+                  .show(futures: s.first),
             ),
           ),
-          Expanded(
-            child: _futures
-                ? Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(24),
-                      child: Text(
-                        l.tradeFuturesSoon,
-                        key: const Key('trade-futures-soon'),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  )
-                : const _SpotTrade(),
-          ),
+          Expanded(child: futures ? const FuturesTrade() : const _SpotTrade()),
         ],
       ),
     );

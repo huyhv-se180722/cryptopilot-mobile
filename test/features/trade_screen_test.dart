@@ -181,9 +181,8 @@ void main() {
     await unmount(tester);
   });
 
-  testWidgets('another pair from the sheet; Futures says it comes next', (
-    tester,
-  ) async {
+  testWidgets('another pair from the sheet; Futures opens the Futures '
+      'screen', (tester) async {
     await open(tester);
     await tester.tap(find.byKey(const Key('trade-pair')));
     await frames(tester);
@@ -193,7 +192,8 @@ void main() {
 
     await tester.tap(find.text('Futures'));
     await frames(tester);
-    expect(find.byKey(const Key('trade-futures-soon')), findsOneWidget);
+    // FE owner 2026-11-19: the T-128 note made way for T-129's screen.
+    expect(find.byKey(const Key('trade-futures')), findsOneWidget);
     await unmount(tester);
   });
 

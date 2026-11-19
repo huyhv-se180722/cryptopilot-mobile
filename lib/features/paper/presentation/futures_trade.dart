@@ -1,0 +1,1156 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../../core/errors/api_failure.dart';
+import '../../../core/errors/message_text.dart';
+import '../../../core/format/decimal_format.dart';
+import '../../../core/i18n/app_localizations.dart';
+import '../../../core/theme/cp_colors.dart';
+import '../../market/data/market_repository.dart';
+import '../../market/domain/market.dart';
+import '../application/futures_form_controller.dart';
+import '../application/trade_controller.dart';
+import '../data/futures_repository.dart';
+import '../data/paper_repository.dart';
+import '../domain/futures.dart';
+import '../domain/paper.dart';
+import '../domain/paper_refusal.dart';
+import 'paper_text.dart';
+
+/// Futures on the Trade tab (D-154, T-129): the pair, margin mode and
+/// leverage, the form with Buy/Long and Sell/Short, then the positions and
+/// the open orders. A margin call shows as a banner.
+class FuturesTrade extends ConsumerWidget {
+  const FuturesTrade({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context);
+    final board = marketRepositoryProvider(Market.futures);
+    final pairs = ref.watch(board.select((s) => s.pairs));
+    final account = ref.watch(paperAccountProvider);
+    final futures = ref.watch(futuresProvider);
+    final pair = tradePairOf(ref.watch(futuresPairProvider), pairs);
+
+    // A margin call is told as it comes: a side effect per push.
+    ref.listen(futuresProvider.select((s) => s.marginCalls), (_, _) {
+      final call = ref.read(futuresProvider).marginCall;
+      if (call == null) return;
+      final messenger = ScaffoldMessenger.of(context);
+      messenger
+        ..clearMaterialBanners()
+        ..showMaterialBanner(
+          MaterialBanner(
+            key: const Key('margin-call'),
+            backgroundColor: context.cp.negative.withValues(alpha: 0.15),
+            content: Text(
+              l.futMarginCall(
+                call.symbol,
+                formatRatioAsPercent(call.marginRatio, places: 2),
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: messenger.hideCurrentMaterialBanner,
+                child: Text(l.commonClose),
+              ),
+            ],
+          ),
+        );
+    });
+
+    if (account.spot == null && account.failure != null) {
+      return _Retry(
+        failure: account.failure!,
+        onRetry: ref.read(paperAccountProvider.notifier).retry,
+      );
+    }
+    if (pair == null || futures.positions == null) {
+      if (futures.failure case final failure?) {
+        return _Retry(
+          failure: failure,
+          onRetry: ref.read(futuresProvider.notifier).load,
+        );
+      }
+      return const Center(child: CircularProgressIndicator());
+    }
+    return ListView(
+      key: const Key('trade-futures'),
+      padding: const EdgeInsets.fromLTRB(12, 8, 12, 24),
+      children: [
+        _Header(pair: pair, pairs: pairs ?? const []),
+        _Settings(symbol: pair.symbol),
+        const SizedBox(height: 4),
+        _Form(pair: pair),
+        const SizedBox(height: 16),
+        _Positions(pair: pair),
+        const SizedBox(height: 8),
+        _Orders(),
+      ],
+    );
+  }
+}
+
+class _Retry extends StatelessWidget {
+  const _Retry({required this.failure, required this.onRetry});
+
+  final ApiFailure failure;
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(failureText(l, failure), textAlign: TextAlign.center),
+          TextButton(onPressed: onRetry, child: Text(l.commonRetry)),
+        ],
+      ),
+    );
+  }
+}
+
+String _refusalOrFailure(AppLocalizations l, ApiFailure failure) {
+  final refusal = paperRefusal(failure);
+  return refusal == null
+      ? failureText(l, failure)
+      : refusalText(l, refusal, 'USDT');
+}
+
+/// A sheet over the Futures screen; a snack bar still showing would cover
+/// its confirm button, so it goes first.
+Future<T?> _sheet<T>({
+  required BuildContext context,
+  required WidgetBuilder builder,
+  bool showDragHandle = true,
+  bool isScrollControlled = false,
+}) {
+  ScaffoldMessenger.of(context).hideCurrentSnackBar();
+  return showModalBottomSheet<T>(
+    context: context,
+    showDragHandle: showDragHandle,
+    isScrollControlled: isScrollControlled,
+    builder: builder,
+  );
+}
+
+/// A yes / no before an action that cannot be taken back (plan 9.2).
+Future<bool> _confirm(BuildContext context, String question) async {
+  final l = AppLocalizations.of(context);
+  final yes = await showDialog<bool>(
+    context: context,
+    builder: (context) => AlertDialog(
+      content: Text(question),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(false),
+          child: Text(l.commonCancel),
+        ),
+        FilledButton(
+          key: const Key('futures-ask-yes'),
+          onPressed: () => Navigator.of(context).pop(true),
+          child: Text(l.tradeConfirm),
+        ),
+      ],
+    ),
+  );
+  return yes ?? false;
+}
+
+Future<void> _run(BuildContext context, Future<void> Function() action) async {
+  final l = AppLocalizations.of(context);
+  final messenger = ScaffoldMessenger.of(context);
+  try {
+    await action();
+    messenger.showSnackBar(SnackBar(content: Text(l.futDone)));
+  } on ApiFailure catch (failure) {
+    messenger.showSnackBar(
+      SnackBar(content: Text(_refusalOrFailure(l, failure))),
+    );
+  }
+}
+
+class _Header extends ConsumerWidget {
+  const _Header({required this.pair, required this.pairs});
+
+  final MarketPair pair;
+  final List<MarketPair> pairs;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context);
+    final mark = ref.watch(
+      marketRepositoryProvider(Market.futures).select(
+        (s) =>
+            s.tickers[pair.symbol]?.markPrice ??
+            s.tickers[pair.symbol]?.displayPrice,
+      ),
+    );
+    final funding = ref.watch(
+      marketRepositoryProvider(
+        Market.futures,
+      ).select((s) => s.tickers[pair.symbol]?.fundingRate),
+    );
+    final text = Theme.of(context).textTheme;
+    final header = Row(
+      children: [
+        TextButton.icon(
+          key: const Key('futures-pair'),
+          onPressed: () async {
+            final chosen = await _sheet<String>(
+              context: context,
+              showDragHandle: true,
+              builder: (context) => SafeArea(
+                child: ListView(
+                  shrinkWrap: true,
+                  children: [
+                    for (final p in pairs)
+                      ListTile(
+                        key: Key('futures-pick-${p.symbol}'),
+                        title: Text('${p.symbol} Perp'),
+                        selected: p.symbol == pair.symbol,
+                        onTap: () => Navigator.of(context).pop(p.symbol),
+                      ),
+                  ],
+                ),
+              ),
+            );
+            if (chosen != null) {
+              ref.read(futuresPairProvider.notifier).select(chosen);
+            }
+          },
+          icon: const Icon(Icons.arrow_drop_down),
+          label: Text(
+            '${pair.symbol} Perp',
+            style: text.titleMedium,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            '${l.futMark} ${formatPrice(mark, pair.tickSize)}',
+            key: const Key('futures-mark'),
+            style: text.bodyMedium,
+            textAlign: TextAlign.end,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      ],
+    );
+    if (funding == null) return header;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        header,
+        Text(
+          l.marketFundingShort(formatFractionAsPercent(funding)),
+          key: const Key('futures-funding'),
+          style: text.bodySmall,
+        ),
+      ],
+    );
+  }
+}
+
+/// Margin mode and leverage of the pair, each changed in a sheet.
+class _Settings extends ConsumerWidget {
+  const _Settings({required this.symbol});
+
+  final String symbol;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context);
+    final settings = ref.watch(futuresSettingsProvider(symbol));
+    final config = settings.config;
+    if (config == null) return const SizedBox(height: 40);
+    final repository = ref.read(futuresSettingsProvider(symbol).notifier);
+    return Row(
+      children: [
+        OutlinedButton(
+          key: const Key('futures-margin-mode'),
+          onPressed: () async {
+            final chosen = await _sheet<MarginType>(
+              context: context,
+              showDragHandle: true,
+              builder: (context) => SafeArea(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(l.futMarginTitle),
+                    for (final type in MarginType.values)
+                      ListTile(
+                        key: Key('margin-${type.wire}'),
+                        title: Text(
+                          type == MarginType.crossed
+                              ? l.futCross
+                              : l.futIsolated,
+                        ),
+                        selected: type == config.marginType,
+                        onTap: () => Navigator.of(context).pop(type),
+                      ),
+                  ],
+                ),
+              ),
+            );
+            if (chosen != null &&
+                chosen != config.marginType &&
+                context.mounted) {
+              await _run(context, () => repository.setMarginType(chosen));
+            }
+          },
+          child: Text(
+            config.marginType == MarginType.crossed
+                ? l.futCross
+                : l.futIsolated,
+          ),
+        ),
+        const SizedBox(width: 8),
+        OutlinedButton(
+          key: const Key('futures-leverage'),
+          onPressed: () async {
+            final chosen = await _sheet<int>(
+              context: context,
+              showDragHandle: true,
+              builder: (_) => _LeverageSheet(
+                current: config.leverage,
+                max: settings.maxLeverage ?? config.leverage,
+              ),
+            );
+            if (chosen != null &&
+                chosen != config.leverage &&
+                context.mounted) {
+              await _run(context, () => repository.setLeverage(chosen));
+            }
+          },
+          child: Text(l.futLeverage(config.leverage)),
+        ),
+      ],
+    );
+  }
+}
+
+class _LeverageSheet extends StatefulWidget {
+  const _LeverageSheet({required this.current, required this.max});
+
+  final int current;
+  final int max;
+
+  @override
+  State<_LeverageSheet> createState() => _LeverageSheetState();
+}
+
+class _LeverageSheetState extends State<_LeverageSheet> {
+  late double _value = widget.current.clamp(1, widget.max).toDouble();
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(l.futLeverageTitle(widget.max)),
+            Text(
+              l.futLeverage(_value.round()),
+              key: const Key('leverage-value'),
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.headlineSmall,
+            ),
+            Slider(
+              key: const Key('leverage-slider'),
+              min: 1,
+              max: widget.max.toDouble(),
+              divisions: widget.max > 1 ? widget.max - 1 : null,
+              value: _value,
+              onChanged: (v) => setState(() => _value = v),
+            ),
+            FilledButton(
+              key: const Key('leverage-save'),
+              onPressed: () => Navigator.of(context).pop(_value.round()),
+              child: Text(l.futSave),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _Form extends ConsumerWidget {
+  const _Form({required this.pair});
+
+  final MarketPair pair;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context);
+    final provider = futuresFormProvider(pair.symbol);
+    final state = ref.watch(provider);
+    final c = ref.read(provider.notifier);
+    final available = ref.watch(
+      futuresProvider.select((s) => s.account?.availableBalance),
+    );
+
+    String label(FuturesField field) => switch (field) {
+      FuturesField.price => l.tradePrice,
+      FuturesField.size =>
+        '${l.futSize} (${state.sizeInUsdt ? l.futSizeUsdt : pair.baseAsset})',
+      FuturesField.trigger => l.futTrigger,
+      FuturesField.takeProfit => l.futTakeProfit,
+      FuturesField.stopLoss => l.futStopLoss,
+    };
+    String? issueText(FuturesIssue? issue) => switch (issue) {
+      FuturesIssue.required => l.paperErrRequired,
+      FuturesIssue.notPositive => l.paperErrPositive,
+      FuturesIssue.offStep => l.paperErrStep(
+        groupThousands(pair.tickSize.replaceFirst(RegExp(r'0+$'), '')),
+      ),
+      FuturesIssue.tpSlWithReduceOnly => l.futErrTpSlReduceOnly,
+      null => null,
+    };
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        DropdownButton<FuturesKind>(
+          key: const Key('futures-kind'),
+          isExpanded: true,
+          value: state.kind,
+          onChanged: (kind) => c.selectKind(kind!),
+          items: [
+            for (final kind in FuturesKind.values)
+              DropdownMenuItem(
+                value: kind,
+                child: Text(switch (kind) {
+                  FuturesKind.limit => l.futKindLimit,
+                  FuturesKind.market => l.futKindMarket,
+                  FuturesKind.stopLimit => l.futKindStopLimit,
+                  FuturesKind.stopMarket => l.futKindStopMarket,
+                  FuturesKind.takeProfitLimit => l.futKindTakeProfitLimit,
+                  FuturesKind.takeProfitMarket => l.futKindTakeProfitMarket,
+                }),
+              ),
+          ],
+        ),
+        for (final field in state.fields)
+          Padding(
+            padding: const EdgeInsets.only(top: 6),
+            child: _Input(
+              key: Key('futures-field-${field.name}'),
+              label: label(field),
+              value: state.of(field),
+              error: issueText(state.issues[field]),
+              onChanged: (v) => c.edit(field, v),
+            ),
+          ),
+        Wrap(
+          spacing: 6,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          children: [
+            ChoiceChip(
+              key: const Key('futures-size-coin'),
+              label: Text(l.futSizeCoin(pair.baseAsset)),
+              selected: !state.sizeInUsdt,
+              onSelected: (_) => c.setSizeInUsdt(false),
+            ),
+            ChoiceChip(
+              key: const Key('futures-size-usdt'),
+              label: Text(l.futSizeUsdt),
+              selected: state.sizeInUsdt,
+              onSelected: (_) => c.setSizeInUsdt(true),
+            ),
+            if (state.kind.conditional || state.tpSl)
+              for (final w in WorkingType.values)
+                ChoiceChip(
+                  key: Key('futures-working-${w.name}'),
+                  label: Text(w == WorkingType.mark ? l.futMark : l.futLast),
+                  selected: state.working == w,
+                  onSelected: (_) => c.setWorking(w),
+                ),
+          ],
+        ),
+        Row(
+          children: [
+            Expanded(
+              child: CheckboxListTile(
+                key: const Key('futures-reduce-only'),
+                contentPadding: EdgeInsets.zero,
+                dense: true,
+                controlAffinity: ListTileControlAffinity.leading,
+                title: Text(l.futReduceOnly),
+                value: state.reduceOnly,
+                onChanged: (v) => c.setReduceOnly(v ?? false),
+              ),
+            ),
+            if (!state.kind.conditional)
+              Expanded(
+                child: CheckboxListTile(
+                  key: const Key('futures-tpsl'),
+                  contentPadding: EdgeInsets.zero,
+                  dense: true,
+                  controlAffinity: ListTileControlAffinity.leading,
+                  title: Text(l.futTpSl),
+                  value: state.tpSl,
+                  onChanged: (v) => c.setTpSl(v ?? false),
+                ),
+              ),
+          ],
+        ),
+        Text(
+          l.futAvailable(formatDecimal(available, 2)),
+          key: const Key('futures-available'),
+          style: Theme.of(context).textTheme.bodySmall,
+        ),
+        if (state.refusal case final refusal?)
+          _Red(refusalText(l, refusal, 'USDT')),
+        if (state.failure case final failure?) _Red(failureText(l, failure)),
+        const SizedBox(height: 6),
+        Row(
+          children: [
+            for (final side in OrderSide.values)
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 2),
+                  child: FilledButton(
+                    key: Key('futures-${side.wire}'),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: side == OrderSide.buy
+                          ? context.cp.positive
+                          : context.cp.negative,
+                    ),
+                    onPressed: state.busy
+                        ? null
+                        : () => _go(context, ref, side),
+                    child: Text(
+                      side == OrderSide.buy ? l.futBuyLong : l.futSellShort,
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Future<void> _go(BuildContext context, WidgetRef ref, OrderSide side) async {
+    final l = AppLocalizations.of(context);
+    final c = ref.read(futuresFormProvider(pair.symbol).notifier);
+    final ok = await c.review(side);
+    final review = ref.read(futuresFormProvider(pair.symbol)).review;
+    if (!context.mounted) return;
+    if (!ok && review == null) return;
+    final ask = await ref.read(confirmOrdersProvider.notifier).current();
+    if (!context.mounted) return;
+    if (ask || review != null && review.warnings.isNotEmpty || !ok) {
+      final go = await _sheet<bool>(
+        context: context,
+        showDragHandle: true,
+        builder: (_) => _ReviewSheet(review: review, blocked: !ok),
+      );
+      if (go != true) return;
+    }
+    final placed = await c.place(side);
+    if (placed && context.mounted) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l.tradePlaced)));
+    }
+  }
+}
+
+class _ReviewSheet extends StatelessWidget {
+  const _ReviewSheet({required this.review, required this.blocked});
+
+  final OrderWarnings? review;
+  final bool blocked;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final review = this.review;
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+        child: Column(
+          key: const Key('futures-review'),
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              l.futConfirmTitle,
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: 8),
+            const DemoBanner(),
+            if (review?.cost case final cost?)
+              Text(l.futCost(formatDecimal(cost, 2))),
+            if (review?.liquidationPrice case final liq?)
+              Text(l.futLiq(groupThousands(liq))),
+            for (final w in review?.warnings ?? const <OrderWarning>[])
+              ListTile(
+                key: Key('warning-${w.type}'),
+                contentPadding: EdgeInsets.zero,
+                dense: true,
+                leading: Icon(
+                  w.severity == WarningSeverity.blocking
+                      ? Icons.block
+                      : w.severity == WarningSeverity.warning
+                      ? Icons.warning_amber
+                      : Icons.info_outline,
+                  color: w.severity == WarningSeverity.blocking
+                      ? context.cp.negative
+                      : context.cp.warning,
+                ),
+                title: Text(w.message),
+              ),
+            if (blocked) _Red(l.futBlocked),
+            const SizedBox(height: 8),
+            FilledButton(
+              key: const Key('futures-confirm'),
+              onPressed: blocked ? null : () => Navigator.of(context).pop(true),
+              child: Text(l.tradeConfirm),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _Red extends StatelessWidget {
+  const _Red(this.text);
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.only(top: 4),
+    child: Text(
+      text,
+      key: const Key('futures-notice'),
+      style: TextStyle(color: context.cp.negative, fontSize: 12),
+    ),
+  );
+}
+
+class _Input extends StatefulWidget {
+  const _Input({
+    required this.label,
+    required this.value,
+    required this.onChanged,
+    this.error,
+    super.key,
+  });
+
+  final String label;
+  final String value;
+  final String? error;
+  final ValueChanged<String> onChanged;
+
+  @override
+  State<_Input> createState() => _InputState();
+}
+
+class _InputState extends State<_Input> {
+  late final _text = TextEditingController(text: widget.value);
+
+  @override
+  void didUpdateWidget(_Input old) {
+    super.didUpdateWidget(old);
+    if (widget.value != _text.text) _text.text = widget.value;
+  }
+
+  @override
+  void dispose() {
+    _text.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => TextField(
+    controller: _text,
+    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+    inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9.]'))],
+    onChanged: widget.onChanged,
+    decoration: InputDecoration(
+      isDense: true,
+      labelText: widget.label,
+      errorText: widget.error,
+      errorMaxLines: 3,
+    ),
+  );
+}
+
+class _Positions extends ConsumerWidget {
+  const _Positions({required this.pair});
+
+  final MarketPair pair;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context);
+    final positions =
+        ref.watch(futuresProvider.select((s) => s.positions)) ??
+        const <FuturesPosition>[];
+    final repository = ref.read(futuresProvider.notifier);
+    final text = Theme.of(context).textTheme;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                l.futPositions(positions.length),
+                style: text.titleSmall,
+              ),
+            ),
+            if (positions.isNotEmpty)
+              TextButton(
+                key: const Key('futures-close-all'),
+                onPressed: () async {
+                  if (await _confirm(context, l.futCloseAllAsk) &&
+                      context.mounted) {
+                    await _run(context, repository.closeAll);
+                  }
+                },
+                child: Text(l.futCloseAll),
+              ),
+          ],
+        ),
+        if (positions.isEmpty)
+          Padding(
+            padding: const EdgeInsets.all(12),
+            child: Text(
+              l.futNoPositions,
+              key: const Key('futures-no-positions'),
+              textAlign: TextAlign.center,
+            ),
+          ),
+        for (final position in positions) _PositionCard(position: position),
+      ],
+    );
+  }
+}
+
+class _PositionCard extends ConsumerWidget {
+  const _PositionCard({required this.position});
+
+  final FuturesPosition position;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context);
+    final repository = ref.read(futuresProvider.notifier);
+    final color = position.short ? context.cp.negative : context.cp.positive;
+    final pnl = position.unrealizedProfit;
+    final pnlColor = switch (directionOf(pnl)) {
+      Direction.up => context.cp.positive,
+      Direction.down => context.cp.negative,
+      Direction.flat => context.cp.muted,
+    };
+    final small = Theme.of(context).textTheme.bodySmall;
+    final key = '${position.symbol}-${position.side.wire}';
+    return Card(
+      key: Key('position-$key'),
+      margin: const EdgeInsets.only(bottom: 8),
+      child: Padding(
+        padding: const EdgeInsets.all(10),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    '${position.symbol} · ${position.short ? l.futShort : l.futLong}',
+                    style: TextStyle(color: color, fontWeight: FontWeight.w600),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                Text(
+                  l.futPnl(
+                    '${pnl.startsWith('-') ? '' : '+'}${formatDecimal(pnl, 2)}',
+                  ),
+                  style: TextStyle(color: pnlColor),
+                ),
+              ],
+            ),
+            Text(
+              '${position.size} · ${l.futEntry(groupThousands(position.entryPrice))}'
+              ' · ${l.futMarkPrice(groupThousands(position.markPrice))}',
+              style: small,
+            ),
+            Text(
+              '${l.futLiqShort(position.liquidationPrice == null ? '--' : groupThousands(position.liquidationPrice!))}'
+              ' · ${position.marginType == MarginType.crossed ? l.futCross : l.futIsolated}',
+              style: small,
+            ),
+            if (position.isolatedMargin != null || position.marginRatio != null)
+              Text(
+                [
+                  if (position.isolatedMargin case final margin?)
+                    l.futMarginOf(formatDecimal(margin, 2)),
+                  if (position.marginRatio case final ratio?)
+                    l.futMarginRatio(formatRatioAsPercent(ratio, places: 2)),
+                ].join(' · '),
+                key: Key('margin-line-$key'),
+                style: small,
+              ),
+            Wrap(
+              spacing: 4,
+              children: [
+                TextButton(
+                  key: Key('close-$key'),
+                  onPressed: () => _closeSheet(context, ref),
+                  child: Text(l.futClose),
+                ),
+                TextButton(
+                  key: Key('market-close-$key'),
+                  onPressed: () async {
+                    if (await _confirm(
+                          context,
+                          l.futMarketCloseAsk(position.symbol),
+                        ) &&
+                        context.mounted) {
+                      await _run(
+                        context,
+                        () => repository.close(position, percent: 100),
+                      );
+                    }
+                  },
+                  child: Text(l.futMarketClose),
+                ),
+                TextButton(
+                  key: Key('tpsl-$key'),
+                  onPressed: () => _tpSlSheet(context, ref),
+                  child: Text(l.futTpSl),
+                ),
+                if (position.marginType == MarginType.isolated)
+                  TextButton(
+                    key: Key('margin-$key'),
+                    onPressed: () => _marginSheet(context, ref),
+                    child: Text(l.futMargin),
+                  ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _closeSheet(BuildContext context, WidgetRef ref) async {
+    final result = await _sheet<(int, String?)>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (_) => const _CloseSheet(),
+    );
+    if (result == null || !context.mounted) return;
+    await _run(
+      context,
+      () => ref
+          .read(futuresProvider.notifier)
+          .close(position, percent: result.$1, price: result.$2),
+    );
+  }
+
+  Future<void> _tpSlSheet(BuildContext context, WidgetRef ref) async {
+    final result = await _sheet<(String?, String?, WorkingType)>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (_) => const _TpSlSheet(),
+    );
+    if (result == null || !context.mounted) return;
+    await _run(
+      context,
+      () => ref
+          .read(futuresProvider.notifier)
+          .setTpSl(
+            position,
+            takeProfit: result.$1,
+            stopLoss: result.$2,
+            working: result.$3,
+            key: newClientId,
+          ),
+    );
+  }
+
+  Future<void> _marginSheet(BuildContext context, WidgetRef ref) async {
+    final result = await _sheet<(String, bool)>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (_) => const _MarginSheet(),
+    );
+    if (result == null || !context.mounted) return;
+    await _run(
+      context,
+      () => ref
+          .read(futuresProvider.notifier)
+          .changeMargin(position, amount: result.$1, add: result.$2),
+    );
+  }
+}
+
+class _CloseSheet extends StatefulWidget {
+  const _CloseSheet();
+
+  @override
+  State<_CloseSheet> createState() => _CloseSheetState();
+}
+
+class _CloseSheetState extends State<_CloseSheet> {
+  int _percent = 100;
+  final _price = TextEditingController();
+
+  @override
+  void dispose() {
+    _price.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    return _SheetFrame(
+      title: l.futCloseTitle,
+      children: [
+        Wrap(
+          spacing: 6,
+          children: [
+            for (final p in const [25, 50, 75, 100])
+              ChoiceChip(
+                key: Key('close-percent-$p'),
+                label: Text('$p%'),
+                selected: _percent == p,
+                onSelected: (_) => setState(() => _percent = p),
+              ),
+          ],
+        ),
+        TextField(
+          key: const Key('close-price'),
+          controller: _price,
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          decoration: InputDecoration(labelText: l.futCloseLimit),
+        ),
+        const SizedBox(height: 8),
+        FilledButton(
+          key: const Key('close-confirm'),
+          onPressed: () => Navigator.of(context).pop((
+            _percent,
+            _price.text.trim().isEmpty ? null : _price.text.trim(),
+          )),
+          child: Text(l.futClose),
+        ),
+      ],
+    );
+  }
+}
+
+class _TpSlSheet extends StatefulWidget {
+  const _TpSlSheet();
+
+  @override
+  State<_TpSlSheet> createState() => _TpSlSheetState();
+}
+
+class _TpSlSheetState extends State<_TpSlSheet> {
+  final _tp = TextEditingController();
+  final _sl = TextEditingController();
+  WorkingType _working = WorkingType.mark;
+
+  @override
+  void dispose() {
+    _tp.dispose();
+    _sl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    String? value(TextEditingController c) =>
+        c.text.trim().isEmpty ? null : c.text.trim();
+    return _SheetFrame(
+      title: l.futTpSl,
+      children: [
+        TextField(
+          key: const Key('tpsl-tp'),
+          controller: _tp,
+          onChanged: (_) => setState(() {}),
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          decoration: InputDecoration(labelText: l.futTakeProfit),
+        ),
+        TextField(
+          key: const Key('tpsl-sl'),
+          controller: _sl,
+          onChanged: (_) => setState(() {}),
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          decoration: InputDecoration(labelText: l.futStopLoss),
+        ),
+        Wrap(
+          spacing: 6,
+          children: [
+            for (final w in WorkingType.values)
+              ChoiceChip(
+                label: Text(w == WorkingType.mark ? l.futMark : l.futLast),
+                selected: _working == w,
+                onSelected: (_) => setState(() => _working = w),
+              ),
+          ],
+        ),
+        FilledButton(
+          key: const Key('tpsl-confirm'),
+          onPressed: value(_tp) == null && value(_sl) == null
+              ? null
+              : () => Navigator.of(
+                  context,
+                ).pop((value(_tp), value(_sl), _working)),
+          child: Text(l.futSave),
+        ),
+      ],
+    );
+  }
+}
+
+class _MarginSheet extends StatefulWidget {
+  const _MarginSheet();
+
+  @override
+  State<_MarginSheet> createState() => _MarginSheetState();
+}
+
+class _MarginSheetState extends State<_MarginSheet> {
+  final _amount = TextEditingController();
+  bool _add = true;
+
+  @override
+  void dispose() {
+    _amount.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    return _SheetFrame(
+      title: l.futMargin,
+      children: [
+        SegmentedButton<bool>(
+          segments: [
+            ButtonSegment(value: true, label: Text(l.futMarginAdd)),
+            ButtonSegment(value: false, label: Text(l.futMarginRemove)),
+          ],
+          selected: {_add},
+          onSelectionChanged: (s) => setState(() => _add = s.first),
+        ),
+        TextField(
+          key: const Key('margin-amount'),
+          controller: _amount,
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          decoration: InputDecoration(labelText: l.futAmountUsdt),
+        ),
+        FilledButton(
+          key: const Key('margin-confirm'),
+          onPressed: () {
+            final amount = _amount.text.trim();
+            if (amount.isEmpty) return;
+            Navigator.of(context).pop((amount, _add));
+          },
+          child: Text(l.futSave),
+        ),
+      ],
+    );
+  }
+}
+
+class _SheetFrame extends StatelessWidget {
+  const _SheetFrame({required this.title, required this.children});
+
+  final String title;
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) => SafeArea(
+    child: Padding(
+      padding: EdgeInsets.fromLTRB(
+        16,
+        0,
+        16,
+        16 + MediaQuery.viewInsetsOf(context).bottom,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(title, style: Theme.of(context).textTheme.titleMedium),
+          const SizedBox(height: 8),
+          ...children,
+        ],
+      ),
+    ),
+  );
+}
+
+class _Orders extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context);
+    final state = ref.watch(futuresProvider);
+    final repository = ref.read(futuresProvider.notifier);
+    final count = state.orders.length + state.algoOrders.length;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(l.futOrders(count), style: Theme.of(context).textTheme.titleSmall),
+        if (count == 0)
+          Padding(
+            padding: const EdgeInsets.all(12),
+            child: Text(l.futNoOrders, textAlign: TextAlign.center),
+          ),
+        for (final order in state.orders)
+          ListTile(
+            key: Key('futures-order-${order.orderId}'),
+            contentPadding: EdgeInsets.zero,
+            dense: true,
+            title: Text('${order.symbol} · ${order.side.wire} · ${order.type}'),
+            subtitle: Text(
+              '${groupThousands(order.price ?? '--')} · ${order.executedQty}/${order.origQty}',
+            ),
+            trailing: TextButton(
+              key: Key('futures-cancel-${order.orderId}'),
+              onPressed: () =>
+                  _run(context, () => repository.cancelOrder(order)),
+              child: Text(l.tradeCancel),
+            ),
+          ),
+        for (final order in state.algoOrders)
+          ListTile(
+            key: Key('futures-algo-${order.algoId}'),
+            contentPadding: EdgeInsets.zero,
+            dense: true,
+            title: Text('${order.symbol} · ${order.side.wire} · ${order.type}'),
+            subtitle: Text(groupThousands(order.triggerPrice)),
+            trailing: TextButton(
+              key: Key('futures-cancel-algo-${order.algoId}'),
+              onPressed: () =>
+                  _run(context, () => repository.cancelAlgoOrder(order)),
+              child: Text(l.tradeCancel),
+            ),
+          ),
+      ],
+    );
+  }
+}
