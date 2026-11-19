@@ -7,6 +7,7 @@ import 'package:cryptopilot_mobile/core/errors/api_problem.dart';
 import 'package:cryptopilot_mobile/core/realtime/realtime_hub.dart';
 import 'package:cryptopilot_mobile/core/settings/settings.dart';
 import 'package:cryptopilot_mobile/core/web/web_links.dart';
+import 'package:cryptopilot_mobile/features/academy/data/academy_api.dart';
 import 'package:cryptopilot_mobile/features/account/data/profile_api.dart';
 import 'package:cryptopilot_mobile/features/account/domain/profile.dart';
 import 'package:cryptopilot_mobile/features/alerts/data/alert_api.dart';
@@ -33,6 +34,7 @@ import 'package:cryptopilot_mobile/features/watchlist/data/watchlist_api.dart';
 import 'package:cryptopilot_mobile/features/watchlist/domain/watchlist.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 
+import 'academy_fakes.dart';
 import 'chart_fakes.dart';
 import 'realtime_fakes.dart';
 
@@ -192,6 +194,7 @@ List<Override> baseOverrides({
   FakeMetricSurface? metricChart,
   SettingsStore? settings,
   AnalysisApi? analysis,
+  AcademyApi? academy,
   Duration zone = Duration.zero,
   DateTime Function()? clock,
 }) => [
@@ -217,6 +220,7 @@ List<Override> baseOverrides({
   // Never the zone of the machine that runs the tests.
   chartZoneProvider.overrideWithValue(zone),
   analysisApiProvider.overrideWithValue(analysis ?? FakeAnalysisApi()),
+  academyApiProvider.overrideWithValue(academy ?? FakeAcademyApi()),
 ];
 
 class FakeWatchlistApi implements WatchlistApi {
