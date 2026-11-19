@@ -6,6 +6,7 @@ import '../../../core/http/http_providers.dart';
 import '../../../core/json/json_read.dart';
 import '../domain/candle.dart';
 import '../domain/market.dart';
+import '../domain/order_book.dart';
 
 /// Public market data (`/market/**`, fe-guide market module; checked on
 /// backend develop 6d8a3d9).
@@ -24,6 +25,16 @@ abstract interface class MarketApi {
     Timeframe tf, {
     int limit = 500,
     DateTime? to,
+  });
+
+  /// The latest top levels (TR-03); empty before the first depth arrives.
+  Future<DepthSnapshot> depth(Market market, String symbol);
+
+  /// The latest trades, newest first (1–50).
+  Future<List<MarketTrade>> trades(
+    Market market,
+    String symbol, {
+    int limit = 50,
   });
 }
 
@@ -70,6 +81,25 @@ class DioMarketApi implements MarketApi {
       },
     ),
     decodeCandles,
+  );
+
+  @override
+  Future<DepthSnapshot> depth(Market market, String symbol) => apiCall(
+    () => _dio.get<Object?>('market/${market.path}/$symbol/depth'),
+    decodeDepth,
+  );
+
+  @override
+  Future<List<MarketTrade>> trades(
+    Market market,
+    String symbol, {
+    int limit = 50,
+  }) => apiCall(
+    () => _dio.get<Object?>(
+      'market/${market.path}/$symbol/trades',
+      queryParameters: {'limit': limit},
+    ),
+    decodeMarketTrades,
   );
 }
 
