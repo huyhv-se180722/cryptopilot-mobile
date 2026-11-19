@@ -1566,6 +1566,27 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tradeKindLimitTpSl => 'Limit TP/SL';
 
   @override
+  String get tradeKindPostOnly => 'Post-only';
+
+  @override
+  String get tradeKindOto => 'OTO';
+
+  @override
+  String get tradeTrailing => 'Trailing % (optional)';
+
+  @override
+  String get tradePendingPrice => 'Then the other way at';
+
+  @override
+  String get tradeTifGtc => 'GTC · good till cancelled';
+
+  @override
+  String get tradeTifIoc => 'IOC · fill now, cancel the rest';
+
+  @override
+  String get tradeTifFok => 'FOK · fill all now or cancel';
+
+  @override
   String get tradePrice => 'Price';
 
   @override

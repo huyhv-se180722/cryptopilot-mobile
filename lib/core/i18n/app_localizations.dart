@@ -2806,6 +2806,48 @@ abstract class AppLocalizations {
   /// **'Limit TP/SL'**
   String get tradeKindLimitTpSl;
 
+  /// No description provided for @tradeKindPostOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Post-only'**
+  String get tradeKindPostOnly;
+
+  /// No description provided for @tradeKindOto.
+  ///
+  /// In en, this message translates to:
+  /// **'OTO'**
+  String get tradeKindOto;
+
+  /// No description provided for @tradeTrailing.
+  ///
+  /// In en, this message translates to:
+  /// **'Trailing % (optional)'**
+  String get tradeTrailing;
+
+  /// No description provided for @tradePendingPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Then the other way at'**
+  String get tradePendingPrice;
+
+  /// No description provided for @tradeTifGtc.
+  ///
+  /// In en, this message translates to:
+  /// **'GTC · good till cancelled'**
+  String get tradeTifGtc;
+
+  /// No description provided for @tradeTifIoc.
+  ///
+  /// In en, this message translates to:
+  /// **'IOC · fill now, cancel the rest'**
+  String get tradeTifIoc;
+
+  /// No description provided for @tradeTifFok.
+  ///
+  /// In en, this message translates to:
+  /// **'FOK · fill all now or cancel'**
+  String get tradeTifFok;
+
   /// No description provided for @tradePrice.
   ///
   /// In en, this message translates to:

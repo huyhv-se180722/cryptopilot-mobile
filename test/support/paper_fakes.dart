@@ -165,6 +165,26 @@ class FakePaperApi implements PaperApi {
     return order;
   }
 
+  final List<SpotOtoRequest> placedOtos = [];
+
+  @override
+  Future<List<PaperOrder>> placeOto(SpotOtoRequest request) async {
+    calls.add('place list OTO');
+    placedOtos.add(request);
+    if (placeError case final error?) throw error;
+    final orders = [
+      paperOrderOf(
+        'oto-w',
+        side: request.working.side,
+        listId: 'list-oto',
+        type: request.working.type,
+        price: request.working.price ?? '0',
+      ),
+    ];
+    open = [...open, ...orders];
+    return orders;
+  }
+
   @override
   Future<List<PaperOrder>> placeOrderList(SpotOrderListRequest request) async {
     calls.add('place list ${request.otoco ? 'OTOCO' : 'OCO'}');

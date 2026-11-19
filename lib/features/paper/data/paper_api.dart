@@ -40,6 +40,9 @@ abstract interface class PaperApi {
   /// The orders of the placed group.
   Future<List<PaperOrder>> placeOrderList(SpotOrderListRequest request);
 
+  /// An OTO (T-123): the working order now, the pending one once it filled.
+  Future<List<PaperOrder>> placeOto(SpotOtoRequest request);
+
   /// 409 MSG43 (`PAPER_ORDER_NOT_OPEN`) for an order that has finished.
   Future<PaperOrder> cancelOrder(String orderId);
 
@@ -156,6 +159,12 @@ class DioPaperApi implements PaperApi {
         () => _dio.post<Object?>('paper/order-lists', data: request.toJson()),
         decodeOrderList,
       );
+
+  @override
+  Future<List<PaperOrder>> placeOto(SpotOtoRequest request) => apiCall(
+    () => _dio.post<Object?>('paper/order-lists', data: request.toJson()),
+    decodeOrderList,
+  );
 
   @override
   Future<PaperOrder> cancelOrder(String orderId) => apiCall(

@@ -289,6 +289,18 @@ class PaperPage<T> {
   final int total;
 }
 
+/// How long a Spot limit works (`timeInForce`, T-123): good till
+/// cancelled, or filled at once (in part for IOC, whole for FOK) and the
+/// rest cancelled.
+enum SpotTimeInForce {
+  gtc('GTC'),
+  ioc('IOC'),
+  fok('FOK');
+
+  const SpotTimeInForce(this.wire);
+  final String wire;
+}
+
 /// A Spot order to place (`PlaceOrderRequest`); null fields are left out.
 @immutable
 class SpotOrderRequest {
@@ -301,7 +313,16 @@ class SpotOrderRequest {
     this.quantity,
     this.quoteOrderQty,
     this.stopPrice,
+    this.timeInForce = SpotTimeInForce.gtc,
+    this.trailingDelta,
   });
+
+  /// LIMIT and the limit stops only; LIMIT_MAKER takes none.
+  final SpotTimeInForce timeInForce;
+
+  /// The stops only: how far back from the best price it triggers, in
+  /// basis points (100 = 1 %, TR-11).
+  final int? trailingDelta;
 
   final String pairId;
   final OrderSide side;
@@ -322,12 +343,66 @@ class SpotOrderRequest {
     if (type == SpotOrderType.limit ||
         type == SpotOrderType.stopLossLimit ||
         type == SpotOrderType.takeProfitLimit)
-      'timeInForce': 'GTC',
+      'timeInForce': timeInForce.wire,
     'price': ?price,
     'quantity': ?quantity,
     'quoteOrderQty': ?quoteOrderQty,
     'stopPrice': ?stopPrice,
+    'trailingDelta': ?trailingDelta,
     'clientOrderId': clientOrderId,
+  };
+}
+
+/// An OTO to place (`PlaceOrderListRequest`, TR-10): a [working] limit
+/// placed now, a [pending] limit placed once it has filled in full. Every
+/// limit of a group is GTC.
+@immutable
+class SpotOtoRequest {
+  const SpotOtoRequest({
+    required this.pairId,
+    required this.working,
+    required this.pending,
+    required this.listClientOrderId,
+  });
+
+  final String pairId;
+  final SpotLeg working;
+  final SpotLeg pending;
+  final String listClientOrderId;
+
+  Map<String, Object?> toJson() => {
+    'pairId': pairId,
+    'market': 'SPOT',
+    'type': 'OTO',
+    'working': working.toJson(),
+    'pending': pending.toJson(),
+    'listClientOrderId': listClientOrderId,
+  };
+}
+
+/// One order of an OTO.
+@immutable
+class SpotLeg {
+  const SpotLeg({
+    required this.side,
+    required this.type,
+    required this.quantity,
+    this.price,
+    this.stopPrice,
+  });
+
+  final OrderSide side;
+  final SpotOrderType type;
+  final String quantity;
+  final String? price;
+  final String? stopPrice;
+
+  Map<String, Object?> toJson() => {
+    'side': side.wire,
+    'type': type.wire,
+    'price': ?price,
+    'stopPrice': ?stopPrice,
+    'quantity': quantity,
   };
 }
 
