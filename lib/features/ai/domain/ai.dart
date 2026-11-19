@@ -280,10 +280,11 @@ AiSource decodeSource(Object? body) {
 
 AiMessage decodeMessage(Object? body) {
   final json = asJsonObject(body, 'message');
-  final sources = json['sources'];
-  if (sources != null && sources is! List) {
-    throw const DecodeException('sources is not a list');
-  }
+  final sources = switch (json['sources']) {
+    null => const <Object?>[],
+    final List<Object?> list => list,
+    _ => throw const DecodeException('sources is not a list'),
+  };
   return AiMessage(
     id: readString(json, 'id'),
     conversationId: readString(json, 'conversationId'),
@@ -291,9 +292,7 @@ AiMessage decodeMessage(Object? body) {
     content: readString(json, 'content'),
     status: AiMessageStatus.decode(readString(json, 'status')),
     createdAt: readInstant(json, 'createdAt'),
-    sources: [
-      for (final source in (sources as List?) ?? []) decodeSource(source),
-    ],
+    sources: [for (final source in sources) decodeSource(source)],
   );
 }
 
