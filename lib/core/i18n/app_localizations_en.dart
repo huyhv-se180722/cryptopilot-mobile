@@ -1309,4 +1309,209 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get navAssets => 'Assets';
+
+  @override
+  String get paperDemoBanner =>
+      'Demo · virtual funds. Orders never reach an exchange.';
+
+  @override
+  String get tradeSpot => 'Spot';
+
+  @override
+  String get tradeFutures => 'Futures';
+
+  @override
+  String get tradeFuturesSoon =>
+      'Futures demo trading arrives in the next update.';
+
+  @override
+  String get tradeChoosePair => 'Choose a pair';
+
+  @override
+  String get tradeBuy => 'Buy';
+
+  @override
+  String get tradeSell => 'Sell';
+
+  @override
+  String tradeBuyAsset(String asset) {
+    return 'Buy $asset';
+  }
+
+  @override
+  String tradeSellAsset(String asset) {
+    return 'Sell $asset';
+  }
+
+  @override
+  String get tradeKindLimit => 'Limit';
+
+  @override
+  String get tradeKindMarket => 'Market';
+
+  @override
+  String get tradeKindStopLimit => 'Stop Limit';
+
+  @override
+  String get tradeKindStopMarket => 'Stop Market';
+
+  @override
+  String get tradeKindOco => 'OCO';
+
+  @override
+  String get tradeKindLimitTpSl => 'Limit TP/SL';
+
+  @override
+  String get tradePrice => 'Price';
+
+  @override
+  String get tradeAmount => 'Amount';
+
+  @override
+  String get tradeTotal => 'Total';
+
+  @override
+  String get tradeStop => 'Stop';
+
+  @override
+  String get tradeTakeProfit => 'Take profit';
+
+  @override
+  String get tradeStopLoss => 'Stop loss';
+
+  @override
+  String get tradeStopLimit => 'Stop limit (optional)';
+
+  @override
+  String get tradeByAmount => 'By amount';
+
+  @override
+  String get tradeByTotal => 'By total';
+
+  @override
+  String tradeAvailable(String amount, String asset) {
+    return 'Avbl $amount $asset';
+  }
+
+  @override
+  String get tradeConfirmTitle => 'Confirm the demo order';
+
+  @override
+  String get tradeConfirm => 'Confirm';
+
+  @override
+  String get tradePlaced => 'Demo order placed.';
+
+  @override
+  String tradeOpenOrders(int count) {
+    return 'Open orders ($count)';
+  }
+
+  @override
+  String get tradeMarketTrades => 'Market trades';
+
+  @override
+  String get tradeCancel => 'Cancel';
+
+  @override
+  String get tradeCancelAll => 'Cancel all';
+
+  @override
+  String get tradeCanceled => 'Order canceled.';
+
+  @override
+  String get tradeNoOpenOrders => 'No open orders on this pair.';
+
+  @override
+  String get tradeNoTrades => 'No trades yet.';
+
+  @override
+  String tradeTick(String size) {
+    return 'Tick $size';
+  }
+
+  @override
+  String get tradeBookPrice => 'Price';
+
+  @override
+  String get tradeBookAmount => 'Amount';
+
+  @override
+  String get accountConfirmOrders => 'Confirm demo orders before they go';
+
+  @override
+  String get paperErrRequired => 'Required.';
+
+  @override
+  String get paperErrPositive => 'Enter a number above 0.';
+
+  @override
+  String paperErrStep(String limit) {
+    return 'Enter a multiple of $limit.';
+  }
+
+  @override
+  String paperErrAtLeast(String limit) {
+    return 'Enter at least $limit.';
+  }
+
+  @override
+  String paperErrAtMost(String limit) {
+    return 'Enter at most $limit.';
+  }
+
+  @override
+  String paperErrMinNotional(String limit, String asset) {
+    return 'The order value must be at least $limit $asset.';
+  }
+
+  @override
+  String paperErrMaxNotional(String limit, String asset) {
+    return 'The order value must be at most $limit $asset.';
+  }
+
+  @override
+  String paperErrPercentBelow(String limit) {
+    return 'Too far below the last price: enter at least $limit.';
+  }
+
+  @override
+  String paperErrPercentAbove(String limit) {
+    return 'Too far above the last price: enter at most $limit.';
+  }
+
+  @override
+  String get paperErrStopSide => 'The stop is on the wrong side of the price.';
+
+  @override
+  String get paperErrTakeProfitSide =>
+      'The take profit is on the wrong side of the price.';
+
+  @override
+  String get paperErrInsufficient =>
+      'Not enough available balance for this order.';
+
+  @override
+  String get paperErrNotOpen => 'This order is no longer open.';
+
+  @override
+  String get paperErrWouldTake => 'A maker-only order would trade at once.';
+
+  @override
+  String get paperErrWouldTrigger =>
+      'The stop is already met at the last price.';
+
+  @override
+  String paperErrTooManyOrders(String limit) {
+    return 'Too many open orders on this pair (at most $limit).';
+  }
+
+  @override
+  String paperErrTooManyStops(String limit) {
+    return 'Too many open stops on this pair (at most $limit).';
+  }
+
+  @override
+  String get paperErrNotValued =>
+      'This pair cannot be valued in USDT right now.';
 }

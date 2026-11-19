@@ -16,6 +16,7 @@ import '../../features/home/presentation/home_screen.dart';
 import '../../features/market/domain/market.dart';
 import '../../features/market/presentation/markets_screen.dart';
 import '../../features/notifications/presentation/notification_bell.dart';
+import '../../features/paper/presentation/trade_screen.dart';
 import '../../features/notifications/presentation/notifications_screen.dart';
 import '../../features/shell/presentation/home_shell.dart';
 import '../../features/watchlist/presentation/watchlist_view.dart';
@@ -170,8 +171,15 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               ),
             ],
           ),
-          // The paper exchange (D-154): Trade and Assets arrive with T-128.
-          branch(Routes.trade, (l) => l.navTrade),
+          // The paper exchange (D-154); Assets arrives with T-128 item 7.
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: Routes.trade,
+                builder: (_, _) => const TradeScreen(),
+              ),
+            ],
+          ),
           branch(Routes.plans, (l) => l.navPlans),
           branch(Routes.assets, (l) => l.navAssets),
         ],
