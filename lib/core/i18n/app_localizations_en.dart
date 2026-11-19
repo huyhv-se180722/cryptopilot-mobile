@@ -1840,6 +1840,24 @@ class AppLocalizationsEn extends AppLocalizations {
   String get futCloseAll => 'Close all';
 
   @override
+  String get futCloseAllAsk => 'Close every demo position at market?';
+
+  @override
+  String futMarketCloseAsk(String symbol) {
+    return 'Close the whole $symbol demo position at market?';
+  }
+
+  @override
+  String futMarginOf(String amount) {
+    return 'Margin $amount';
+  }
+
+  @override
+  String futMarginRatio(String percent) {
+    return 'Margin ratio $percent';
+  }
+
+  @override
   String get futCloseTitle => 'Close the position';
 
   @override

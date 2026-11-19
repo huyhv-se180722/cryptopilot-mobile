@@ -111,18 +111,22 @@ class FuturesRepository extends Notifier<FuturesState> {
     try {
       await ref.read(paperAccountProvider.notifier).opened;
       if (!ref.mounted) return;
-      final results = await Future.wait<Object>([
-        _api.account(),
-        _api.positions(),
-        _api.openOrders(),
-        _api.openAlgoOrders(),
+      late final FuturesAccount account;
+      late final List<FuturesPosition> positions;
+      late final List<FuturesOrder> orders;
+      late final List<AlgoOrder> algoOrders;
+      await Future.wait([
+        _api.account().then((v) => account = v),
+        _api.positions().then((v) => positions = v),
+        _api.openOrders().then((v) => orders = v),
+        _api.openAlgoOrders().then((v) => algoOrders = v),
       ]);
       if (!ref.mounted) return;
       state = state.copyWith(
-        account: results[0] as FuturesAccount,
-        positions: results[1] as List<FuturesPosition>,
-        orders: results[2] as List<FuturesOrder>,
-        algoOrders: results[3] as List<AlgoOrder>,
+        account: account,
+        positions: positions,
+        orders: orders,
+        algoOrders: algoOrders,
         clearFailure: true,
       );
     } on ApiFailure catch (failure) {
@@ -255,15 +259,14 @@ class FuturesSettingsRepository extends Notifier<FuturesSettings> {
     try {
       await ref.read(paperAccountProvider.notifier).opened;
       if (!ref.mounted) return;
-      final results = await Future.wait<Object>([
-        _api.symbolConfig(symbol),
-        _api.maxLeverage(symbol),
+      late final SymbolConfig config;
+      late final int maxLeverage;
+      await Future.wait([
+        _api.symbolConfig(symbol).then((v) => config = v),
+        _api.maxLeverage(symbol).then((v) => maxLeverage = v),
       ]);
       if (ref.mounted) {
-        state = FuturesSettings(
-          config: results[0] as SymbolConfig,
-          maxLeverage: results[1] as int,
-        );
+        state = FuturesSettings(config: config, maxLeverage: maxLeverage);
       }
     } on ApiFailure catch (failure) {
       if (ref.mounted) {

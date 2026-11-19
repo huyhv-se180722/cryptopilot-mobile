@@ -198,6 +198,8 @@ void main() {
     const key = 'BTCUSDT-BOTH';
     await show(tester, find.byKey(const Key('position-$key')));
     expect(find.textContaining('PnL +1.00'), findsOneWidget);
+    expect(find.textContaining('Margin ratio 0.40%'), findsOneWidget);
+    expect(find.textContaining('+0.40%'), findsNothing);
 
     await tester.tap(find.byKey(const Key('close-$key')));
     await frames(tester);
@@ -228,8 +230,64 @@ void main() {
     await show(tester, find.byKey(const Key('market-close-$key')));
     await tester.tap(find.byKey(const Key('market-close-$key')));
     await frames(tester);
+    expect(futures.calls, isNot(contains('close BTCUSDT BOTH 100')));
+    expect(
+      find.text('Close the whole BTCUSDT demo position at market?'),
+      findsOneWidget,
+    );
+    await tester.tap(find.byKey(const Key('futures-ask-yes')));
+    await frames(tester);
     expect(futures.calls, contains('close BTCUSDT BOTH 100'));
     await show(tester, find.byKey(const Key('futures-no-positions')));
+    await unmount(tester);
+  });
+
+  testWidgets('close all asks first: Cancel keeps every position', (
+    tester,
+  ) async {
+    futures.positionList = [positionOf()];
+    await open(tester);
+    await show(tester, find.byKey(const Key('futures-close-all')));
+    await tester.tap(find.byKey(const Key('futures-close-all')));
+    await frames(tester);
+    await tester.tap(find.text('Cancel'));
+    await frames(tester);
+    expect(futures.calls, isNot(contains('close all')));
+
+    await tester.tap(find.byKey(const Key('futures-close-all')));
+    await frames(tester);
+    await tester.tap(find.byKey(const Key('futures-ask-yes')));
+    await frames(tester);
+    expect(futures.calls, contains('close all'));
+    await unmount(tester);
+  });
+
+  testWidgets('the funding rate under the mark once the ticker carries it', (
+    tester,
+  ) async {
+    await open(tester);
+    expect(find.byKey(const Key('futures-funding')), findsNothing);
+    transport.last.push('/topic/overview.FUTURES', {
+      'market': 'FUTURES',
+      'serverTime': '2026-11-19T02:01:00Z',
+      'tickers': [
+        {
+          'market': 'FUTURES',
+          'symbol': 'BTCUSDT',
+          'sourceTime': '2026-11-19T02:01:00Z',
+          'lastPrice': '75990.00',
+          'changePercent24h': null,
+          'quoteVolume24h': null,
+          'markPrice': '76000.00',
+          'fundingRate': '0.0001',
+        },
+      ],
+    });
+    await frames(tester);
+    expect(
+      tester.widget<Text>(find.byKey(const Key('futures-funding'))).data,
+      contains('0.0100%'),
+    );
     await unmount(tester);
   });
 
@@ -247,7 +305,10 @@ void main() {
     });
     await frames(tester);
     expect(find.byKey(const Key('margin-call')), findsOneWidget);
-    expect(find.textContaining('Margin call on BTCUSDT'), findsOneWidget);
+    expect(
+      find.textContaining('Margin call on BTCUSDT: margin ratio 81.00%'),
+      findsOneWidget,
+    );
     await unmount(tester);
   });
 

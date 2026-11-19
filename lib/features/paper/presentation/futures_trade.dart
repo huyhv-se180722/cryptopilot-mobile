@@ -47,7 +47,7 @@ class FuturesTrade extends ConsumerWidget {
             content: Text(
               l.futMarginCall(
                 call.symbol,
-                formatFractionAsPercent(call.marginRatio, places: 2),
+                formatRatioAsPercent(call.marginRatio, places: 2),
               ),
             ),
             actions: [
@@ -137,6 +137,29 @@ Future<T?> _sheet<T>({
   );
 }
 
+/// A yes / no before an action that cannot be taken back (plan 9.2).
+Future<bool> _confirm(BuildContext context, String question) async {
+  final l = AppLocalizations.of(context);
+  final yes = await showDialog<bool>(
+    context: context,
+    builder: (context) => AlertDialog(
+      content: Text(question),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(false),
+          child: Text(l.commonCancel),
+        ),
+        FilledButton(
+          key: const Key('futures-ask-yes'),
+          onPressed: () => Navigator.of(context).pop(true),
+          child: Text(l.tradeConfirm),
+        ),
+      ],
+    ),
+  );
+  return yes ?? false;
+}
+
 Future<void> _run(BuildContext context, Future<void> Function() action) async {
   final l = AppLocalizations.of(context);
   final messenger = ScaffoldMessenger.of(context);
@@ -166,8 +189,13 @@ class _Header extends ConsumerWidget {
             s.tickers[pair.symbol]?.displayPrice,
       ),
     );
+    final funding = ref.watch(
+      marketRepositoryProvider(
+        Market.futures,
+      ).select((s) => s.tickers[pair.symbol]?.fundingRate),
+    );
     final text = Theme.of(context).textTheme;
-    return Row(
+    final header = Row(
       children: [
         TextButton.icon(
           key: const Key('futures-pair'),
@@ -210,6 +238,18 @@ class _Header extends ConsumerWidget {
             textAlign: TextAlign.end,
             overflow: TextOverflow.ellipsis,
           ),
+        ),
+      ],
+    );
+    if (funding == null) return header;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        header,
+        Text(
+          l.marketFundingShort(formatFractionAsPercent(funding)),
+          key: const Key('futures-funding'),
+          style: text.bodySmall,
         ),
       ],
     );
@@ -677,7 +717,12 @@ class _Positions extends ConsumerWidget {
             if (positions.isNotEmpty)
               TextButton(
                 key: const Key('futures-close-all'),
-                onPressed: () => _run(context, repository.closeAll),
+                onPressed: () async {
+                  if (await _confirm(context, l.futCloseAllAsk) &&
+                      context.mounted) {
+                    await _run(context, repository.closeAll);
+                  }
+                },
                 child: Text(l.futCloseAll),
               ),
           ],
@@ -750,6 +795,17 @@ class _PositionCard extends ConsumerWidget {
               ' · ${position.marginType == MarginType.crossed ? l.futCross : l.futIsolated}',
               style: small,
             ),
+            if (position.isolatedMargin != null || position.marginRatio != null)
+              Text(
+                [
+                  if (position.isolatedMargin case final margin?)
+                    l.futMarginOf(formatDecimal(margin, 2)),
+                  if (position.marginRatio case final ratio?)
+                    l.futMarginRatio(formatRatioAsPercent(ratio, places: 2)),
+                ].join(' · '),
+                key: Key('margin-line-$key'),
+                style: small,
+              ),
             Wrap(
               spacing: 4,
               children: [
@@ -760,10 +816,18 @@ class _PositionCard extends ConsumerWidget {
                 ),
                 TextButton(
                   key: Key('market-close-$key'),
-                  onPressed: () => _run(
-                    context,
-                    () => repository.close(position, percent: 100),
-                  ),
+                  onPressed: () async {
+                    if (await _confirm(
+                          context,
+                          l.futMarketCloseAsk(position.symbol),
+                        ) &&
+                        context.mounted) {
+                      await _run(
+                        context,
+                        () => repository.close(position, percent: 100),
+                      );
+                    }
+                  },
                   child: Text(l.futMarketClose),
                 ),
                 TextButton(

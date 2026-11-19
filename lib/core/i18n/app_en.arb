@@ -1218,6 +1218,31 @@
   "futClose": "Close",
   "futMarketClose": "Market close",
   "futCloseAll": "Close all",
+  "futCloseAllAsk": "Close every demo position at market?",
+  "futMarketCloseAsk": "Close the whole {symbol} demo position at market?",
+  "@futMarketCloseAsk": {
+    "placeholders": {
+      "symbol": {
+        "type": "String"
+      }
+    }
+  },
+  "futMarginOf": "Margin {amount}",
+  "@futMarginOf": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "futMarginRatio": "Margin ratio {percent}",
+  "@futMarginRatio": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
   "futCloseTitle": "Close the position",
   "futCloseLimit": "Limit price (empty: Market)",
   "futMargin": "Margin",

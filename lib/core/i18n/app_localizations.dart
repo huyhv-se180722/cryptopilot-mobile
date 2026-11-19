@@ -3232,6 +3232,30 @@ abstract class AppLocalizations {
   /// **'Close all'**
   String get futCloseAll;
 
+  /// No description provided for @futCloseAllAsk.
+  ///
+  /// In en, this message translates to:
+  /// **'Close every demo position at market?'**
+  String get futCloseAllAsk;
+
+  /// No description provided for @futMarketCloseAsk.
+  ///
+  /// In en, this message translates to:
+  /// **'Close the whole {symbol} demo position at market?'**
+  String futMarketCloseAsk(String symbol);
+
+  /// No description provided for @futMarginOf.
+  ///
+  /// In en, this message translates to:
+  /// **'Margin {amount}'**
+  String futMarginOf(String amount);
+
+  /// No description provided for @futMarginRatio.
+  ///
+  /// In en, this message translates to:
+  /// **'Margin ratio {percent}'**
+  String futMarginRatio(String percent);
+
   /// No description provided for @futCloseTitle.
   ///
   /// In en, this message translates to:
