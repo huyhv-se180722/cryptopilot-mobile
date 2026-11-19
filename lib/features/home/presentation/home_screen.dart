@@ -12,7 +12,7 @@ import '../../../core/i18n/app_localizations.dart';
 import '../../../core/theme/cp_colors.dart';
 import '../../../core/web/web_links.dart';
 import '../../journal/domain/performance.dart';
-import '../../market/application/market_board.dart';
+import '../../market/data/market_repository.dart';
 import '../../market/domain/market.dart';
 import '../../market/presentation/market_widgets.dart';
 import '../../market/presentation/markets_screen.dart';
@@ -245,7 +245,7 @@ class _WatchRow extends ConsumerWidget {
     final pair = pairFor(ref, item);
     final spot = pair?.market == Market.spot;
     final ticker = ref.watch(
-      marketBoardProvider(
+      marketRepositoryProvider(
         Market.spot,
       ).select((s) => spot ? s.tickers[item.symbol] : null),
     );
@@ -391,7 +391,7 @@ class _PlanRow extends ConsumerWidget {
     final cp = context.cp;
     final text = Theme.of(context).textTheme;
     final pair = ref.watch(
-      marketBoardProvider(plan.market).select(
+      marketRepositoryProvider(plan.market).select(
         (s) => s.pairs?.where((p) => p.pairId == plan.pairId).firstOrNull,
       ),
     );

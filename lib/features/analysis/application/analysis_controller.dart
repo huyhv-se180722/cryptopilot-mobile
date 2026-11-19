@@ -5,9 +5,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/auth/session_controller.dart';
 import '../../../core/errors/api_failure.dart';
-import '../../../core/json/json_read.dart';
 import '../../../core/realtime/realtime_hub.dart';
-import '../../market/data/market_api.dart';
+import '../../market/data/market_repository.dart';
 import '../../market/domain/candle.dart';
 import '../../market/domain/market.dart';
 import '../data/analysis_api.dart';
@@ -25,7 +24,8 @@ class AnalysisState {
   /// longer enabled), MSG43 and the network ones.
   final ApiFailure? failure;
 
-  /// Live statistics: REST first, then `/topic/ticker.{M}.{S}`.
+  /// Live statistics of [PairTickerRepository]: REST first, then
+  /// `/topic/ticker.{M}.{S}`.
   final Ticker? ticker;
 
   /// SRS 3.3.2: an Admin disabled the pair while it was open.
@@ -74,41 +74,24 @@ class AnalysisController extends Notifier<AnalysisState> {
 
   @override
   AnalysisState build() {
-    final hub = ref.read(realtimeHubProvider.notifier);
-    _subs.add(
-      hub
-          .watch('/topic/ticker.${key.market.wire}.${key.symbol}')
-          .listen(_onTicker),
-    );
+    final pair = pairTickerProvider((market: key.market, symbol: key.symbol));
+    ref.listen(pair, (previous, next) {
+      if (next.ticker != null && !identical(next.ticker, previous?.ticker)) {
+        state = state.copyWith(ticker: next.ticker);
+      }
+      final failure = next.failure;
+      if (failure != null && !identical(failure, previous?.failure)) {
+        _fail(failure);
+      }
+    });
     ref.onDispose(() {
       for (final s in _subs) {
         unawaited(s.cancel());
       }
     });
     unawaited(Future.microtask(load));
-    unawaited(Future.microtask(_readStats));
-    return const AnalysisState();
-  }
-
-  Future<void> _readStats() async {
-    try {
-      final ticker = await ref
-          .read(marketApiProvider)
-          .stats(key.market, key.symbol);
-      if (ref.mounted && state.ticker == null) {
-        state = state.copyWith(ticker: ticker);
-      }
-    } on ApiFailure catch (failure) {
-      if (ref.mounted) _fail(failure);
-    }
-  }
-
-  void _onTicker(Object? body) {
-    try {
-      state = state.copyWith(ticker: decodeTickerUpdate(body));
-    } on DecodeException {
-      // A bad push is dropped; the next one replaces it.
-    }
+    final known = ref.read(pair);
+    return AnalysisState(ticker: known.ticker, failure: known.failure);
   }
 
   void _fail(ApiFailure failure) {

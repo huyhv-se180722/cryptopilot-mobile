@@ -5,7 +5,7 @@ import '../../../core/errors/api_failure.dart';
 import '../../../core/errors/message_text.dart';
 import '../../../core/i18n/app_localizations.dart';
 import '../../../core/theme/cp_colors.dart';
-import '../../market/application/market_board.dart';
+import '../../market/data/market_repository.dart';
 import '../../market/domain/market.dart';
 import '../application/watchlist_controller.dart';
 
@@ -57,10 +57,14 @@ class _AddPairSheetState extends ConsumerState<AddPairSheet> {
     final l = AppLocalizations.of(context);
     final text = Theme.of(context).textTheme;
     final spot =
-        ref.watch(marketBoardProvider(Market.spot).select((s) => s.pairs)) ??
+        ref.watch(
+          marketRepositoryProvider(Market.spot).select((s) => s.pairs),
+        ) ??
         const [];
     final futures =
-        ref.watch(marketBoardProvider(Market.futures).select((s) => s.pairs)) ??
+        ref.watch(
+          marketRepositoryProvider(Market.futures).select((s) => s.pairs),
+        ) ??
         const [];
     final watchlist = ref.watch(watchlistControllerProvider);
     final byId = <String, MarketPair>{};

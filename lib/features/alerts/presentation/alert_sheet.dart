@@ -9,7 +9,7 @@ import '../../../core/format/decimal_format.dart';
 import '../../../core/i18n/app_localizations.dart';
 import '../../../core/theme/cp_colors.dart';
 import '../../../core/web/web_links.dart';
-import '../../market/application/market_board.dart';
+import '../../market/data/market_repository.dart';
 import '../../market/domain/market.dart';
 import '../../watchlist/application/watchlist_controller.dart';
 import '../application/alerts_controller.dart';
@@ -35,10 +35,12 @@ class AlertPair {
 /// Every enabled pair of the two market boards once, watched pairs first.
 List<AlertPair> alertPairChoices(WidgetRef ref) {
   final spot =
-      ref.watch(marketBoardProvider(Market.spot).select((s) => s.pairs)) ??
+      ref.watch(marketRepositoryProvider(Market.spot).select((s) => s.pairs)) ??
       const <MarketPair>[];
   final futures =
-      ref.watch(marketBoardProvider(Market.futures).select((s) => s.pairs)) ??
+      ref.watch(
+        marketRepositoryProvider(Market.futures).select((s) => s.pairs),
+      ) ??
       const <MarketPair>[];
   final watched = ref.watch(watchlistControllerProvider).items;
   final byId = <String, MarketPair>{};
@@ -670,7 +672,7 @@ class _PriceHelper extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context);
     final ticker = ref.watch(
-      marketBoardProvider(market).select((s) => s.tickers[pair.symbol]),
+      marketRepositoryProvider(market).select((s) => s.tickers[pair.symbol]),
     );
     final last = ticker?.lastPrice;
     final price = last ?? ticker?.markPrice;
