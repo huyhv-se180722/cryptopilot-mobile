@@ -3592,6 +3592,72 @@ abstract class AppLocalizations {
   /// **'Take Profit Market'**
   String get futKindTakeProfitMarket;
 
+  /// No description provided for @futKindTrailingStop.
+  ///
+  /// In en, this message translates to:
+  /// **'Trailing Stop'**
+  String get futKindTrailingStop;
+
+  /// No description provided for @futCallback.
+  ///
+  /// In en, this message translates to:
+  /// **'Callback %'**
+  String get futCallback;
+
+  /// No description provided for @futActivation.
+  ///
+  /// In en, this message translates to:
+  /// **'Activation price (optional)'**
+  String get futActivation;
+
+  /// No description provided for @futErrCallback.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter 0.1 to 20.'**
+  String get futErrCallback;
+
+  /// No description provided for @futTifGtx.
+  ///
+  /// In en, this message translates to:
+  /// **'GTX · post-only'**
+  String get futTifGtx;
+
+  /// No description provided for @futTifGtd.
+  ///
+  /// In en, this message translates to:
+  /// **'GTD · good till a date'**
+  String get futTifGtd;
+
+  /// No description provided for @futGtdHour.
+  ///
+  /// In en, this message translates to:
+  /// **'1 hour'**
+  String get futGtdHour;
+
+  /// No description provided for @futGtdDay.
+  ///
+  /// In en, this message translates to:
+  /// **'1 day'**
+  String get futGtdDay;
+
+  /// No description provided for @futGtdWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'7 days'**
+  String get futGtdWeek;
+
+  /// No description provided for @futAmend.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get futAmend;
+
+  /// No description provided for @futAmendTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit the demo order'**
+  String get futAmendTitle;
+
   /// No description provided for @futTrigger.
   ///
   /// In en, this message translates to:

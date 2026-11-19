@@ -2031,6 +2031,39 @@ class AppLocalizationsEn extends AppLocalizations {
   String get futKindTakeProfitMarket => 'Take Profit Market';
 
   @override
+  String get futKindTrailingStop => 'Trailing Stop';
+
+  @override
+  String get futCallback => 'Callback %';
+
+  @override
+  String get futActivation => 'Activation price (optional)';
+
+  @override
+  String get futErrCallback => 'Enter 0.1 to 20.';
+
+  @override
+  String get futTifGtx => 'GTX · post-only';
+
+  @override
+  String get futTifGtd => 'GTD · good till a date';
+
+  @override
+  String get futGtdHour => '1 hour';
+
+  @override
+  String get futGtdDay => '1 day';
+
+  @override
+  String get futGtdWeek => '7 days';
+
+  @override
+  String get futAmend => 'Edit';
+
+  @override
+  String get futAmendTitle => 'Edit the demo order';
+
+  @override
   String get futTrigger => 'Trigger price';
 
   @override

@@ -92,6 +92,9 @@ abstract interface class FuturesApi {
 
   Future<FuturesOrder> placeOrder(FuturesOrderRequest request);
 
+  /// A new price and quantity for an open Limit (T-123).
+  Future<FuturesOrder> amendOrder(FuturesAmendRequest request);
+
   Future<AlgoOrder> placeAlgoOrder(AlgoOrderRequest request);
 
   Future<void> cancelOrder(String symbol, String orderId);
@@ -331,6 +334,12 @@ class DioFuturesApi implements FuturesApi {
   @override
   Future<FuturesOrder> placeOrder(FuturesOrderRequest request) => apiCall(
     () => _dio.post<Object?>('$_base/order', data: request.toJson()),
+    decodeFuturesOrder,
+  );
+
+  @override
+  Future<FuturesOrder> amendOrder(FuturesAmendRequest request) => apiCall(
+    () => _dio.put<Object?>('$_base/order', data: request.toJson()),
     decodeFuturesOrder,
   );
 

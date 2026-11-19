@@ -451,6 +451,8 @@ class _Form extends ConsumerWidget {
       FuturesField.trigger => l.futTrigger,
       FuturesField.takeProfit => l.futTakeProfit,
       FuturesField.stopLoss => l.futStopLoss,
+      FuturesField.callback => l.futCallback,
+      FuturesField.activation => l.futActivation,
     };
     String? issueText(FuturesIssue? issue) => switch (issue) {
       FuturesIssue.required => l.paperErrRequired,
@@ -459,32 +461,84 @@ class _Form extends ConsumerWidget {
         groupThousands(pair.tickSize.replaceFirst(RegExp(r'0+$'), '')),
       ),
       FuturesIssue.tpSlWithReduceOnly => l.futErrTpSlReduceOnly,
+      FuturesIssue.outOfRange => l.futErrCallback,
       null => null,
     };
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        DropdownButton<FuturesKind>(
-          key: const Key('futures-kind'),
-          isExpanded: true,
-          value: state.kind,
-          onChanged: (kind) => c.selectKind(kind!),
-          items: [
-            for (final kind in FuturesKind.values)
-              DropdownMenuItem(
-                value: kind,
-                child: Text(switch (kind) {
-                  FuturesKind.limit => l.futKindLimit,
-                  FuturesKind.market => l.futKindMarket,
-                  FuturesKind.stopLimit => l.futKindStopLimit,
-                  FuturesKind.stopMarket => l.futKindStopMarket,
-                  FuturesKind.takeProfitLimit => l.futKindTakeProfitLimit,
-                  FuturesKind.takeProfitMarket => l.futKindTakeProfitMarket,
-                }),
+        // A Limit's time in force shares the kind's row (T-123).
+        Row(
+          children: [
+            Expanded(
+              child: DropdownButton<FuturesKind>(
+                key: const Key('futures-kind'),
+                isExpanded: true,
+                value: state.kind,
+                onChanged: (kind) => c.selectKind(kind!),
+                items: [
+                  for (final kind in FuturesKind.values)
+                    DropdownMenuItem(
+                      value: kind,
+                      child: Text(switch (kind) {
+                        FuturesKind.limit => l.futKindLimit,
+                        FuturesKind.market => l.futKindMarket,
+                        FuturesKind.stopLimit => l.futKindStopLimit,
+                        FuturesKind.stopMarket => l.futKindStopMarket,
+                        FuturesKind.takeProfitLimit => l.futKindTakeProfitLimit,
+                        FuturesKind.takeProfitMarket =>
+                          l.futKindTakeProfitMarket,
+                        FuturesKind.trailingStop => l.futKindTrailingStop,
+                      }),
+                    ),
+                ],
               ),
+            ),
+            if (state.kind == FuturesKind.limit) ...[
+              const SizedBox(width: 6),
+              DropdownButton<FuturesTimeInForce>(
+                key: const Key('futures-tif'),
+                value: state.timeInForce,
+                onChanged: (tif) => c.setTimeInForce(tif!),
+                selectedItemBuilder: (_) => [
+                  for (final tif in FuturesTimeInForce.values) Text(tif.wire),
+                ],
+                items: [
+                  for (final tif in FuturesTimeInForce.values)
+                    DropdownMenuItem(
+                      value: tif,
+                      child: Text(switch (tif) {
+                        FuturesTimeInForce.gtc => l.tradeTifGtc,
+                        FuturesTimeInForce.ioc => l.tradeTifIoc,
+                        FuturesTimeInForce.fok => l.tradeTifFok,
+                        FuturesTimeInForce.gtx => l.futTifGtx,
+                        FuturesTimeInForce.gtd => l.futTifGtd,
+                      }),
+                    ),
+                ],
+              ),
+            ],
           ],
         ),
+        if (state.kind == FuturesKind.limit &&
+            state.timeInForce == FuturesTimeInForce.gtd)
+          Wrap(
+            spacing: 6,
+            children: [
+              for (final hours in gtdHours)
+                ChoiceChip(
+                  key: Key('futures-gtd-$hours'),
+                  label: Text(switch (hours) {
+                    1 => l.futGtdHour,
+                    24 => l.futGtdDay,
+                    _ => l.futGtdWeek,
+                  }),
+                  selected: state.gtdHours == hours,
+                  onSelected: (_) => c.setGtdHours(hours),
+                ),
+            ],
+          ),
         for (final field in state.fields)
           Padding(
             padding: const EdgeInsets.only(top: 6),
@@ -1322,6 +1376,63 @@ class _MarginSheetState extends State<_MarginSheet> {
   }
 }
 
+/// A new price and quantity for an open Limit (`PUT /futures/order`);
+/// both start from the order's own.
+class _AmendSheet extends StatefulWidget {
+  const _AmendSheet({required this.order});
+
+  final FuturesOrder order;
+
+  @override
+  State<_AmendSheet> createState() => _AmendSheetState();
+}
+
+class _AmendSheetState extends State<_AmendSheet> {
+  late final _price = TextEditingController(text: widget.order.price ?? '');
+  late final _quantity = TextEditingController(text: widget.order.origQty);
+
+  @override
+  void dispose() {
+    _price.dispose();
+    _quantity.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final price = _price.text.trim();
+    final quantity = _quantity.text.trim();
+    return _SheetFrame(
+      title: l.futAmendTitle,
+      children: [
+        TextField(
+          key: const Key('amend-price'),
+          controller: _price,
+          onChanged: (_) => setState(() {}),
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          decoration: InputDecoration(labelText: l.tradePrice),
+        ),
+        TextField(
+          key: const Key('amend-quantity'),
+          controller: _quantity,
+          onChanged: (_) => setState(() {}),
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          decoration: InputDecoration(labelText: l.futSize),
+        ),
+        const SizedBox(height: 8),
+        FilledButton(
+          key: const Key('amend-confirm'),
+          onPressed: price.isEmpty || quantity.isEmpty
+              ? null
+              : () => Navigator.of(context).pop((price, quantity)),
+          child: Text(l.futSave),
+        ),
+      ],
+    );
+  }
+}
+
 class _SheetFrame extends StatelessWidget {
   const _SheetFrame({required this.title, required this.children});
 
@@ -1375,11 +1486,38 @@ class _Orders extends ConsumerWidget {
             subtitle: Text(
               '${groupThousands(order.price ?? '--')} · ${order.executedQty}/${order.origQty}',
             ),
-            trailing: TextButton(
-              key: Key('futures-cancel-${order.orderId}'),
-              onPressed: () =>
-                  _run(context, () => repository.cancelOrder(order)),
-              child: Text(l.tradeCancel),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // A Limit can take a new price and quantity (T-123).
+                if (order.type == 'LIMIT')
+                  TextButton(
+                    key: Key('futures-amend-${order.orderId}'),
+                    onPressed: () async {
+                      final result = await _sheet<(String, String)>(
+                        context: context,
+                        isScrollControlled: true,
+                        builder: (_) => _AmendSheet(order: order),
+                      );
+                      if (result == null || !context.mounted) return;
+                      await _run(
+                        context,
+                        () => repository.amendOrder(
+                          order,
+                          price: result.$1,
+                          quantity: result.$2,
+                        ),
+                      );
+                    },
+                    child: Text(l.futAmend),
+                  ),
+                TextButton(
+                  key: Key('futures-cancel-${order.orderId}'),
+                  onPressed: () =>
+                      _run(context, () => repository.cancelOrder(order)),
+                  child: Text(l.tradeCancel),
+                ),
+              ],
             ),
           ),
         for (final order in state.algoOrders)

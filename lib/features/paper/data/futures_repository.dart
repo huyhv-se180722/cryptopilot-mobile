@@ -155,6 +155,23 @@ class FuturesRepository extends Notifier<FuturesState> {
   Future<void> cancelOrder(FuturesOrder order) =>
       _change((api) => api.cancelOrder(order.symbol, order.orderId));
 
+  /// A new price and quantity for an open Limit (T-123).
+  Future<void> amendOrder(
+    FuturesOrder order, {
+    required String price,
+    required String quantity,
+  }) => _change(
+    (api) => api.amendOrder(
+      FuturesAmendRequest(
+        symbol: order.symbol,
+        orderId: order.orderId,
+        side: order.side,
+        quantity: quantity,
+        price: price,
+      ),
+    ),
+  );
+
   Future<void> cancelAlgoOrder(AlgoOrder order) =>
       _change((api) => api.cancelAlgoOrder(order.symbol, order.algoId));
 

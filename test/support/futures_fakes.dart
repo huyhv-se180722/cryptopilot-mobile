@@ -265,8 +265,29 @@ class FakeFuturesApi implements FuturesApi {
       symbol: request.symbol,
       side: request.side,
       type: request.type,
-      triggerPrice: request.triggerPrice,
+      triggerPrice: request.triggerPrice ?? '0',
       status: 'NEW',
+    );
+  }
+
+  final List<FuturesAmendRequest> amended = [];
+
+  @override
+  Future<FuturesOrder> amendOrder(FuturesAmendRequest request) async {
+    calls.add('amend ${request.orderId} ${request.price} ${request.quantity}');
+    amended.add(request);
+    if (changeError case final error?) throw error;
+    return FuturesOrder(
+      orderId: request.orderId,
+      symbol: request.symbol,
+      side: request.side,
+      positionSide: PositionSide.both,
+      type: 'LIMIT',
+      origQty: request.quantity,
+      executedQty: '0',
+      status: OrderStatus.newOrder,
+      time: DateTime.utc(2026, 11, 19),
+      price: request.price,
     );
   }
 
