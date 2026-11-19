@@ -1066,5 +1066,22 @@
       }
     }
   },
-  "homeDemoStart": "Practise trading with virtual funds"
+  "homeDemoStart": "Practise trading with virtual funds",
+  "tradeFilled": "Demo fill: {side} {quantity} {symbol} at {price}",
+  "@tradeFilled": {
+    "placeholders": {
+      "side": {
+        "type": "String"
+      },
+      "quantity": {
+        "type": "String"
+      },
+      "symbol": {
+        "type": "String"
+      },
+      "price": {
+        "type": "String"
+      }
+    }
+  }
 }

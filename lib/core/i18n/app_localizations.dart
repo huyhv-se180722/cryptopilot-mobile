@@ -2925,6 +2925,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Practise trading with virtual funds'**
   String get homeDemoStart;
+
+  /// No description provided for @tradeFilled.
+  ///
+  /// In en, this message translates to:
+  /// **'Demo fill: {side} {quantity} {symbol} at {price}'**
+  String tradeFilled(String side, String quantity, String symbol, String price);
 }
 
 class _AppLocalizationsDelegate

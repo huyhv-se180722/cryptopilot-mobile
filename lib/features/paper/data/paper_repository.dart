@@ -11,6 +11,7 @@ import 'paper_api.dart';
 
 const ordersQueue = '/user/queue/orders';
 const balancesQueue = '/user/queue/balances';
+const fillsQueue = '/user/queue/fills';
 
 /// True once the demo account is known to be open in this run: readers that
 /// must not open it themselves (the Home block) read again then.
@@ -143,7 +144,12 @@ class PaperAccountRepository extends Notifier<PaperAccountState> {
 
 @immutable
 class OpenOrdersState {
-  const OpenOrdersState({this.orders, this.failure});
+  const OpenOrdersState({this.orders, this.failure, this.fill, this.fills = 0});
+
+  /// The latest fill pushed on `/user/queue/fills`; [fills] grows by one at
+  /// each, so a screen tells every one apart.
+  final PaperFill? fill;
+  final int fills;
 
   /// Every open Spot order, newest first; null until read.
   final List<PaperOrder>? orders;
@@ -174,11 +180,18 @@ class OpenOrdersRepository extends Notifier<OpenOrdersState> {
         .read(realtimeHubProvider.notifier)
         .watch(ordersQueue)
         .listen(_onOrder);
+    final fills = ref
+        .read(realtimeHubProvider.notifier)
+        .watch(fillsQueue)
+        .listen(_onFill);
     ref
       ..listen(realtimeHubProvider.select((s) => s.generation), (before, now) {
         if (before != null && before > 0 && now != before) unawaited(load());
       })
-      ..onDispose(() => unawaited(orders.cancel()));
+      ..onDispose(() {
+        unawaited(orders.cancel());
+        unawaited(fills.cancel());
+      });
     unawaited(Future.microtask(load));
     return const OpenOrdersState();
   }
@@ -191,11 +204,18 @@ class OpenOrdersRepository extends Notifier<OpenOrdersState> {
       if (ref.mounted) {
         state = OpenOrdersState(
           orders: [...orders]..sort((a, b) => b.placedAt.compareTo(a.placedAt)),
+          fill: state.fill,
+          fills: state.fills,
         );
       }
     } on ApiFailure catch (failure) {
       if (ref.mounted) {
-        state = OpenOrdersState(orders: state.orders, failure: failure);
+        state = OpenOrdersState(
+          orders: state.orders,
+          failure: failure,
+          fill: state.fill,
+          fills: state.fills,
+        );
       }
     }
   }
@@ -206,6 +226,21 @@ class OpenOrdersRepository extends Notifier<OpenOrdersState> {
     } on DecodeException {
       // A bad push is dropped; the next read brings the order.
     }
+  }
+
+  void _onFill(Object? body) {
+    final PaperFill fill;
+    try {
+      fill = decodeFill(body);
+    } on DecodeException {
+      return;
+    }
+    state = OpenOrdersState(
+      orders: state.orders,
+      failure: state.failure,
+      fill: fill,
+      fills: state.fills + 1,
+    );
   }
 
   /// Orders as an answer or a push left them: open ones are kept, the
@@ -224,6 +259,8 @@ class OpenOrdersRepository extends Notifier<OpenOrdersState> {
       orders: [...added, ...kept]
         ..sort((a, b) => b.placedAt.compareTo(a.placedAt)),
       failure: state.failure,
+      fill: state.fill,
+      fills: state.fills,
     );
   }
 

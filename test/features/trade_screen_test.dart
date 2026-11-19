@@ -212,6 +212,44 @@ void main() {
     await unmount(tester);
   });
 
+  testWidgets('each fill pushed is told once, even two alike', (tester) async {
+    await open(tester);
+    Map<String, Object?> fill(String id) => {
+      'fillId': id,
+      'orderId': 'o-1',
+      'pairId': 'pair-BTC',
+      'symbol': 'BTCUSDT',
+      'market': 'SPOT',
+      'side': 'BUY',
+      'price': '76000.00',
+      'quantity': '0.01',
+      'quoteAmount': '760',
+      'fee': '0.76',
+      'feeAsset': 'USDT',
+      'liquidity': 'TAKER',
+      'source': 'LIVE',
+      'tradedAt': '2026-11-19T02:00:00Z',
+    };
+    expect(transport.last.subscriptions.keys, contains('/user/queue/fills'));
+    transport.last.push('/user/queue/fills', fill('f-1'));
+    await frames(tester);
+    expect(
+      find.text('Demo fill: Buy 0.01 BTCUSDT at 76,000.00'),
+      findsOneWidget,
+    );
+    ScaffoldMessenger.of(
+      tester.element(find.byKey(const Key('trade-spot'))),
+    ).removeCurrentSnackBar();
+    await frames(tester);
+    transport.last.push('/user/queue/fills', fill('f-1'));
+    await frames(tester);
+    expect(
+      find.text('Demo fill: Buy 0.01 BTCUSDT at 76,000.00'),
+      findsOneWidget,
+    );
+    await unmount(tester);
+  });
+
   for (final brightness in Brightness.values) {
     testWidgets('360 dp, ${brightness.name}: the form and the book fit side '
         'by side', (tester) async {

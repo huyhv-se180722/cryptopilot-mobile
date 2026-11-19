@@ -94,6 +94,23 @@ class _SpotTrade extends ConsumerWidget {
     final pairsFailure = ref.watch(board.select((s) => s.failure));
     final account = ref.watch(paperAccountProvider);
     final pair = tradePairOf(ref.watch(tradePairProvider), pairs);
+    // Each fill pushed is told once: a side effect per push, so listen.
+    ref.listen(openOrdersProvider.select((s) => s.fills), (_, _) {
+      final fill = ref.read(openOrdersProvider).fill;
+      if (fill == null) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            l.tradeFilled(
+              fill.side == OrderSide.buy ? l.tradeBuy : l.tradeSell,
+              fill.quantity,
+              fill.symbol,
+              groupThousands(fill.price),
+            ),
+          ),
+        ),
+      );
+    });
 
     if (account.spot == null && account.failure != null) {
       return _Failed(

@@ -1647,4 +1647,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get homeDemoStart => 'Practise trading with virtual funds';
+
+  @override
+  String tradeFilled(
+    String side,
+    String quantity,
+    String symbol,
+    String price,
+  ) {
+    return 'Demo fill: $side $quantity $symbol at $price';
+  }
 }
