@@ -329,6 +329,28 @@ void main() {
       expect(find.text('OTHER'), findsNothing);
       await unmount(tester);
     });
+    testWidgets('rows and the Add pair sheet start with the coin logo '
+        '(T-132)', (tester) async {
+      await pump(tester, items: [watchOf('BTC'), watchOf('ETH')]);
+      expect(
+        find.descendant(
+          of: find.byKey(const Key('watch-row-BTCUSDT')),
+          matching: find.byType(CoinLogo),
+        ),
+        findsOneWidget,
+      );
+      await tester.tap(find.byKey(const Key('add-pair')));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(
+        find.descendant(
+          of: find.byKey(const Key('add-BTCUSDT')),
+          matching: find.byType(CoinLogo),
+        ),
+        findsOneWidget,
+      );
+      await unmount(tester);
+    });
   });
 
   group('SCR-12 reorder (SRS 3.4.1, PATCH sortOrder on 25ba960)', () {

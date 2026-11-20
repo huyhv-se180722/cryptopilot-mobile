@@ -5,6 +5,7 @@ import 'package:cryptopilot_mobile/core/auth/token_store.dart';
 import 'package:cryptopilot_mobile/core/router/app_router.dart';
 import 'package:cryptopilot_mobile/core/settings/settings.dart';
 import 'package:cryptopilot_mobile/features/paper/domain/paper.dart';
+import 'package:cryptopilot_mobile/features/market/presentation/market_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -273,4 +274,18 @@ void main() {
       await unmount(tester);
     });
   }
+
+  testWidgets('the pair sheet shows each coin logo (T-132)', (tester) async {
+    await open(tester);
+    await tester.tap(find.byKey(const Key('trade-pair')));
+    await frames(tester);
+    expect(
+      find.descendant(
+        of: find.byKey(const Key('trade-pick-ETHUSDT')),
+        matching: find.byType(CoinLogo),
+      ),
+      findsOneWidget,
+    );
+    await unmount(tester);
+  });
 }

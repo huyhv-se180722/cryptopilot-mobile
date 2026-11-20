@@ -166,3 +166,57 @@ class ListSkeleton extends StatelessWidget {
     ),
   );
 }
+
+/// A coin's logo ([url], `logoUrl` of its pair), or its first two letters
+/// while it loads, when there is none or when it fails, as the web's
+/// `CoinLogo`. Decorative: the symbol is always written next to it.
+class CoinLogo extends StatelessWidget {
+  const CoinLogo({required this.symbol, this.url, this.size = 28, super.key});
+
+  final String symbol;
+  final String? url;
+  final double size;
+
+  @override
+  Widget build(BuildContext context) {
+    final cp = context.cp;
+    final letters = Container(
+      key: const Key('coin-letters'),
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: cp.raised,
+        shape: BoxShape.circle,
+        border: Border.all(color: cp.border),
+      ),
+      child: Text(
+        symbol.length > 2 ? symbol.substring(0, 2) : symbol,
+        style: TextStyle(
+          fontSize: size * 0.36,
+          fontWeight: FontWeight.w700,
+          color: cp.muted,
+        ),
+      ),
+    );
+    final address = url;
+    return ExcludeSemantics(
+      child: SizedBox.square(
+        dimension: size,
+        child: address == null
+            ? letters
+            : ClipOval(
+                child: Image.network(
+                  address,
+                  key: const Key('coin-image'),
+                  width: size,
+                  height: size,
+                  fit: BoxFit.cover,
+                  cacheWidth: (size * 3).round(),
+                  frameBuilder: (_, child, frame, sync) =>
+                      sync || frame != null ? child : letters,
+                  errorBuilder: (_, _, _) => letters,
+                ),
+              ),
+      ),
+    );
+  }
+}

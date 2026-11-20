@@ -8,6 +8,7 @@ import 'package:cryptopilot_mobile/features/paper/application/futures_form_contr
 import 'package:cryptopilot_mobile/features/paper/application/trade_controller.dart';
 import 'package:cryptopilot_mobile/features/paper/domain/futures.dart';
 import 'package:cryptopilot_mobile/features/paper/domain/paper.dart';
+import 'package:cryptopilot_mobile/features/market/presentation/market_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -185,4 +186,20 @@ void main() {
       await unmount(tester);
     });
   }
+
+  testWidgets('the Futures pair sheet shows each coin logo (T-132)', (
+    tester,
+  ) async {
+    await open(tester);
+    await tester.tap(find.byKey(const Key('futures-pair')));
+    await frames(tester);
+    expect(
+      find.descendant(
+        of: find.byKey(const Key('futures-pick-BTCUSDT')),
+        matching: find.byType(CoinLogo),
+      ),
+      findsOneWidget,
+    );
+    await unmount(tester);
+  });
 }

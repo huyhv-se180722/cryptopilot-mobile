@@ -31,6 +31,7 @@ class MarketPair {
     required this.tickSize,
     required this.stepSize,
     required this.displayOrder,
+    this.logoUrl,
   });
 
   final String pairId;
@@ -43,6 +44,9 @@ class MarketPair {
   final String stepSize;
   final int displayOrder;
 
+  /// The base coin's logo (an `https://` address), or null when none.
+  final String? logoUrl;
+
   bool matches(String query) {
     final q = query.trim().toLowerCase();
     if (q.isEmpty) return true;
@@ -51,6 +55,10 @@ class MarketPair {
         baseAssetName.toLowerCase().contains(q);
   }
 }
+
+/// Only an `https://` address is loaded (the backend keeps no other).
+String? _httpsOrNull(String? url) =>
+    url != null && url.startsWith('https://') ? url : null;
 
 MarketPair decodePair(Object? body) {
   final json = asJsonObject(body, 'pair');
@@ -67,6 +75,7 @@ MarketPair decodePair(Object? body) {
     tickSize: readString(json, 'tickSize'),
     stepSize: readString(json, 'stepSize'),
     displayOrder: order is int ? order : 0,
+    logoUrl: _httpsOrNull(readOptionalString(json, 'logoUrl')),
   );
 }
 
