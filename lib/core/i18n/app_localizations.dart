@@ -208,6 +208,18 @@ abstract class AppLocalizations {
   /// **'No results found.'**
   String get msg41;
 
+  /// No description provided for @msg32.
+  ///
+  /// In en, this message translates to:
+  /// **'File type or size is not supported (maximum {size}).'**
+  String msg32(String size);
+
+  /// No description provided for @msg33.
+  ///
+  /// In en, this message translates to:
+  /// **'Your post has been published.'**
+  String get msg33;
+
   /// No description provided for @msg34.
   ///
   /// In en, this message translates to:
@@ -1606,12 +1618,6 @@ abstract class AppLocalizations {
   /// **'Community'**
   String get communityTitle;
 
-  /// No description provided for @communityNewPostWeb.
-  ///
-  /// In en, this message translates to:
-  /// **'New post on the web'**
-  String get communityNewPostWeb;
-
   /// No description provided for @communityTabLatest.
   ///
   /// In en, this message translates to:
@@ -1822,12 +1828,6 @@ abstract class AppLocalizations {
   /// **'Delete'**
   String get communityDelete;
 
-  /// No description provided for @communityEditOnWeb.
-  ///
-  /// In en, this message translates to:
-  /// **'Edit on the web'**
-  String get communityEditOnWeb;
-
   /// No description provided for @communityDeleteTitle.
   ///
   /// In en, this message translates to:
@@ -2013,6 +2013,126 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Load more'**
   String get communityLoadMore;
+
+  /// No description provided for @composerNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New post'**
+  String get composerNew;
+
+  /// No description provided for @composerEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit post'**
+  String get composerEdit;
+
+  /// No description provided for @composerPublish.
+  ///
+  /// In en, this message translates to:
+  /// **'Publish'**
+  String get composerPublish;
+
+  /// No description provided for @composerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Title'**
+  String get composerTitle;
+
+  /// No description provided for @composerTitleHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Give your post a title (5 to 150 characters)'**
+  String get composerTitleHint;
+
+  /// No description provided for @composerContent.
+  ///
+  /// In en, this message translates to:
+  /// **'What do you want to share?'**
+  String get composerContent;
+
+  /// No description provided for @composerCoins.
+  ///
+  /// In en, this message translates to:
+  /// **'Coins (up to 5)'**
+  String get composerCoins;
+
+  /// No description provided for @composerAddCoin.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a coin'**
+  String get composerAddCoin;
+
+  /// No description provided for @composerRemoveCoin.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove {coin}'**
+  String composerRemoveCoin(String coin);
+
+  /// No description provided for @composerMarket.
+  ///
+  /// In en, this message translates to:
+  /// **'Market'**
+  String get composerMarket;
+
+  /// No description provided for @composerNoMarket.
+  ///
+  /// In en, this message translates to:
+  /// **'None'**
+  String get composerNoMarket;
+
+  /// No description provided for @composerStance.
+  ///
+  /// In en, this message translates to:
+  /// **'Your stance'**
+  String get composerStance;
+
+  /// No description provided for @composerNoStance.
+  ///
+  /// In en, this message translates to:
+  /// **'None'**
+  String get composerNoStance;
+
+  /// No description provided for @composerMediaHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Up to 4 images (JPG, PNG, WEBP) or 1 video (MP4, WEBM).'**
+  String get composerMediaHint;
+
+  /// No description provided for @composerAddImages.
+  ///
+  /// In en, this message translates to:
+  /// **'Add images'**
+  String get composerAddImages;
+
+  /// No description provided for @composerAddVideo.
+  ///
+  /// In en, this message translates to:
+  /// **'Add video'**
+  String get composerAddVideo;
+
+  /// No description provided for @composerUploading.
+  ///
+  /// In en, this message translates to:
+  /// **'Uploading {percent}%'**
+  String composerUploading(int percent);
+
+  /// No description provided for @composerRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get composerRemove;
+
+  /// No description provided for @composerFieldInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Check this field.'**
+  String get composerFieldInvalid;
+
+  /// No description provided for @composerSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Your changes are saved.'**
+  String get composerSaved;
 
   /// No description provided for @communityLikesCount.
   ///

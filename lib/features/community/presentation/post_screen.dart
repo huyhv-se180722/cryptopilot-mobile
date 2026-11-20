@@ -148,11 +148,8 @@ class _PostScreenState extends ConsumerState<PostScreen> {
               onSelected: (action) => switch (action) {
                 'report' => unawaited(_report()),
                 'delete' => unawaited(_deletePost()),
-                _ => unawaited(
-                  ref
-                      .read(webLinksProvider)
-                      .open('/community/${Uri.encodeComponent(post.id)}/edit'),
-                ),
+                // SCR-26 in the app since T-135 (the web before).
+                _ => unawaited(context.push('${postLocation(post.id)}/edit')),
               },
               itemBuilder: (_) => [
                 if (!post.mine)
@@ -163,9 +160,9 @@ class _PostScreenState extends ConsumerState<PostScreen> {
                   ),
                 if (post.mine) ...[
                   PopupMenuItem(
-                    key: const Key('post-edit-web'),
+                    key: const Key('post-edit'),
                     value: 'edit',
-                    child: Text(l.communityEditOnWeb),
+                    child: Text(l.composerEdit),
                   ),
                   PopupMenuItem(
                     key: const Key('post-delete'),

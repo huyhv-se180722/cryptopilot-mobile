@@ -76,6 +76,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get msg41 => 'No results found.';
 
   @override
+  String msg32(String size) {
+    return 'File type or size is not supported (maximum $size).';
+  }
+
+  @override
+  String get msg33 => 'Your post has been published.';
+
+  @override
   String get msg34 => 'Thank you, your report has been submitted.';
 
   @override
@@ -858,9 +866,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get communityTitle => 'Community';
 
   @override
-  String get communityNewPostWeb => 'New post on the web';
-
-  @override
   String get communityTabLatest => 'Latest';
 
   @override
@@ -968,9 +973,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get communityDelete => 'Delete';
 
   @override
-  String get communityEditOnWeb => 'Edit on the web';
-
-  @override
   String get communityDeleteTitle => 'Delete this post?';
 
   @override
@@ -1070,6 +1072,72 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get communityLoadMore => 'Load more';
+
+  @override
+  String get composerNew => 'New post';
+
+  @override
+  String get composerEdit => 'Edit post';
+
+  @override
+  String get composerPublish => 'Publish';
+
+  @override
+  String get composerTitle => 'Title';
+
+  @override
+  String get composerTitleHint =>
+      'Give your post a title (5 to 150 characters)';
+
+  @override
+  String get composerContent => 'What do you want to share?';
+
+  @override
+  String get composerCoins => 'Coins (up to 5)';
+
+  @override
+  String get composerAddCoin => 'Add a coin';
+
+  @override
+  String composerRemoveCoin(String coin) {
+    return 'Remove $coin';
+  }
+
+  @override
+  String get composerMarket => 'Market';
+
+  @override
+  String get composerNoMarket => 'None';
+
+  @override
+  String get composerStance => 'Your stance';
+
+  @override
+  String get composerNoStance => 'None';
+
+  @override
+  String get composerMediaHint =>
+      'Up to 4 images (JPG, PNG, WEBP) or 1 video (MP4, WEBM).';
+
+  @override
+  String get composerAddImages => 'Add images';
+
+  @override
+  String get composerAddVideo => 'Add video';
+
+  @override
+  String composerUploading(int percent) {
+    return 'Uploading $percent%';
+  }
+
+  @override
+  String get composerRemove => 'Remove';
+
+  @override
+  String get composerFieldInvalid => 'Check this field.';
+
+  @override
+  String get composerSaved => 'Your changes are saved.';
 
   @override
   String communityLikesCount(String n) {

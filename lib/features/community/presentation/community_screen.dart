@@ -2,17 +2,17 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../core/errors/api_failure.dart';
 import '../../../core/errors/message_text.dart';
 import '../../../core/i18n/app_localizations.dart';
 import '../../../core/theme/cp_colors.dart';
-import '../../../core/web/web_links.dart';
-import '../../market/data/market_repository.dart';
 import '../../market/domain/market.dart';
 import '../../market/presentation/market_widgets.dart';
 import '../application/feed_controller.dart';
 import '../domain/community.dart';
+import 'coin_picker.dart';
 import 'community_widgets.dart';
 
 String feedTabName(AppLocalizations l, FeedTab tab) => switch (tab) {
@@ -102,10 +102,9 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
             ),
             IconButton(
               key: const Key('community-new-post'),
-              tooltip: l.communityNewPostWeb,
+              tooltip: l.composerNew,
               icon: const Icon(Icons.edit_outlined),
-              onPressed: () =>
-                  unawaited(ref.read(webLinksProvider).open('/community/new')),
+              onPressed: () => unawaited(context.push('/community/new')),
             ),
           ],
           bottom: TabBar(
@@ -164,19 +163,7 @@ class _FilterBar extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context);
-    // Watched, so the pair lists stay while the feed is open.
-    final seen = <String, MarketPair>{};
-    for (final market in Market.values) {
-      for (final pair
-          in ref.watch(
-                marketRepositoryProvider(market).select((s) => s.pairs),
-              ) ??
-              const <MarketPair>[]) {
-        seen.putIfAbsent(pair.baseAsset, () => pair);
-      }
-    }
-    final coins = seen.values.toList()
-      ..sort((a, b) => a.baseAsset.compareTo(b.baseAsset));
+    final coins = listedCoins(ref);
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       padding: const EdgeInsets.fromLTRB(12, 8, 12, 4),
@@ -191,7 +178,13 @@ class _FilterBar extends ConsumerWidget {
             selected: filter.coin != null,
             showCheckmark: false,
             onPressed: () async {
-              final coin = await _pickCoin(context, coins, filter.coin);
+              final coin = await showCoinPicker(
+                context,
+                coins,
+                keyPrefix: 'community-coin',
+                current: filter.coin,
+                allowAll: true,
+              );
               if (coin == null) return;
               onChanged(
                 coin.isEmpty
@@ -223,51 +216,6 @@ class _FilterBar extends ConsumerWidget {
               ),
             ),
         ],
-      ),
-    );
-  }
-
-  /// The coins of the listed pairs; '' clears the filter.
-  static Future<String?> _pickCoin(
-    BuildContext context,
-    List<MarketPair> coins,
-    String? current,
-  ) {
-    final l = AppLocalizations.of(context);
-    return showModalBottomSheet<String>(
-      context: context,
-      showDragHandle: true,
-      isScrollControlled: true,
-      builder: (context) => SafeArea(
-        child: ConstrainedBox(
-          constraints: BoxConstraints(
-            maxHeight: MediaQuery.sizeOf(context).height * 0.7,
-          ),
-          child: ListView(
-            shrinkWrap: true,
-            children: [
-              ListTile(
-                key: const Key('community-coin-all'),
-                title: Text(l.communityCoinAll),
-                selected: current == null,
-                onTap: () => Navigator.of(context).pop(''),
-              ),
-              for (final pair in coins)
-                ListTile(
-                  key: Key('community-coin-${pair.baseAsset}'),
-                  leading: CoinLogo(
-                    symbol: pair.baseAsset,
-                    url: pair.logoUrl,
-                    size: 24,
-                  ),
-                  title: Text(pair.baseAsset),
-                  subtitle: Text(pair.baseAssetName),
-                  selected: pair.baseAsset == current,
-                  onTap: () => Navigator.of(context).pop(pair.baseAsset),
-                ),
-            ],
-          ),
-        ),
       ),
     );
   }

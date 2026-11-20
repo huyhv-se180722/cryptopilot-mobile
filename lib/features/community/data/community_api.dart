@@ -67,12 +67,33 @@ abstract interface class CommunityApi {
     ReportReason reason, {
     String? description,
   });
+
+  /// The signed form for one file (D-98); 403 MSG29 for a video on a plan
+  /// without video posting (BR-43), 503 when the storage is down.
+  Future<UploadForm> uploadForm(MediaKind kind);
+
+  /// Posts [path] to the storage with [form]'s fields, reporting the share
+  /// sent; a refusal of the storage is the file's (MSG32).
+  Future<void> upload(
+    UploadForm form,
+    String path, {
+    void Function(double share)? onProgress,
+  });
+
+  /// 400 MSG01 per field, MSG32 for a file, 403 MSG29; MSG33 when done.
+  Future<Post> createPost(PostDraft draft);
+
+  /// The caller's own post; 404 MSG41 when it is not theirs or deleted.
+  Future<Post> updatePost(String id, PostDraft draft);
 }
 
 class DioCommunityApi implements CommunityApi {
-  const DioCommunityApi(this._dio);
+  DioCommunityApi(this._dio, {Dio? storage}) : _storage = storage ?? Dio();
 
   final Dio _dio;
+
+  /// A client for the media storage only: none of the app's tokens.
+  final Dio _storage;
 
   static String _post(String id) => 'posts/${Uri.encodeComponent(id)}';
 
@@ -205,8 +226,68 @@ class DioCommunityApi implements CommunityApi {
     ReportReason reason, {
     String? description,
   }) => _report('${_comment(id)}/reports', reason, description);
+  @override
+  Future<UploadForm> uploadForm(MediaKind kind) => apiCall(
+    () => _dio.post<Object?>(
+      'media/upload-signature',
+      data: {'mediaType': kind.wire},
+    ),
+    decodeUploadForm,
+  );
+
+  @override
+  Future<void> upload(
+    UploadForm form,
+    String path, {
+    void Function(double share)? onProgress,
+  }) async {
+    try {
+      await _storage.post<Object?>(
+        form.uploadUrl,
+        data: FormData.fromMap({
+          'file': await MultipartFile.fromFile(path),
+          'api_key': form.apiKey,
+          'timestamp': '${form.timestamp}',
+          'signature': form.signature,
+          'public_id': form.publicId,
+          'allowed_formats': form.allowedFormats.join(','),
+          'overwrite': '${form.overwrite}',
+        }),
+        onSendProgress: (sent, total) {
+          if (total > 0) onProgress?.call(sent / total);
+        },
+      );
+      onProgress?.call(1);
+    } on Object {
+      // Any refusal of the storage is the file's (web `mediaError`).
+      throw const MediaRefused();
+    }
+  }
+
+  @override
+  Future<Post> createPost(PostDraft draft) => apiCall(
+    () => _dio.post<Object?>('posts', data: draft.toJson()),
+    decodePost,
+  );
+
+  @override
+  Future<Post> updatePost(String id, PostDraft draft) => apiCall(
+    () => _dio.put<Object?>(_post(id), data: draft.toJson()),
+    decodePost,
+  );
 }
 
+/// The storage refused a file (MSG32).
+class MediaRefused implements Exception {
+  const MediaRefused();
+}
+
+/// The media storage's own client: no base URL, no interceptor, no token.
+final storageDioProvider = Provider<Dio>((_) => Dio());
+
 final communityApiProvider = Provider<CommunityApi>(
-  (ref) => DioCommunityApi(ref.watch(apiDioProvider)),
+  (ref) => DioCommunityApi(
+    ref.watch(apiDioProvider),
+    storage: ref.watch(storageDioProvider),
+  ),
 );

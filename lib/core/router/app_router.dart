@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../features/community/presentation/community_screen.dart';
+import '../../features/community/presentation/composer_screen.dart';
 import '../../features/community/presentation/post_screen.dart';
 import '../../features/ai/application/ai_chat_controller.dart';
 import '../../features/ai/application/ai_context.dart';
@@ -66,6 +67,8 @@ abstract final class Routes {
 
   /// SCR-24 and SCR-25 (A-64, T-133), pushed over the tabs.
   static const community = '/community';
+  static const communityNew = '/community/new';
+  static const communityEdit = '/community/:postId/edit';
   static const communityPost = '/community/:postId';
 
   /// SCR-18 and SCR-21 (T-091), pushed over the tabs.
@@ -179,6 +182,16 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: Routes.community,
         builder: (_, _) => const CommunityScreen(),
+      ),
+      // SCR-26 (A-66, T-135), before the post's own path.
+      GoRoute(
+        path: Routes.communityNew,
+        builder: (_, _) => const ComposerScreen(),
+      ),
+      GoRoute(
+        path: Routes.communityEdit,
+        builder: (_, state) =>
+            ComposerScreen(postId: state.pathParameters['postId']),
       ),
       GoRoute(
         path: Routes.communityPost,
