@@ -346,6 +346,37 @@ class AppLocalizationsEn extends AppLocalizations {
   String get marketFutures => 'Futures';
 
   @override
+  String get marketCoins => 'Coins';
+
+  @override
+  String get coinsTop => 'Top';
+
+  @override
+  String get coinsGainers => 'Gainers';
+
+  @override
+  String get coinsLosers => 'Losers';
+
+  @override
+  String coinsCap(String cap) {
+    return 'Mkt cap $cap';
+  }
+
+  @override
+  String coins7d(String change) {
+    return '7d $change';
+  }
+
+  @override
+  String coinsChart(String symbol) {
+    return '$symbol over the last 7 days';
+  }
+
+  @override
+  String get coinsSource =>
+      'Prices: live tickers · Market cap and supply: CoinPaprika';
+
+  @override
   String get marketSearch => 'Search pair or coin';
 
   @override

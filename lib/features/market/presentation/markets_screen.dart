@@ -9,12 +9,14 @@ import '../../../core/theme/cp_colors.dart';
 import '../application/market_overview.dart';
 import '../application/market_board.dart';
 import '../domain/market.dart';
+import 'coin_list_view.dart';
 import 'market_overview_strip.dart';
 import 'market_widgets.dart';
 import 'pair_actions.dart';
 
 /// The segments of the Markets tab.
-enum MarketsSegment { watchlist, spot, futures }
+/// In tab order; Coins last so the earlier indexes stay (T-137).
+enum MarketsSegment { watchlist, spot, futures, coins }
 
 /// A request to show a segment, e.g. Home's "See all" of its watchlist; the
 /// Markets tab follows it and clears it.
@@ -47,7 +49,7 @@ class MarketsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     return DefaultTabController(
-      length: 3,
+      length: 4,
       initialIndex: 1,
       child: Scaffold(
         appBar: AppBar(
@@ -74,6 +76,7 @@ class MarketsScreen extends StatelessWidget {
               Tab(text: l.marketWatchlist),
               Tab(text: l.marketSpot),
               Tab(text: l.marketFutures),
+              Tab(key: const Key('markets-coins'), text: l.marketCoins),
             ],
           ),
         ),
@@ -83,6 +86,7 @@ class MarketsScreen extends StatelessWidget {
               watchlist ?? Center(child: Text(l.tabComingTitle)),
               const MarketBoardView(market: Market.spot),
               const MarketBoardView(market: Market.futures),
+              const CoinListView(),
             ],
           ),
         ),
