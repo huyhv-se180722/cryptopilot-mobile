@@ -16,7 +16,6 @@ class MemberState {
     this.failure,
     this.coins = const [],
     this.relationsAllowed = true,
-    this.officialPosts = const [],
   });
 
   /// Null until it arrives.
@@ -30,30 +29,13 @@ class MemberState {
   /// blocked (an administrator, `RELATION_NOT_ALLOWED`; Q-98).
   final bool relationsAllowed;
 
-  /// The official posts this member wrote, newest first.
-  final List<Post> officialPosts;
-
-  /// Only an administrator writes official posts (SRS 3.7.2, BR-61), and
-  /// an administrator is neither followed nor blocked (D-99). The member
-  /// profile carries no role (Q-98), so the official posts tell it.
-  bool get administrator => officialPosts.isNotEmpty;
-
-  /// Follow and Block show on another Trader's page only.
-  bool get canRelate =>
-      profile != null && !profile!.me && relationsAllowed && !administrator;
-
-  MemberState copyWith({
-    MemberProfile? profile,
-    List<TokenMention>? coins,
-    bool? relationsAllowed,
-    List<Post>? officialPosts,
-  }) => MemberState(
-    profile: profile ?? this.profile,
-    failure: failure,
-    coins: coins ?? this.coins,
-    relationsAllowed: relationsAllowed ?? this.relationsAllowed,
-    officialPosts: officialPosts ?? this.officialPosts,
-  );
+  MemberState copyWith({MemberProfile? profile, bool? relationsAllowed}) =>
+      MemberState(
+        profile: profile ?? this.profile,
+        failure: failure,
+        coins: coins,
+        relationsAllowed: relationsAllowed ?? this.relationsAllowed,
+      );
 
   /// No such member, banned, or blocking the caller (404 MSG41).
   bool get missing =>
@@ -94,24 +76,14 @@ class MemberController extends Notifier<MemberState> {
       state = MemberState(failure: failure);
       return;
     }
-    // Official posts tell an administrator (and are their posts: the
-    // feed by author leaves them out).
-    try {
-      final pinned = await _api.pinned(pageSize: 100);
-      if (!ref.mounted || generation != _generation) return;
-      state = state.copyWith(
-        officialPosts: [
-          for (final p in pinned.items)
-            if (p.author.userId == id) p,
-        ],
-      );
-    } on ApiFailure {
-      // Follow and Block stay until the server refuses them.
-    }
     try {
       final coins = await _api.tokenMentions(id);
       if (!ref.mounted || generation != _generation) return;
-      state = state.copyWith(coins: coins);
+      state = MemberState(
+        profile: state.profile,
+        coins: coins,
+        relationsAllowed: state.relationsAllowed,
+      );
     } on ApiFailure {
       // The coins are extra: the page shows without them.
     }
@@ -119,7 +91,7 @@ class MemberController extends Notifier<MemberState> {
 
   Future<ApiFailure?> toggleFollow() async {
     final profile = state.profile;
-    if (profile == null || !state.canRelate) return null;
+    if (profile == null || profile.me) return null;
     final on = !profile.followedByMe;
     state = state.copyWith(
       profile: profile.copyWith(
@@ -156,12 +128,7 @@ class MemberController extends Notifier<MemberState> {
   /// Blocking hides their posts and comments: the feed reads again.
   Future<ApiFailure?> toggleBlock() async {
     final profile = state.profile;
-    // An unblock stays possible for a page blocked before.
-    if (profile == null ||
-        profile.me ||
-        (!state.canRelate && !profile.blockedByMe)) {
-      return null;
-    }
+    if (profile == null || profile.me) return null;
     final on = !profile.blockedByMe;
     try {
       final e = await _api.block(id, on: on);
