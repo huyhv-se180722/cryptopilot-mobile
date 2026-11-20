@@ -82,4 +82,38 @@ void main() {
     expect(profile.notifyEmail, isTrue);
     expect(profile.notifyPush, isFalse);
   });
+
+  test('profile: the trading style may be unset, an unknown style or risk '
+      'profile is refused', () {
+    Map<String, Object?> body({Object? style, Object? risk = 'BALANCED'}) => {
+      'email': 'trader.pro@cryptopilot.invalid',
+      'displayName': 'Pro Trader',
+      'tradingStyle': style,
+      'riskProfile': risk,
+      'notifyEmail': true,
+      'notifyPush': false,
+    };
+
+    final unset = decodeProfile(body());
+    expect(unset.tradingStyle, isNull);
+    expect(unset.riskProfile, RiskProfile.balanced);
+    for (final style in TradingStyle.values) {
+      expect(decodeProfile(body(style: style.wire)).tradingStyle, style);
+    }
+    for (final risk in RiskProfile.values) {
+      expect(decodeProfile(body(risk: risk.wire)).riskProfile, risk);
+    }
+    expect(
+      () => decodeProfile(body(style: 'HODL')),
+      throwsA(isA<DecodeException>()),
+    );
+    expect(
+      () => decodeProfile(body(risk: 'YOLO')),
+      throwsA(isA<DecodeException>()),
+    );
+    expect(
+      () => decodeProfile(body(risk: null)),
+      throwsA(isA<DecodeException>()),
+    );
+  });
 }

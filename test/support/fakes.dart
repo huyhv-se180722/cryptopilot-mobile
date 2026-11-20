@@ -149,6 +149,8 @@ class FakeProfileApi implements ProfileApi {
     displayName: 'Pro Trader',
     notifyEmail: true,
     notifyPush: false,
+    tradingStyle: TradingStyle.swing,
+    riskProfile: RiskProfile.balanced,
   );
   final List<(bool, bool)> saved = [];
   Object? saveError;
