@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cryptopilot_mobile/features/journal/data/journal_api.dart';
 import 'package:cryptopilot_mobile/features/journal/domain/journal.dart';
 import 'package:cryptopilot_mobile/features/market/domain/market.dart';
@@ -276,6 +278,7 @@ class FakeJournalApi implements JournalApi {
     String? setupDescription,
     String? lessonsLearned,
     String? mistakes,
+    String? chartImagePublicId,
   }) async {
     calls.add('review $id');
     _fail('review');
@@ -284,13 +287,61 @@ class FakeJournalApi implements JournalApi {
       'setupDescription': setupDescription,
       'lessonsLearned': lessonsLearned,
       'mistakes': mistakes,
+      // As the adapter: left out when null.
+      'chartImagePublicId': ?chartImagePublicId,
     });
     return details[id] = JournalDetail(
       entry: _detail(id).entry,
       setupDescription: setupDescription,
       lessonsLearned: lessonsLearned,
       mistakes: mistakes,
+      chartImageUrl: chartImagePublicId == null
+          ? null
+          : '$storageBase/v2/$chartImagePublicId.png',
     );
+  }
+
+  /// The storage's addresses (Cloudinary's shape).
+  static const storageBase = 'https://res.cloudinary.com/demo/image/upload';
+
+  int maxBytes = 5 * 1024 * 1024;
+  final List<String> uploads = [];
+
+  /// Each upload fails while this holds.
+  bool refuseUploads = false;
+
+  /// An upload stops at half way until this completes.
+  Completer<void>? holdUpload;
+
+  @override
+  Future<ChartImageForm> chartImageForm(String id) async {
+    calls.add('chartImageForm $id');
+    _fail('chartImageForm');
+    return ChartImageForm(
+      uploadUrl: 'https://api.cloudinary.com/v1_1/demo/image/upload',
+      apiKey: 'key',
+      timestamp: 1,
+      signature: 'sig',
+      publicId:
+          'cryptopilot/journal/owner/'
+          '0b6f1c2e-1111-4222-8333-${(uploads.length + 1).toString().padLeft(12, '0')}',
+      allowedFormats: const ['jpg', 'jpeg', 'png', 'webp'],
+      maxBytes: maxBytes,
+    );
+  }
+
+  @override
+  Future<void> uploadChartImage(
+    ChartImageForm form,
+    String path, {
+    void Function(double share)? onProgress,
+  }) async {
+    calls.add('upload $path');
+    if (refuseUploads) throw const ChartImageRefused();
+    onProgress?.call(0.5);
+    if (holdUpload case final hold?) await hold.future;
+    onProgress?.call(1);
+    uploads.add(form.publicId);
   }
 
   @override

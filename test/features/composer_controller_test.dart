@@ -1,6 +1,6 @@
 import 'package:cryptopilot_mobile/features/community/application/composer_controller.dart';
 import 'package:cryptopilot_mobile/features/community/data/community_api.dart';
-import 'package:cryptopilot_mobile/features/community/data/media_picker.dart';
+import 'package:cryptopilot_mobile/core/media/media_picker.dart';
 import 'package:cryptopilot_mobile/features/community/domain/community.dart';
 import 'package:cryptopilot_mobile/features/market/domain/market.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

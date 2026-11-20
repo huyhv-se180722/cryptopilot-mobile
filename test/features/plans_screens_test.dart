@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:cryptopilot_mobile/app.dart';
 import 'package:cryptopilot_mobile/core/auth/token_store.dart';
+import 'package:cryptopilot_mobile/core/media/media_picker.dart';
 import 'package:cryptopilot_mobile/core/router/app_router.dart';
 import 'package:cryptopilot_mobile/core/settings/settings.dart';
 import 'package:cryptopilot_mobile/features/ai/data/ai_api.dart';
@@ -19,6 +20,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../support/ai_fakes.dart';
+import '../support/community_fakes.dart' show FakeMediaPicker;
 import '../support/fakes.dart';
 import '../support/plans_fakes.dart';
 import '../support/realtime_fakes.dart';
@@ -60,6 +62,7 @@ void main() {
   late FakeJournalApi journal;
   late FakeWebLinks web;
   late FakeTransport transport;
+  late FakeMediaPicker picker;
 
   Future<void> frames(WidgetTester tester) async {
     for (var i = 0; i < 10; i++) {
@@ -89,6 +92,7 @@ void main() {
           planDetailApiProvider.overrideWithValue(details),
           journalApiProvider.overrideWithValue(journal),
           aiApiProvider.overrideWithValue(FakeAiApi()),
+          mediaPickerProvider.overrideWithValue(picker),
         ],
         retry: (_, _) => null,
         child: const CryptoPilotApp(),
@@ -141,6 +145,10 @@ void main() {
     details = FakePlanDetailApi();
     journal = FakeJournalApi();
     web = FakeWebLinks();
+    picker = FakeMediaPicker()
+      ..nextImages = const [
+        PickedFile(path: '/tmp/chart.png', name: 'chart.png', size: 1000),
+      ];
   });
 
   group('Plans tab (A-61)', () {
@@ -485,6 +493,128 @@ void main() {
       expect(find.byType(JournalEntryScreen), findsNothing);
       await unmount(tester);
     });
+
+    FilledButton save(WidgetTester tester) =>
+        tester.widget<FilledButton>(find.byKey(const Key('journal-save')));
+
+    testWidgets('SCR-21 chart image: added, uploading, then saved by its '
+        'key (SRS 3.6.1)', (tester) async {
+      await open(tester, '/journal/j1');
+      await reach(tester, 'journal-image-pick');
+      expect(find.text('Add chart image'), findsOneWidget);
+      expect(find.text('One image: JPG, PNG or WEBP, up to 5 MB.'), findsOne);
+      expect(find.byKey(const Key('journal-upload-web')), findsNothing);
+      journal.holdUpload = Completer<void>();
+      await tester.tap(find.byKey(const Key('journal-image-pick')));
+      await frames(tester);
+      expect(find.text('Uploading 50%'), findsOneWidget);
+      await reach(tester, 'journal-save');
+      expect(save(tester).onPressed, isNull);
+
+      journal.holdUpload!.complete();
+      await frames(tester);
+      expect(find.byKey(const Key('journal-image-progress')), findsNothing);
+      expect(find.byKey(const Key('journal-image-picked')), findsOneWidget);
+      expect(find.text('Replace image'), findsOneWidget);
+      await reach(tester, 'journal-save');
+      await tester.tap(find.byKey(const Key('journal-save')));
+      await frames(tester);
+      expect(
+        journal.reviews.single['chartImagePublicId'],
+        journal.uploads.single,
+      );
+      expect(find.text('Saved successfully.'), findsOneWidget);
+      await unmount(tester);
+    });
+
+    testWidgets('SCR-21 chart image: MSG32 for a file over 5 MB, which is '
+        'removed', (tester) async {
+      picker.nextImages = const [
+        PickedFile(path: '/tmp/big.png', name: 'big.png', size: 6 << 20),
+      ];
+      await open(tester, '/journal/j1');
+      await reach(tester, 'journal-image-pick');
+      await tester.tap(find.byKey(const Key('journal-image-pick')));
+      await frames(tester);
+      expect(
+        find.text('File type or size is not supported (maximum 5 MB).'),
+        findsOneWidget,
+      );
+      expect(find.byKey(const Key('journal-image-retry')), findsNothing);
+      expect(journal.calls.where((c) => c.startsWith('upload')), isEmpty);
+      await reach(tester, 'journal-save');
+      expect(save(tester).onPressed, isNull);
+
+      await reach(tester, 'journal-image-remove');
+      await tester.tap(find.byKey(const Key('journal-image-remove')));
+      await frames(tester);
+      expect(find.byKey(const Key('journal-image-error')), findsNothing);
+      expect(find.text('Add chart image'), findsOneWidget);
+      await reach(tester, 'journal-save');
+      expect(save(tester).onPressed, isNotNull);
+      await unmount(tester);
+    });
+
+    testWidgets('SCR-21 chart image: a refused upload is tried again', (
+      tester,
+    ) async {
+      journal.refuseUploads = true;
+      await open(tester, '/journal/j1');
+      await reach(tester, 'journal-image-pick');
+      await tester.tap(find.byKey(const Key('journal-image-pick')));
+      await frames(tester);
+      expect(find.byKey(const Key('journal-image-error')), findsOneWidget);
+      journal.refuseUploads = false;
+      await reach(tester, 'journal-image-retry');
+      await tester.tap(find.byKey(const Key('journal-image-retry')));
+      await frames(tester);
+      expect(find.byKey(const Key('journal-image-error')), findsNothing);
+      expect(find.byKey(const Key('journal-image-retry')), findsNothing);
+      expect(journal.uploads, hasLength(1));
+      await unmount(tester);
+    });
+
+    testWidgets('SCR-21 chart image: a stored one is kept, MSG32 of the '
+        'save shows under it, and removing it saves no key (Q-97)', (
+      tester,
+    ) async {
+      const stored =
+          'cryptopilot/journal/owner/0b6f1c2e-1111-4222-8333-444455556666';
+      journal.details['j1'] = JournalDetail(
+        entry: journalOf('j1'),
+        chartImageUrl: '${FakeJournalApi.storageBase}/v3/$stored.png',
+      );
+      journal.failNext['review'] = problem(
+        400,
+        'MEDIA_INVALID',
+        'MSG32',
+        fields: const {'chartImagePublicId': 'MSG32'},
+      );
+      await open(tester, '/journal/j1');
+      await reach(tester, 'journal-image');
+      expect(find.byKey(const Key('journal-chart-image')), findsOneWidget);
+      expect(find.byKey(const Key('journal-review-locked')), findsNothing);
+      expect(find.text('Replace image'), findsOneWidget);
+      await reach(tester, 'journal-save');
+      await tester.tap(find.byKey(const Key('journal-save')));
+      await frames(tester);
+      expect(journal.reviews, isEmpty);
+      expect(
+        find.text('File type or size is not supported (maximum 5 MB).'),
+        findsOneWidget,
+      );
+
+      await reach(tester, 'journal-image-remove');
+      await tester.tap(find.byKey(const Key('journal-image-remove')));
+      await frames(tester);
+      expect(find.byKey(const Key('journal-image-error')), findsNothing);
+      await reach(tester, 'journal-save');
+      await tester.tap(find.byKey(const Key('journal-save')));
+      await frames(tester);
+      expect(journal.reviews.single.containsKey('chartImagePublicId'), isFalse);
+      expect(find.text('Add chart image'), findsOneWidget);
+      await unmount(tester);
+    });
   });
 
   for (final brightness in Brightness.values) {
@@ -554,6 +684,31 @@ void main() {
       await tester.tap(find.byKey(const Key('plan-set-levels')));
       await frames(tester);
       expect(find.byKey(const Key('plan-levels-sheet')), findsOneWidget);
+      expect(tester.takeException(), isNull);
+      await unmount(tester);
+    });
+  }
+
+  for (final brightness in Brightness.values) {
+    testWidgets('360 dp, ${brightness.name}: the chart image of SCR-21 '
+        'with its error fits', (tester) async {
+      tester.view
+        ..physicalSize = const Size(360 * 3, 760 * 3)
+        ..devicePixelRatio = 3;
+      addTearDown(tester.view.reset);
+      journal.refuseUploads = true;
+      await open(tester, '/journal/j1', brightness: brightness);
+      await reach(tester, 'journal-image-pick');
+      await tester.tap(find.byKey(const Key('journal-image-pick')));
+      await frames(tester);
+      await reach(tester, 'journal-image-retry');
+      expect(find.byKey(const Key('journal-image-picked')), findsOneWidget);
+      expect(
+        Theme.of(
+          tester.element(find.byKey(const Key('journal-image'))),
+        ).brightness,
+        brightness,
+      );
       expect(tester.takeException(), isNull);
       await unmount(tester);
     });

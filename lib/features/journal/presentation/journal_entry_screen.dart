@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
@@ -31,11 +32,24 @@ String? _paid(String? fee) {
   return parsed == null ? null : (-parsed.abs()).toString();
 }
 
+/// The field of the review's chart image in a 400 (MSG32).
+const _imageField = 'chartImagePublicId';
+
+/// SRS 3.6.1, until a signed form gives its own `maxBytes`.
+const _srsMaxBytes = 5 * 1024 * 1024;
+
+String _megabytes(int bytes) {
+  final mb = bytes / (1024 * 1024);
+  return '${mb == mb.roundToDouble() ? mb.round() : mb.toStringAsFixed(1)} MB';
+}
+
 /// SCR-21 Journal Entry Detail (SRS 3.6.1): the facts of the trade, read
 /// only for a SIMULATED one (BR-40), a link to its plan (SCR-18), and the
 /// review: strategy, setup description, lessons learned and mistakes, up to
-/// 4,000 characters each; saving shows MSG14. A MANUAL trade is edited on the
-/// web (SCR-22) and can be deleted here.
+/// 4,000 characters each, and one chart image picked on the phone; saving
+/// shows MSG14. A stored image whose key cannot be read back from its
+/// address keeps the review read only (Q-97). A MANUAL trade is edited on
+/// the web (SCR-22) and can be deleted here.
 class JournalEntryScreen extends ConsumerStatefulWidget {
   const JournalEntryScreen({required this.id, super.key});
 
@@ -95,6 +109,14 @@ class _JournalEntryScreenState extends ConsumerState<JournalEntryScreen> {
     } on ApiFailure catch (failure) {
       messenger.showSnackBar(SnackBar(content: Text(failureText(l, failure))));
     }
+  }
+
+  /// A new choice of image clears the MSG32 the last save left under it.
+  void _changeImage(void Function(JournalEntryController controller) change) {
+    if (_errors.containsKey(_imageField)) {
+      setState(() => _errors = {..._errors}..remove(_imageField));
+    }
+    change(ref.read(journalEntryControllerProvider(widget.id).notifier));
   }
 
   Future<void> _delete() async {
@@ -368,34 +390,209 @@ class _JournalEntryScreenState extends ConsumerState<JournalEntryScreen> {
           area(_setup, l.journalSetup, 'setupDescription'),
           area(_lessons, l.journalLessons, 'lessonsLearned'),
           area(_mistakes, l.journalMistakes, 'mistakes'),
-          if (detail.chartImageUrl case final url?)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 8),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: Image.network(
-                  url,
-                  key: const Key('journal-chart-image'),
-                  errorBuilder: (_, _, _) => Text(l.journalImageFailed),
-                ),
+          if (editable) ...[
+            _ReviewImageSection(
+              image: state.image,
+              saveError: _errors[_imageField],
+              onPick: () => _changeImage(
+                (controller) => unawaited(controller.pickImage()),
               ),
+              onRetry: () => _changeImage(
+                (controller) => unawaited(controller.retryImage()),
+              ),
+              onRemove: () =>
+                  _changeImage((controller) => controller.removeImage()),
             ),
-          TextButton.icon(
-            key: const Key('journal-upload-web'),
-            onPressed: () => unawaited(
-              ref.read(webLinksProvider).open('/journal/${entry.id}'),
-            ),
-            icon: const Icon(Icons.open_in_new, size: 16),
-            label: Text(l.journalImageOnWeb),
-          ),
-          if (editable)
+            const SizedBox(height: 12),
             FilledButton(
               key: const Key('journal-save'),
-              onPressed: state.saving ? null : _save,
+              onPressed: state.canSave ? _save : null,
               child: Text(l.planSave),
             ),
+          ] else ...[
+            if (detail.chartImageUrl case final url?)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Image.network(
+                    url,
+                    key: const Key('journal-chart-image'),
+                    semanticLabel: l.journalImageTitle,
+                    errorBuilder: (_, _, _) => Text(l.journalImageFailed),
+                  ),
+                ),
+              ),
+            TextButton.icon(
+              key: const Key('journal-upload-web'),
+              onPressed: () => unawaited(
+                ref.read(webLinksProvider).open('/journal/${entry.id}'),
+              ),
+              icon: const Icon(Icons.open_in_new, size: 16),
+              label: Text(l.journalImageOnWeb),
+            ),
+          ],
         ],
       ),
+    );
+  }
+}
+
+/// The one chart image of an editable review (SRS 3.6.1): added or
+/// replaced from the phone and uploaded at once, removed with ✕, as the
+/// post media of SCR-26.
+class _ReviewImageSection extends StatelessWidget {
+  const _ReviewImageSection({
+    required this.image,
+    required this.saveError,
+    required this.onPick,
+    required this.onRetry,
+    required this.onRemove,
+  });
+
+  final ReviewImage? image;
+
+  /// The message code the last save gave the image (MSG32).
+  final String? saveError;
+  final VoidCallback onPick;
+  final VoidCallback onRetry;
+  final VoidCallback onRemove;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final cp = context.cp;
+    final text = Theme.of(context).textTheme;
+    final a = image;
+    final uploading = a?.uploading ?? false;
+    final limit = _megabytes(a?.maxBytes ?? _srsMaxBytes);
+    final problem = a?.problem;
+    final error = switch (problem) {
+      ReviewImageProblem.form when a?.failure != null => failureText(
+        l,
+        a!.failure!,
+      ),
+      null =>
+        saveError == null ? null : messageText(l, saveError!, args: [limit]),
+      _ => l.msg32(limit),
+    };
+    final retry =
+        problem == ReviewImageProblem.refused ||
+        problem == ReviewImageProblem.form;
+    final failed = error != null;
+    final fallback = ColoredBox(
+      color: cp.raised,
+      child: Center(child: Icon(Icons.image_outlined, color: cp.muted)),
+    );
+    final picture = switch ((a?.path, a?.url)) {
+      (final path?, _) => Image.file(
+        File(path),
+        key: const Key('journal-image-picked'),
+        fit: BoxFit.contain,
+        cacheWidth: 1080,
+        semanticLabel: l.journalImageTitle,
+        errorBuilder: (_, _, _) => fallback,
+      ),
+      (_, final url?) => Image.network(
+        url,
+        key: const Key('journal-chart-image'),
+        fit: BoxFit.contain,
+        semanticLabel: l.journalImageTitle,
+        errorBuilder: (_, _, _) => Center(
+          child: Text(l.journalImageFailed, textAlign: TextAlign.center),
+        ),
+      ),
+      _ => null,
+    };
+
+    return Column(
+      key: const Key('journal-image'),
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(l.journalImageTitle, style: text.labelLarge),
+        Text(
+          l.journalImageHint,
+          style: text.bodySmall?.copyWith(color: cp.muted),
+        ),
+        const SizedBox(height: 8),
+        if (picture != null)
+          Stack(
+            children: [
+              Container(
+                height: 200,
+                width: double.infinity,
+                clipBehavior: Clip.antiAlias,
+                decoration: BoxDecoration(
+                  color: cp.raised,
+                  border: Border.all(
+                    color: failed ? cp.negative : cp.border,
+                    width: failed ? 2 : 1,
+                  ),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: picture,
+              ),
+              if (uploading)
+                Positioned.fill(
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: Colors.black45,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Center(
+                      child: Text(
+                        l.journalUploading(((a!.progress ?? 0) * 100).round()),
+                        key: const Key('journal-image-progress'),
+                        style: const TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ),
+                ),
+              Positioned(
+                top: 4,
+                right: 4,
+                child: IconButton(
+                  key: const Key('journal-image-remove'),
+                  tooltip: l.journalRemoveImage,
+                  style: IconButton.styleFrom(
+                    backgroundColor: Colors.black54,
+                    foregroundColor: Colors.white,
+                  ),
+                  iconSize: 18,
+                  icon: const Icon(Icons.close),
+                  onPressed: uploading ? null : onRemove,
+                ),
+              ),
+            ],
+          ),
+        if (error != null) ...[
+          const SizedBox(height: 4),
+          Text(
+            error,
+            key: const Key('journal-image-error'),
+            style: text.bodySmall?.copyWith(color: cp.negative),
+          ),
+        ],
+        Wrap(
+          spacing: 8,
+          children: [
+            if (retry)
+              TextButton(
+                key: const Key('journal-image-retry'),
+                onPressed: onRetry,
+                child: Text(l.commonRetry),
+              ),
+            TextButton.icon(
+              key: const Key('journal-image-pick'),
+              onPressed: uploading ? null : onPick,
+              icon: const Icon(Icons.add_photo_alternate_outlined, size: 18),
+              label: Text(
+                picture == null ? l.journalAddImage : l.journalReplaceImage,
+              ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 }

@@ -3154,6 +3154,42 @@ abstract class AppLocalizations {
   /// **'Chart image on the web'**
   String get journalImageOnWeb;
 
+  /// No description provided for @journalImageTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Chart image'**
+  String get journalImageTitle;
+
+  /// No description provided for @journalImageHint.
+  ///
+  /// In en, this message translates to:
+  /// **'One image: JPG, PNG or WEBP, up to 5 MB.'**
+  String get journalImageHint;
+
+  /// No description provided for @journalAddImage.
+  ///
+  /// In en, this message translates to:
+  /// **'Add chart image'**
+  String get journalAddImage;
+
+  /// No description provided for @journalReplaceImage.
+  ///
+  /// In en, this message translates to:
+  /// **'Replace image'**
+  String get journalReplaceImage;
+
+  /// No description provided for @journalRemoveImage.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove image'**
+  String get journalRemoveImage;
+
+  /// No description provided for @journalUploading.
+  ///
+  /// In en, this message translates to:
+  /// **'Uploading {percent}%'**
+  String journalUploading(int percent);
+
   /// No description provided for @journalEditOnWeb.
   ///
   /// In en, this message translates to:

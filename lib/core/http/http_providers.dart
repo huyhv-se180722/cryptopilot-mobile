@@ -33,3 +33,7 @@ final apiDioProvider = Provider<Dio>((ref) {
   );
   return dio;
 });
+
+/// The client of the media storage's signed uploads (D-98): no base URL and
+/// none of the app's tokens, which must never reach the storage.
+final storageDioProvider = Provider<Dio>((_) => Dio());

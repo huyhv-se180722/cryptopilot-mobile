@@ -440,8 +440,6 @@ class MediaRefused implements Exception {
 }
 
 /// The media storage's own client: no base URL, no interceptor, no token.
-final storageDioProvider = Provider<Dio>((_) => Dio());
-
 final communityApiProvider = Provider<CommunityApi>(
   (ref) => DioCommunityApi(
     ref.watch(apiDioProvider),

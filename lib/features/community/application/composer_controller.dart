@@ -7,7 +7,7 @@ import '../../../core/errors/api_failure.dart';
 import '../../../core/state/load_after_build.dart';
 import '../../market/domain/market.dart';
 import '../data/community_api.dart';
-import '../data/media_picker.dart';
+import '../../../core/media/media_picker.dart';
 import '../domain/community.dart';
 import 'feed_controller.dart';
 import 'post_controller.dart';

@@ -21,16 +21,30 @@ abstract interface class JournalApi {
   /// 404 MSG41.
   Future<JournalDetail> entry(String id);
 
-  /// MSG14. 400 MSG15 on a text over 4,000 characters, 404 MSG41. The
-  /// review replaces the stored one: a field left out is cleared, the chart
-  /// image too, whose key the detail does not return (Q-97), so the app
-  /// saves a review only for a trade without an image.
+  /// MSG14. 400 MSG15 on a text over 4,000 characters, MSG32 on a chart
+  /// image that is not the caller's, too large or of another format; 404
+  /// MSG41. The review replaces the stored one: a field left out is
+  /// cleared, and [chartImagePublicId] keeps the stored image when it is
+  /// its key, attaches a new upload, or removes the image when null.
   Future<JournalDetail> review(
     String id, {
     String? strategyId,
     String? setupDescription,
     String? lessonsLearned,
     String? mistakes,
+    String? chartImagePublicId,
+  });
+
+  /// A signed form for one chart image of the trade (404 MSG41, 503 MSG43
+  /// without a media storage).
+  Future<ChartImageForm> chartImageForm(String id);
+
+  /// Posts the file to the storage, without the app's tokens. Throws
+  /// [ChartImageRefused] on any refusal of the storage.
+  Future<void> uploadChartImage(
+    ChartImageForm form,
+    String path, {
+    void Function(double share)? onProgress,
   });
 
   /// MANUAL only: 409 MSG43 on a SIMULATED trade (BR-40), 404 MSG41.
@@ -45,10 +59,18 @@ String _date(DateTime day) {
   return '${utc.year}-${two(utc.month)}-${two(utc.day)}';
 }
 
+/// The storage refused a chart image (MSG32).
+class ChartImageRefused implements Exception {
+  const ChartImageRefused();
+}
+
 class DioJournalApi implements JournalApi {
-  const DioJournalApi(this._dio);
+  DioJournalApi(this._dio, {Dio? storage}) : _storage = storage ?? Dio();
 
   final Dio _dio;
+
+  /// Never [_dio]: the storage must not see the app's tokens.
+  final Dio _storage;
 
   @override
   Future<JournalPage> list({
@@ -89,6 +111,7 @@ class DioJournalApi implements JournalApi {
     String? setupDescription,
     String? lessonsLearned,
     String? mistakes,
+    String? chartImagePublicId,
   }) => apiCall(
     () => _dio.put<Object?>(
       'journal/${Uri.encodeComponent(id)}/review',
@@ -97,10 +120,49 @@ class DioJournalApi implements JournalApi {
         'setupDescription': setupDescription,
         'lessonsLearned': lessonsLearned,
         'mistakes': mistakes,
+        // Left out, as null, the review has no image (BR-40).
+        'chartImagePublicId': ?chartImagePublicId,
       },
     ),
     decodeJournalDetail,
   );
+
+  @override
+  Future<ChartImageForm> chartImageForm(String id) => apiCall(
+    () => _dio.post<Object?>(
+      'journal/${Uri.encodeComponent(id)}/chart-image/upload-signature',
+    ),
+    decodeChartImageForm,
+  );
+
+  @override
+  Future<void> uploadChartImage(
+    ChartImageForm form,
+    String path, {
+    void Function(double share)? onProgress,
+  }) async {
+    try {
+      await _storage.post<Object?>(
+        form.uploadUrl,
+        data: FormData.fromMap({
+          'file': await MultipartFile.fromFile(path),
+          'api_key': form.apiKey,
+          'timestamp': '${form.timestamp}',
+          'signature': form.signature,
+          'public_id': form.publicId,
+          'allowed_formats': form.allowedFormats.join(','),
+          // Signed by the backend with the other fields.
+          'overwrite': 'false',
+        }),
+        onSendProgress: (sent, total) {
+          if (total > 0) onProgress?.call(sent / total);
+        },
+      );
+      onProgress?.call(1);
+    } on Object {
+      throw const ChartImageRefused();
+    }
+  }
 
   @override
   Future<void> delete(String id) => apiCall(
@@ -114,5 +176,8 @@ class DioJournalApi implements JournalApi {
 }
 
 final journalApiProvider = Provider<JournalApi>(
-  (ref) => DioJournalApi(ref.watch(apiDioProvider)),
+  (ref) => DioJournalApi(
+    ref.watch(apiDioProvider),
+    storage: ref.watch(storageDioProvider),
+  ),
 );
