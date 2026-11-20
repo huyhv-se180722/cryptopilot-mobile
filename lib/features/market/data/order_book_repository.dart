@@ -60,6 +60,8 @@ class OrderBookRepository extends Notifier<OrderBook> {
   }
 
   Future<void> load() async {
+    // A provider read with no listener is gone before its first load.
+    if (!ref.mounted) return;
     final api = ref.read(marketApiProvider);
     try {
       final results = await Future.wait([

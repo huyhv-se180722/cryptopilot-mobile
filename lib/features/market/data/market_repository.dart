@@ -86,6 +86,8 @@ class MarketRepository extends Notifier<MarketData> {
   }
 
   Future<void> load() async {
+    // A provider read with no listener is gone before its first load.
+    if (!ref.mounted) return;
     try {
       final pairs = await ref.read(marketApiProvider).pairs(market);
       if (ref.mounted) state = state.copyWith(pairs: pairs, clearFailure: true);
@@ -194,6 +196,7 @@ class PairTickerRepository extends Notifier<PairTicker> {
   }
 
   Future<void> _read() async {
+    if (!ref.mounted) return;
     try {
       final ticker = await ref
           .read(marketApiProvider)
