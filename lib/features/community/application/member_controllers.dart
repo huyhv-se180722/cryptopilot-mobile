@@ -228,6 +228,22 @@ class MemberListController extends Notifier<PagedState<Object>> {
     }
   }
 
+  /// Unblocks [userId] from the blocked list, which they leave; the feed
+  /// reads again with their posts.
+  Future<ApiFailure?> unblock(String userId) async {
+    try {
+      await ref.read(communityApiProvider).block(userId, on: false);
+      if (!ref.mounted) return null;
+      removeAuthor(userId);
+      if (ref.exists(feedProvider)) {
+        unawaited(ref.read(feedProvider.notifier).load());
+      }
+      return null;
+    } on ApiFailure catch (failure) {
+      return failure;
+    }
+  }
+
   /// A member unblocked from the blocked list leaves it.
   void removeAuthor(String userId) {
     final items = state.items;

@@ -9,6 +9,7 @@ import '../../../core/errors/message_text.dart';
 import '../../../core/i18n/app_localizations.dart';
 import '../../../core/theme/cp_colors.dart';
 import '../../../core/web/web_links.dart';
+import '../application/member_controllers.dart';
 import '../application/post_controller.dart';
 import '../domain/community.dart';
 import 'community_widgets.dart';
@@ -30,6 +31,9 @@ class _PostScreenState extends ConsumerState<PostScreen> {
   final _focus = FocusNode();
   Comment? _replyTo;
   bool _sending = false;
+
+  /// The members picked with @, by the handle written in the text.
+  final Map<String, String> _mentions = {};
 
   @override
   void dispose() {
@@ -55,7 +59,15 @@ class _PostScreenState extends ConsumerState<PostScreen> {
     final text = _input.text.trim();
     if (text.isEmpty || _sending) return;
     setState(() => _sending = true);
-    final failure = await _ctl.addComment(text, parentId: _replyTo?.id);
+    // Only the members whose handle is still in the text are told.
+    final failure = await _ctl.addComment(
+      text,
+      parentId: _replyTo?.id,
+      mentions: [
+        for (final MapEntry(key: handle, value: id) in _mentions.entries)
+          if (text.contains(handle)) id,
+      ],
+    );
     if (!mounted) return;
     setState(() => _sending = false);
     if (failure != null) {
@@ -63,8 +75,34 @@ class _PostScreenState extends ConsumerState<PostScreen> {
       return;
     }
     _input.clear();
+    _mentions.clear();
     setState(() => _replyTo = null);
     _focus.unfocus();
+  }
+
+  Future<void> _mention() async {
+    final author = await showModalBottomSheet<Author>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (_) => const _MentionSheet(),
+    );
+    if (author == null || !mounted) return;
+    final handle =
+        '@${(author.displayName ?? '').trim().replaceAll(RegExp(r'\s+'), '_')}';
+    _mentions[handle] = author.userId;
+    final value = _input.value;
+    final at = value.selection.isValid
+        ? value.selection.start
+        : value.text.length;
+    final before = value.text.substring(0, at);
+    final inserted =
+        '${before.isEmpty || before.endsWith(' ') ? '' : ' '}$handle ';
+    _input.value = TextEditingValue(
+      text: before + inserted + value.text.substring(at),
+      selection: TextSelection.collapsed(offset: at + inserted.length),
+    );
+    _focus.requestFocus();
   }
 
   void _reply(Comment comment) {
@@ -227,6 +265,7 @@ class _PostScreenState extends ConsumerState<PostScreen> {
               sending: _sending,
               onCancelReply: () => setState(() => _replyTo = null),
               onSend: _send,
+              onMention: _mention,
             ),
           ],
         ),
@@ -669,6 +708,7 @@ class _Composer extends StatelessWidget {
     required this.sending,
     required this.onCancelReply,
     required this.onSend,
+    required this.onMention,
   });
 
   final TextEditingController input;
@@ -677,6 +717,7 @@ class _Composer extends StatelessWidget {
   final bool sending;
   final VoidCallback onCancelReply;
   final VoidCallback onSend;
+  final VoidCallback onMention;
 
   @override
   Widget build(BuildContext context) {
@@ -753,6 +794,12 @@ class _Composer extends StatelessWidget {
                         ),
                       ),
                       IconButton(
+                        key: const Key('comment-mention'),
+                        tooltip: l.memberMention,
+                        onPressed: sending ? null : onMention,
+                        icon: const Icon(Icons.alternate_email),
+                      ),
+                      IconButton(
                         key: const Key('comment-send'),
                         tooltip: target == null
                             ? l.communitySend
@@ -814,6 +861,90 @@ class _EditCommentDialogState extends State<_EditCommentDialog> {
           child: Text(l.communitySaveChanges),
         ),
       ],
+    );
+  }
+}
+
+/// Finds a member to mention (T-136): 1 to 50 characters of their name.
+class _MentionSheet extends ConsumerStatefulWidget {
+  const _MentionSheet();
+
+  @override
+  ConsumerState<_MentionSheet> createState() => _MentionSheetState();
+}
+
+class _MentionSheetState extends ConsumerState<_MentionSheet> {
+  String _query = '';
+  Timer? _debounce;
+
+  @override
+  void dispose() {
+    _debounce?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final found = ref.watch(mentionSearchProvider(_query));
+    return Padding(
+      padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
+      child: SafeArea(
+        child: SizedBox(
+          height: MediaQuery.sizeOf(context).height * 0.5,
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                child: TextField(
+                  key: const Key('mention-search'),
+                  autofocus: true,
+                  maxLength: 50,
+                  decoration: InputDecoration(
+                    prefixIcon: const Icon(Icons.search),
+                    hintText: l.memberMentionSearch,
+                    counterText: '',
+                  ),
+                  onChanged: (text) {
+                    _debounce?.cancel();
+                    _debounce = Timer(
+                      const Duration(milliseconds: 300),
+                      () => mounted ? setState(() => _query = text) : null,
+                    );
+                  },
+                ),
+              ),
+              Expanded(
+                child: switch (found) {
+                  AsyncValue(:final value?) when value.isEmpty =>
+                    _query.trim().isEmpty
+                        ? const SizedBox.shrink()
+                        : Center(child: Text(l.memberMentionNone)),
+                  AsyncValue(:final value?) => ListView(
+                    children: [
+                      for (final a in value)
+                        ListTile(
+                          key: Key('mention-${a.userId}'),
+                          leading: MemberAvatar(author: a, size: 32),
+                          title: Text(
+                            a.displayName ?? l.communityUnknownAuthor,
+                          ),
+                          onTap: () => Navigator.of(context).pop(a),
+                        ),
+                    ],
+                  ),
+                  AsyncValue(:final error?) => Center(
+                    child: Text(
+                      error is ApiFailure ? failureText(l, error) : l.msg41,
+                    ),
+                  ),
+                  _ => const Center(child: CircularProgressIndicator()),
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

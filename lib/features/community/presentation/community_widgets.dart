@@ -12,6 +12,10 @@ import '../domain/community.dart';
 /// `/community/{id}` (SCR-25), pushed over the feed or a notification.
 String postLocation(String id) => '/community/${Uri.encodeComponent(id)}';
 
+/// `/community/members/{id}` (D-99, A-66, T-136).
+String memberLocation(String id) =>
+    '/community/members/${Uri.encodeComponent(id)}';
+
 /// 5.3K, 12K, 1.2M: counts as the feed footer shows them (web).
 String compactCount(int n) {
   if (n < 1000) return '$n';
@@ -105,32 +109,44 @@ class AuthorLine extends ConsumerWidget {
       formatAge(l, createdAt, now),
       if (edited) l.communityEdited,
     ].join(' · ');
+    // The avatar and the name open the member page (T-136).
     return Row(
       children: [
-        MemberAvatar(author: author, size: avatar),
-        const SizedBox(width: 8),
         Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Flexible(
-                    child: Text(
-                      author.displayName ?? l.communityUnknownAuthor,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.labelLarge,
-                    ),
+          child: InkWell(
+            key: Key('author-${author.userId}'),
+            borderRadius: BorderRadius.circular(8),
+            onTap: () => context.push(memberLocation(author.userId)),
+            child: Row(
+              children: [
+                MemberAvatar(author: author, size: avatar),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Flexible(
+                            child: Text(
+                              author.displayName ?? l.communityUnknownAuthor,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: Theme.of(context).textTheme.labelLarge,
+                            ),
+                          ),
+                          if (official) ...[
+                            const SizedBox(width: 6),
+                            OfficialBadge(label: l.communityOfficial),
+                          ],
+                        ],
+                      ),
+                      Text(when, style: small?.copyWith(color: cp.muted)),
+                    ],
                   ),
-                  if (official) ...[
-                    const SizedBox(width: 6),
-                    OfficialBadge(label: l.communityOfficial),
-                  ],
-                ],
-              ),
-              Text(when, style: small?.copyWith(color: cp.muted)),
-            ],
+                ),
+              ],
+            ),
           ),
         ),
         ?trailing,

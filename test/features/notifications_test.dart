@@ -97,8 +97,9 @@ void main() {
         (of(NotificationReference.post)! as AppScreen).location,
         '/community/r%201',
       );
+      // The member page is in the app since T-136 (A-66; a web page before).
       expect(
-        (of(NotificationReference.member)! as WebPage).path,
+        (of(NotificationReference.member)! as AppScreen).location,
         '/community/members/r%201',
       );
       expect(
