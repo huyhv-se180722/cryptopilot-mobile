@@ -4,7 +4,7 @@ import 'package:cryptopilot_mobile/app.dart';
 import 'package:cryptopilot_mobile/core/auth/token_store.dart';
 import 'package:cryptopilot_mobile/core/router/app_router.dart';
 import 'package:cryptopilot_mobile/core/settings/settings.dart';
-import 'package:cryptopilot_mobile/features/community/data/media_picker.dart';
+import 'package:cryptopilot_mobile/core/media/media_picker.dart';
 import 'package:cryptopilot_mobile/features/community/presentation/post_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

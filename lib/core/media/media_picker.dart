@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 
-/// A file the Trader picked for a post.
+/// A file the Trader picked: post media or a journal chart image.
 @immutable
 class PickedFile {
   const PickedFile({
@@ -18,8 +18,8 @@ class PickedFile {
   final int size;
 }
 
-/// Picks the files of a post from the phone (D-160, ADR-024); null or
-/// empty when the Trader cancels.
+/// Picks files from the phone (D-160, ADR-024): post media (T-135) and
+/// journal chart images (T-091); null or empty when the Trader cancels.
 abstract interface class MediaPicker {
   /// Up to [limit] images at once.
   Future<List<PickedFile>> images({required int limit});
