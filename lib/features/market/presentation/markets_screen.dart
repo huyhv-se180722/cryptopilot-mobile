@@ -6,8 +6,10 @@ import '../../../core/errors/message_text.dart';
 import '../../../core/format/decimal_format.dart';
 import '../../../core/i18n/app_localizations.dart';
 import '../../../core/theme/cp_colors.dart';
+import '../application/market_overview.dart';
 import '../application/market_board.dart';
 import '../domain/market.dart';
+import 'market_overview_strip.dart';
 import 'market_widgets.dart';
 import 'pair_actions.dart';
 
@@ -160,6 +162,7 @@ class MarketBoardView extends ConsumerWidget {
 
     return Column(
       children: [
+        const MarketOverviewStrip(),
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
           child: Row(
@@ -184,7 +187,13 @@ class MarketBoardView extends ConsumerWidget {
         _SortHeader(board: board, onSort: notifier.toggleSort, market: market),
         const Divider(),
         Expanded(
-          child: RefreshIndicator(onRefresh: notifier.refresh, child: body),
+          child: RefreshIndicator(
+            onRefresh: () async {
+              ref.invalidate(marketOverviewProvider);
+              await notifier.refresh();
+            },
+            child: body,
+          ),
         ),
       ],
     );

@@ -341,6 +341,59 @@ class AppLocalizationsEn extends AppLocalizations {
   String get marketSearch => 'Search pair or coin';
 
   @override
+  String get overviewMarketCap => 'Market Cap';
+
+  @override
+  String get overviewVolume => '24h volume';
+
+  @override
+  String get overviewDominance => 'BTC Dominance';
+
+  @override
+  String get overviewFearGreed => 'Fear & Greed';
+
+  @override
+  String get overviewAltcoinSeason => 'Altcoin Season';
+
+  @override
+  String get overviewOpenInterest => 'Open Interest';
+
+  @override
+  String get overviewSeasonBitcoin => 'Bitcoin';
+
+  @override
+  String get overviewSeasonAltcoin => 'Altcoin';
+
+  @override
+  String overviewSeasonHint(int count, int days) {
+    return '$count listed altcoins against Bitcoin over $days days; 75 or more is an altcoin season';
+  }
+
+  @override
+  String get overviewOpenInterestHint => 'Listed Futures pairs together';
+
+  @override
+  String get overviewSourcePaprika => 'Market cap and volume: CoinPaprika';
+
+  @override
+  String get overviewSourceFearGreed => 'Fear & Greed: alternative.me';
+
+  @override
+  String get overviewFgExtremeFear => 'Extreme fear';
+
+  @override
+  String get overviewFgFear => 'Fear';
+
+  @override
+  String get overviewFgNeutral => 'Neutral';
+
+  @override
+  String get overviewFgGreed => 'Greed';
+
+  @override
+  String get overviewFgExtremeGreed => 'Extreme greed';
+
+  @override
   String get marketSortVolume => 'Pair / Vol';
 
   @override

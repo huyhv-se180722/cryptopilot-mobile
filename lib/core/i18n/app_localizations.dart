@@ -706,6 +706,108 @@ abstract class AppLocalizations {
   /// **'Search pair or coin'**
   String get marketSearch;
 
+  /// No description provided for @overviewMarketCap.
+  ///
+  /// In en, this message translates to:
+  /// **'Market Cap'**
+  String get overviewMarketCap;
+
+  /// No description provided for @overviewVolume.
+  ///
+  /// In en, this message translates to:
+  /// **'24h volume'**
+  String get overviewVolume;
+
+  /// No description provided for @overviewDominance.
+  ///
+  /// In en, this message translates to:
+  /// **'BTC Dominance'**
+  String get overviewDominance;
+
+  /// No description provided for @overviewFearGreed.
+  ///
+  /// In en, this message translates to:
+  /// **'Fear & Greed'**
+  String get overviewFearGreed;
+
+  /// No description provided for @overviewAltcoinSeason.
+  ///
+  /// In en, this message translates to:
+  /// **'Altcoin Season'**
+  String get overviewAltcoinSeason;
+
+  /// No description provided for @overviewOpenInterest.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Interest'**
+  String get overviewOpenInterest;
+
+  /// No description provided for @overviewSeasonBitcoin.
+  ///
+  /// In en, this message translates to:
+  /// **'Bitcoin'**
+  String get overviewSeasonBitcoin;
+
+  /// No description provided for @overviewSeasonAltcoin.
+  ///
+  /// In en, this message translates to:
+  /// **'Altcoin'**
+  String get overviewSeasonAltcoin;
+
+  /// No description provided for @overviewSeasonHint.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} listed altcoins against Bitcoin over {days} days; 75 or more is an altcoin season'**
+  String overviewSeasonHint(int count, int days);
+
+  /// No description provided for @overviewOpenInterestHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Listed Futures pairs together'**
+  String get overviewOpenInterestHint;
+
+  /// No description provided for @overviewSourcePaprika.
+  ///
+  /// In en, this message translates to:
+  /// **'Market cap and volume: CoinPaprika'**
+  String get overviewSourcePaprika;
+
+  /// No description provided for @overviewSourceFearGreed.
+  ///
+  /// In en, this message translates to:
+  /// **'Fear & Greed: alternative.me'**
+  String get overviewSourceFearGreed;
+
+  /// No description provided for @overviewFgExtremeFear.
+  ///
+  /// In en, this message translates to:
+  /// **'Extreme fear'**
+  String get overviewFgExtremeFear;
+
+  /// No description provided for @overviewFgFear.
+  ///
+  /// In en, this message translates to:
+  /// **'Fear'**
+  String get overviewFgFear;
+
+  /// No description provided for @overviewFgNeutral.
+  ///
+  /// In en, this message translates to:
+  /// **'Neutral'**
+  String get overviewFgNeutral;
+
+  /// No description provided for @overviewFgGreed.
+  ///
+  /// In en, this message translates to:
+  /// **'Greed'**
+  String get overviewFgGreed;
+
+  /// No description provided for @overviewFgExtremeGreed.
+  ///
+  /// In en, this message translates to:
+  /// **'Extreme greed'**
+  String get overviewFgExtremeGreed;
+
   /// No description provided for @marketSortVolume.
   ///
   /// In en, this message translates to:
