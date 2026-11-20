@@ -260,17 +260,16 @@ class _CoinPnlLine extends StatelessWidget {
     if (pnl == null) return const SizedBox.shrink();
     final upnl = pnl.unrealizedPnl;
     final percent = pnl.unrealizedPnlPercent;
-    String signed(String value) =>
-        '${value.startsWith('-') ? '' : '+'}${formatDecimal(value, 2)}';
     final text = hidden
         ? l.assetsCoinPnl(l.assetsHidden, l.assetsHidden)
         : l.assetsCoinPnl(
-            pnl.averageCost == null ? '--' : groupThousands(pnl.averageCost!),
+            formatCost(pnl.averageCost),
             upnl == null
                 ? '--'
                 : percent == null
-                ? signed(upnl)
-                : '${signed(upnl)} (${signed(percent)}%)',
+                ? formatSignedDecimal(upnl)
+                : '${formatSignedDecimal(upnl)} '
+                      '(${formatSignedPercent(percent)})',
           );
     final color = hidden || upnl == null
         ? context.cp.muted

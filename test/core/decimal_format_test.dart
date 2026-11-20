@@ -48,4 +48,21 @@ void main() {
     );
     expect(compareDecimal(null, '1'), lessThan(0));
   });
+
+  test('backend decimals lose their trailing zeros (device check)', () {
+    expect(formatTrimmed('73852.320000000000'), '73,852.32');
+    expect(formatTrimmed('0.002000000000'), '0.002');
+    expect(formatTrimmed('5.000000000000'), '5');
+    expect(formatTrimmed(null), '--');
+    expect(formatTrimmed('-0.500000000000', keep: 2), '-0.50');
+    expect(formatTrimmed('19.5', keep: 2), '19.5');
+    expect(formatTrimmed('1200', keep: 2), '1,200');
+  });
+
+  test('a cost without its pair: 2 decimals from 1 up, 6 below', () {
+    expect(formatCost('79361.667533661822'), '79,361.67');
+    expect(formatCost('0.0123456789'), '0.012346');
+    expect(formatCost('0.5'), '0.5');
+    expect(formatCost(null), '--');
+  });
 }

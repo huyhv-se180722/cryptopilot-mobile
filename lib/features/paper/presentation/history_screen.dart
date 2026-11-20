@@ -220,8 +220,9 @@ class _Row extends StatelessWidget {
           style: TextStyle(color: sideColor(o.side)),
         ),
         subtitle: Text(
-          '${groupThousands(o.price ?? o.avgPrice ?? '--')} · '
-          '${o.executedQuantity}/${o.quantity ?? '--'} · ${_when(o.placedAt)}',
+          '${formatTrimmed(o.price ?? o.avgPrice)} · '
+          '${formatTrimmed(o.executedQuantity)}/${formatTrimmed(o.quantity)} · '
+          '${_when(o.placedAt)}',
         ),
         trailing: Text(o.status.wire),
       ),
@@ -234,8 +235,8 @@ class _Row extends StatelessWidget {
           style: TextStyle(color: sideColor(f.side)),
         ),
         subtitle: Text(
-          '${groupThousands(f.price)} × ${f.quantity} · '
-          '${f.fee} ${f.feeAsset} · ${_when(f.tradedAt)}',
+          '${formatTrimmed(f.price)} × ${formatTrimmed(f.quantity)} · '
+          '${formatTrimmed(f.fee)} ${f.feeAsset} · ${_when(f.tradedAt)}',
         ),
       ),
       final LedgerEntry e => ListTile(
@@ -245,7 +246,7 @@ class _Row extends StatelessWidget {
         title: Text('${e.type.wire} · ${e.wallet.wire}'),
         subtitle: Text(_when(e.createdAt)),
         trailing: Text(
-          '${e.amount.startsWith('-') ? '' : '+'}${groupThousands(e.amount)} '
+          '${e.amount.startsWith('-') ? '' : '+'}${formatTrimmed(e.amount, keep: 2)} '
           '${e.asset}',
           style: TextStyle(
             color: e.amount.startsWith('-')
@@ -260,7 +261,7 @@ class _Row extends StatelessWidget {
         dense: true,
         title: Text('${t.from.wire} → ${t.to.wire}'),
         subtitle: Text(_when(t.transferredAt)),
-        trailing: Text('${groupThousands(t.amount)} ${t.asset}'),
+        trailing: Text('${formatTrimmed(t.amount, keep: 2)} ${t.asset}'),
       ),
       _ => const SizedBox.shrink(),
     };

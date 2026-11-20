@@ -37,6 +37,35 @@ String formatDecimal(String? value, int places) {
 }
 
 /// A price at the pair's tick precision (CR-02).
+/// A backend decimal without its trailing zeros, grouped
+/// ("73852.320000000000" → "73,852.32", "0.002000000000" → "0.002");
+/// [keep] decimals stay for an amount of money ("-0.500000000000" →
+/// "-0.50" with 2). `--` when it is not a number.
+String formatTrimmed(String? value, {int keep = 0}) {
+  final text = value?.trim();
+  if (text == null || Decimal.tryParse(text) == null) return '--';
+  var out = text;
+  final point = out.indexOf('.');
+  if (point >= 0) {
+    var end = out.length;
+    while (end > point + 1 + keep && out[end - 1] == '0') {
+      end--;
+    }
+    out = out.substring(0, end);
+    if (out.endsWith('.')) out = out.substring(0, out.length - 1);
+  }
+  return groupThousands(out);
+}
+
+/// A cost or a price without its pair: two decimals from 1 up, six below
+/// ("79361.667533661822" → "79,361.67", "0.0123456789" → "0.012346").
+String formatCost(String? value) {
+  final parsed = value == null ? null : Decimal.tryParse(value.trim());
+  if (parsed == null) return '--';
+  final places = parsed.abs() >= Decimal.one ? 2 : 6;
+  return formatTrimmed(parsed.toStringAsFixed(places));
+}
+
 String formatPrice(String? value, String? tickSize) =>
     formatDecimal(value, decimalPlaces(tickSize));
 
