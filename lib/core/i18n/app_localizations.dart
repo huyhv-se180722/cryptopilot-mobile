@@ -712,6 +712,54 @@ abstract class AppLocalizations {
   /// **'Futures'**
   String get marketFutures;
 
+  /// No description provided for @marketCoins.
+  ///
+  /// In en, this message translates to:
+  /// **'Coins'**
+  String get marketCoins;
+
+  /// No description provided for @coinsTop.
+  ///
+  /// In en, this message translates to:
+  /// **'Top'**
+  String get coinsTop;
+
+  /// No description provided for @coinsGainers.
+  ///
+  /// In en, this message translates to:
+  /// **'Gainers'**
+  String get coinsGainers;
+
+  /// No description provided for @coinsLosers.
+  ///
+  /// In en, this message translates to:
+  /// **'Losers'**
+  String get coinsLosers;
+
+  /// No description provided for @coinsCap.
+  ///
+  /// In en, this message translates to:
+  /// **'Mkt cap {cap}'**
+  String coinsCap(String cap);
+
+  /// No description provided for @coins7d.
+  ///
+  /// In en, this message translates to:
+  /// **'7d {change}'**
+  String coins7d(String change);
+
+  /// No description provided for @coinsChart.
+  ///
+  /// In en, this message translates to:
+  /// **'{symbol} over the last 7 days'**
+  String coinsChart(String symbol);
+
+  /// No description provided for @coinsSource.
+  ///
+  /// In en, this message translates to:
+  /// **'Prices: live tickers · Market cap and supply: CoinPaprika'**
+  String get coinsSource;
+
   /// No description provided for @marketSearch.
   ///
   /// In en, this message translates to:
