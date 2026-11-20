@@ -525,4 +525,37 @@ void main() {
       await unmount(tester);
     });
   }
+
+  for (final brightness in Brightness.values) {
+    testWidgets('360 dp, ${brightness.name}: the journal filter and the Set '
+        'SL/TP sheets fit', (tester) async {
+      tester.view
+        ..physicalSize = const Size(360 * 3, 760 * 3)
+        ..devicePixelRatio = 3;
+      addTearDown(tester.view.reset);
+      await open(tester, '/plans', brightness: brightness);
+      // The last tab sits past the edge of a 360 dp tab bar.
+      await tester.ensureVisible(find.byKey(const Key('plans-tab-journal')));
+      await frames(tester);
+      await tab(tester, 'plans-tab-journal');
+      expect(find.byKey(const Key('journal-row-j1')), findsOneWidget);
+      await tester.tap(find.byKey(const Key('journal-filter')));
+      await frames(tester);
+      expect(find.byKey(const Key('journal-filter-sheet')), findsOneWidget);
+      expect(tester.takeException(), isNull);
+      await tester.tapAt(const Offset(10, 10));
+      await frames(tester);
+
+      final router = containerOf(tester).read(appRouterProvider);
+      unawaited(router.push('/plan/p2'));
+      await frames(tester);
+      await tester.ensureVisible(find.byKey(const Key('plan-set-levels')));
+      await frames(tester);
+      await tester.tap(find.byKey(const Key('plan-set-levels')));
+      await frames(tester);
+      expect(find.byKey(const Key('plan-levels-sheet')), findsOneWidget);
+      expect(tester.takeException(), isNull);
+      await unmount(tester);
+    });
+  }
 }

@@ -129,13 +129,27 @@ class JournalView extends ConsumerWidget {
                 label: Text(period),
                 onPressed: () => _filter(context, ref),
               ),
-              const Spacer(),
-              TextButton.icon(
-                key: const Key('journal-record-web'),
-                onPressed: () =>
-                    unawaited(ref.read(webLinksProvider).open('/journal/new')),
-                icon: const Icon(Icons.open_in_new, size: 16),
-                label: Text(l.journalRecordOnWeb),
+              const SizedBox(width: 8),
+              // At 360 dp the label is cut; the tooltip keeps it whole.
+              Flexible(
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: Tooltip(
+                    message: l.journalRecordOnWeb,
+                    child: TextButton.icon(
+                      key: const Key('journal-record-web'),
+                      onPressed: () => unawaited(
+                        ref.read(webLinksProvider).open('/journal/new'),
+                      ),
+                      icon: const Icon(Icons.open_in_new, size: 16),
+                      label: Text(
+                        l.journalRecordOnWeb,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ),
+                ),
               ),
             ],
           ),
