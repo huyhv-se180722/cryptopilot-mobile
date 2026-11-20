@@ -881,6 +881,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get communityTabMine => 'My posts';
 
   @override
+  String get communityTabFollowing => 'Following';
+
+  @override
+  String get communityEmptyFollowing =>
+      'Posts of the members you follow appear here.';
+
+  @override
   String get communityCoinAll => 'All coins';
 
   @override

@@ -13,13 +13,16 @@ T _enum<T extends Enum>(List<T> values, String wire, String Function(T) of) {
   throw DecodeException('unknown value $wire');
 }
 
-/// The feed's tabs; FOLLOWING waits for follows (A-64 phase 3).
+/// The feed's tabs.
 enum FeedTab {
   latest('LATEST'),
   trending('TRENDING'),
   mostLiked('MOST_LIKED'),
   saved('SAVED'),
-  mine('MINE');
+  mine('MINE'),
+
+  /// Posts of the members the caller follows (A-66, T-136).
+  following('FOLLOWING');
 
   const FeedTab(this.wire);
 
@@ -555,3 +558,174 @@ UploadForm decodeUploadForm(Object? body) {
     maxDurationSeconds: _optionalInt(json, 'maxDurationSeconds'),
   );
 }
+
+// Members (A-66, T-136; D-99).
+
+/// A member page's head (`GET /community/members/{id}`).
+@immutable
+class MemberProfile {
+  const MemberProfile({
+    required this.author,
+    required this.joinedAt,
+    required this.posts,
+    required this.likesReceived,
+    required this.followers,
+    required this.following,
+    required this.followedByMe,
+    required this.blockedByMe,
+    required this.me,
+    required this.influenceScore,
+    required this.depthScore,
+    this.bio,
+    this.websiteUrl,
+    this.bannerUrl,
+  });
+
+  final Author author;
+  final DateTime joinedAt;
+  final int posts;
+  final int likesReceived;
+  final int followers;
+  final int following;
+  final bool followedByMe;
+  final bool blockedByMe;
+
+  /// The caller's own page.
+  final bool me;
+  final double influenceScore;
+  final double depthScore;
+  final String? bio;
+  final String? websiteUrl;
+  final String? bannerUrl;
+
+  MemberProfile copyWith({
+    bool? followedByMe,
+    int? followers,
+    bool? blockedByMe,
+  }) => MemberProfile(
+    author: author,
+    joinedAt: joinedAt,
+    posts: posts,
+    likesReceived: likesReceived,
+    followers: followers ?? this.followers,
+    following: following,
+    followedByMe: followedByMe ?? this.followedByMe,
+    blockedByMe: blockedByMe ?? this.blockedByMe,
+    me: me,
+    influenceScore: influenceScore,
+    depthScore: depthScore,
+    bio: bio,
+    websiteUrl: websiteUrl,
+    bannerUrl: bannerUrl,
+  );
+}
+
+/// A comment on a member page, with the post it is on.
+@immutable
+class MemberComment {
+  const MemberComment({
+    required this.commentId,
+    required this.postId,
+    required this.reply,
+    required this.content,
+    required this.likes,
+    required this.createdAt,
+    required this.postTitle,
+    this.postExcerpt,
+  });
+
+  final String commentId;
+  final String postId;
+  final bool reply;
+  final String content;
+  final int likes;
+  final DateTime createdAt;
+  final String postTitle;
+  final String? postExcerpt;
+}
+
+/// A coin a member posts about, with its share of their posts.
+@immutable
+class TokenMention {
+  const TokenMention({
+    required this.symbol,
+    required this.posts,
+    required this.sharePercent,
+    required this.bullishPosts,
+    required this.bearishPosts,
+    this.name,
+  });
+
+  final String symbol;
+  final String? name;
+  final int posts;
+  final double sharePercent;
+  final int bullishPosts;
+  final int bearishPosts;
+}
+
+double _double(Map<String, Object?> json, String key) => switch (json[key]) {
+  final num value => value.toDouble(),
+  _ => throw DecodeException('$key is not a number'),
+};
+
+MemberProfile decodeMemberProfile(Object? body) {
+  final json = asJsonObject(body, 'member');
+  return MemberProfile(
+    author: Author(
+      userId: readString(json, 'userId'),
+      displayName: readOptionalString(json, 'displayName'),
+      avatarUrl: readOptionalString(json, 'avatarUrl'),
+    ),
+    joinedAt: readInstant(json, 'joinedAt'),
+    posts: _int(json, 'posts'),
+    likesReceived: _int(json, 'likesReceived'),
+    followers: _int(json, 'followers'),
+    following: _int(json, 'following'),
+    followedByMe: readBool(json, 'followedByMe'),
+    blockedByMe: readBool(json, 'blockedByMe'),
+    me: readBool(json, 'me'),
+    influenceScore: _double(json, 'influenceScore'),
+    depthScore: _double(json, 'depthScore'),
+    bio: readOptionalString(json, 'bio'),
+    websiteUrl: readOptionalString(json, 'websiteUrl'),
+    bannerUrl: readOptionalString(json, 'bannerUrl'),
+  );
+}
+
+MemberComment decodeMemberComment(Object? body) {
+  final json = asJsonObject(body, 'member comment');
+  return MemberComment(
+    commentId: readString(json, 'commentId'),
+    postId: readString(json, 'postId'),
+    reply: readBool(json, 'reply'),
+    content: readOptionalString(json, 'content') ?? '',
+    likes: _int(json, 'likes'),
+    createdAt: readInstant(json, 'createdAt'),
+    postTitle: readOptionalString(json, 'postTitle') ?? '',
+    postExcerpt: readOptionalString(json, 'postExcerpt'),
+  );
+}
+
+TokenMention decodeTokenMention(Object? body) {
+  final json = asJsonObject(body, 'token mention');
+  return TokenMention(
+    symbol: readString(json, 'symbol'),
+    name: readOptionalString(json, 'name'),
+    posts: _int(json, 'posts'),
+    sharePercent: _double(json, 'sharePercent'),
+    bullishPosts: _int(json, 'bullishPosts'),
+    bearishPosts: _int(json, 'bearishPosts'),
+  );
+}
+
+List<T> decodeList<T>(Object? body, T Function(Object?) item) => switch (body) {
+  final List<Object?> list => [for (final e in list) item(e)],
+  _ => throw const DecodeException('not a list'),
+};
+
+CommunityPage<MemberComment> decodeMemberCommentPage(Object? body) =>
+    _page(body, decodeMemberComment);
+
+CommunityPage<Author> decodeAuthorPage(Object? body) =>
+    _page(body, decodeAuthor);

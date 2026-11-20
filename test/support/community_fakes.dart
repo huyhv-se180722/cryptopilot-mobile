@@ -130,11 +130,13 @@ class FakeCommunityApi implements CommunityApi {
     String? coin,
     Market? market,
     String? query,
+    String? author,
     int page = 1,
     int pageSize = 20,
   }) async {
     final name =
-        'feed ${tab.wire} coin=$coin market=${market?.wire} q=$query p=$page';
+        'feed ${tab.wire} coin=$coin market=${market?.wire} q=$query p=$page'
+        '${author == null ? '' : ' author=$author'}';
     calls.add(name);
     _maybeFail('feed');
     final start = (page - 1) * pageSize;
@@ -195,8 +197,12 @@ class FakeCommunityApi implements CommunityApi {
     String postId,
     String content, {
     String? parentId,
+    List<String> mentions = const [],
   }) async {
-    calls.add('add $postId "$content" parent=$parentId');
+    calls.add(
+      'add $postId "$content" parent=$parentId'
+      '${mentions.isEmpty ? '' : ' mentions=${mentions.join(',')}'}',
+    );
     _maybeFail('add');
     return commentOf(
       'new-${calls.length}',
@@ -340,4 +346,148 @@ class FakeCommunityApi implements CommunityApi {
     drafts.add(draft);
     return postOf(id, title: draft.title, text: draft.content, mine: true);
   }
+
+  // Members (T-136).
+
+  Map<String, MemberProfile> members = {};
+  List<MemberComment> memberCommentItems = [];
+  List<Author> people = [
+    const Author(userId: 'u-An', displayName: 'An'),
+    const Author(userId: 'u-Bao', displayName: 'Bao'),
+  ];
+
+  @override
+  Future<MemberProfile> member(String id) async {
+    calls.add('member $id');
+    _maybeFail('member');
+    return members[id] ?? memberOf(id);
+  }
+
+  @override
+  Future<Engagement> follow(String id, {required bool on}) async {
+    calls.add('follow $id $on');
+    _maybeFail('follow');
+    final m = members[id] ?? memberOf(id);
+    return Engagement(active: on, count: m.followers + (on ? 1 : -1));
+  }
+
+  @override
+  Future<Engagement> block(String id, {required bool on}) async {
+    calls.add('block $id $on');
+    _maybeFail('block');
+    return Engagement(active: on, count: on ? 1 : 0);
+  }
+
+  @override
+  Future<List<TokenMention>> tokenMentions(String id, {int limit = 10}) async {
+    calls.add('mentions $id');
+    return const [
+      TokenMention(
+        symbol: 'BTC',
+        name: 'Bitcoin',
+        posts: 6,
+        sharePercent: 60,
+        bullishPosts: 4,
+        bearishPosts: 1,
+      ),
+    ];
+  }
+
+  @override
+  Future<CommunityPage<MemberComment>> memberComments(
+    String id, {
+    int page = 1,
+    int pageSize = 20,
+  }) async {
+    calls.add('member comments $id p=$page');
+    return CommunityPage(
+      items: memberCommentItems,
+      page: page,
+      pageSize: pageSize,
+      total: memberCommentItems.length,
+    );
+  }
+
+  @override
+  Future<CommunityPage<Post>> memberReactions(
+    String id, {
+    int page = 1,
+    int pageSize = 20,
+  }) async {
+    calls.add('member reactions $id p=$page');
+    return CommunityPage(
+      items: feedItems,
+      page: page,
+      pageSize: pageSize,
+      total: feedItems.length,
+    );
+  }
+
+  CommunityPage<Author> _people(int page, int pageSize) => CommunityPage(
+    items: people,
+    page: page,
+    pageSize: pageSize,
+    total: people.length,
+  );
+
+  @override
+  Future<CommunityPage<Author>> followers(
+    String id, {
+    int page = 1,
+    int pageSize = 20,
+  }) async {
+    calls.add('followers $id');
+    return _people(page, pageSize);
+  }
+
+  @override
+  Future<CommunityPage<Author>> followingOf(
+    String id, {
+    int page = 1,
+    int pageSize = 20,
+  }) async {
+    calls.add('following $id');
+    return _people(page, pageSize);
+  }
+
+  @override
+  Future<CommunityPage<Author>> blocked({
+    int page = 1,
+    int pageSize = 20,
+  }) async {
+    calls.add('blocked');
+    return _people(page, pageSize);
+  }
+
+  @override
+  Future<List<Author>> searchMembers(String query) async {
+    calls.add('search members $query');
+    return [
+      for (final p in people)
+        if ((p.displayName ?? '').toLowerCase().contains(query.toLowerCase()))
+          p,
+    ];
+  }
 }
+
+MemberProfile memberOf(
+  String id, {
+  String name = 'Minh Tran',
+  bool me = false,
+  bool following = false,
+  bool blocked = false,
+  int followers = 12,
+}) => MemberProfile(
+  author: Author(userId: id, displayName: name),
+  joinedAt: DateTime.utc(2026, 10, 1),
+  posts: 8,
+  likesReceived: 40,
+  followers: followers,
+  following: 3,
+  followedByMe: following,
+  blockedByMe: blocked,
+  me: me,
+  influenceScore: 72.5,
+  depthScore: 64,
+  bio: 'Swing trader, BTC and ETH.',
+);

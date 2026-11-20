@@ -21,6 +21,7 @@ String feedTabName(AppLocalizations l, FeedTab tab) => switch (tab) {
   FeedTab.mostLiked => l.communityTabMostLiked,
   FeedTab.saved => l.communityTabSaved,
   FeedTab.mine => l.communityTabMine,
+  FeedTab.following => l.communityTabFollowing,
 };
 
 /// SCR-24 (A-64): the community feed; writing a post opens the web
@@ -263,6 +264,7 @@ class _FeedBody extends StatelessWidget {
           : switch (filter.tab) {
               FeedTab.saved => l.communityEmptySaved,
               FeedTab.mine => l.communityEmptyMine,
+              FeedTab.following => l.communityEmptyFollowing,
               _ => l.communityEmpty,
             };
       return ListView(

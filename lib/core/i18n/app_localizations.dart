@@ -1648,6 +1648,18 @@ abstract class AppLocalizations {
   /// **'My posts'**
   String get communityTabMine;
 
+  /// No description provided for @communityTabFollowing.
+  ///
+  /// In en, this message translates to:
+  /// **'Following'**
+  String get communityTabFollowing;
+
+  /// No description provided for @communityEmptyFollowing.
+  ///
+  /// In en, this message translates to:
+  /// **'Posts of the members you follow appear here.'**
+  String get communityEmptyFollowing;
+
   /// No description provided for @communityCoinAll.
   ///
   /// In en, this message translates to:

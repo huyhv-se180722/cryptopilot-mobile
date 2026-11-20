@@ -530,6 +530,8 @@
   "communityTabMostLiked": "Most liked",
   "communityTabSaved": "Saved",
   "communityTabMine": "My posts",
+  "communityTabFollowing": "Following",
+  "communityEmptyFollowing": "Posts of the members you follow appear here.",
   "communityCoinAll": "All coins",
   "communityCoinPick": "Coin",
   "communityMarketAll": "All markets",
