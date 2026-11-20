@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/errors/api_failure.dart';
 import '../../../core/http/http_providers.dart';
 import '../domain/futures.dart';
+import '../domain/futures_calculator.dart';
+import '../domain/futures_history.dart';
 
 /// Paper Futures (D-127, D-128, D-154; read on backend develop 5c2398cb,
 /// module unchanged since 25ba960; no fe-guide chapter).
@@ -34,7 +36,74 @@ abstract interface class FuturesApi {
   /// The largest position a balance opens at a price (TR-25).
   Future<MaxOpen> maxOpen(MaxOpenRequest request);
 
+  /// One tab of the calculator (TR-25, T-123).
+  Future<CalcResult> calculate(CalcRequest request);
+
+  // The histories (plan 9.3, T-123): newest first; a range is optional.
+
+  Future<List<FuturesIncome>> income({
+    String? symbol,
+    IncomeType? type,
+    DateTime? from,
+    DateTime? to,
+    int? limit,
+  });
+
+  Future<List<ClosedPosition>> positionHistory({
+    String? symbol,
+    DateTime? from,
+    DateTime? to,
+    int? limit,
+  });
+
+  Future<List<FuturesOrder>> allOrders(
+    String symbol, {
+    DateTime? from,
+    DateTime? to,
+    int? limit,
+  });
+
+  Future<List<FuturesTrade>> userTrades(
+    String symbol, {
+    DateTime? from,
+    DateTime? to,
+    int? limit,
+  });
+
+  Future<List<AlgoOrder>> allAlgoOrders(
+    String symbol, {
+    DateTime? from,
+    DateTime? to,
+    int? limit,
+  });
+
+  /// Liquidations.
+  Future<List<FuturesOrder>> forceOrders({
+    String? symbol,
+    DateTime? from,
+    DateTime? to,
+    int? limit,
+  });
+
+  /// [added] true for additions, false for reductions, null for both.
+  Future<List<MarginChange>> marginHistory(
+    String symbol, {
+    bool? added,
+    DateTime? from,
+    DateTime? to,
+    int? limit,
+  });
+
   Future<FuturesOrder> placeOrder(FuturesOrderRequest request);
+
+  /// A new price and quantity for an open Limit (T-123).
+  Future<FuturesOrder> amendOrder(FuturesAmendRequest request);
+
+  /// True in hedge mode (a Long and a Short position per pair, TR-14b).
+  Future<bool> positionMode();
+
+  /// Answers the mode after the change.
+  Future<bool> setPositionMode({required bool hedge});
 
   Future<AlgoOrder> placeAlgoOrder(AlgoOrderRequest request);
 
@@ -147,6 +216,133 @@ class DioFuturesApi implements FuturesApi {
     decodeWarnings,
   );
 
+  static Map<String, Object?> _range(
+    DateTime? from,
+    DateTime? to,
+    int? limit,
+  ) => {
+    'startTime': ?from?.toUtc().toIso8601String(),
+    'endTime': ?to?.toUtc().toIso8601String(),
+    'limit': ?limit,
+  };
+
+  @override
+  Future<List<FuturesIncome>> income({
+    String? symbol,
+    IncomeType? type,
+    DateTime? from,
+    DateTime? to,
+    int? limit,
+  }) => apiCall(
+    () => _dio.get<Object?>(
+      '$_base/income',
+      queryParameters: {
+        'symbol': ?symbol,
+        'incomeType': ?type?.wire,
+        ..._range(from, to, limit),
+      },
+    ),
+    decodeIncomes,
+  );
+
+  @override
+  Future<List<ClosedPosition>> positionHistory({
+    String? symbol,
+    DateTime? from,
+    DateTime? to,
+    int? limit,
+  }) => apiCall(
+    () => _dio.get<Object?>(
+      '$_base/positionHistory',
+      queryParameters: {'symbol': ?symbol, ..._range(from, to, limit)},
+    ),
+    decodeClosedPositions,
+  );
+
+  @override
+  Future<List<FuturesOrder>> allOrders(
+    String symbol, {
+    DateTime? from,
+    DateTime? to,
+    int? limit,
+  }) => apiCall(
+    () => _dio.get<Object?>(
+      '$_base/allOrders',
+      queryParameters: {'symbol': symbol, ..._range(from, to, limit)},
+    ),
+    decodeFuturesOrders,
+  );
+
+  @override
+  Future<List<FuturesTrade>> userTrades(
+    String symbol, {
+    DateTime? from,
+    DateTime? to,
+    int? limit,
+  }) => apiCall(
+    () => _dio.get<Object?>(
+      '$_base/userTrades',
+      queryParameters: {'symbol': symbol, ..._range(from, to, limit)},
+    ),
+    decodeFuturesTrades,
+  );
+
+  @override
+  Future<List<AlgoOrder>> allAlgoOrders(
+    String symbol, {
+    DateTime? from,
+    DateTime? to,
+    int? limit,
+  }) => apiCall(
+    () => _dio.get<Object?>(
+      '$_base/allAlgoOrders',
+      queryParameters: {'symbol': symbol, ..._range(from, to, limit)},
+    ),
+    decodeAlgoOrders,
+  );
+
+  @override
+  Future<List<FuturesOrder>> forceOrders({
+    String? symbol,
+    DateTime? from,
+    DateTime? to,
+    int? limit,
+  }) => apiCall(
+    () => _dio.get<Object?>(
+      '$_base/forceOrders',
+      queryParameters: {'symbol': ?symbol, ..._range(from, to, limit)},
+    ),
+    decodeFuturesOrders,
+  );
+
+  @override
+  Future<List<MarginChange>> marginHistory(
+    String symbol, {
+    bool? added,
+    DateTime? from,
+    DateTime? to,
+    int? limit,
+  }) => apiCall(
+    () => _dio.get<Object?>(
+      '$_base/positionMargin/history',
+      queryParameters: {
+        'symbol': symbol,
+        'type': ?(added == null ? null : (added ? 1 : 2)),
+        ..._range(from, to, limit),
+      },
+    ),
+    decodeMarginChanges,
+  );
+
+  @override
+  Future<CalcResult> calculate(CalcRequest request) => apiCall(
+    () => _dio.post<Object?>(
+      '$_base/calculator/${request.tab.path}',
+      data: request.toJson(),
+    ),
+    decodeCalcResult,
+  );
+
   @override
   Future<MaxOpen> maxOpen(MaxOpenRequest request) => apiCall(
     () =>
@@ -157,6 +353,27 @@ class DioFuturesApi implements FuturesApi {
   @override
   Future<FuturesOrder> placeOrder(FuturesOrderRequest request) => apiCall(
     () => _dio.post<Object?>('$_base/order', data: request.toJson()),
+    decodeFuturesOrder,
+  );
+
+  @override
+  Future<bool> positionMode() => apiCall(
+    () => _dio.get<Object?>('$_base/positionSide/dual'),
+    decodePositionMode,
+  );
+
+  @override
+  Future<bool> setPositionMode({required bool hedge}) => apiCall(
+    () => _dio.post<Object?>(
+      '$_base/positionSide/dual',
+      data: {'dualSidePosition': hedge},
+    ),
+    decodePositionMode,
+  );
+
+  @override
+  Future<FuturesOrder> amendOrder(FuturesAmendRequest request) => apiCall(
+    () => _dio.put<Object?>('$_base/order', data: request.toJson()),
     decodeFuturesOrder,
   );
 

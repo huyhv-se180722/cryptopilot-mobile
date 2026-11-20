@@ -661,8 +661,11 @@ class _DemoCard extends ConsumerWidget {
                       text: '${formatDecimal(equity.totalEquity, 2)} USDT · ',
                     ),
                     TextSpan(
+                      // No snapshot yet today: the backend sends null.
                       text: l.homeDemoToday(
-                        '${pnl!.startsWith('-') ? '' : '+'}${formatDecimal(pnl, 2)}',
+                        pnl == null
+                            ? '--'
+                            : '${pnl.startsWith('-') ? '' : '+'}${formatDecimal(pnl, 2)}',
                       ),
                       style: TextStyle(color: color),
                     ),

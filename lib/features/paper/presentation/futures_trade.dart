@@ -18,7 +18,7 @@ import '../data/futures_repository.dart';
 import '../data/paper_repository.dart';
 import '../domain/futures.dart';
 import '../domain/paper.dart';
-import '../domain/paper_refusal.dart';
+import 'futures_calculator_sheet.dart';
 import 'order_book_panel.dart';
 import 'paper_text.dart';
 
@@ -133,12 +133,8 @@ class _Retry extends StatelessWidget {
   }
 }
 
-String _refusalOrFailure(AppLocalizations l, ApiFailure failure) {
-  final refusal = paperRefusal(failure);
-  return refusal == null
-      ? failureText(l, failure)
-      : refusalText(l, refusal, 'USDT');
-}
+String _refusalOrFailure(AppLocalizations l, ApiFailure failure) =>
+    refusalOrFailureText(l, failure, 'USDT');
 
 /// A sheet over the Futures screen; a snack bar still showing would cover
 /// its confirm button, so it goes first.
@@ -269,6 +265,13 @@ class _Header extends ConsumerWidget {
             overflow: TextOverflow.ellipsis,
           ),
         ),
+        IconButton(
+          key: const Key('futures-calculator'),
+          tooltip: l.calcOpen,
+          visualDensity: VisualDensity.compact,
+          icon: const Icon(Icons.calculate_outlined),
+          onPressed: () => showFuturesCalculator(context, pair),
+        ),
       ],
     );
     if (funding == null) return header;
@@ -313,67 +316,125 @@ class _Settings extends ConsumerWidget {
     final config = settings.config;
     if (config == null) return const SizedBox(height: 40);
     final repository = ref.read(futuresSettingsProvider(symbol).notifier);
-    return Row(
-      children: [
-        OutlinedButton(
-          key: const Key('futures-margin-mode'),
-          onPressed: () async {
-            final chosen = await _sheet<MarginType>(
-              context: context,
-              showDragHandle: true,
-              builder: (context) => SafeArea(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(l.futMarginTitle),
-                    for (final type in MarginType.values)
-                      ListTile(
-                        key: Key('margin-${type.wire}'),
-                        title: Text(
-                          type == MarginType.crossed
-                              ? l.futCross
-                              : l.futIsolated,
+    // One row at 360 dp: compact buttons, so the form keeps its place.
+    return OutlinedButtonTheme(
+      data: OutlinedButtonThemeData(
+        // Narrower, not lower: the form below keeps its place.
+        style: OutlinedButton.styleFrom(
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+        ),
+      ),
+      child: Row(
+        children: [
+          OutlinedButton(
+            key: const Key('futures-margin-mode'),
+            onPressed: () async {
+              final chosen = await _sheet<MarginType>(
+                context: context,
+                showDragHandle: true,
+                builder: (context) => SafeArea(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(l.futMarginTitle),
+                      for (final type in MarginType.values)
+                        ListTile(
+                          key: Key('margin-${type.wire}'),
+                          title: Text(
+                            type == MarginType.crossed
+                                ? l.futCross
+                                : l.futIsolated,
+                          ),
+                          selected: type == config.marginType,
+                          onTap: () => Navigator.of(context).pop(type),
                         ),
-                        selected: type == config.marginType,
-                        onTap: () => Navigator.of(context).pop(type),
-                      ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-            );
-            if (chosen != null &&
-                chosen != config.marginType &&
-                context.mounted) {
-              await _run(context, () => repository.setMarginType(chosen));
-            }
-          },
-          child: Text(
-            config.marginType == MarginType.crossed
-                ? l.futCross
-                : l.futIsolated,
+              );
+              if (chosen != null &&
+                  chosen != config.marginType &&
+                  context.mounted) {
+                await _run(context, () => repository.setMarginType(chosen));
+              }
+            },
+            child: Text(
+              config.marginType == MarginType.crossed
+                  ? l.futCross
+                  : l.futIsolated,
+            ),
           ),
-        ),
-        const SizedBox(width: 8),
-        OutlinedButton(
-          key: const Key('futures-leverage'),
-          onPressed: () async {
-            final chosen = await _sheet<int>(
-              context: context,
-              showDragHandle: true,
-              builder: (_) => _LeverageSheet(
-                current: config.leverage,
-                max: settings.maxLeverage ?? config.leverage,
-              ),
-            );
-            if (chosen != null &&
-                chosen != config.leverage &&
-                context.mounted) {
-              await _run(context, () => repository.setLeverage(chosen));
-            }
-          },
-          child: Text(l.futLeverage(config.leverage)),
-        ),
-      ],
+          const SizedBox(width: 8),
+          OutlinedButton(
+            key: const Key('futures-leverage'),
+            onPressed: () async {
+              final chosen = await _sheet<int>(
+                context: context,
+                showDragHandle: true,
+                builder: (_) => _LeverageSheet(
+                  current: config.leverage,
+                  max: settings.maxLeverage ?? config.leverage,
+                ),
+              );
+              if (chosen != null &&
+                  chosen != config.leverage &&
+                  context.mounted) {
+                await _run(context, () => repository.setLeverage(chosen));
+              }
+            },
+            child: Text(l.futLeverage(config.leverage)),
+          ),
+          const SizedBox(width: 8),
+          const _PositionModeButton(),
+        ],
+      ),
+    );
+  }
+}
+
+/// One-way or hedge mode (TR-14b, T-123), switched in a sheet; the server
+/// refuses while a position or an order is open.
+class _PositionModeButton extends ConsumerWidget {
+  const _PositionModeButton();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context);
+    final hedge = ref.watch(futuresModeProvider.select((s) => s.hedge));
+    if (hedge == null) return const SizedBox.shrink();
+    return OutlinedButton(
+      key: const Key('futures-position-mode'),
+      onPressed: () async {
+        final chosen = await _sheet<bool>(
+          context: context,
+          builder: (context) => SafeArea(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(l.futModeTitle),
+                for (final (value, title, hint) in [
+                  (false, l.futModeOneWay, l.futModeOneWayHint),
+                  (true, l.futModeHedge, l.futModeHedgeHint),
+                ])
+                  ListTile(
+                    key: Key('mode-${value ? 'hedge' : 'one-way'}'),
+                    title: Text(title),
+                    subtitle: Text(hint),
+                    selected: value == hedge,
+                    onTap: () => Navigator.of(context).pop(value),
+                  ),
+              ],
+            ),
+          ),
+        );
+        if (chosen != null && chosen != hedge && context.mounted) {
+          await _run(
+            context,
+            () => ref.read(futuresModeProvider.notifier).set(hedge: chosen),
+          );
+        }
+      },
+      child: Text(hedge ? l.futModeHedge : l.futModeOneWay),
     );
   }
 }
@@ -443,6 +504,9 @@ class _Form extends ConsumerWidget {
       futuresProvider.select((s) => s.account?.availableBalance),
     );
     final preview = ref.watch(futuresPreviewProvider(pair.symbol));
+    final hedge =
+        ref.watch(futuresModeProvider.select((s) => s.hedge)) ?? false;
+    final closing = hedge && state.closing;
 
     String label(FuturesField field) => switch (field) {
       FuturesField.price => l.tradePrice,
@@ -451,6 +515,8 @@ class _Form extends ConsumerWidget {
       FuturesField.trigger => l.futTrigger,
       FuturesField.takeProfit => l.futTakeProfit,
       FuturesField.stopLoss => l.futStopLoss,
+      FuturesField.callback => l.futCallback,
+      FuturesField.activation => l.futActivation,
     };
     String? issueText(FuturesIssue? issue) => switch (issue) {
       FuturesIssue.required => l.paperErrRequired,
@@ -459,32 +525,95 @@ class _Form extends ConsumerWidget {
         groupThousands(pair.tickSize.replaceFirst(RegExp(r'0+$'), '')),
       ),
       FuturesIssue.tpSlWithReduceOnly => l.futErrTpSlReduceOnly,
+      FuturesIssue.outOfRange => l.futErrCallback,
       null => null,
     };
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        DropdownButton<FuturesKind>(
-          key: const Key('futures-kind'),
-          isExpanded: true,
-          value: state.kind,
-          onChanged: (kind) => c.selectKind(kind!),
-          items: [
-            for (final kind in FuturesKind.values)
-              DropdownMenuItem(
-                value: kind,
-                child: Text(switch (kind) {
-                  FuturesKind.limit => l.futKindLimit,
-                  FuturesKind.market => l.futKindMarket,
-                  FuturesKind.stopLimit => l.futKindStopLimit,
-                  FuturesKind.stopMarket => l.futKindStopMarket,
-                  FuturesKind.takeProfitLimit => l.futKindTakeProfitLimit,
-                  FuturesKind.takeProfitMarket => l.futKindTakeProfitMarket,
-                }),
+        // Hedge mode: Open or Close, as the exchange's two tabs (TR-14b).
+        if (hedge)
+          SegmentedButton<bool>(
+            key: const Key('futures-open-close'),
+            segments: [
+              ButtonSegment(value: false, label: Text(l.futOpen)),
+              ButtonSegment(value: true, label: Text(l.futCloseTab)),
+            ],
+            selected: {state.closing},
+            onSelectionChanged: (s) => c.setClosing(s.first),
+          ),
+        // A Limit's time in force shares the kind's row (T-123).
+        Row(
+          children: [
+            Expanded(
+              child: DropdownButton<FuturesKind>(
+                key: const Key('futures-kind'),
+                isExpanded: true,
+                value: state.kind,
+                onChanged: (kind) => c.selectKind(kind!),
+                items: [
+                  for (final kind in FuturesKind.values)
+                    DropdownMenuItem(
+                      value: kind,
+                      child: Text(switch (kind) {
+                        FuturesKind.limit => l.futKindLimit,
+                        FuturesKind.market => l.futKindMarket,
+                        FuturesKind.stopLimit => l.futKindStopLimit,
+                        FuturesKind.stopMarket => l.futKindStopMarket,
+                        FuturesKind.takeProfitLimit => l.futKindTakeProfitLimit,
+                        FuturesKind.takeProfitMarket =>
+                          l.futKindTakeProfitMarket,
+                        FuturesKind.trailingStop => l.futKindTrailingStop,
+                      }),
+                    ),
+                ],
               ),
+            ),
+            if (state.kind == FuturesKind.limit) ...[
+              const SizedBox(width: 6),
+              DropdownButton<FuturesTimeInForce>(
+                key: const Key('futures-tif'),
+                value: state.timeInForce,
+                onChanged: (tif) => c.setTimeInForce(tif!),
+                selectedItemBuilder: (_) => [
+                  for (final tif in FuturesTimeInForce.values) Text(tif.wire),
+                ],
+                items: [
+                  for (final tif in FuturesTimeInForce.values)
+                    DropdownMenuItem(
+                      value: tif,
+                      child: Text(switch (tif) {
+                        FuturesTimeInForce.gtc => l.tradeTifGtc,
+                        FuturesTimeInForce.ioc => l.tradeTifIoc,
+                        FuturesTimeInForce.fok => l.tradeTifFok,
+                        FuturesTimeInForce.gtx => l.futTifGtx,
+                        FuturesTimeInForce.gtd => l.futTifGtd,
+                      }),
+                    ),
+                ],
+              ),
+            ],
           ],
         ),
+        if (state.kind == FuturesKind.limit &&
+            state.timeInForce == FuturesTimeInForce.gtd)
+          Wrap(
+            spacing: 6,
+            children: [
+              for (final hours in gtdHours)
+                ChoiceChip(
+                  key: Key('futures-gtd-$hours'),
+                  label: Text(switch (hours) {
+                    1 => l.futGtdHour,
+                    24 => l.futGtdDay,
+                    _ => l.futGtdWeek,
+                  }),
+                  selected: state.gtdHours == hours,
+                  onSelected: (_) => c.setGtdHours(hours),
+                ),
+            ],
+          ),
         for (final field in state.fields)
           Padding(
             padding: const EdgeInsets.only(top: 6),
@@ -529,18 +658,20 @@ class _Form extends ConsumerWidget {
                 ),
           ],
         ),
-        // Stacked: the form shares the width with the order book.
-        CheckboxListTile(
-          key: const Key('futures-reduce-only'),
-          contentPadding: EdgeInsets.zero,
-          dense: true,
-          visualDensity: VisualDensity.compact,
-          controlAffinity: ListTileControlAffinity.leading,
-          title: Text(l.futReduceOnly),
-          value: state.reduceOnly,
-          onChanged: (v) => c.setReduceOnly(v ?? false),
-        ),
-        if (!state.kind.conditional)
+        // Stacked: the form shares the width with the order book. Hedge
+        // mode has no reduce-only, and a close takes no TP/SL.
+        if (!hedge)
+          CheckboxListTile(
+            key: const Key('futures-reduce-only'),
+            contentPadding: EdgeInsets.zero,
+            dense: true,
+            visualDensity: VisualDensity.compact,
+            controlAffinity: ListTileControlAffinity.leading,
+            title: Text(l.futReduceOnly),
+            value: state.reduceOnly,
+            onChanged: (v) => c.setReduceOnly(v ?? false),
+          ),
+        if (!state.kind.conditional && !closing)
           CheckboxListTile(
             key: const Key('futures-tpsl'),
             contentPadding: EdgeInsets.zero,
@@ -563,6 +694,7 @@ class _Form extends ConsumerWidget {
         for (final side in OrderSide.values)
           _SideAction(
             side: side,
+            closing: closing,
             pair: pair,
             preview: preview.of(side),
             stale: preview.loading,
@@ -643,6 +775,7 @@ class _ShareSliderState extends State<_ShareSlider> {
 class _SideAction extends StatelessWidget {
   const _SideAction({
     required this.side,
+    required this.closing,
     required this.pair,
     required this.preview,
     required this.stale,
@@ -651,6 +784,9 @@ class _SideAction extends StatelessWidget {
   });
 
   final OrderSide side;
+
+  /// Hedge mode's Close tab: Buy closes the Short, Sell the Long.
+  final bool closing;
   final MarketPair pair;
   final SidePreview preview;
   final bool stale;
@@ -694,7 +830,11 @@ class _SideAction extends StatelessWidget {
               backgroundColor: buy ? context.cp.positive : context.cp.negative,
             ),
             onPressed: onPressed,
-            child: Text(buy ? l.futBuyLong : l.futSellShort),
+            child: Text(
+              closing
+                  ? (buy ? l.futCloseShort : l.futCloseLong)
+                  : (buy ? l.futBuyLong : l.futSellShort),
+            ),
           ),
           if (info != null)
             Opacity(
@@ -1322,6 +1462,63 @@ class _MarginSheetState extends State<_MarginSheet> {
   }
 }
 
+/// A new price and quantity for an open Limit (`PUT /futures/order`);
+/// both start from the order's own.
+class _AmendSheet extends StatefulWidget {
+  const _AmendSheet({required this.order});
+
+  final FuturesOrder order;
+
+  @override
+  State<_AmendSheet> createState() => _AmendSheetState();
+}
+
+class _AmendSheetState extends State<_AmendSheet> {
+  late final _price = TextEditingController(text: widget.order.price ?? '');
+  late final _quantity = TextEditingController(text: widget.order.origQty);
+
+  @override
+  void dispose() {
+    _price.dispose();
+    _quantity.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final price = _price.text.trim();
+    final quantity = _quantity.text.trim();
+    return _SheetFrame(
+      title: l.futAmendTitle,
+      children: [
+        TextField(
+          key: const Key('amend-price'),
+          controller: _price,
+          onChanged: (_) => setState(() {}),
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          decoration: InputDecoration(labelText: l.tradePrice),
+        ),
+        TextField(
+          key: const Key('amend-quantity'),
+          controller: _quantity,
+          onChanged: (_) => setState(() {}),
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          decoration: InputDecoration(labelText: l.futSize),
+        ),
+        const SizedBox(height: 8),
+        FilledButton(
+          key: const Key('amend-confirm'),
+          onPressed: price.isEmpty || quantity.isEmpty
+              ? null
+              : () => Navigator.of(context).pop((price, quantity)),
+          child: Text(l.futSave),
+        ),
+      ],
+    );
+  }
+}
+
 class _SheetFrame extends StatelessWidget {
   const _SheetFrame({required this.title, required this.children});
 
@@ -1375,11 +1572,38 @@ class _Orders extends ConsumerWidget {
             subtitle: Text(
               '${groupThousands(order.price ?? '--')} · ${order.executedQty}/${order.origQty}',
             ),
-            trailing: TextButton(
-              key: Key('futures-cancel-${order.orderId}'),
-              onPressed: () =>
-                  _run(context, () => repository.cancelOrder(order)),
-              child: Text(l.tradeCancel),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // A Limit can take a new price and quantity (T-123).
+                if (order.type == 'LIMIT')
+                  TextButton(
+                    key: Key('futures-amend-${order.orderId}'),
+                    onPressed: () async {
+                      final result = await _sheet<(String, String)>(
+                        context: context,
+                        isScrollControlled: true,
+                        builder: (_) => _AmendSheet(order: order),
+                      );
+                      if (result == null || !context.mounted) return;
+                      await _run(
+                        context,
+                        () => repository.amendOrder(
+                          order,
+                          price: result.$1,
+                          quantity: result.$2,
+                        ),
+                      );
+                    },
+                    child: Text(l.futAmend),
+                  ),
+                TextButton(
+                  key: Key('futures-cancel-${order.orderId}'),
+                  onPressed: () =>
+                      _run(context, () => repository.cancelOrder(order)),
+                  child: Text(l.tradeCancel),
+                ),
+              ],
             ),
           ),
         for (final order in state.algoOrders)

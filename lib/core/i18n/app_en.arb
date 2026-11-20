@@ -1151,6 +1151,13 @@
   "tradeKindStopMarket": "Stop Market",
   "tradeKindOco": "OCO",
   "tradeKindLimitTpSl": "Limit TP/SL",
+  "tradeKindPostOnly": "Post-only",
+  "tradeKindOto": "OTO",
+  "tradeTrailing": "Trailing % (optional)",
+  "tradePendingPrice": "Then the other way at",
+  "tradeTifGtc": "GTC · good till cancelled",
+  "tradeTifIoc": "IOC · fill now, cancel the rest",
+  "tradeTifFok": "FOK · fill all now or cancel",
   "tradePrice": "Price",
   "tradeAmount": "Amount",
   "tradeTotal": "Total",
@@ -1322,6 +1329,44 @@
   "assetsTransfer": "Transfer",
   "assetsHistory": "History",
   "assetsTradeDemo": "Trade (demo)",
+  "assetsEquity": "Equity",
+  "assetsEquityDays": "{days}D",
+  "@assetsEquityDays": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "assetsEquityChart": "Demo account equity, last {days} days",
+  "@assetsEquityChart": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "assetsEquityEmpty": "The equity history starts after the first day.",
+  "assetsCoinPnl": "Avg cost {cost} · PnL {pnl}",
+  "@assetsCoinPnl": {
+    "placeholders": {
+      "cost": {
+        "type": "String"
+      },
+      "pnl": {
+        "type": "String"
+      }
+    }
+  },
+  "assetsSpotUpnl": "Spot unrealized PnL {amount} USDT",
+  "@assetsSpotUpnl": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "assetsPnlIncomplete": "Some coins have no cost or price yet; the totals leave them out.",
   "assetsFuturesPnl": "Unrealized PnL",
   "assetsFuturesMargin": "Margin balance",
   "assetsFuturesAvailable": "Available",
@@ -1354,6 +1399,22 @@
   "historyFills": "Fills",
   "historyLedger": "Ledger",
   "historyTransfers": "Transfers",
+  "futHistPositions": "Positions",
+  "futHistIncome": "Income",
+  "futHistConditional": "Conditional",
+  "futHistLiquidations": "Liquidations",
+  "futHistMargin": "Margin",
+  "futHistAllPairs": "All pairs",
+  "futHistAdded": "Added",
+  "futHistReduced": "Reduced",
+  "futHistClosed": "Closed {quantity}",
+  "@futHistClosed": {
+    "placeholders": {
+      "quantity": {
+        "type": "String"
+      }
+    }
+  },
   "historyAll": "All",
   "historyDay": "1D",
   "historyWeek": "1W",
@@ -1394,6 +1455,16 @@
   "paperErrMaxPosition": "This position is larger than the leverage allows. Lower the leverage or the size.",
   "paperErrLeverageMargin": "The leverage cannot change with the margin this position holds.",
   "paperErrMarginTypeLocked": "The margin mode cannot change while a position or an order is open.",
+  "paperErrPositionModeLocked": "Close every Futures position and cancel every order to change the position mode.",
+  "futModeOneWay": "One-way",
+  "futModeHedge": "Hedge",
+  "futModeTitle": "Position mode",
+  "futModeOneWayHint": "One position per pair, Long or Short.",
+  "futModeHedgeHint": "A Long and a Short position per pair at once.",
+  "futOpen": "Open",
+  "futCloseTab": "Close",
+  "futCloseLong": "Close Long",
+  "futCloseShort": "Close Short",
   "paperErrInLiquidation": "The account is being liquidated. Try again in a moment.",
   "paperErrPositionMargin": "The margin cannot change by that amount.",
   "futBuyLong": "Buy / Long",
@@ -1424,6 +1495,49 @@
   "futKindStopMarket": "Stop Market",
   "futKindTakeProfitLimit": "Take Profit Limit",
   "futKindTakeProfitMarket": "Take Profit Market",
+  "futKindTrailingStop": "Trailing Stop",
+  "futCallback": "Callback %",
+  "futActivation": "Activation price (optional)",
+  "futErrCallback": "Enter 0.1 to 20.",
+  "futTifGtx": "GTX · post-only",
+  "futTifGtd": "GTD · good till a date",
+  "futGtdHour": "1 hour",
+  "futGtdDay": "1 day",
+  "futGtdWeek": "7 days",
+  "futAmend": "Edit",
+  "calcOpen": "Calculator",
+  "calcTitle": "{symbol} calculator",
+  "@calcTitle": {
+    "placeholders": {
+      "symbol": {
+        "type": "String"
+      }
+    }
+  },
+  "calcPnl": "PnL",
+  "calcTarget": "Target price",
+  "calcLiquidation": "Liquidation price",
+  "calcMaxOpen": "Max open",
+  "calcOpenPrice": "Open price",
+  "calcEntry": "Entry price",
+  "calcExit": "Exit price",
+  "calcRoe": "ROE % (negative for a loss)",
+  "calcWallet": "Wallet balance (USDT)",
+  "calcWalletIsolated": "Isolated margin (USDT, optional)",
+  "calcAddLot": "Add a part",
+  "calcRemoveLot": "Remove this part",
+  "calcLotsMissing": "Enter at least one price and quantity.",
+  "calcCalculate": "Calculate",
+  "calcInitialMargin": "Initial margin",
+  "calcPnlResult": "PnL (USDT)",
+  "calcRoeResult": "ROE",
+  "calcTargetResult": "Target price",
+  "calcLiquidationResult": "Liquidation price",
+  "calcMaxQuantity": "Max quantity",
+  "calcMaxNotional": "Max value (USDT)",
+  "calcOpenPriceResult": "Average open price",
+  "calcTotalQuantity": "Total quantity",
+  "futAmendTitle": "Edit the demo order",
   "futTrigger": "Trigger price",
   "futSize": "Size",
   "futSizeCoin": "{asset}",

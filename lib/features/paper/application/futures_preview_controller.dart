@@ -83,6 +83,8 @@ class FuturesPreviewController extends Notifier<FuturesPreview> {
             s.tpSl,
             s.takeProfit,
             s.stopLoss,
+            s.closing,
+            s.timeInForce,
           ),
         ),
         (_, _) => _soon(),

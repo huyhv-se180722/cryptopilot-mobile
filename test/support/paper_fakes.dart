@@ -165,6 +165,26 @@ class FakePaperApi implements PaperApi {
     return order;
   }
 
+  final List<SpotOtoRequest> placedOtos = [];
+
+  @override
+  Future<List<PaperOrder>> placeOto(SpotOtoRequest request) async {
+    calls.add('place list OTO');
+    placedOtos.add(request);
+    if (placeError case final error?) throw error;
+    final orders = [
+      paperOrderOf(
+        'oto-w',
+        side: request.working.side,
+        listId: 'list-oto',
+        type: request.working.type,
+        price: request.working.price ?? '0',
+      ),
+    ];
+    open = [...open, ...orders];
+    return orders;
+  }
+
   @override
   Future<List<PaperOrder>> placeOrderList(SpotOrderListRequest request) async {
     calls.add('place list ${request.otoco ? 'OTOCO' : 'OCO'}');
@@ -285,8 +305,9 @@ class FakePaperApi implements PaperApi {
   }
 
   @override
-  Future<PaperEquity> equity() async {
-    calls.add('equity');
+  Future<PaperEquity> equity({int days = 1}) async {
+    calls.add(days == 1 ? 'equity' : 'equity days=$days');
+    if (equityAnswer case final answer? when opened) return answer;
     if (!opened) {
       throw const ProblemFailure(
         ApiProblem(
@@ -303,5 +324,17 @@ class FakePaperApi implements PaperApi {
       todayPnl: '-12.50',
       todayPnlPercent: '-0.08',
     );
+  }
+
+  /// Set to answer the equity with a history (T-123).
+  PaperEquity? equityAnswer;
+  SpotPnl pnlAnswer = const SpotPnl(coins: [], complete: true);
+  Object? pnlError;
+
+  @override
+  Future<SpotPnl> spotPnl() async {
+    calls.add('spot pnl');
+    if (pnlError case final error?) throw error;
+    return pnlAnswer;
   }
 }

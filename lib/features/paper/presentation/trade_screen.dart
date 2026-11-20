@@ -297,6 +297,8 @@ class _SpotForm extends ConsumerWidget {
             : l.tradeStop,
       SpotField.takeProfit => l.tradeTakeProfit,
       SpotField.stopLimit => l.tradeStopLimit,
+      SpotField.trailing => l.tradeTrailing,
+      SpotField.pendingPrice => l.tradePendingPrice,
     };
 
     final side = buy ? context.cp.positive : context.cp.negative;
@@ -323,24 +325,56 @@ class _SpotForm extends ConsumerWidget {
           ],
         ),
         const SizedBox(height: 6),
-        DropdownButton<SpotKind>(
-          key: const Key('trade-kind'),
-          isExpanded: true,
-          value: state.kind,
-          onChanged: (kind) => controller.selectKind(kind!),
-          items: [
-            for (final kind in SpotKind.values)
-              DropdownMenuItem(
-                value: kind,
-                child: Text(switch (kind) {
-                  SpotKind.limit => l.tradeKindLimit,
-                  SpotKind.market => l.tradeKindMarket,
-                  SpotKind.stopLimit => l.tradeKindStopLimit,
-                  SpotKind.stopMarket => l.tradeKindStopMarket,
-                  SpotKind.oco => l.tradeKindOco,
-                  SpotKind.limitTpSl => l.tradeKindLimitTpSl,
-                }),
+        // The time in force shares the kind's row: GTC, IOC or FOK on
+        // the button, said in full in its menu (T-123).
+        Row(
+          children: [
+            Expanded(
+              child: DropdownButton<SpotKind>(
+                key: const Key('trade-kind'),
+                isExpanded: true,
+                value: state.kind,
+                onChanged: (kind) => controller.selectKind(kind!),
+                items: [
+                  for (final kind in SpotKind.values)
+                    DropdownMenuItem(
+                      value: kind,
+                      child: Text(switch (kind) {
+                        SpotKind.limit => l.tradeKindLimit,
+                        SpotKind.market => l.tradeKindMarket,
+                        SpotKind.stopLimit => l.tradeKindStopLimit,
+                        SpotKind.stopMarket => l.tradeKindStopMarket,
+                        SpotKind.oco => l.tradeKindOco,
+                        SpotKind.limitTpSl => l.tradeKindLimitTpSl,
+                        SpotKind.postOnly => l.tradeKindPostOnly,
+                        SpotKind.oto => l.tradeKindOto,
+                      }),
+                    ),
+                ],
               ),
+            ),
+            if (state.kind.timed) ...[
+              const SizedBox(width: 6),
+              DropdownButton<SpotTimeInForce>(
+                key: const Key('trade-tif'),
+                value: state.timeInForce,
+                onChanged: (tif) => controller.setTimeInForce(tif!),
+                selectedItemBuilder: (_) => [
+                  for (final tif in SpotTimeInForce.values) Text(tif.wire),
+                ],
+                items: [
+                  for (final tif in SpotTimeInForce.values)
+                    DropdownMenuItem(
+                      value: tif,
+                      child: Text(switch (tif) {
+                        SpotTimeInForce.gtc => l.tradeTifGtc,
+                        SpotTimeInForce.ioc => l.tradeTifIoc,
+                        SpotTimeInForce.fok => l.tradeTifFok,
+                      }),
+                    ),
+                ],
+              ),
+            ],
           ],
         ),
         if (state.kind == SpotKind.market)
