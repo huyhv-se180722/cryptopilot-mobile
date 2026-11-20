@@ -1492,6 +1492,66 @@ abstract class AppLocalizations {
   /// **'Your email, name and capital are never sent.'**
   String get aiPrivacy;
 
+  /// No description provided for @aiStyleChip.
+  ///
+  /// In en, this message translates to:
+  /// **'Style: {style} · {risk}'**
+  String aiStyleChip(String style, String risk);
+
+  /// No description provided for @aiStyleNotSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Set your trading style'**
+  String get aiStyleNotSet;
+
+  /// No description provided for @aiStyleHint.
+  ///
+  /// In en, this message translates to:
+  /// **'The assistant explains things for the way you trade.'**
+  String get aiStyleHint;
+
+  /// No description provided for @aiStyleScalping.
+  ///
+  /// In en, this message translates to:
+  /// **'Scalping'**
+  String get aiStyleScalping;
+
+  /// No description provided for @aiStyleDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Day trading'**
+  String get aiStyleDay;
+
+  /// No description provided for @aiStyleSwing.
+  ///
+  /// In en, this message translates to:
+  /// **'Swing'**
+  String get aiStyleSwing;
+
+  /// No description provided for @aiStylePosition.
+  ///
+  /// In en, this message translates to:
+  /// **'Position'**
+  String get aiStylePosition;
+
+  /// No description provided for @aiRiskConservative.
+  ///
+  /// In en, this message translates to:
+  /// **'Conservative'**
+  String get aiRiskConservative;
+
+  /// No description provided for @aiRiskBalanced.
+  ///
+  /// In en, this message translates to:
+  /// **'Balanced'**
+  String get aiRiskBalanced;
+
+  /// No description provided for @aiRiskAggressive.
+  ///
+  /// In en, this message translates to:
+  /// **'Aggressive'**
+  String get aiRiskAggressive;
+
   /// No description provided for @aiPlaceholderGeneral.
   ///
   /// In en, this message translates to:

@@ -502,6 +502,22 @@
   "aiPairNeedsChoice": "Pick a coin for the assistant to analyse.",
   "aiMineNeedsChoice": "Pick a plan or tick the performance to ask.",
   "aiPrivacy": "Your email, name and capital are never sent.",
+  "aiStyleChip": "Style: {style} · {risk}",
+  "@aiStyleChip": {
+    "placeholders": {
+      "style": {"type": "String"},
+      "risk": {"type": "String"}
+    }
+  },
+  "aiStyleNotSet": "Set your trading style",
+  "aiStyleHint": "The assistant explains things for the way you trade.",
+  "aiStyleScalping": "Scalping",
+  "aiStyleDay": "Day trading",
+  "aiStyleSwing": "Swing",
+  "aiStylePosition": "Position",
+  "aiRiskConservative": "Conservative",
+  "aiRiskBalanced": "Balanced",
+  "aiRiskAggressive": "Aggressive",
   "aiPlaceholderGeneral": "Ask anything about trading…",
   "aiPlaceholderPair": "Ask about {symbol}…",
   "@aiPlaceholderPair": {
