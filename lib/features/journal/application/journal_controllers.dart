@@ -169,7 +169,7 @@ class JournalEntryState {
       (failure! as ProblemFailure).problem.messageCode == 'MSG41';
 
   /// The review replaces the stored one and the detail has no key of the
-  /// chart image, so saving would remove it (Q-95): a trade with an image
+  /// chart image, so saving would remove it (Q-97): a trade with an image
   /// keeps its review read only in the app.
   bool get reviewEditable => detail != null && detail!.chartImageUrl == null;
 }

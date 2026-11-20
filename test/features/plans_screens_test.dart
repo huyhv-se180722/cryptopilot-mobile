@@ -451,7 +451,7 @@ void main() {
     });
 
     testWidgets('a trade with a chart image keeps its review read only '
-        '(Q-95)', (tester) async {
+        '(Q-97)', (tester) async {
       journal.details['j1'] = JournalDetail(
         entry: journalOf('j1'),
         setupDescription: 'Breakout',

@@ -23,7 +23,7 @@ abstract interface class JournalApi {
 
   /// MSG14. 400 MSG15 on a text over 4,000 characters, 404 MSG41. The
   /// review replaces the stored one: a field left out is cleared, the chart
-  /// image too, whose key the detail does not return (Q-95), so the app
+  /// image too, whose key the detail does not return (Q-97), so the app
   /// saves a review only for a trade without an image.
   Future<JournalDetail> review(
     String id, {
