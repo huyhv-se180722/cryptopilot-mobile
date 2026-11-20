@@ -1,5 +1,5 @@
 // The device check batch of the PARTIAL tasks (T-090, T-091, T-123…T-126,
-// T-128, T-129, T-131…T-134) against a running backend (not part of
+// T-128, T-129, T-131…T-137) against a running backend (not part of
 // `flutter test`):
 //
 //   flutter test integration_test/device_check_test.dart -d emulator-5554 \
@@ -206,6 +206,24 @@ void main() {
     if (await waitFor(find.byKey(const Key('post-detail')), seconds: 10)) {
       await shot('24-community-post', find.byKey(const Key('post-detail')));
     }
+
+    // Writing a post (T-135), a member page (T-136), the Coins list (T-137).
+    await push('/community/new');
+    await shot('27-composer', find.byKey(const Key('composer')));
+    await push(Routes.community);
+    await waitFor(find.byType(PostCard));
+    final author = find.byWidgetPredicate(
+      (w) =>
+          w.key is ValueKey<String> &&
+          (w.key! as ValueKey<String>).value.startsWith('author-'),
+    );
+    await tapFirst(author);
+    if (await waitFor(find.byKey(const Key('member-tabs')), seconds: 10)) {
+      await shot('28-member', find.byKey(const Key('member-tabs')));
+    }
+    await go(Routes.markets);
+    await tester.tap(find.byKey(const Key('markets-coins')));
+    await shot('29-coins', find.byKey(const Key('coin-list')));
 
     // Notifications and the account (T-125).
     await push(Routes.notifications);
