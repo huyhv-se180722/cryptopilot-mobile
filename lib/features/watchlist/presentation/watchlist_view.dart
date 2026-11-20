@@ -264,6 +264,12 @@ class _ReorderList extends ConsumerWidget {
                     padding: const EdgeInsets.fromLTRB(16, 4, 4, 4),
                     child: Row(
                       children: [
+                        CoinLogo(
+                          symbol: pair?.baseAsset ?? item.symbol,
+                          url: pair?.logoUrl,
+                          size: 24,
+                        ),
+                        const SizedBox(width: 10),
                         Expanded(
                           child: Text.rich(
                             TextSpan(
@@ -411,6 +417,11 @@ class WatchRow extends ConsumerWidget {
           padding: const EdgeInsets.fromLTRB(16, 10, 4, 10),
           child: Row(
             children: [
+              CoinLogo(
+                symbol: pair?.baseAsset ?? item.symbol,
+                url: pair?.logoUrl,
+              ),
+              const SizedBox(width: 10),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,

@@ -11,6 +11,7 @@ import '../../../core/theme/cp_colors.dart';
 import '../../market/data/market_repository.dart';
 import '../../market/data/order_book_repository.dart';
 import '../../market/domain/market.dart';
+import '../../market/presentation/market_widgets.dart';
 import '../application/spot_form_controller.dart';
 import '../application/trade_controller.dart';
 import '../data/paper_repository.dart';
@@ -252,6 +253,11 @@ class _PairHeader extends ConsumerWidget {
                     for (final p in pairs)
                       ListTile(
                         key: Key('trade-pick-${p.symbol}'),
+                        leading: CoinLogo(
+                          symbol: p.baseAsset,
+                          url: p.logoUrl,
+                          size: 24,
+                        ),
                         title: Text('${p.baseAsset}/${p.quoteAsset}'),
                         subtitle: Text(p.baseAssetName),
                         selected: p.symbol == pair.symbol,

@@ -236,6 +236,11 @@ class _Header extends ConsumerWidget {
                     for (final p in pairs)
                       ListTile(
                         key: Key('futures-pick-${p.symbol}'),
+                        leading: CoinLogo(
+                          symbol: p.baseAsset,
+                          url: p.logoUrl,
+                          size: 24,
+                        ),
                         title: Text('${p.symbol} Perp'),
                         selected: p.symbol == pair.symbol,
                         onTap: () => Navigator.of(context).pop(p.symbol),

@@ -7,6 +7,7 @@ import '../../../core/i18n/app_localizations.dart';
 import '../../../core/theme/cp_colors.dart';
 import '../../market/data/market_repository.dart';
 import '../../market/domain/market.dart';
+import '../../market/presentation/market_widgets.dart';
 import '../application/watchlist_controller.dart';
 
 Future<void> showAddPairSheet(BuildContext context) =>
@@ -132,6 +133,11 @@ class _AddPairSheetState extends ConsumerState<AddPairSheet> {
                       final on = markets[pair.pairId] ?? const {};
                       return ListTile(
                         key: Key('add-${pair.symbol}'),
+                        leading: CoinLogo(
+                          symbol: pair.baseAsset,
+                          url: pair.logoUrl,
+                          size: 24,
+                        ),
                         title: Text('${pair.baseAsset}/${pair.quoteAsset}'),
                         subtitle: Text(
                           [
