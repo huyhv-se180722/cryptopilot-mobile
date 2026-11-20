@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/errors/api_failure.dart';
 import '../../../core/http/http_providers.dart';
 import '../domain/futures.dart';
+import '../domain/futures_calculator.dart';
 import '../domain/futures_history.dart';
 
 /// Paper Futures (D-127, D-128, D-154; read on backend develop 5c2398cb,
@@ -34,6 +35,9 @@ abstract interface class FuturesApi {
 
   /// The largest position a balance opens at a price (TR-25).
   Future<MaxOpen> maxOpen(MaxOpenRequest request);
+
+  /// One tab of the calculator (TR-25, T-123).
+  Future<CalcResult> calculate(CalcRequest request);
 
   // The histories (plan 9.3, T-123): newest first; a range is optional.
 
@@ -328,6 +332,15 @@ class DioFuturesApi implements FuturesApi {
       },
     ),
     decodeMarginChanges,
+  );
+
+  @override
+  Future<CalcResult> calculate(CalcRequest request) => apiCall(
+    () => _dio.post<Object?>(
+      '$_base/calculator/${request.tab.path}',
+      data: request.toJson(),
+    ),
+    decodeCalcResult,
   );
 
   @override

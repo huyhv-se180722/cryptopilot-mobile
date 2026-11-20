@@ -1320,6 +1320,38 @@
   "futGtdDay": "1 day",
   "futGtdWeek": "7 days",
   "futAmend": "Edit",
+  "calcOpen": "Calculator",
+  "calcTitle": "{symbol} calculator",
+  "@calcTitle": {
+    "placeholders": {
+      "symbol": {
+        "type": "String"
+      }
+    }
+  },
+  "calcPnl": "PnL",
+  "calcTarget": "Target price",
+  "calcLiquidation": "Liquidation price",
+  "calcMaxOpen": "Max open",
+  "calcOpenPrice": "Open price",
+  "calcEntry": "Entry price",
+  "calcExit": "Exit price",
+  "calcRoe": "ROE % (negative for a loss)",
+  "calcWallet": "Wallet balance (USDT)",
+  "calcWalletIsolated": "Isolated margin (USDT, optional)",
+  "calcAddLot": "Add a part",
+  "calcRemoveLot": "Remove this part",
+  "calcLotsMissing": "Enter at least one price and quantity.",
+  "calcCalculate": "Calculate",
+  "calcInitialMargin": "Initial margin",
+  "calcPnlResult": "PnL (USDT)",
+  "calcRoeResult": "ROE",
+  "calcTargetResult": "Target price",
+  "calcLiquidationResult": "Liquidation price",
+  "calcMaxQuantity": "Max quantity",
+  "calcMaxNotional": "Max value (USDT)",
+  "calcOpenPriceResult": "Average open price",
+  "calcTotalQuantity": "Total quantity",
   "futAmendTitle": "Edit the demo order",
   "futTrigger": "Trigger price",
   "futSize": "Size",

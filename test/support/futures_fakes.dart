@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:cryptopilot_mobile/features/paper/data/futures_api.dart';
 import 'package:cryptopilot_mobile/features/paper/domain/futures.dart';
+import 'package:cryptopilot_mobile/features/paper/domain/futures_calculator.dart';
 import 'package:cryptopilot_mobile/features/paper/domain/futures_history.dart';
 import 'package:cryptopilot_mobile/features/paper/domain/paper.dart';
 
@@ -271,6 +272,18 @@ class FakeFuturesApi implements FuturesApi {
   }
 
   bool hedge = false;
+
+  final List<CalcRequest> calcRequests = [];
+  CalcResult calcAnswer = const CalcResult();
+  Object? calcError;
+
+  @override
+  Future<CalcResult> calculate(CalcRequest request) async {
+    calls.add('calc ${request.tab.path}');
+    calcRequests.add(request);
+    if (calcError case final error?) throw error;
+    return calcAnswer;
+  }
 
   @override
   Future<bool> positionMode() async {

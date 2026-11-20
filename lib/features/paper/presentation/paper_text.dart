@@ -1,10 +1,24 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/errors/api_failure.dart';
+import '../../../core/errors/message_text.dart';
 import '../../../core/format/decimal_format.dart';
 import '../../../core/i18n/app_localizations.dart';
 import '../../../core/theme/cp_colors.dart';
 import '../application/spot_form_controller.dart';
 import '../domain/paper_refusal.dart';
+
+/// A paper refusal in words when [failure] is one, otherwise its MSG line.
+String refusalOrFailureText(
+  AppLocalizations l,
+  ApiFailure failure,
+  String quote,
+) {
+  final refusal = paperRefusal(failure);
+  return refusal == null
+      ? failureText(l, failure)
+      : refusalText(l, refusal, quote);
+}
 
 /// A paper refusal in words; [quote] names the asset of an order value.
 String refusalText(AppLocalizations l, PaperRefusal refusal, String quote) {

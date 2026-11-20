@@ -2093,6 +2093,83 @@ class AppLocalizationsEn extends AppLocalizations {
   String get futAmend => 'Edit';
 
   @override
+  String get calcOpen => 'Calculator';
+
+  @override
+  String calcTitle(String symbol) {
+    return '$symbol calculator';
+  }
+
+  @override
+  String get calcPnl => 'PnL';
+
+  @override
+  String get calcTarget => 'Target price';
+
+  @override
+  String get calcLiquidation => 'Liquidation price';
+
+  @override
+  String get calcMaxOpen => 'Max open';
+
+  @override
+  String get calcOpenPrice => 'Open price';
+
+  @override
+  String get calcEntry => 'Entry price';
+
+  @override
+  String get calcExit => 'Exit price';
+
+  @override
+  String get calcRoe => 'ROE % (negative for a loss)';
+
+  @override
+  String get calcWallet => 'Wallet balance (USDT)';
+
+  @override
+  String get calcWalletIsolated => 'Isolated margin (USDT, optional)';
+
+  @override
+  String get calcAddLot => 'Add a part';
+
+  @override
+  String get calcRemoveLot => 'Remove this part';
+
+  @override
+  String get calcLotsMissing => 'Enter at least one price and quantity.';
+
+  @override
+  String get calcCalculate => 'Calculate';
+
+  @override
+  String get calcInitialMargin => 'Initial margin';
+
+  @override
+  String get calcPnlResult => 'PnL (USDT)';
+
+  @override
+  String get calcRoeResult => 'ROE';
+
+  @override
+  String get calcTargetResult => 'Target price';
+
+  @override
+  String get calcLiquidationResult => 'Liquidation price';
+
+  @override
+  String get calcMaxQuantity => 'Max quantity';
+
+  @override
+  String get calcMaxNotional => 'Max value (USDT)';
+
+  @override
+  String get calcOpenPriceResult => 'Average open price';
+
+  @override
+  String get calcTotalQuantity => 'Total quantity';
+
+  @override
   String get futAmendTitle => 'Edit the demo order';
 
   @override

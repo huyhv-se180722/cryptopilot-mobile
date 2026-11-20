@@ -3712,6 +3712,156 @@ abstract class AppLocalizations {
   /// **'Edit'**
   String get futAmend;
 
+  /// No description provided for @calcOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Calculator'**
+  String get calcOpen;
+
+  /// No description provided for @calcTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{symbol} calculator'**
+  String calcTitle(String symbol);
+
+  /// No description provided for @calcPnl.
+  ///
+  /// In en, this message translates to:
+  /// **'PnL'**
+  String get calcPnl;
+
+  /// No description provided for @calcTarget.
+  ///
+  /// In en, this message translates to:
+  /// **'Target price'**
+  String get calcTarget;
+
+  /// No description provided for @calcLiquidation.
+  ///
+  /// In en, this message translates to:
+  /// **'Liquidation price'**
+  String get calcLiquidation;
+
+  /// No description provided for @calcMaxOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Max open'**
+  String get calcMaxOpen;
+
+  /// No description provided for @calcOpenPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Open price'**
+  String get calcOpenPrice;
+
+  /// No description provided for @calcEntry.
+  ///
+  /// In en, this message translates to:
+  /// **'Entry price'**
+  String get calcEntry;
+
+  /// No description provided for @calcExit.
+  ///
+  /// In en, this message translates to:
+  /// **'Exit price'**
+  String get calcExit;
+
+  /// No description provided for @calcRoe.
+  ///
+  /// In en, this message translates to:
+  /// **'ROE % (negative for a loss)'**
+  String get calcRoe;
+
+  /// No description provided for @calcWallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet balance (USDT)'**
+  String get calcWallet;
+
+  /// No description provided for @calcWalletIsolated.
+  ///
+  /// In en, this message translates to:
+  /// **'Isolated margin (USDT, optional)'**
+  String get calcWalletIsolated;
+
+  /// No description provided for @calcAddLot.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a part'**
+  String get calcAddLot;
+
+  /// No description provided for @calcRemoveLot.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove this part'**
+  String get calcRemoveLot;
+
+  /// No description provided for @calcLotsMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter at least one price and quantity.'**
+  String get calcLotsMissing;
+
+  /// No description provided for @calcCalculate.
+  ///
+  /// In en, this message translates to:
+  /// **'Calculate'**
+  String get calcCalculate;
+
+  /// No description provided for @calcInitialMargin.
+  ///
+  /// In en, this message translates to:
+  /// **'Initial margin'**
+  String get calcInitialMargin;
+
+  /// No description provided for @calcPnlResult.
+  ///
+  /// In en, this message translates to:
+  /// **'PnL (USDT)'**
+  String get calcPnlResult;
+
+  /// No description provided for @calcRoeResult.
+  ///
+  /// In en, this message translates to:
+  /// **'ROE'**
+  String get calcRoeResult;
+
+  /// No description provided for @calcTargetResult.
+  ///
+  /// In en, this message translates to:
+  /// **'Target price'**
+  String get calcTargetResult;
+
+  /// No description provided for @calcLiquidationResult.
+  ///
+  /// In en, this message translates to:
+  /// **'Liquidation price'**
+  String get calcLiquidationResult;
+
+  /// No description provided for @calcMaxQuantity.
+  ///
+  /// In en, this message translates to:
+  /// **'Max quantity'**
+  String get calcMaxQuantity;
+
+  /// No description provided for @calcMaxNotional.
+  ///
+  /// In en, this message translates to:
+  /// **'Max value (USDT)'**
+  String get calcMaxNotional;
+
+  /// No description provided for @calcOpenPriceResult.
+  ///
+  /// In en, this message translates to:
+  /// **'Average open price'**
+  String get calcOpenPriceResult;
+
+  /// No description provided for @calcTotalQuantity.
+  ///
+  /// In en, this message translates to:
+  /// **'Total quantity'**
+  String get calcTotalQuantity;
+
   /// No description provided for @futAmendTitle.
   ///
   /// In en, this message translates to:

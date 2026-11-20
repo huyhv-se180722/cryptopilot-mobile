@@ -18,7 +18,7 @@ import '../data/futures_repository.dart';
 import '../data/paper_repository.dart';
 import '../domain/futures.dart';
 import '../domain/paper.dart';
-import '../domain/paper_refusal.dart';
+import 'futures_calculator_sheet.dart';
 import 'order_book_panel.dart';
 import 'paper_text.dart';
 
@@ -133,12 +133,8 @@ class _Retry extends StatelessWidget {
   }
 }
 
-String _refusalOrFailure(AppLocalizations l, ApiFailure failure) {
-  final refusal = paperRefusal(failure);
-  return refusal == null
-      ? failureText(l, failure)
-      : refusalText(l, refusal, 'USDT');
-}
+String _refusalOrFailure(AppLocalizations l, ApiFailure failure) =>
+    refusalOrFailureText(l, failure, 'USDT');
 
 /// A sheet over the Futures screen; a snack bar still showing would cover
 /// its confirm button, so it goes first.
@@ -268,6 +264,13 @@ class _Header extends ConsumerWidget {
             textAlign: TextAlign.end,
             overflow: TextOverflow.ellipsis,
           ),
+        ),
+        IconButton(
+          key: const Key('futures-calculator'),
+          tooltip: l.calcOpen,
+          visualDensity: VisualDensity.compact,
+          icon: const Icon(Icons.calculate_outlined),
+          onPressed: () => showFuturesCalculator(context, pair),
         ),
       ],
     );
