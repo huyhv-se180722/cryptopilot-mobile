@@ -93,6 +93,8 @@ class CandleRepository extends Notifier<CandlesState> {
   }
 
   Future<void> load() async {
+    // A provider read with no listener is gone before its first load.
+    if (!ref.mounted) return;
     final cached = _cache.read(key.market, key.symbol, key.tf);
     final fresh = _api.candles(key.market, key.symbol, key.tf);
     // Whichever comes first draws; the cache never replaces fresh candles.
