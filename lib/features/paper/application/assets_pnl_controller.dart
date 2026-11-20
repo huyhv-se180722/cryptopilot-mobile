@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/errors/api_failure.dart';
+import '../../../core/state/load_after_build.dart';
 import '../data/paper_api.dart';
 import '../data/paper_repository.dart';
 import '../domain/paper.dart';
@@ -49,7 +50,7 @@ class AssetsPnlController extends Notifier<AssetsPnlState> {
         unawaited(loadPnl());
       }
     });
-    unawaited(Future.microtask(load));
+    ref.loadAfterBuild(load);
     return const AssetsPnlState();
   }
 

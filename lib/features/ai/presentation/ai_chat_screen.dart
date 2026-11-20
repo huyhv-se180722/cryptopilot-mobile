@@ -34,9 +34,14 @@ class AiChatLookup extends ConsumerWidget {
     if (found != null) return AiChatScreen(args: AiChatArgs.existing(found));
     if (state.items != null && state.hasMore && state.failure == null) {
       unawaited(
-        Future.microtask(
-          () => ref.read(aiConversationsControllerProvider.notifier).loadMore(),
-        ),
+        Future.microtask(() {
+          // The lookup may be gone by then (its chat opened).
+          if (context.mounted) {
+            return ref
+                .read(aiConversationsControllerProvider.notifier)
+                .loadMore();
+          }
+        }),
       );
     }
     final settled =

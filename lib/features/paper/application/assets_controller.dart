@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/errors/api_failure.dart';
 import '../../../core/settings/settings.dart';
+import '../../../core/state/load_after_build.dart';
 import '../data/paper_api.dart';
 import '../data/paper_repository.dart';
 import '../domain/futures.dart';
@@ -83,7 +84,7 @@ class AssetsController extends Notifier<AssetsState> {
   @override
   AssetsState build() {
     ref.listen(paperAccountProvider, (_, _) {});
-    unawaited(Future.microtask(_start));
+    ref.loadAfterBuild(_start);
     return const AssetsState();
   }
 

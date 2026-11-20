@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/errors/api_failure.dart';
 import '../../../core/json/json_read.dart';
 import '../../../core/realtime/realtime_hub.dart';
+import '../../../core/state/load_after_build.dart';
 import '../domain/paper.dart';
 import 'paper_api.dart';
 
@@ -73,7 +74,7 @@ class PaperAccountRepository extends Notifier<PaperAccountState> {
         _refresh?.cancel();
         unawaited(balances.cancel());
       });
-    unawaited(Future.microtask(load));
+    ref.loadAfterBuild(load);
     return const PaperAccountState();
   }
 
@@ -194,7 +195,7 @@ class OpenOrdersRepository extends Notifier<OpenOrdersState> {
         unawaited(orders.cancel());
         unawaited(fills.cancel());
       });
-    unawaited(Future.microtask(load));
+    ref.loadAfterBuild(load);
     return const OpenOrdersState();
   }
 

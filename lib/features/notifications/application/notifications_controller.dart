@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/auth/session_controller.dart';
 import '../../../core/errors/api_failure.dart';
 import '../../../core/realtime/realtime_hub.dart';
+import '../../../core/state/load_after_build.dart';
 import '../data/notification_api.dart';
 import '../domain/notification.dart';
 
@@ -69,7 +70,7 @@ class UnreadCount extends Notifier<int?> {
         _pollWhile(down: !next.connected);
       });
     _pollWhile(down: !ref.read(realtimeHubProvider).connected);
-    unawaited(Future.microtask(load));
+    ref.loadAfterBuild(load);
     return null;
   }
 
@@ -173,7 +174,7 @@ class NotificationsController extends Notifier<NotificationsState> {
       if (state.items != null) unawaited(load());
     });
     ref.onDispose(() => unawaited(arrivals.cancel()));
-    unawaited(Future.microtask(load));
+    ref.loadAfterBuild(load);
     return const NotificationsState();
   }
 

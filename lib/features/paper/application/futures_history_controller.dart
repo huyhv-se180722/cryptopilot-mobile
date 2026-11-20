@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/auth/session_controller.dart';
 import '../../../core/errors/api_failure.dart';
+import '../../../core/state/load_after_build.dart';
 import '../../market/data/market_repository.dart';
 import '../../market/domain/market.dart';
 import '../data/futures_api.dart';
@@ -116,10 +117,10 @@ class FuturesHistoryController extends Notifier<FuturesHistoryState> {
           .pairs
           ?.firstOrNull
           ?.symbol;
-      if (first != null) unawaited(Future.microtask(load));
+      if (first != null) ref.loadAfterBuild(load);
       return FuturesHistoryState(symbol: first);
     }
-    unawaited(Future.microtask(load));
+    ref.loadAfterBuild(load);
     return const FuturesHistoryState();
   }
 

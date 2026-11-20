@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/errors/api_failure.dart';
 import '../../../core/realtime/realtime_hub.dart';
+import '../../../core/state/load_after_build.dart';
 import '../data/plan_detail_api.dart';
 import '../domain/plan_detail.dart';
 import 'plan_lists.dart';
@@ -93,7 +94,7 @@ class PlanDetailController extends Notifier<PlanDetailState> {
     listenSelf(
       (_, next) => _pollWhile(open: next.plan?.hasOpenPosition ?? false),
     );
-    unawaited(Future.microtask(load));
+    ref.loadAfterBuild(load);
     return const PlanDetailState();
   }
 
@@ -224,7 +225,7 @@ class CloseEstimateController extends Notifier<CloseEstimateState> {
   CloseEstimateState build() {
     final timer = Timer.periodic(refreshEvery, (_) => unawaited(load()));
     ref.onDispose(timer.cancel);
-    unawaited(Future.microtask(load));
+    ref.loadAfterBuild(load);
     return const CloseEstimateState();
   }
 

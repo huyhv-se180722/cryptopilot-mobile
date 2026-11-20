@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/errors/api_failure.dart';
 import '../../../core/json/json_read.dart';
 import '../../../core/realtime/realtime_hub.dart';
+import '../../../core/state/load_after_build.dart';
 import '../../market/data/market_api.dart';
 import '../../market/domain/candle.dart';
 import '../../market/domain/market.dart';
@@ -88,7 +89,7 @@ class CandleRepository extends Notifier<CandlesState> {
         .watch('/topic/kline.${key.market.wire}.${key.symbol}.${key.tf.wire}')
         .listen(_onKline);
     ref.onDispose(() => unawaited(kline.cancel()));
-    unawaited(Future.microtask(load));
+    ref.loadAfterBuild(load);
     return const CandlesState();
   }
 

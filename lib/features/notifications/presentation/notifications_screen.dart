@@ -35,9 +35,11 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
     });
     // The first read starts with the controller; a later visit reads again.
     if (ref.read(notificationsControllerProvider).items != null) {
-      Future.microtask(
-        () => ref.read(notificationsControllerProvider.notifier).load(),
-      );
+      Future.microtask(() {
+        if (mounted) {
+          return ref.read(notificationsControllerProvider.notifier).load();
+        }
+      });
     }
   }
 

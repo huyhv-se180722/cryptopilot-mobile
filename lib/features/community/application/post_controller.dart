@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/errors/api_failure.dart';
+import '../../../core/state/load_after_build.dart';
 import '../data/community_api.dart';
 import '../domain/community.dart';
 import 'feed_controller.dart';
@@ -84,7 +85,7 @@ class PostController extends Notifier<PostState> {
 
   @override
   PostState build() {
-    unawaited(Future.microtask(load));
+    ref.loadAfterBuild(load);
     return const PostState();
   }
 

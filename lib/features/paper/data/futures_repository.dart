@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/errors/api_failure.dart';
 import '../../../core/json/json_read.dart';
 import '../../../core/realtime/realtime_hub.dart';
+import '../../../core/state/load_after_build.dart';
 import '../domain/futures.dart';
 import '../domain/paper.dart';
 import 'futures_api.dart';
@@ -98,7 +99,7 @@ class FuturesRepository extends Notifier<FuturesState> {
           unawaited(s.cancel());
         }
       });
-    unawaited(Future.microtask(load));
+    ref.loadAfterBuild(load);
     return const FuturesState();
   }
 
@@ -268,7 +269,7 @@ class FuturesSettingsRepository extends Notifier<FuturesSettings> {
         .watch(futuresConfigQueue)
         .listen((_) => unawaited(load()));
     ref.onDispose(() => unawaited(config.cancel()));
-    unawaited(Future.microtask(load));
+    ref.loadAfterBuild(load);
     return const FuturesSettings();
   }
 
@@ -328,7 +329,7 @@ final futuresModeProvider =
 class FuturesModeRepository extends Notifier<FuturesMode> {
   @override
   FuturesMode build() {
-    unawaited(Future.microtask(load));
+    ref.loadAfterBuild(load);
     return const FuturesMode();
   }
 

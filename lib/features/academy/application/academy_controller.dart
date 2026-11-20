@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/errors/api_failure.dart';
+import '../../../core/state/load_after_build.dart';
 import '../data/academy_api.dart';
 import '../domain/academy.dart';
 
@@ -82,7 +83,7 @@ class AcademyController extends Notifier<AcademyState> {
   @override
   AcademyState build() {
     ref.onDispose(() => _typing?.cancel());
-    unawaited(Future.microtask(load));
+    ref.loadAfterBuild(load);
     return const AcademyState();
   }
 
