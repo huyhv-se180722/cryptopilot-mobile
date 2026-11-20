@@ -120,6 +120,7 @@ class PlanDetailScreen extends ConsumerWidget {
             if (plan.position != null) ?journalLink?.call(plan),
             const SizedBox(height: 8),
             _PlanSections(plan: plan),
+            const PlanDisclaimer(key: Key('plan-detail-disclaimer')),
           ],
         ),
       ),

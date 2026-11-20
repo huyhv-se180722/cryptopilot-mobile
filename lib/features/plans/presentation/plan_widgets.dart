@@ -9,6 +9,23 @@ import '../../market/domain/market.dart';
 import '../domain/plan.dart';
 import '../domain/plan_detail.dart';
 
+/// MSG42 under every screen that shows trading plans (BR-60).
+class PlanDisclaimer extends StatelessWidget {
+  const PlanDisclaimer({super.key});
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+    child: Text(
+      AppLocalizations.of(context).msg42,
+      textAlign: TextAlign.center,
+      style: Theme.of(
+        context,
+      ).textTheme.bodySmall?.copyWith(color: context.cp.muted),
+    ),
+  );
+}
+
 /// `/plan/{id}` (SCR-18), pushed over the tabs.
 String planLocation(String id) => '/plan/${Uri.encodeComponent(id)}';
 

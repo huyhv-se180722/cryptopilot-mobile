@@ -234,6 +234,7 @@ class _PlanListView extends ConsumerWidget {
           ),
         );
       }
+      rows.add(const PlanDisclaimer(key: Key('plans-disclaimer')));
       body = NotificationListener<ScrollNotification>(
         onNotification: (notification) {
           if (notification.metrics.extentAfter < 400) {

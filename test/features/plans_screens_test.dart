@@ -558,4 +558,36 @@ void main() {
       await unmount(tester);
     });
   }
+
+  testWidgets('MSG42 under the plan lists and SCR-18 (BR-60)', (tester) async {
+    const msg42 =
+        'Information on CryptoPilot is for reference and education only and '
+        'is not investment advice.';
+    await open(tester, '/plans');
+    final listDisclaimer = find.byKey(
+      const Key('plans-disclaimer'),
+      skipOffstage: false,
+    );
+    expect(listDisclaimer, findsOneWidget);
+    expect(
+      find.descendant(of: listDisclaimer, matching: find.text(msg42)),
+      findsOneWidget,
+    );
+
+    final router = containerOf(tester).read(appRouterProvider);
+    unawaited(router.push('/plan/p2'));
+    await frames(tester);
+    await tester.scrollUntilVisible(
+      find.byKey(const Key('plan-detail-disclaimer')),
+      300,
+      scrollable: find
+          .descendant(
+            of: find.byKey(const Key('plan-detail')),
+            matching: find.byType(Scrollable),
+          )
+          .first,
+    );
+    expect(find.byKey(const Key('plan-detail-disclaimer')), findsOneWidget);
+    await unmount(tester);
+  });
 }
