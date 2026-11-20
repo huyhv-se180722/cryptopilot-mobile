@@ -276,3 +276,86 @@ Strategy _decodeStrategy(Object? body) {
   final json = asJsonObject(body, 'strategy');
   return Strategy(id: readString(json, 'id'), name: readString(json, 'name'));
 }
+
+// The chart image of a review (SRS 3.6.1, BR-40; D-98).
+
+/// `POST /journal/{id}/chart-image/upload-signature`: a signed form to post
+/// one image straight to the media storage, then name [publicId] in the
+/// review. The storage also signs `overwrite=false`, which the form must
+/// send although the response does not carry it (backend `03352518`).
+class ChartImageForm {
+  const ChartImageForm({
+    required this.uploadUrl,
+    required this.apiKey,
+    required this.timestamp,
+    required this.signature,
+    required this.publicId,
+    required this.allowedFormats,
+    required this.maxBytes,
+  });
+
+  final String uploadUrl;
+  final String apiKey;
+  final int timestamp;
+  final String signature;
+  final String publicId;
+
+  /// Lower case, e.g. `png`.
+  final List<String> allowedFormats;
+  final int maxBytes;
+
+  /// Whether a file name ends with a format the storage takes.
+  bool accepts(String fileName) {
+    final dot = fileName.lastIndexOf('.');
+    return dot >= 0 &&
+        allowedFormats.contains(fileName.substring(dot + 1).toLowerCase());
+  }
+}
+
+int _whole(Map<String, Object?> json, String key) => switch (json[key]) {
+  final int value => value,
+  _ => throw DecodeException('$key is not a whole number'),
+};
+
+ChartImageForm decodeChartImageForm(Object? body) {
+  final json = asJsonObject(body, 'chart image form');
+  final url = readString(json, 'uploadUrl');
+  if (!url.startsWith('https://')) {
+    throw const DecodeException('uploadUrl must be https');
+  }
+  final formats = switch (json['allowedFormats']) {
+    final List<Object?> list => [
+      for (final f in list)
+        switch (f) {
+          final String format => format.toLowerCase(),
+          _ => throw const DecodeException('allowedFormats holds a non-string'),
+        },
+    ],
+    _ => throw const DecodeException('allowedFormats is not a list'),
+  };
+  return ChartImageForm(
+    uploadUrl: url,
+    apiKey: readString(json, 'apiKey'),
+    timestamp: _whole(json, 'timestamp'),
+    signature: readString(json, 'signature'),
+    publicId: readString(json, 'publicId'),
+    allowedFormats: formats,
+    maxBytes: _whole(json, 'maxBytes'),
+  );
+}
+
+final _storedImage = RegExp(
+  r'/image/upload/(?:v\d+/)?'
+  r'([^?#]+/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})'
+  r'\.[A-Za-z0-9]+(?:[?#].*)?$',
+);
+
+/// The storage key of a stored chart image, read from its address
+/// (`…/image/upload/v<version>/<folder>/<owner>/<key>.<format>`), or null
+/// when the address has another shape. The detail returns the address
+/// only (Q-97), and a review that does not name the key again removes the
+/// image. A wrong key is safe: the backend takes it for a new image, finds
+/// none stored under it and refuses the review with MSG32, so nothing is
+/// lost.
+String? chartImageKeyOf(String? url) =>
+    url == null ? null : _storedImage.firstMatch(url)?.group(1);
