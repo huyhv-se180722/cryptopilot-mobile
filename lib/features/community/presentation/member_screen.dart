@@ -88,7 +88,7 @@ class MemberScreen extends ConsumerWidget {
         appBar: AppBar(
           title: Text(profile == null ? '' : name),
           actions: [
-            if (profile != null)
+            if (profile != null && (profile.me || state.relationsAllowed))
               PopupMenuButton<String>(
                 key: const Key('member-menu'),
                 tooltip: l.memberMore,
@@ -142,6 +142,7 @@ class MemberScreen extends ConsumerWidget {
                 child: _Head(
                   profile: profile!,
                   coins: state.coins,
+                  relationsAllowed: state.relationsAllowed,
                   onFollow: () => _tell(
                     context,
                     ref.read(memberProvider(id).notifier).toggleFollow(),
@@ -201,12 +202,16 @@ class _Head extends ConsumerWidget {
   const _Head({
     required this.profile,
     required this.coins,
+    required this.relationsAllowed,
     required this.onFollow,
     required this.onUnblock,
   });
 
   final MemberProfile profile;
   final List<TokenMention> coins;
+
+  /// False for an administrator once the server said so (Q-98).
+  final bool relationsAllowed;
   final VoidCallback onFollow;
   final VoidCallback onUnblock;
 
@@ -304,7 +309,7 @@ class _Head extends ConsumerWidget {
                       ],
                     ),
                   ),
-                  if (!p.me && !p.blockedByMe)
+                  if (!p.me && !p.blockedByMe && relationsAllowed)
                     p.followedByMe
                         ? OutlinedButton(
                             key: const Key('member-follow'),

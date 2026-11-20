@@ -244,4 +244,16 @@ void main() {
       await unmount(tester);
     });
   }
+
+  testWidgets('the page of an administrator drops Follow and Block once the '
+      'server refuses them, without an error', (tester) async {
+    api.failNext['follow'] = problem(409, 'RELATION_NOT_ALLOWED', 'MSG43');
+    await open(tester, '/community/members/u1');
+    await tester.tap(find.byKey(const Key('member-follow')));
+    await frames(tester);
+    expect(find.byKey(const Key('member-follow')), findsNothing);
+    expect(find.byKey(const Key('member-menu')), findsNothing);
+    expect(find.byType(SnackBar), findsNothing);
+    await unmount(tester);
+  });
 }

@@ -11,7 +11,12 @@ import 'feed_controller.dart';
 
 @immutable
 class MemberState {
-  const MemberState({this.profile, this.failure, this.coins = const []});
+  const MemberState({
+    this.profile,
+    this.failure,
+    this.coins = const [],
+    this.relationsAllowed = true,
+  });
 
   /// Null until it arrives.
   final MemberProfile? profile;
@@ -19,6 +24,18 @@ class MemberState {
 
   /// The coins they post about most.
   final List<TokenMention> coins;
+
+  /// False once the server said this member is neither followed nor
+  /// blocked (an administrator, `RELATION_NOT_ALLOWED`; Q-98).
+  final bool relationsAllowed;
+
+  MemberState copyWith({MemberProfile? profile, bool? relationsAllowed}) =>
+      MemberState(
+        profile: profile ?? this.profile,
+        failure: failure,
+        coins: coins,
+        relationsAllowed: relationsAllowed ?? this.relationsAllowed,
+      );
 
   /// No such member, banned, or blocking the caller (404 MSG41).
   bool get missing =>
@@ -53,7 +70,7 @@ class MemberController extends Notifier<MemberState> {
     try {
       final profile = await _api.member(id);
       if (!ref.mounted || generation != _generation) return;
-      state = MemberState(profile: profile, coins: state.coins);
+      state = state.copyWith(profile: profile);
     } on ApiFailure catch (failure) {
       if (!ref.mounted || generation != _generation) return;
       state = MemberState(failure: failure);
@@ -62,7 +79,11 @@ class MemberController extends Notifier<MemberState> {
     try {
       final coins = await _api.tokenMentions(id);
       if (!ref.mounted || generation != _generation) return;
-      state = MemberState(profile: state.profile, coins: coins);
+      state = MemberState(
+        profile: state.profile,
+        coins: coins,
+        relationsAllowed: state.relationsAllowed,
+      );
     } on ApiFailure {
       // The coins are extra: the page shows without them.
     }
@@ -72,32 +93,37 @@ class MemberController extends Notifier<MemberState> {
     final profile = state.profile;
     if (profile == null || profile.me) return null;
     final on = !profile.followedByMe;
-    state = MemberState(
+    state = state.copyWith(
       profile: profile.copyWith(
         followedByMe: on,
         followers: profile.followers + (on ? 1 : -1),
       ),
-      coins: state.coins,
     );
     try {
       final e = await _api.follow(id, on: on);
       if (ref.mounted) {
-        state = MemberState(
+        state = state.copyWith(
           profile: state.profile!.copyWith(
             followedByMe: e.active,
             followers: e.count,
           ),
-          coins: state.coins,
         );
       }
       return null;
     } on ApiFailure catch (failure) {
-      if (ref.mounted) {
-        state = MemberState(profile: profile, coins: state.coins);
+      if (!ref.mounted) return failure;
+      if (_notAllowed(failure)) {
+        state = state.copyWith(profile: profile, relationsAllowed: false);
+        return null;
       }
+      state = state.copyWith(profile: profile);
       return failure;
     }
   }
+
+  /// Administrators are neither followed nor blocked (D-99).
+  static bool _notAllowed(ApiFailure failure) =>
+      failure is ProblemFailure && failure.code == 'RELATION_NOT_ALLOWED';
 
   /// Blocking hides their posts and comments: the feed reads again.
   Future<ApiFailure?> toggleBlock() async {
@@ -107,18 +133,21 @@ class MemberController extends Notifier<MemberState> {
     try {
       final e = await _api.block(id, on: on);
       if (!ref.mounted) return null;
-      state = MemberState(
+      state = state.copyWith(
         profile: profile.copyWith(
           blockedByMe: e.active,
           followedByMe: e.active ? false : profile.followedByMe,
         ),
-        coins: state.coins,
       );
       if (ref.exists(feedProvider)) {
         unawaited(ref.read(feedProvider.notifier).load());
       }
       return null;
     } on ApiFailure catch (failure) {
+      if (_notAllowed(failure) && ref.mounted) {
+        state = state.copyWith(relationsAllowed: false);
+        return null;
+      }
       return failure;
     }
   }
