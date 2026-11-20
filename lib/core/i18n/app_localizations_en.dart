@@ -1118,6 +1118,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get aiPlaceholderGeneral => 'Ask anything about trading…';
 
   @override
+  String get aiPlaceholderNoPair => 'Ask about a coin…';
+
+  @override
   String aiPlaceholderPair(String symbol) {
     return 'Ask about $symbol…';
   }

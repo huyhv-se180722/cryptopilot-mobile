@@ -203,17 +203,27 @@ class CoinLogo extends StatelessWidget {
         dimension: size,
         child: address == null
             ? letters
-            : ClipOval(
-                child: Image.network(
-                  address,
-                  key: const Key('coin-image'),
-                  width: size,
-                  height: size,
-                  fit: BoxFit.cover,
-                  cacheWidth: (size * 3).round(),
-                  frameBuilder: (_, child, frame, sync) =>
-                      sync || frame != null ? child : letters,
-                  errorBuilder: (_, _, _) => letters,
+            // On the raised tint with a ring, as the web: a dark logo
+            // (XRP) stays visible on the dark theme (device check).
+            : DecoratedBox(
+                key: const Key('coin-frame'),
+                decoration: BoxDecoration(
+                  color: cp.raised,
+                  shape: BoxShape.circle,
+                  border: Border.all(color: cp.border),
+                ),
+                child: ClipOval(
+                  child: Image.network(
+                    address,
+                    key: const Key('coin-image'),
+                    width: size,
+                    height: size,
+                    fit: BoxFit.cover,
+                    cacheWidth: (size * 3).round(),
+                    frameBuilder: (_, child, frame, sync) =>
+                        sync || frame != null ? child : letters,
+                    errorBuilder: (_, _, _) => letters,
+                  ),
                 ),
               ),
       ),

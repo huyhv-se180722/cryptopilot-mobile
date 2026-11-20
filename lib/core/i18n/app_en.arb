@@ -613,6 +613,7 @@
   "aiRiskBalanced": "Balanced",
   "aiRiskAggressive": "Aggressive",
   "aiPlaceholderGeneral": "Ask anything about trading…",
+  "aiPlaceholderNoPair": "Ask about a coin…",
   "aiPlaceholderPair": "Ask about {symbol}…",
   "@aiPlaceholderPair": {
     "placeholders": {

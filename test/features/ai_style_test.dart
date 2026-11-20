@@ -136,4 +136,12 @@ void main() {
       await unmount(tester);
     });
   }
+
+  testWidgets('a market chat with no coin yet asks about a coin '
+      '(device check)', (tester) async {
+    await open(tester);
+    expect(find.text('Ask about a coin…'), findsOneWidget);
+    expect(find.textContaining('……'), findsNothing);
+    await unmount(tester);
+  });
 }

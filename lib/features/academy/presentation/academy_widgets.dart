@@ -104,6 +104,9 @@ class LessonCover extends StatelessWidget {
     return Image.network(
       address,
       fit: BoxFit.cover,
+      // The tint holds the place while the photo loads (device check).
+      frameBuilder: (_, child, frame, sync) =>
+          sync || frame != null ? child : placeholder,
       errorBuilder: (_, _, _) => placeholder,
     );
   }

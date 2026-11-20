@@ -36,7 +36,7 @@ String _when(DateTime at) {
 }
 
 String _signed(String value) =>
-    '${value.startsWith('-') ? '' : '+'}${groupThousands(value)}';
+    '${value.startsWith('-') ? '' : '+'}${formatTrimmed(value, keep: 2)}';
 
 /// One Futures history with the filters its endpoint has.
 class FuturesHistoryView extends ConsumerWidget {
@@ -200,7 +200,7 @@ class _FuturesRow extends StatelessWidget {
           ),
         ),
         subtitle: Text(
-          '${groupThousands(p.entryPrice)} → ${groupThousands(p.avgClosePrice)}'
+          '${formatTrimmed(p.entryPrice)} → ${formatTrimmed(p.avgClosePrice)}'
           ' · ${l.futHistClosed(p.closedQuantity)} · ${p.closeReason}'
           ' · ${_when(p.closeTime)}',
         ),
@@ -232,7 +232,8 @@ class _FuturesRow extends StatelessWidget {
           style: TextStyle(color: sideColor(o.side)),
         ),
         subtitle: Text(
-          '${groupThousands(o.price ?? '--')} · ${o.executedQty}/${o.origQty}'
+          '${formatTrimmed(o.price)} · ${formatTrimmed(o.executedQty)}/'
+          '${formatTrimmed(o.origQty)}'
           ' · ${_when(o.time)}',
         ),
         trailing: Text(o.status.wire),
@@ -246,7 +247,8 @@ class _FuturesRow extends StatelessWidget {
           style: TextStyle(color: sideColor(t.side)),
         ),
         subtitle: Text(
-          '${groupThousands(t.price)} × ${t.qty} · ${_when(t.time)}',
+          '${formatTrimmed(t.price)} × ${formatTrimmed(t.qty)} · '
+          '${_when(t.time)}',
         ),
         trailing: Text(
           _signed(t.realizedPnl),
@@ -261,7 +263,7 @@ class _FuturesRow extends StatelessWidget {
           '${a.symbol} · ${sideText(a.side)} · ${a.type}',
           style: TextStyle(color: sideColor(a.side)),
         ),
-        subtitle: Text(groupThousands(a.triggerPrice)),
+        subtitle: Text(formatTrimmed(a.triggerPrice)),
         trailing: Text(a.status),
       ),
       final MarginChange m => ListTile(
@@ -273,7 +275,7 @@ class _FuturesRow extends StatelessWidget {
         ),
         subtitle: Text(_when(m.time)),
         trailing: Text(
-          '${m.added ? '+' : '−'}${groupThousands(m.amount)} USDT',
+          '${m.added ? '+' : '−'}${formatTrimmed(m.amount, keep: 2)} USDT',
           style: TextStyle(
             color: m.added ? context.cp.positive : context.cp.negative,
           ),

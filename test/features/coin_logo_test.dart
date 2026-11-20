@@ -89,4 +89,22 @@ void main() {
       );
     });
   }
+
+  testWidgets('a logo sits on the raised tint with a ring, so a dark logo '
+      'shows on the dark theme', (tester) async {
+    await show(
+      tester,
+      const CoinLogo(
+        symbol: 'XRP',
+        url: 'https://static.coinpaprika.com/coin/xrp-xrp/logo.png',
+      ),
+      brightness: Brightness.dark,
+    );
+    final frame = tester.widget<DecoratedBox>(
+      find.byKey(const Key('coin-frame')),
+    );
+    final decoration = frame.decoration as BoxDecoration;
+    expect(decoration.color, isNotNull);
+    expect(decoration.border, isNotNull);
+  });
 }
