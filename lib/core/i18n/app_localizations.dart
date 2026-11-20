@@ -1648,6 +1648,18 @@ abstract class AppLocalizations {
   /// **'My posts'**
   String get communityTabMine;
 
+  /// No description provided for @communityTabFollowing.
+  ///
+  /// In en, this message translates to:
+  /// **'Following'**
+  String get communityTabFollowing;
+
+  /// No description provided for @communityEmptyFollowing.
+  ///
+  /// In en, this message translates to:
+  /// **'Posts of the members you follow appear here.'**
+  String get communityEmptyFollowing;
+
   /// No description provided for @communityCoinAll.
   ///
   /// In en, this message translates to:
@@ -2133,6 +2145,186 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Your changes are saved.'**
   String get composerSaved;
+
+  /// No description provided for @memberFollow.
+  ///
+  /// In en, this message translates to:
+  /// **'Follow'**
+  String get memberFollow;
+
+  /// No description provided for @memberFollowingButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Following'**
+  String get memberFollowingButton;
+
+  /// No description provided for @memberBlock.
+  ///
+  /// In en, this message translates to:
+  /// **'Block {name}'**
+  String memberBlock(String name);
+
+  /// No description provided for @memberUnblock.
+  ///
+  /// In en, this message translates to:
+  /// **'Unblock'**
+  String get memberUnblock;
+
+  /// No description provided for @memberBlockTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Block {name}?'**
+  String memberBlockTitle(String name);
+
+  /// No description provided for @memberBlockBody.
+  ///
+  /// In en, this message translates to:
+  /// **'You will no longer see their posts and comments, and they will not see yours.'**
+  String get memberBlockBody;
+
+  /// No description provided for @memberBlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} is blocked. You no longer see their posts and comments.'**
+  String memberBlocked(String name);
+
+  /// No description provided for @memberUnblocked.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} is no longer blocked.'**
+  String memberUnblocked(String name);
+
+  /// No description provided for @memberJoined.
+  ///
+  /// In en, this message translates to:
+  /// **'Joined {date}'**
+  String memberJoined(String date);
+
+  /// No description provided for @memberPosts.
+  ///
+  /// In en, this message translates to:
+  /// **'Posts'**
+  String get memberPosts;
+
+  /// No description provided for @memberLikes.
+  ///
+  /// In en, this message translates to:
+  /// **'Likes received'**
+  String get memberLikes;
+
+  /// No description provided for @memberFollowers.
+  ///
+  /// In en, this message translates to:
+  /// **'Followers'**
+  String get memberFollowers;
+
+  /// No description provided for @memberFollowing.
+  ///
+  /// In en, this message translates to:
+  /// **'Following'**
+  String get memberFollowing;
+
+  /// No description provided for @memberYou.
+  ///
+  /// In en, this message translates to:
+  /// **'You'**
+  String get memberYou;
+
+  /// No description provided for @memberInfluence.
+  ///
+  /// In en, this message translates to:
+  /// **'{score} Influence Score'**
+  String memberInfluence(String score);
+
+  /// No description provided for @memberDepth.
+  ///
+  /// In en, this message translates to:
+  /// **'{score} Analytical Depth'**
+  String memberDepth(String score);
+
+  /// No description provided for @memberCoins.
+  ///
+  /// In en, this message translates to:
+  /// **'Coins they post about'**
+  String get memberCoins;
+
+  /// No description provided for @memberTabPosts.
+  ///
+  /// In en, this message translates to:
+  /// **'Posts'**
+  String get memberTabPosts;
+
+  /// No description provided for @memberTabComments.
+  ///
+  /// In en, this message translates to:
+  /// **'Comments'**
+  String get memberTabComments;
+
+  /// No description provided for @memberTabReactions.
+  ///
+  /// In en, this message translates to:
+  /// **'Reactions'**
+  String get memberTabReactions;
+
+  /// No description provided for @memberEmptyPosts.
+  ///
+  /// In en, this message translates to:
+  /// **'No posts yet.'**
+  String get memberEmptyPosts;
+
+  /// No description provided for @memberEmptyComments.
+  ///
+  /// In en, this message translates to:
+  /// **'No comments yet.'**
+  String get memberEmptyComments;
+
+  /// No description provided for @memberEmptyReactions.
+  ///
+  /// In en, this message translates to:
+  /// **'No reactions yet.'**
+  String get memberEmptyReactions;
+
+  /// No description provided for @memberCommentedOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Commented on {title}'**
+  String memberCommentedOn(String title);
+
+  /// No description provided for @memberBlockedList.
+  ///
+  /// In en, this message translates to:
+  /// **'Blocked members'**
+  String get memberBlockedList;
+
+  /// No description provided for @memberNoPeople.
+  ///
+  /// In en, this message translates to:
+  /// **'No one here yet.'**
+  String get memberNoPeople;
+
+  /// No description provided for @memberMore.
+  ///
+  /// In en, this message translates to:
+  /// **'More actions'**
+  String get memberMore;
+
+  /// No description provided for @memberMention.
+  ///
+  /// In en, this message translates to:
+  /// **'Mention a member'**
+  String get memberMention;
+
+  /// No description provided for @memberMentionSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Search members'**
+  String get memberMentionSearch;
+
+  /// No description provided for @memberMentionNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No member matches.'**
+  String get memberMentionNone;
 
   /// No description provided for @communityLikesCount.
   ///

@@ -215,11 +215,21 @@ class PostController extends Notifier<PostState> {
   }
 
   /// A new thread, or a reply to [parentId]; null when added.
-  Future<ApiFailure?> addComment(String text, {String? parentId}) async {
+  /// Up to 10 [mentions] are told (T-136).
+  Future<ApiFailure?> addComment(
+    String text, {
+    String? parentId,
+    List<String> mentions = const [],
+  }) async {
     final content = text.trim();
     if (content.isEmpty || content.length > maxComment) return null;
     try {
-      final comment = await _api.addComment(id, content, parentId: parentId);
+      final comment = await _api.addComment(
+        id,
+        content,
+        parentId: parentId,
+        mentions: mentions.take(10).toList(),
+      );
       if (!ref.mounted) return null;
       final comments = state.comments ?? const <Comment>[];
       state = state.copyWith(

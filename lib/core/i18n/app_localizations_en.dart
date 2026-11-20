@@ -881,6 +881,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get communityTabMine => 'My posts';
 
   @override
+  String get communityTabFollowing => 'Following';
+
+  @override
+  String get communityEmptyFollowing =>
+      'Posts of the members you follow appear here.';
+
+  @override
   String get communityCoinAll => 'All coins';
 
   @override
@@ -1138,6 +1145,113 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get composerSaved => 'Your changes are saved.';
+
+  @override
+  String get memberFollow => 'Follow';
+
+  @override
+  String get memberFollowingButton => 'Following';
+
+  @override
+  String memberBlock(String name) {
+    return 'Block $name';
+  }
+
+  @override
+  String get memberUnblock => 'Unblock';
+
+  @override
+  String memberBlockTitle(String name) {
+    return 'Block $name?';
+  }
+
+  @override
+  String get memberBlockBody =>
+      'You will no longer see their posts and comments, and they will not see yours.';
+
+  @override
+  String memberBlocked(String name) {
+    return '$name is blocked. You no longer see their posts and comments.';
+  }
+
+  @override
+  String memberUnblocked(String name) {
+    return '$name is no longer blocked.';
+  }
+
+  @override
+  String memberJoined(String date) {
+    return 'Joined $date';
+  }
+
+  @override
+  String get memberPosts => 'Posts';
+
+  @override
+  String get memberLikes => 'Likes received';
+
+  @override
+  String get memberFollowers => 'Followers';
+
+  @override
+  String get memberFollowing => 'Following';
+
+  @override
+  String get memberYou => 'You';
+
+  @override
+  String memberInfluence(String score) {
+    return '$score Influence Score';
+  }
+
+  @override
+  String memberDepth(String score) {
+    return '$score Analytical Depth';
+  }
+
+  @override
+  String get memberCoins => 'Coins they post about';
+
+  @override
+  String get memberTabPosts => 'Posts';
+
+  @override
+  String get memberTabComments => 'Comments';
+
+  @override
+  String get memberTabReactions => 'Reactions';
+
+  @override
+  String get memberEmptyPosts => 'No posts yet.';
+
+  @override
+  String get memberEmptyComments => 'No comments yet.';
+
+  @override
+  String get memberEmptyReactions => 'No reactions yet.';
+
+  @override
+  String memberCommentedOn(String title) {
+    return 'Commented on $title';
+  }
+
+  @override
+  String get memberBlockedList => 'Blocked members';
+
+  @override
+  String get memberNoPeople => 'No one here yet.';
+
+  @override
+  String get memberMore => 'More actions';
+
+  @override
+  String get memberMention => 'Mention a member';
+
+  @override
+  String get memberMentionSearch => 'Search members';
+
+  @override
+  String get memberMentionNone => 'No member matches.';
 
   @override
   String communityLikesCount(String n) {

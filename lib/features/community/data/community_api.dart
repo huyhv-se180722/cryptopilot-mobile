@@ -17,6 +17,7 @@ abstract interface class CommunityApi {
     String? coin,
     Market? market,
     String? query,
+    String? author,
     int page = 1,
     int pageSize = 20,
   });
@@ -36,8 +37,14 @@ abstract interface class CommunityApi {
     int pageSize = 20,
   });
 
-  /// 1 to 2,000 characters; [parentId] makes it a reply (400 MSG01).
-  Future<Comment> addComment(String postId, String content, {String? parentId});
+  /// 1 to 2,000 characters; [parentId] makes it a reply (400 MSG01);
+  /// up to 10 [mentions] are told (T-136).
+  Future<Comment> addComment(
+    String postId,
+    String content, {
+    String? parentId,
+    List<String> mentions = const [],
+  });
 
   Future<Comment> editComment(String id, String content);
 
@@ -85,6 +92,51 @@ abstract interface class CommunityApi {
 
   /// The caller's own post; 404 MSG41 when it is not theirs or deleted.
   Future<Post> updatePost(String id, PostDraft draft);
+
+  // Members (A-66, T-136; D-99). 404 MSG41: no such member, banned, or
+  // blocking the caller.
+
+  Future<MemberProfile> member(String id);
+
+  /// Following on or off, with the member's follower count.
+  Future<Engagement> follow(String id, {required bool on});
+
+  /// Blocking on or off, with how many members the caller blocks.
+  Future<Engagement> block(String id, {required bool on});
+
+  /// The coins the member posts about most, at most [limit] (1 to 20).
+  Future<List<TokenMention>> tokenMentions(String id, {int limit = 10});
+
+  Future<CommunityPage<MemberComment>> memberComments(
+    String id, {
+    int page = 1,
+    int pageSize = 20,
+  });
+
+  /// The posts the member reacted to.
+  Future<CommunityPage<Post>> memberReactions(
+    String id, {
+    int page = 1,
+    int pageSize = 20,
+  });
+
+  Future<CommunityPage<Author>> followers(
+    String id, {
+    int page = 1,
+    int pageSize = 20,
+  });
+
+  Future<CommunityPage<Author>> followingOf(
+    String id, {
+    int page = 1,
+    int pageSize = 20,
+  });
+
+  /// The members the caller blocks.
+  Future<CommunityPage<Author>> blocked({int page = 1, int pageSize = 20});
+
+  /// At most ten members whose name holds [query] (1 to 50 characters).
+  Future<List<Author>> searchMembers(String query);
 }
 
 class DioCommunityApi implements CommunityApi {
@@ -105,6 +157,7 @@ class DioCommunityApi implements CommunityApi {
     String? coin,
     Market? market,
     String? query,
+    String? author,
     int page = 1,
     int pageSize = 20,
   }) => apiCall(
@@ -115,6 +168,7 @@ class DioCommunityApi implements CommunityApi {
         'coin': ?coin,
         'market': ?market?.wire,
         'q': ?query,
+        'author': ?author,
         'page': page,
         'pageSize': pageSize,
       },
@@ -158,10 +212,15 @@ class DioCommunityApi implements CommunityApi {
     String postId,
     String content, {
     String? parentId,
+    List<String> mentions = const [],
   }) => apiCall(
     () => _dio.post<Object?>(
       '${_post(postId)}/comments',
-      data: {'content': content, 'parentCommentId': ?parentId},
+      data: {
+        'content': content,
+        'parentCommentId': ?parentId,
+        if (mentions.isNotEmpty) 'mentions': mentions,
+      },
     ),
     decodeComment,
   );
@@ -274,6 +333,104 @@ class DioCommunityApi implements CommunityApi {
   Future<Post> updatePost(String id, PostDraft draft) => apiCall(
     () => _dio.put<Object?>(_post(id), data: draft.toJson()),
     decodePost,
+  );
+
+  static String _member(String id) =>
+      'community/members/${Uri.encodeComponent(id)}';
+
+  static Map<String, Object?> _paged(int page, int pageSize) => {
+    'page': page,
+    'pageSize': pageSize,
+  };
+
+  @override
+  Future<MemberProfile> member(String id) =>
+      apiCall(() => _dio.get<Object?>(_member(id)), decodeMemberProfile);
+
+  @override
+  Future<Engagement> follow(String id, {required bool on}) =>
+      _toggle('${_member(id)}/follow', on: on);
+
+  @override
+  Future<Engagement> block(String id, {required bool on}) =>
+      _toggle('${_member(id)}/block', on: on);
+
+  @override
+  Future<List<TokenMention>> tokenMentions(String id, {int limit = 10}) =>
+      apiCall(
+        () => _dio.get<Object?>(
+          '${_member(id)}/token-mentions',
+          queryParameters: {'limit': limit},
+        ),
+        (body) => decodeList(body, decodeTokenMention),
+      );
+
+  @override
+  Future<CommunityPage<MemberComment>> memberComments(
+    String id, {
+    int page = 1,
+    int pageSize = 20,
+  }) => apiCall(
+    () => _dio.get<Object?>(
+      '${_member(id)}/comments',
+      queryParameters: _paged(page, pageSize),
+    ),
+    decodeMemberCommentPage,
+  );
+
+  @override
+  Future<CommunityPage<Post>> memberReactions(
+    String id, {
+    int page = 1,
+    int pageSize = 20,
+  }) => apiCall(
+    () => _dio.get<Object?>(
+      '${_member(id)}/reactions',
+      queryParameters: _paged(page, pageSize),
+    ),
+    decodePostPage,
+  );
+
+  @override
+  Future<CommunityPage<Author>> followers(
+    String id, {
+    int page = 1,
+    int pageSize = 20,
+  }) => apiCall(
+    () => _dio.get<Object?>(
+      '${_member(id)}/followers',
+      queryParameters: _paged(page, pageSize),
+    ),
+    decodeAuthorPage,
+  );
+
+  @override
+  Future<CommunityPage<Author>> followingOf(
+    String id, {
+    int page = 1,
+    int pageSize = 20,
+  }) => apiCall(
+    () => _dio.get<Object?>(
+      '${_member(id)}/following',
+      queryParameters: _paged(page, pageSize),
+    ),
+    decodeAuthorPage,
+  );
+
+  @override
+  Future<CommunityPage<Author>> blocked({int page = 1, int pageSize = 20}) =>
+      apiCall(
+        () => _dio.get<Object?>(
+          'community/blocks',
+          queryParameters: _paged(page, pageSize),
+        ),
+        decodeAuthorPage,
+      );
+
+  @override
+  Future<List<Author>> searchMembers(String query) => apiCall(
+    () => _dio.get<Object?>('community/members', queryParameters: {'q': query}),
+    (body) => decodeList(body, decodeAuthor),
   );
 }
 

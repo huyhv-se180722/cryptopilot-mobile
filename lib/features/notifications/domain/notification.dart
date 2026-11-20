@@ -171,9 +171,9 @@ NotificationTarget? targetOf(AppNotification notification) {
     // SCR-25 (A-64, T-133).
     NotificationReference.post =>
       id == null ? null : AppScreen('/community/$encoded'),
-    // Member pages stay on the web (A-64 phase 3).
+    // The member page (A-66, T-136).
     NotificationReference.member =>
-      id == null ? null : WebPage('/community/members/$encoded'),
+      id == null ? null : AppScreen('/community/members/$encoded'),
     NotificationReference.subscription => const WebPage('/subscription'),
     // The Futures side of the Trade tab (T-129).
     NotificationReference.futuresPosition => const AppScreen(

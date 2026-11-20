@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../features/community/application/member_controllers.dart';
 import '../../features/community/presentation/community_screen.dart';
 import '../../features/community/presentation/composer_screen.dart';
+import '../../features/community/presentation/member_screen.dart';
 import '../../features/community/presentation/post_screen.dart';
 import '../../features/ai/application/ai_chat_controller.dart';
 import '../../features/ai/application/ai_context.dart';
@@ -182,6 +184,31 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: Routes.community,
         builder: (_, _) => const CommunityScreen(),
+      ),
+      // Member pages and people (A-66, T-136), before the post's path.
+      GoRoute(
+        path: '/community/blocks',
+        builder: (_, _) =>
+            const PeopleScreen(memberId: '', list: MemberList.blocked),
+      ),
+      GoRoute(
+        path: '/community/members/:memberId',
+        builder: (_, state) =>
+            MemberScreen(id: state.pathParameters['memberId']!),
+      ),
+      GoRoute(
+        path: '/community/members/:memberId/followers',
+        builder: (_, state) => PeopleScreen(
+          memberId: state.pathParameters['memberId']!,
+          list: MemberList.followers,
+        ),
+      ),
+      GoRoute(
+        path: '/community/members/:memberId/following',
+        builder: (_, state) => PeopleScreen(
+          memberId: state.pathParameters['memberId']!,
+          list: MemberList.following,
+        ),
       ),
       // SCR-26 (A-66, T-135), before the post's own path.
       GoRoute(
