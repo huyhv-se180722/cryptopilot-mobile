@@ -88,8 +88,7 @@ class MemberScreen extends ConsumerWidget {
         appBar: AppBar(
           title: Text(profile == null ? '' : name),
           actions: [
-            if (profile != null &&
-                (profile.me || state.canRelate || profile.blockedByMe))
+            if (profile != null && (profile.me || state.relationsAllowed))
               PopupMenuButton<String>(
                 key: const Key('member-menu'),
                 tooltip: l.memberMore,
@@ -143,7 +142,7 @@ class MemberScreen extends ConsumerWidget {
                 child: _Head(
                   profile: profile!,
                   coins: state.coins,
-                  canRelate: state.canRelate,
+                  relationsAllowed: state.relationsAllowed,
                   onFollow: () => _tell(
                     context,
                     ref.read(memberProvider(id).notifier).toggleFollow(),
@@ -168,12 +167,7 @@ class MemberScreen extends ConsumerWidget {
             ],
             body: TabBarView(
               children: [
-                // An administrator's posts are their official ones, which
-                // the feed by author leaves out (Q-98).
-                if (state.administrator)
-                  _OfficialList(posts: state.officialPosts)
-                else
-                  _ActivityList(memberId: id, list: MemberList.posts),
+                _ActivityList(memberId: id, list: MemberList.posts),
                 _ActivityList(memberId: id, list: MemberList.comments),
                 _ActivityList(memberId: id, list: MemberList.reactions),
               ],
@@ -208,7 +202,7 @@ class _Head extends ConsumerWidget {
   const _Head({
     required this.profile,
     required this.coins,
-    required this.canRelate,
+    required this.relationsAllowed,
     required this.onFollow,
     required this.onUnblock,
   });
@@ -216,8 +210,8 @@ class _Head extends ConsumerWidget {
   final MemberProfile profile;
   final List<TokenMention> coins;
 
-  /// Another Trader's page: Follow shows (not an administrator, D-99).
-  final bool canRelate;
+  /// False for an administrator once the server said so (Q-98).
+  final bool relationsAllowed;
   final VoidCallback onFollow;
   final VoidCallback onUnblock;
 
@@ -315,7 +309,7 @@ class _Head extends ConsumerWidget {
                       ],
                     ),
                   ),
-                  if (canRelate && !p.blockedByMe)
+                  if (!p.me && !p.blockedByMe && relationsAllowed)
                     p.followedByMe
                         ? OutlinedButton(
                             key: const Key('member-follow'),
@@ -468,27 +462,6 @@ class _ActivityList extends ConsumerWidget {
       ),
     );
   }
-}
-
-/// The official posts of an administrator.
-class _OfficialList extends StatelessWidget {
-  const _OfficialList({required this.posts});
-
-  final List<Post> posts;
-
-  @override
-  Widget build(BuildContext context) => ListView.separated(
-    key: const Key('member-list-official'),
-    padding: const EdgeInsets.only(bottom: 24),
-    itemCount: posts.length,
-    separatorBuilder: (_, _) => Divider(height: 1, color: context.cp.border),
-    itemBuilder: (context, i) => PostCard(
-      post: posts[i],
-      pinned: true,
-      onLike: () => context.push(postLocation(posts[i].id)),
-      onSave: () => context.push(postLocation(posts[i].id)),
-    ),
-  );
 }
 
 class _CommentRow extends ConsumerWidget {
