@@ -165,8 +165,10 @@ NotificationTarget? targetOf(AppNotification notification) {
     // SCR-18 (T-091).
     NotificationReference.plan =>
       id == null ? null : AppScreen('/plan/$encoded'),
+    // SCR-25 (A-64, T-133).
     NotificationReference.post =>
-      id == null ? null : WebPage('/community/$encoded'),
+      id == null ? null : AppScreen('/community/$encoded'),
+    // Member pages stay on the web (A-64 phase 3).
     NotificationReference.member =>
       id == null ? null : WebPage('/community/members/$encoded'),
     NotificationReference.subscription => const WebPage('/subscription'),

@@ -7,11 +7,14 @@ import 'package:go_router/go_router.dart';
 import '../../../core/auth/session_controller.dart';
 import '../../../core/errors/api_failure.dart';
 import '../../../core/errors/message_text.dart';
+import '../../../core/format/age_format.dart';
 import '../../../core/format/decimal_format.dart';
 import '../../../core/i18n/app_localizations.dart';
 import '../../../core/theme/cp_colors.dart';
 import '../../../core/web/web_links.dart';
 import '../../academy/data/academy_progress_repository.dart';
+import '../../community/domain/community.dart';
+import '../../community/presentation/community_widgets.dart';
 import '../../journal/domain/performance.dart';
 import '../../paper/application/home_demo.dart';
 import '../../market/data/market_repository.dart';
@@ -87,6 +90,7 @@ class HomeScreen extends ConsumerWidget {
             const _NotificationsBlock(),
             const _PerformanceBlock(),
             const _NewsBlock(),
+            const _CommunityBlock(),
             const _DemoCard(),
             const _AcademyCard(),
             const SizedBox(height: 8),
@@ -626,6 +630,89 @@ class _NewsBlock extends ConsumerWidget {
       // SCR-28 is on the web only (SRS 3.1.1).
       onSeeAll: () => web.open('/news'),
       child: child,
+    );
+  }
+}
+
+/// The community (A-64): the newest pinned post and the newest posts; See
+/// all opens SCR-24, a row SCR-25.
+class _CommunityBlock extends ConsumerWidget {
+  const _CommunityBlock();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context);
+    final posts = ref.watch(homeCommunityProvider);
+    final Widget child = switch (posts) {
+      AsyncValue(:final value?) when value.isEmpty => _Note(l.communityEmpty),
+      AsyncValue(:final value?) => Column(
+        children: [for (final post in value) _CommunityRow(post: post)],
+      ),
+      AsyncValue(:final error?) => _Failed(
+        error,
+        () => ref.invalidate(homeCommunityProvider),
+      ),
+      _ => const _Loading(),
+    };
+    return _Block(
+      blockKey: const Key('home-community'),
+      title: l.communityTitle,
+      onSeeAll: () => context.push('/community'),
+      child: child,
+    );
+  }
+}
+
+class _CommunityRow extends ConsumerWidget {
+  const _CommunityRow({required this.post});
+
+  final Post post;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context);
+    final cp = context.cp;
+    final text = Theme.of(context).textTheme;
+    final now = ref.read(clockProvider)();
+    return InkWell(
+      key: Key('home-post-${post.id}'),
+      onTap: () => context.push(postLocation(post.id)),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                if (post.official) ...[
+                  OfficialBadge(label: l.communityOfficial),
+                  const SizedBox(width: 6),
+                ],
+                Expanded(
+                  child: Text(
+                    post.title,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: text.titleSmall,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 2),
+            Text(
+              [
+                post.author.displayName ?? l.communityUnknownAuthor,
+                formatAge(l, post.createdAt, now),
+                l.communityLikesCount(compactCount(post.likeCount)),
+                l.communityCommentsShort(compactCount(post.commentCount)),
+              ].join(' · '),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: text.bodySmall?.copyWith(color: cp.muted),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

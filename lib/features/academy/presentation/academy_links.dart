@@ -42,8 +42,8 @@ class WebAddress extends AcademyLinkTarget {
 
 /// The app screens a lesson path maps to today. `/trade/spot` and
 /// `/trade/futures` open the Trade tab (T-131), `/journal` the journal of
-/// the Plans tab (T-091); `/plans/new`, `/community` and any unknown path
-/// open the web.
+/// the Plans tab (T-091), `/community` the community (T-133); `/plans/new`
+/// and any unknown path open the web.
 AcademyLinkTarget academyLinkTarget(String href) {
   if (!href.startsWith('/')) return WebAddress(href);
   final path = Uri.parse(href).path;
@@ -61,6 +61,7 @@ AcademyLinkTarget academyLinkTarget(String href) {
     '/markets' => const AppScreen('/markets', tab: true),
     '/alerts' => const AppScreen('/alerts', tab: false),
     '/journal' => const AppScreen('/plans?tab=journal', tab: true),
+    '/community' => const AppScreen('/community', tab: false),
     _ => WebPath(href),
   };
 }

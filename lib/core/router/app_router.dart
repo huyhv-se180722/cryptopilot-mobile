@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../features/community/presentation/community_screen.dart';
+import '../../features/community/presentation/post_screen.dart';
 import '../../features/ai/application/ai_chat_controller.dart';
 import '../../features/ai/application/ai_context.dart';
 import '../../features/ai/domain/ai.dart';
@@ -61,6 +63,10 @@ abstract final class Routes {
   static const ai = '/ai';
   static const aiNew = '/ai/new';
   static const aiChat = '/ai/c/:id';
+
+  /// SCR-24 and SCR-25 (A-64, T-133), pushed over the tabs.
+  static const community = '/community';
+  static const communityPost = '/community/:postId';
 
   /// SCR-18 and SCR-21 (T-091), pushed over the tabs.
   static const plan = '/plan/:id';
@@ -169,6 +175,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: Routes.journalEntry,
         builder: (_, state) =>
             JournalEntryScreen(id: state.pathParameters['id']!),
+      ),
+      GoRoute(
+        path: Routes.community,
+        builder: (_, _) => const CommunityScreen(),
+      ),
+      GoRoute(
+        path: Routes.communityPost,
+        builder: (_, state) => PostScreen(id: state.pathParameters['postId']!),
       ),
       GoRoute(
         path: Routes.ai,

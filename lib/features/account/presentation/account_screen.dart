@@ -153,6 +153,14 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
             trailing: const Icon(Icons.chevron_right),
             onTap: () => context.push('/academy'),
           ),
+          ListTile(
+            key: const Key('open-community'),
+            contentPadding: EdgeInsets.zero,
+            leading: const Icon(Icons.forum_outlined),
+            title: Text(l.communityTitle),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => context.push('/community'),
+          ),
           const SizedBox(height: 8),
           _Section(title: l.accountOnWeb),
           ListTile(

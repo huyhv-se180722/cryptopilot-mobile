@@ -76,6 +76,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get msg41 => 'No results found.';
 
   @override
+  String get msg34 => 'Thank you, your report has been submitted.';
+
+  @override
   String get msg42 =>
       'Information on CryptoPilot is for reference and education only and is not investment advice.';
 
@@ -797,6 +800,233 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get aiPrivacy => 'Your email, name and capital are never sent.';
+
+  @override
+  String get communityTitle => 'Community';
+
+  @override
+  String get communityNewPostWeb => 'New post on the web';
+
+  @override
+  String get communityTabLatest => 'Latest';
+
+  @override
+  String get communityTabTrending => 'For You';
+
+  @override
+  String get communityTabMostLiked => 'Most liked';
+
+  @override
+  String get communityTabSaved => 'Saved';
+
+  @override
+  String get communityTabMine => 'My posts';
+
+  @override
+  String get communityCoinAll => 'All coins';
+
+  @override
+  String get communityCoinPick => 'Coin';
+
+  @override
+  String get communityMarketAll => 'All markets';
+
+  @override
+  String get communitySearch => 'Search titles and texts';
+
+  @override
+  String get communitySearchShort => 'Type at least 2 characters to search.';
+
+  @override
+  String get communityClearFilters => 'Clear filters';
+
+  @override
+  String get communityEmpty => 'No posts yet';
+
+  @override
+  String get communityEmptyFiltered => 'No posts match these filters.';
+
+  @override
+  String get communityEmptySaved => 'Posts you save appear here.';
+
+  @override
+  String get communityEmptyMine => 'You have not posted yet.';
+
+  @override
+  String get communityPinned => 'Pinned';
+
+  @override
+  String get communityOfficial => 'Official';
+
+  @override
+  String get communityEdited => 'edited';
+
+  @override
+  String get communityLike => 'Like';
+
+  @override
+  String get communityUnlike => 'Remove like';
+
+  @override
+  String get communitySave => 'Save';
+
+  @override
+  String get communityUnsave => 'Remove from saved';
+
+  @override
+  String get communityComments => 'Comments';
+
+  @override
+  String communityCommentsCount(int n) {
+    return 'Comments ($n)';
+  }
+
+  @override
+  String get communityBullish => 'Bullish';
+
+  @override
+  String get communityBearish => 'Bearish';
+
+  @override
+  String get communityVoteBullish => 'Vote bullish';
+
+  @override
+  String get communityVoteBearish => 'Vote bearish';
+
+  @override
+  String get communityVideo => 'Video';
+
+  @override
+  String get communityWatchVideo => 'Watch the video';
+
+  @override
+  String get communityOpenImage => 'Open the image';
+
+  @override
+  String get communityUnknownAuthor => 'Member';
+
+  @override
+  String get communityMenu => 'More';
+
+  @override
+  String get communityReport => 'Report';
+
+  @override
+  String get communityDelete => 'Delete';
+
+  @override
+  String get communityEditOnWeb => 'Edit on the web';
+
+  @override
+  String get communityDeleteTitle => 'Delete this post?';
+
+  @override
+  String get communityDeleted => 'Post deleted.';
+
+  @override
+  String get communityCommentPlaceholder => 'Write a comment';
+
+  @override
+  String get communityReplyPlaceholder => 'Write a reply';
+
+  @override
+  String get communitySend => 'Comment';
+
+  @override
+  String get communitySendReply => 'Reply';
+
+  @override
+  String get communityReply => 'Reply';
+
+  @override
+  String communityReplyingTo(String name) {
+    return 'Replying to $name';
+  }
+
+  @override
+  String get communityCancelReply => 'Cancel reply';
+
+  @override
+  String get communityCommentDeleted => 'Comment deleted';
+
+  @override
+  String get communityCommentDeleteTitle => 'Delete this comment?';
+
+  @override
+  String get communityCommentDeleteBody =>
+      'If it has replies, it stays in the thread as \"Comment deleted\".';
+
+  @override
+  String get communityEditComment => 'Edit comment';
+
+  @override
+  String get communitySaveChanges => 'Save changes';
+
+  @override
+  String get communityCommentTooLong =>
+      'A comment holds at most 2,000 characters.';
+
+  @override
+  String get communityNoComments => 'No comments yet. Start the discussion.';
+
+  @override
+  String get communityReportPost => 'Report post';
+
+  @override
+  String get communityReportComment => 'Report comment';
+
+  @override
+  String get communityReportReason => 'Reason';
+
+  @override
+  String get communityReasonSpam => 'Spam';
+
+  @override
+  String get communityReasonScam => 'Scam or fraud';
+
+  @override
+  String get communityReasonAbuse => 'Abuse or harassment';
+
+  @override
+  String get communityReasonMisleading => 'Misleading information';
+
+  @override
+  String get communityReasonOther => 'Other';
+
+  @override
+  String get communityReportDetails => 'Details';
+
+  @override
+  String get communityReportDetailsHint =>
+      'Required for Other, up to 500 characters';
+
+  @override
+  String get communityReportDetailsRequired =>
+      'Describe the problem when you choose Other.';
+
+  @override
+  String get communityReportSubmit => 'Submit report';
+
+  @override
+  String get communityAlreadyReportedPost =>
+      'You have already reported this post.';
+
+  @override
+  String get communityAlreadyReportedComment =>
+      'You have already reported this comment.';
+
+  @override
+  String get communityLoadMore => 'Load more';
+
+  @override
+  String communityLikesCount(String n) {
+    return '$n likes';
+  }
+
+  @override
+  String communityCommentsShort(String n) {
+    return '$n comments';
+  }
 
   @override
   String aiStyleChip(String style, String risk) {
