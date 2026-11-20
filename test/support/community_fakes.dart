@@ -89,7 +89,13 @@ class FakeCommunityApi implements CommunityApi {
   /// Thrown by the next call whose name starts with the key.
   final Map<String, Object> failNext = {};
 
+  /// Thrown by every call whose name starts with the key.
+  final Map<String, Object> failAlways = {};
+
   void _maybeFail(String name) {
+    for (final entry in failAlways.entries) {
+      if (name.startsWith(entry.key)) throw entry.value;
+    }
     for (final key in failNext.keys.toList()) {
       if (name.startsWith(key)) throw failNext.remove(key)!;
     }

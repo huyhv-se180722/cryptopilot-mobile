@@ -573,7 +573,10 @@
   "communityAlreadyReportedPost": "You have already reported this post.",
   "communityAlreadyReportedComment": "You have already reported this comment.",
   "communityLoadMore": "Load more",
-  "communitySeeAll": "See all",
+  "communityLikesCount": "{n} likes",
+  "@communityLikesCount": {"placeholders": {"n": {"type": "String"}}},
+  "communityCommentsShort": "{n} comments",
+  "@communityCommentsShort": {"placeholders": {"n": {"type": "String"}}},
   "aiStyleChip": "Style: {style} · {risk}",
   "@aiStyleChip": {
     "placeholders": {

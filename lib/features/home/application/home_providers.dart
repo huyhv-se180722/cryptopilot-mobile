@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../community/data/community_api.dart';
+import '../../community/domain/community.dart';
 import '../../journal/data/performance_api.dart';
 import '../../journal/domain/performance.dart';
 import '../../news/data/news_api.dart';
@@ -56,6 +58,23 @@ final homeNewsProvider = FutureProvider.autoDispose<List<NewsArticle>>(
   (ref) => ref.read(newsApiProvider).latest(),
 );
 
+/// The community block (A-64): the newest pinned official post, then the
+/// newest posts, three in all.
+final homeCommunityProvider = FutureProvider.autoDispose<List<Post>>((
+  ref,
+) async {
+  final api = ref.read(communityApiProvider);
+  // One after the other, so a refusal stays an ApiFailure for the block.
+  final pinned = await api.pinned(pageSize: 1);
+  final latest = await api.feed(pageSize: 3);
+  final top = pinned.items.take(1).toList();
+  return [
+    ...top,
+    for (final post in latest.items)
+      if (!top.any((p) => p.id == post.id)) post,
+  ].take(3).toList();
+});
+
 /// Reads every block again; done when they are.
 Future<void> refreshHome(WidgetRef ref) async {
   for (final tab in [PlanTab.active, PlanTab.executed]) {
@@ -65,6 +84,7 @@ Future<void> refreshHome(WidgetRef ref) async {
     ..invalidate(openPositionsProvider)
     ..invalidate(homeNotificationsProvider)
     ..invalidate(homePerformanceProvider)
+    ..invalidate(homeCommunityProvider)
     ..invalidate(homeNewsProvider);
   await Future.wait(
     [

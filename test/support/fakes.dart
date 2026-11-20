@@ -7,6 +7,7 @@ import 'package:cryptopilot_mobile/core/errors/api_problem.dart';
 import 'package:cryptopilot_mobile/core/realtime/realtime_hub.dart';
 import 'package:cryptopilot_mobile/core/settings/settings.dart';
 import 'package:cryptopilot_mobile/core/web/web_links.dart';
+import 'package:cryptopilot_mobile/features/community/data/community_api.dart';
 import 'package:cryptopilot_mobile/features/academy/data/academy_api.dart';
 import 'package:cryptopilot_mobile/features/account/data/profile_api.dart';
 import 'package:cryptopilot_mobile/features/account/domain/profile.dart';
@@ -39,6 +40,7 @@ import 'package:flutter_riverpod/misc.dart' show Override;
 
 import 'academy_fakes.dart';
 import 'chart_fakes.dart';
+import 'community_fakes.dart';
 import 'futures_fakes.dart';
 import 'paper_fakes.dart';
 import 'realtime_fakes.dart';
@@ -210,6 +212,7 @@ List<Override> baseOverrides({
   AcademyApi? academy,
   PaperApi? paper,
   FuturesApi? futures,
+  CommunityApi? community,
   Duration zone = Duration.zero,
   DateTime Function()? clock,
 }) => [
@@ -229,6 +232,7 @@ List<Override> baseOverrides({
   ),
   planApiProvider.overrideWithValue(plans ?? FakePlanApi()),
   newsApiProvider.overrideWithValue(news ?? FakeNewsApi()),
+  communityApiProvider.overrideWithValue(community ?? FakeCommunityApi()),
   performanceApiProvider.overrideWithValue(performance ?? FakePerformanceApi()),
   chartSurfaceProvider.overrideWithValue(chart ?? FakeChartSurface()),
   metricSurfaceProvider.overrideWithValue(metricChart ?? FakeMetricSurface()),

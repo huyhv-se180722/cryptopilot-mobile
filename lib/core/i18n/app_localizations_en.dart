@@ -862,24 +862,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get communityEdited => 'edited';
 
   @override
-  String get communityAgeNow => 'just now';
-
-  @override
-  String communityAgeMinutes(int n) {
-    return '${n}m ago';
-  }
-
-  @override
-  String communityAgeHours(int n) {
-    return '${n}h ago';
-  }
-
-  @override
-  String communityAgeDays(int n) {
-    return '${n}d ago';
-  }
-
-  @override
   String get communityLike => 'Like';
 
   @override
@@ -1034,7 +1016,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get communityLoadMore => 'Load more';
 
   @override
-  String get communitySeeAll => 'See all';
+  String communityLikesCount(String n) {
+    return '$n likes';
+  }
+
+  @override
+  String communityCommentsShort(String n) {
+    return '$n comments';
+  }
 
   @override
   String aiStyleChip(String style, String risk) {

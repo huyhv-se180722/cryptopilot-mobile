@@ -1618,30 +1618,6 @@ abstract class AppLocalizations {
   /// **'edited'**
   String get communityEdited;
 
-  /// No description provided for @communityAgeNow.
-  ///
-  /// In en, this message translates to:
-  /// **'just now'**
-  String get communityAgeNow;
-
-  /// No description provided for @communityAgeMinutes.
-  ///
-  /// In en, this message translates to:
-  /// **'{n}m ago'**
-  String communityAgeMinutes(int n);
-
-  /// No description provided for @communityAgeHours.
-  ///
-  /// In en, this message translates to:
-  /// **'{n}h ago'**
-  String communityAgeHours(int n);
-
-  /// No description provided for @communityAgeDays.
-  ///
-  /// In en, this message translates to:
-  /// **'{n}d ago'**
-  String communityAgeDays(int n);
-
   /// No description provided for @communityLike.
   ///
   /// In en, this message translates to:
@@ -1930,11 +1906,17 @@ abstract class AppLocalizations {
   /// **'Load more'**
   String get communityLoadMore;
 
-  /// No description provided for @communitySeeAll.
+  /// No description provided for @communityLikesCount.
   ///
   /// In en, this message translates to:
-  /// **'See all'**
-  String get communitySeeAll;
+  /// **'{n} likes'**
+  String communityLikesCount(String n);
+
+  /// No description provided for @communityCommentsShort.
+  ///
+  /// In en, this message translates to:
+  /// **'{n} comments'**
+  String communityCommentsShort(String n);
 
   /// No description provided for @aiStyleChip.
   ///

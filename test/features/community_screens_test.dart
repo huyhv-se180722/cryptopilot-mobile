@@ -4,7 +4,6 @@ import 'package:cryptopilot_mobile/app.dart';
 import 'package:cryptopilot_mobile/core/auth/token_store.dart';
 import 'package:cryptopilot_mobile/core/router/app_router.dart';
 import 'package:cryptopilot_mobile/core/settings/settings.dart';
-import 'package:cryptopilot_mobile/features/community/data/community_api.dart';
 import 'package:cryptopilot_mobile/features/community/domain/community.dart';
 import 'package:cryptopilot_mobile/features/community/presentation/community_widgets.dart';
 import 'package:flutter/material.dart';
@@ -34,6 +33,8 @@ void main() {
     WidgetTester tester,
     String location, {
     Brightness brightness = Brightness.light,
+    // Runs once Home has read its blocks, before [location] opens.
+    void Function()? beforePush,
   }) async {
     transport = FakeTransport();
     await tester.pumpWidget(
@@ -46,8 +47,8 @@ void main() {
             web: web,
             settings: MemorySettingsStore(),
             clock: () => communityNow,
+            community: api,
           ),
-          communityApiProvider.overrideWithValue(api),
         ],
         retry: (_, _) => null,
         child: const CryptoPilotApp(),
@@ -61,6 +62,7 @@ void main() {
         container.read(themeModeProvider.notifier).select(ThemeMode.dark),
       );
     }
+    beforePush?.call();
     unawaited(container.read(appRouterProvider).push(location));
     await frames(tester);
   }
@@ -154,8 +156,12 @@ void main() {
     });
 
     testWidgets('a failed feed offers Try again', (tester) async {
-      api.failNext['feed'] = problem(503, 'UNAVAILABLE', 'MSG43');
-      await open(tester, '/community');
+      await open(
+        tester,
+        '/community',
+        beforePush: () =>
+            api.failNext['feed'] = problem(503, 'UNAVAILABLE', 'MSG43'),
+      );
       expect(find.text('Try again'), findsOneWidget);
       await tester.tap(find.text('Try again'));
       await frames(tester);

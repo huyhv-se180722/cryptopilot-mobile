@@ -92,8 +92,9 @@ void main() {
         (of(NotificationReference.plan)! as AppScreen).location,
         '/plan/r%201',
       );
+      // SCR-25 is in the app since T-133 (A-64; a web page before).
       expect(
-        (of(NotificationReference.post)! as WebPage).path,
+        (of(NotificationReference.post)! as AppScreen).location,
         '/community/r%201',
       );
       expect(
