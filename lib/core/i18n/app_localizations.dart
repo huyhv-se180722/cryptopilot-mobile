@@ -2806,6 +2806,48 @@ abstract class AppLocalizations {
   /// **'Limit TP/SL'**
   String get tradeKindLimitTpSl;
 
+  /// No description provided for @tradeKindPostOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Post-only'**
+  String get tradeKindPostOnly;
+
+  /// No description provided for @tradeKindOto.
+  ///
+  /// In en, this message translates to:
+  /// **'OTO'**
+  String get tradeKindOto;
+
+  /// No description provided for @tradeTrailing.
+  ///
+  /// In en, this message translates to:
+  /// **'Trailing % (optional)'**
+  String get tradeTrailing;
+
+  /// No description provided for @tradePendingPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Then the other way at'**
+  String get tradePendingPrice;
+
+  /// No description provided for @tradeTifGtc.
+  ///
+  /// In en, this message translates to:
+  /// **'GTC · good till cancelled'**
+  String get tradeTifGtc;
+
+  /// No description provided for @tradeTifIoc.
+  ///
+  /// In en, this message translates to:
+  /// **'IOC · fill now, cancel the rest'**
+  String get tradeTifIoc;
+
+  /// No description provided for @tradeTifFok.
+  ///
+  /// In en, this message translates to:
+  /// **'FOK · fill all now or cancel'**
+  String get tradeTifFok;
+
   /// No description provided for @tradePrice.
   ///
   /// In en, this message translates to:
@@ -3148,6 +3190,48 @@ abstract class AppLocalizations {
   /// **'Trade (demo)'**
   String get assetsTradeDemo;
 
+  /// No description provided for @assetsEquity.
+  ///
+  /// In en, this message translates to:
+  /// **'Equity'**
+  String get assetsEquity;
+
+  /// No description provided for @assetsEquityDays.
+  ///
+  /// In en, this message translates to:
+  /// **'{days}D'**
+  String assetsEquityDays(int days);
+
+  /// No description provided for @assetsEquityChart.
+  ///
+  /// In en, this message translates to:
+  /// **'Demo account equity, last {days} days'**
+  String assetsEquityChart(int days);
+
+  /// No description provided for @assetsEquityEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'The equity history starts after the first day.'**
+  String get assetsEquityEmpty;
+
+  /// No description provided for @assetsCoinPnl.
+  ///
+  /// In en, this message translates to:
+  /// **'Avg cost {cost} · PnL {pnl}'**
+  String assetsCoinPnl(String cost, String pnl);
+
+  /// No description provided for @assetsSpotUpnl.
+  ///
+  /// In en, this message translates to:
+  /// **'Spot unrealized PnL {amount} USDT'**
+  String assetsSpotUpnl(String amount);
+
+  /// No description provided for @assetsPnlIncomplete.
+  ///
+  /// In en, this message translates to:
+  /// **'Some coins have no cost or price yet; the totals leave them out.'**
+  String get assetsPnlIncomplete;
+
   /// No description provided for @assetsFuturesPnl.
   ///
   /// In en, this message translates to:
@@ -3256,6 +3340,60 @@ abstract class AppLocalizations {
   /// **'Transfers'**
   String get historyTransfers;
 
+  /// No description provided for @futHistPositions.
+  ///
+  /// In en, this message translates to:
+  /// **'Positions'**
+  String get futHistPositions;
+
+  /// No description provided for @futHistIncome.
+  ///
+  /// In en, this message translates to:
+  /// **'Income'**
+  String get futHistIncome;
+
+  /// No description provided for @futHistConditional.
+  ///
+  /// In en, this message translates to:
+  /// **'Conditional'**
+  String get futHistConditional;
+
+  /// No description provided for @futHistLiquidations.
+  ///
+  /// In en, this message translates to:
+  /// **'Liquidations'**
+  String get futHistLiquidations;
+
+  /// No description provided for @futHistMargin.
+  ///
+  /// In en, this message translates to:
+  /// **'Margin'**
+  String get futHistMargin;
+
+  /// No description provided for @futHistAllPairs.
+  ///
+  /// In en, this message translates to:
+  /// **'All pairs'**
+  String get futHistAllPairs;
+
+  /// No description provided for @futHistAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Added'**
+  String get futHistAdded;
+
+  /// No description provided for @futHistReduced.
+  ///
+  /// In en, this message translates to:
+  /// **'Reduced'**
+  String get futHistReduced;
+
+  /// No description provided for @futHistClosed.
+  ///
+  /// In en, this message translates to:
+  /// **'Closed {quantity}'**
+  String futHistClosed(String quantity);
+
   /// No description provided for @historyAll.
   ///
   /// In en, this message translates to:
@@ -3358,6 +3496,66 @@ abstract class AppLocalizations {
   /// **'The margin mode cannot change while a position or an order is open.'**
   String get paperErrMarginTypeLocked;
 
+  /// No description provided for @paperErrPositionModeLocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Close every Futures position and cancel every order to change the position mode.'**
+  String get paperErrPositionModeLocked;
+
+  /// No description provided for @futModeOneWay.
+  ///
+  /// In en, this message translates to:
+  /// **'One-way'**
+  String get futModeOneWay;
+
+  /// No description provided for @futModeHedge.
+  ///
+  /// In en, this message translates to:
+  /// **'Hedge'**
+  String get futModeHedge;
+
+  /// No description provided for @futModeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Position mode'**
+  String get futModeTitle;
+
+  /// No description provided for @futModeOneWayHint.
+  ///
+  /// In en, this message translates to:
+  /// **'One position per pair, Long or Short.'**
+  String get futModeOneWayHint;
+
+  /// No description provided for @futModeHedgeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'A Long and a Short position per pair at once.'**
+  String get futModeHedgeHint;
+
+  /// No description provided for @futOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get futOpen;
+
+  /// No description provided for @futCloseTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get futCloseTab;
+
+  /// No description provided for @futCloseLong.
+  ///
+  /// In en, this message translates to:
+  /// **'Close Long'**
+  String get futCloseLong;
+
+  /// No description provided for @futCloseShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Close Short'**
+  String get futCloseShort;
+
   /// No description provided for @paperErrInLiquidation.
   ///
   /// In en, this message translates to:
@@ -3453,6 +3651,222 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Take Profit Market'**
   String get futKindTakeProfitMarket;
+
+  /// No description provided for @futKindTrailingStop.
+  ///
+  /// In en, this message translates to:
+  /// **'Trailing Stop'**
+  String get futKindTrailingStop;
+
+  /// No description provided for @futCallback.
+  ///
+  /// In en, this message translates to:
+  /// **'Callback %'**
+  String get futCallback;
+
+  /// No description provided for @futActivation.
+  ///
+  /// In en, this message translates to:
+  /// **'Activation price (optional)'**
+  String get futActivation;
+
+  /// No description provided for @futErrCallback.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter 0.1 to 20.'**
+  String get futErrCallback;
+
+  /// No description provided for @futTifGtx.
+  ///
+  /// In en, this message translates to:
+  /// **'GTX · post-only'**
+  String get futTifGtx;
+
+  /// No description provided for @futTifGtd.
+  ///
+  /// In en, this message translates to:
+  /// **'GTD · good till a date'**
+  String get futTifGtd;
+
+  /// No description provided for @futGtdHour.
+  ///
+  /// In en, this message translates to:
+  /// **'1 hour'**
+  String get futGtdHour;
+
+  /// No description provided for @futGtdDay.
+  ///
+  /// In en, this message translates to:
+  /// **'1 day'**
+  String get futGtdDay;
+
+  /// No description provided for @futGtdWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'7 days'**
+  String get futGtdWeek;
+
+  /// No description provided for @futAmend.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get futAmend;
+
+  /// No description provided for @calcOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Calculator'**
+  String get calcOpen;
+
+  /// No description provided for @calcTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{symbol} calculator'**
+  String calcTitle(String symbol);
+
+  /// No description provided for @calcPnl.
+  ///
+  /// In en, this message translates to:
+  /// **'PnL'**
+  String get calcPnl;
+
+  /// No description provided for @calcTarget.
+  ///
+  /// In en, this message translates to:
+  /// **'Target price'**
+  String get calcTarget;
+
+  /// No description provided for @calcLiquidation.
+  ///
+  /// In en, this message translates to:
+  /// **'Liquidation price'**
+  String get calcLiquidation;
+
+  /// No description provided for @calcMaxOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Max open'**
+  String get calcMaxOpen;
+
+  /// No description provided for @calcOpenPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Open price'**
+  String get calcOpenPrice;
+
+  /// No description provided for @calcEntry.
+  ///
+  /// In en, this message translates to:
+  /// **'Entry price'**
+  String get calcEntry;
+
+  /// No description provided for @calcExit.
+  ///
+  /// In en, this message translates to:
+  /// **'Exit price'**
+  String get calcExit;
+
+  /// No description provided for @calcRoe.
+  ///
+  /// In en, this message translates to:
+  /// **'ROE % (negative for a loss)'**
+  String get calcRoe;
+
+  /// No description provided for @calcWallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet balance (USDT)'**
+  String get calcWallet;
+
+  /// No description provided for @calcWalletIsolated.
+  ///
+  /// In en, this message translates to:
+  /// **'Isolated margin (USDT, optional)'**
+  String get calcWalletIsolated;
+
+  /// No description provided for @calcAddLot.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a part'**
+  String get calcAddLot;
+
+  /// No description provided for @calcRemoveLot.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove this part'**
+  String get calcRemoveLot;
+
+  /// No description provided for @calcLotsMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter at least one price and quantity.'**
+  String get calcLotsMissing;
+
+  /// No description provided for @calcCalculate.
+  ///
+  /// In en, this message translates to:
+  /// **'Calculate'**
+  String get calcCalculate;
+
+  /// No description provided for @calcInitialMargin.
+  ///
+  /// In en, this message translates to:
+  /// **'Initial margin'**
+  String get calcInitialMargin;
+
+  /// No description provided for @calcPnlResult.
+  ///
+  /// In en, this message translates to:
+  /// **'PnL (USDT)'**
+  String get calcPnlResult;
+
+  /// No description provided for @calcRoeResult.
+  ///
+  /// In en, this message translates to:
+  /// **'ROE'**
+  String get calcRoeResult;
+
+  /// No description provided for @calcTargetResult.
+  ///
+  /// In en, this message translates to:
+  /// **'Target price'**
+  String get calcTargetResult;
+
+  /// No description provided for @calcLiquidationResult.
+  ///
+  /// In en, this message translates to:
+  /// **'Liquidation price'**
+  String get calcLiquidationResult;
+
+  /// No description provided for @calcMaxQuantity.
+  ///
+  /// In en, this message translates to:
+  /// **'Max quantity'**
+  String get calcMaxQuantity;
+
+  /// No description provided for @calcMaxNotional.
+  ///
+  /// In en, this message translates to:
+  /// **'Max value (USDT)'**
+  String get calcMaxNotional;
+
+  /// No description provided for @calcOpenPriceResult.
+  ///
+  /// In en, this message translates to:
+  /// **'Average open price'**
+  String get calcOpenPriceResult;
+
+  /// No description provided for @calcTotalQuantity.
+  ///
+  /// In en, this message translates to:
+  /// **'Total quantity'**
+  String get calcTotalQuantity;
+
+  /// No description provided for @futAmendTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit the demo order'**
+  String get futAmendTitle;
 
   /// No description provided for @futTrigger.
   ///

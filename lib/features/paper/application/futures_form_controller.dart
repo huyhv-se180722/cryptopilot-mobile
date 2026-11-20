@@ -4,6 +4,7 @@ import 'package:decimal/decimal.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/auth/session_controller.dart';
 import '../../../core/errors/api_failure.dart';
 import '../../market/data/market_repository.dart';
 import '../../market/domain/market.dart';
@@ -13,16 +14,22 @@ import '../domain/futures.dart';
 import '../domain/paper.dart';
 import '../domain/paper_refusal.dart';
 
-/// The Futures order kinds of the first version (D-154 (2)).
+/// The Futures order kinds of the first version (D-154 (2)), then the
+/// trailing stop of the second (T-123, TR-21).
 enum FuturesKind {
   limit,
   market,
   stopLimit,
   stopMarket,
   takeProfitLimit,
-  takeProfitMarket;
+  takeProfitMarket,
+  trailingStop;
 
+  /// Placed on `/algoOrder`.
   bool get conditional => index >= 2;
+
+  /// A conditional kind with a trigger price (not the trailing stop).
+  bool get triggered => conditional && this != trailingStop;
   bool get limitPrice =>
       this == limit || this == stopLimit || this == takeProfitLimit;
 
@@ -34,12 +41,37 @@ enum FuturesKind {
     stopMarket => 'STOP_MARKET',
     takeProfitLimit => 'TAKE_PROFIT',
     takeProfitMarket => 'TAKE_PROFIT_MARKET',
+    trailingStop => 'TRAILING_STOP_MARKET',
   };
 }
 
-enum FuturesField { price, size, trigger, takeProfit, stopLoss }
+enum FuturesField {
+  price,
+  size,
+  trigger,
+  takeProfit,
+  stopLoss,
 
-enum FuturesIssue { required, notPositive, offStep, tpSlWithReduceOnly }
+  /// Trailing stop: the pull-back in percent (0.1 to 20).
+  callback,
+
+  /// Trailing stop, optional: where it starts to follow.
+  activation,
+}
+
+enum FuturesIssue {
+  required,
+  notPositive,
+  offStep,
+  tpSlWithReduceOnly,
+
+  /// A callback outside 0.1 to 20 % (TR-21).
+  outOfRange,
+}
+
+/// The GTD choices: the order expires this many hours after it is sent
+/// (the server wants more than 600 s).
+const gtdHours = [1, 24, 168];
 
 @immutable
 class FuturesFormState {
@@ -61,7 +93,23 @@ class FuturesFormState {
     this.reviewSide,
     this.busy = false,
     this.placed = 0,
+    this.callback = '',
+    this.activation = '',
+    this.timeInForce = FuturesTimeInForce.gtc,
+    this.gtdHours = 24,
+    this.closing = false,
   });
+
+  /// Hedge mode only: the Close tab (Buy closes the Short, Sell the Long).
+  final bool closing;
+
+  /// Trailing stop: the pull-back in percent, and where it starts.
+  final String callback;
+  final String activation;
+
+  /// Limit only; GTD expires [gtdHours] after it is sent.
+  final FuturesTimeInForce timeInForce;
+  final int gtdHours;
 
   final FuturesKind kind;
   final String price;
@@ -88,7 +136,11 @@ class FuturesFormState {
   final int placed;
 
   List<FuturesField> get fields => [
-    if (kind.conditional) FuturesField.trigger,
+    if (kind.triggered) FuturesField.trigger,
+    if (kind == FuturesKind.trailingStop) ...[
+      FuturesField.callback,
+      FuturesField.activation,
+    ],
     if (kind.limitPrice) FuturesField.price,
     FuturesField.size,
     if (tpSl && !kind.conditional) ...[
@@ -103,9 +155,16 @@ class FuturesFormState {
     FuturesField.trigger => trigger,
     FuturesField.takeProfit => takeProfit,
     FuturesField.stopLoss => stopLoss,
+    FuturesField.callback => callback,
+    FuturesField.activation => activation,
   };
 
   FuturesFormState copyWith({
+    String? callback,
+    String? activation,
+    FuturesTimeInForce? timeInForce,
+    int? gtdHours,
+    bool? closing,
     FuturesKind? kind,
     String? price,
     String? size,
@@ -125,6 +184,11 @@ class FuturesFormState {
     bool? busy,
     int? placed,
   }) => FuturesFormState(
+    callback: callback ?? this.callback,
+    activation: activation ?? this.activation,
+    timeInForce: timeInForce ?? this.timeInForce,
+    gtdHours: gtdHours ?? this.gtdHours,
+    closing: closing ?? this.closing,
     kind: kind ?? this.kind,
     price: price ?? this.price,
     size: size ?? this.size,
@@ -187,6 +251,20 @@ class FuturesFormController extends Notifier<FuturesFormState> {
   void setWorking(WorkingType value) => _set(state.copyWith(working: value));
   void setReduceOnly(bool value) => _set(state.copyWith(reduceOnly: value));
   void setTpSl(bool value) => _set(state.copyWith(tpSl: value));
+  void setTimeInForce(FuturesTimeInForce value) =>
+      _set(state.copyWith(timeInForce: value));
+  void setGtdHours(int hours) => _set(state.copyWith(gtdHours: hours));
+  void setClosing(bool value) => _set(state.copyWith(closing: value));
+
+  bool get _hedge => ref.read(futuresModeProvider).hedge ?? false;
+
+  /// BOTH in one-way mode; in hedge mode the side an order opens (Buy
+  /// Long, Sell Short) or, on the Close tab, closes (TR-14b).
+  PositionSide _positionSide(OrderSide side) {
+    if (!_hedge) return PositionSide.both;
+    final long = side == OrderSide.buy;
+    return (long != state.closing) ? PositionSide.long : PositionSide.short;
+  }
 
   void edit(FuturesField field, String value) {
     final v = value.trim();
@@ -196,6 +274,8 @@ class FuturesFormController extends Notifier<FuturesFormState> {
       FuturesField.trigger => state.copyWith(trigger: v),
       FuturesField.takeProfit => state.copyWith(takeProfit: v),
       FuturesField.stopLoss => state.copyWith(stopLoss: v),
+      FuturesField.callback => state.copyWith(callback: v),
+      FuturesField.activation => state.copyWith(activation: v),
     });
   }
 
@@ -214,9 +294,18 @@ class FuturesFormController extends Notifier<FuturesFormState> {
       final text = state.of(field);
       final value = Decimal.tryParse(text);
       if (text.isEmpty) {
-        issues[field] = FuturesIssue.required;
+        if (field != FuturesField.activation) {
+          issues[field] = FuturesIssue.required;
+        }
       } else if (value == null || value <= Decimal.zero) {
         issues[field] = FuturesIssue.notPositive;
+      } else if (field == FuturesField.callback) {
+        // 0.1 to 20 %, by 0.1 (TR-21).
+        if (value < Decimal.parse('0.1') || value > Decimal.fromInt(20)) {
+          issues[field] = FuturesIssue.outOfRange;
+        } else if (!_onStep(value, '0.1')) {
+          issues[field] = FuturesIssue.offStep;
+        }
       } else if (field != FuturesField.size && !_onStep(value, pair.tickSize)) {
         issues[field] = FuturesIssue.offStep;
       } else if (field == FuturesField.size &&
@@ -225,7 +314,7 @@ class FuturesFormController extends Notifier<FuturesFormState> {
         issues[field] = FuturesIssue.offStep;
       }
     }
-    if (state.tpSl && state.reduceOnly && !state.kind.conditional) {
+    if (state.tpSl && state.reduceOnly && !_hedge && !state.kind.conditional) {
       issues[FuturesField.takeProfit] = FuturesIssue.tpSlWithReduceOnly;
     }
     return issues;
@@ -257,8 +346,10 @@ class FuturesFormController extends Notifier<FuturesFormState> {
         side: side,
         type: state.kind.wire,
         quantity: quantity,
+        positionSide: _positionSide(side),
         price: state.kind == FuturesKind.limit ? state.price : null,
-        reduceOnly: state.reduceOnly,
+        // Hedge mode takes no reduce-only: the Close tab closes.
+        reduceOnly: !_hedge && state.reduceOnly,
         takeProfitPrice: state.tpSl && state.takeProfit.isNotEmpty
             ? state.takeProfit
             : null,
@@ -266,6 +357,10 @@ class FuturesFormController extends Notifier<FuturesFormState> {
             ? state.stopLoss
             : null,
         tpSlWorking: state.working,
+        timeInForce: state.timeInForce,
+        goodTillDate: state.timeInForce == FuturesTimeInForce.gtd
+            ? ref.read(clockProvider)().add(Duration(hours: state.gtdHours))
+            : null,
         clientOrderId: key,
       );
 
@@ -287,6 +382,9 @@ class FuturesFormController extends Notifier<FuturesFormState> {
     }
 
     if (state.kind.limitPrice) return valid(state.price);
+    if (state.kind == FuturesKind.trailingStop) {
+      return valid(state.activation) ?? _mark;
+    }
     if (state.kind.conditional) return valid(state.trigger);
     return _mark;
   }
@@ -297,13 +395,18 @@ class FuturesFormController extends Notifier<FuturesFormState> {
     final pair = _pair;
     if (pair == null) return;
     final size = field == FuturesField.size;
+    final callback = field == FuturesField.callback;
     final step = Decimal.parse(
-      size ? (state.sizeInUsdt ? '1' : pair.stepSize) : pair.tickSize,
+      size
+          ? (state.sizeInUsdt ? '1' : pair.stepSize)
+          : callback
+          ? '0.1'
+          : pair.tickSize,
     );
     if (step <= Decimal.zero) return;
     final start =
         Decimal.tryParse(state.of(field)) ??
-        (size ? Decimal.zero : Decimal.tryParse(_mark ?? '')) ??
+        (size || callback ? Decimal.zero : Decimal.tryParse(_mark ?? '')) ??
         Decimal.zero;
     final floored =
         (start / step).toDecimal(scaleOnInfinitePrecision: 20).floor() * step;
@@ -390,11 +493,20 @@ class FuturesFormController extends Notifier<FuturesFormState> {
             symbol: symbol,
             side: side,
             type: state.kind.wire,
-            triggerPrice: state.trigger,
+            triggerPrice: state.kind.triggered ? state.trigger : null,
             working: state.working,
+            positionSide: _positionSide(side),
             quantity: quantity,
             price: state.kind.limitPrice ? state.price : null,
-            reduceOnly: state.reduceOnly,
+            reduceOnly: !_hedge && state.reduceOnly,
+            callbackRate: state.kind == FuturesKind.trailingStop
+                ? state.callback
+                : null,
+            activatePrice:
+                state.kind == FuturesKind.trailingStop &&
+                    state.activation.isNotEmpty
+                ? state.activation
+                : null,
             clientAlgoId: key,
           ),
         );

@@ -289,6 +289,18 @@ class PaperPage<T> {
   final int total;
 }
 
+/// How long a Spot limit works (`timeInForce`, T-123): good till
+/// cancelled, or filled at once (in part for IOC, whole for FOK) and the
+/// rest cancelled.
+enum SpotTimeInForce {
+  gtc('GTC'),
+  ioc('IOC'),
+  fok('FOK');
+
+  const SpotTimeInForce(this.wire);
+  final String wire;
+}
+
 /// A Spot order to place (`PlaceOrderRequest`); null fields are left out.
 @immutable
 class SpotOrderRequest {
@@ -301,7 +313,16 @@ class SpotOrderRequest {
     this.quantity,
     this.quoteOrderQty,
     this.stopPrice,
+    this.timeInForce = SpotTimeInForce.gtc,
+    this.trailingDelta,
   });
+
+  /// LIMIT and the limit stops only; LIMIT_MAKER takes none.
+  final SpotTimeInForce timeInForce;
+
+  /// The stops only: how far back from the best price it triggers, in
+  /// basis points (100 = 1 %, TR-11).
+  final int? trailingDelta;
 
   final String pairId;
   final OrderSide side;
@@ -322,12 +343,66 @@ class SpotOrderRequest {
     if (type == SpotOrderType.limit ||
         type == SpotOrderType.stopLossLimit ||
         type == SpotOrderType.takeProfitLimit)
-      'timeInForce': 'GTC',
+      'timeInForce': timeInForce.wire,
     'price': ?price,
     'quantity': ?quantity,
     'quoteOrderQty': ?quoteOrderQty,
     'stopPrice': ?stopPrice,
+    'trailingDelta': ?trailingDelta,
     'clientOrderId': clientOrderId,
+  };
+}
+
+/// An OTO to place (`PlaceOrderListRequest`, TR-10): a [working] limit
+/// placed now, a [pending] limit placed once it has filled in full. Every
+/// limit of a group is GTC.
+@immutable
+class SpotOtoRequest {
+  const SpotOtoRequest({
+    required this.pairId,
+    required this.working,
+    required this.pending,
+    required this.listClientOrderId,
+  });
+
+  final String pairId;
+  final SpotLeg working;
+  final SpotLeg pending;
+  final String listClientOrderId;
+
+  Map<String, Object?> toJson() => {
+    'pairId': pairId,
+    'market': 'SPOT',
+    'type': 'OTO',
+    'working': working.toJson(),
+    'pending': pending.toJson(),
+    'listClientOrderId': listClientOrderId,
+  };
+}
+
+/// One order of an OTO.
+@immutable
+class SpotLeg {
+  const SpotLeg({
+    required this.side,
+    required this.type,
+    required this.quantity,
+    this.price,
+    this.stopPrice,
+  });
+
+  final OrderSide side;
+  final SpotOrderType type;
+  final String quantity;
+  final String? price;
+  final String? stopPrice;
+
+  Map<String, Object?> toJson() => {
+    'side': side.wire,
+    'type': type.wire,
+    'price': ?price,
+    'stopPrice': ?stopPrice,
+    'quantity': quantity,
   };
 }
 
@@ -531,28 +606,137 @@ PaperPage<T> decodePaperPage<T>(Object? body, T Function(Object?) item) {
   );
 }
 
-/// The demo account's worth (`EquityResponse`; the daily history is left
-/// for T-123).
+/// The demo account's worth (`EquityResponse`) with its daily history
+/// (T-123).
 @immutable
 class PaperEquity {
   const PaperEquity({
     required this.totalEquity,
     required this.todayPnl,
     this.todayPnlPercent,
+    this.spotEquity,
+    this.futuresEquity,
+    this.history = const [],
   });
 
   final String totalEquity;
-  final String todayPnl;
+
+  /// Null while the day has no snapshot yet (backend develop 5c2398cb).
+  final String? todayPnl;
   final String? todayPnlPercent;
+  final String? spotEquity;
+  final String? futuresEquity;
+
+  /// The start of each day asked for, oldest first.
+  final List<EquityPoint> history;
+}
+
+/// The worth at the start of a day, in UTC.
+@immutable
+class EquityPoint {
+  const EquityPoint({required this.date, required this.totalEquity});
+
+  final DateTime date;
+  final String totalEquity;
 }
 
 PaperEquity decodeEquity(Object? body) {
   final json = asJsonObject(body, 'equity');
+  final history = json['history'];
   return PaperEquity(
     totalEquity: _decimal(json, 'totalEquity'),
-    todayPnl: _decimal(json, 'todayPnl'),
+    todayPnl: _optionalDecimal(json, 'todayPnl'),
     todayPnlPercent: _optionalDecimal(json, 'todayPnlPercent'),
+    spotEquity: _optionalDecimal(json, 'spotEquity'),
+    futuresEquity: _optionalDecimal(json, 'futuresEquity'),
+    history: [
+      if (history != null)
+        for (final item in _listOf(history, 'equity history'))
+          () {
+            final point = asJsonObject(item, 'equity point');
+            final date = DateTime.tryParse(readString(point, 'date'));
+            if (date == null) throw const DecodeException('date');
+            return EquityPoint(
+              date: DateTime.utc(date.year, date.month, date.day),
+              totalEquity: _decimal(point, 'totalEquity'),
+            );
+          }(),
+    ],
   );
+}
+
+/// One coin of `GET /paper/spot/pnl`: what it cost and what it is worth;
+/// each figure null when the backend does not know it.
+@immutable
+class CoinPnl {
+  const CoinPnl({
+    required this.asset,
+    required this.quantity,
+    this.averageCost,
+    this.costBasis,
+    this.value,
+    this.unrealizedPnl,
+    this.unrealizedPnlPercent,
+  });
+
+  final String asset;
+  final String quantity;
+  final String? averageCost;
+  final String? costBasis;
+  final String? value;
+  final String? unrealizedPnl;
+  final String? unrealizedPnlPercent;
+}
+
+@immutable
+class SpotPnl {
+  const SpotPnl({
+    required this.coins,
+    required this.complete,
+    this.totalValue,
+    this.totalUnrealizedPnl,
+  });
+
+  final List<CoinPnl> coins;
+
+  /// False when some coin had no cost or price: the sums leave it out.
+  final bool complete;
+  final String? totalValue;
+  final String? totalUnrealizedPnl;
+
+  CoinPnl? of(String asset) => coins.where((c) => c.asset == asset).firstOrNull;
+}
+
+SpotPnl decodeSpotPnl(Object? body) {
+  final json = asJsonObject(body, 'spot pnl');
+  return SpotPnl(
+    coins: [
+      for (final item in _listOf(json['coins'], 'pnl coins'))
+        () {
+          final coin = asJsonObject(item, 'coin pnl');
+          return CoinPnl(
+            asset: readString(coin, 'asset'),
+            quantity: _decimal(coin, 'quantity'),
+            averageCost: _optionalDecimal(coin, 'averageCost'),
+            costBasis: _optionalDecimal(coin, 'costBasis'),
+            value: _optionalDecimal(coin, 'value'),
+            unrealizedPnl: _optionalDecimal(coin, 'unrealizedPnl'),
+            unrealizedPnlPercent: _optionalDecimal(
+              coin,
+              'unrealizedPnlPercent',
+            ),
+          );
+        }(),
+    ],
+    complete: readBool(json, 'complete'),
+    totalValue: _optionalDecimal(json, 'totalValue'),
+    totalUnrealizedPnl: _optionalDecimal(json, 'totalUnrealizedPnl'),
+  );
+}
+
+List<Object?> _listOf(Object? value, String what) {
+  if (value is List) return value;
+  throw DecodeException('$what is not a list');
 }
 
 /// When the account was opened (`PaperAccountResponse`).

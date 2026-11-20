@@ -63,6 +63,10 @@ enum RefusalKind {
   /// The margin mode cannot change with an open position or order.
   marginTypeLocked,
 
+  /// One-way and hedge mode switch only with no position and no order
+  /// open (T-123).
+  positionModeLocked,
+
   /// The account is being liquidated.
   inLiquidation,
 
@@ -128,6 +132,8 @@ PaperRefusal? paperRefusal(ApiFailure failure) {
       return const PaperRefusal(RefusalKind.leverageMargin);
     case 'PAPER_MARGIN_TYPE':
       return const PaperRefusal(RefusalKind.marginTypeLocked);
+    case 'PAPER_POSITION_MODE':
+      return const PaperRefusal(RefusalKind.positionModeLocked);
     case 'PAPER_USER_IN_LIQUIDATION':
       return const PaperRefusal(RefusalKind.inLiquidation);
     case 'PAPER_POSITION_MARGIN':

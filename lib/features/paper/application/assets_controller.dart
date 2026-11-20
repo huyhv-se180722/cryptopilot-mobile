@@ -10,6 +10,7 @@ import '../data/paper_api.dart';
 import '../data/paper_repository.dart';
 import '../domain/futures.dart';
 import '../domain/paper.dart';
+import 'assets_pnl_controller.dart';
 
 /// A coin is "small" below this value in USDT (plan 9.3).
 final smallBalance = Decimal.one;
@@ -115,7 +116,13 @@ class AssetsController extends Notifier<AssetsState> {
 
   /// Both wallets again (pull to refresh, after a transfer).
   Future<void> refresh() async {
-    await Future.wait([ref.read(paperAccountProvider.notifier).load(), load()]);
+    await Future.wait([
+      ref.read(paperAccountProvider.notifier).load(),
+      load(),
+      // The Spot PnL and the equity history, while Assets shows them.
+      if (ref.exists(assetsPnlProvider))
+        ref.read(assetsPnlProvider.notifier).load(),
+    ]);
   }
 
   Future<void> toggleHideBalances() async {

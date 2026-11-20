@@ -1566,6 +1566,27 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tradeKindLimitTpSl => 'Limit TP/SL';
 
   @override
+  String get tradeKindPostOnly => 'Post-only';
+
+  @override
+  String get tradeKindOto => 'OTO';
+
+  @override
+  String get tradeTrailing => 'Trailing % (optional)';
+
+  @override
+  String get tradePendingPrice => 'Then the other way at';
+
+  @override
+  String get tradeTifGtc => 'GTC · good till cancelled';
+
+  @override
+  String get tradeTifIoc => 'IOC · fill now, cancel the rest';
+
+  @override
+  String get tradeTifFok => 'FOK · fill all now or cancel';
+
+  @override
   String get tradePrice => 'Price';
 
   @override
@@ -1772,6 +1793,37 @@ class AppLocalizationsEn extends AppLocalizations {
   String get assetsTradeDemo => 'Trade (demo)';
 
   @override
+  String get assetsEquity => 'Equity';
+
+  @override
+  String assetsEquityDays(int days) {
+    return '${days}D';
+  }
+
+  @override
+  String assetsEquityChart(int days) {
+    return 'Demo account equity, last $days days';
+  }
+
+  @override
+  String get assetsEquityEmpty =>
+      'The equity history starts after the first day.';
+
+  @override
+  String assetsCoinPnl(String cost, String pnl) {
+    return 'Avg cost $cost · PnL $pnl';
+  }
+
+  @override
+  String assetsSpotUpnl(String amount) {
+    return 'Spot unrealized PnL $amount USDT';
+  }
+
+  @override
+  String get assetsPnlIncomplete =>
+      'Some coins have no cost or price yet; the totals leave them out.';
+
+  @override
   String get assetsFuturesPnl => 'Unrealized PnL';
 
   @override
@@ -1829,6 +1881,35 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get historyTransfers => 'Transfers';
+
+  @override
+  String get futHistPositions => 'Positions';
+
+  @override
+  String get futHistIncome => 'Income';
+
+  @override
+  String get futHistConditional => 'Conditional';
+
+  @override
+  String get futHistLiquidations => 'Liquidations';
+
+  @override
+  String get futHistMargin => 'Margin';
+
+  @override
+  String get futHistAllPairs => 'All pairs';
+
+  @override
+  String get futHistAdded => 'Added';
+
+  @override
+  String get futHistReduced => 'Reduced';
+
+  @override
+  String futHistClosed(String quantity) {
+    return 'Closed $quantity';
+  }
 
   @override
   String get historyAll => 'All';
@@ -1896,6 +1977,38 @@ class AppLocalizationsEn extends AppLocalizations {
       'The margin mode cannot change while a position or an order is open.';
 
   @override
+  String get paperErrPositionModeLocked =>
+      'Close every Futures position and cancel every order to change the position mode.';
+
+  @override
+  String get futModeOneWay => 'One-way';
+
+  @override
+  String get futModeHedge => 'Hedge';
+
+  @override
+  String get futModeTitle => 'Position mode';
+
+  @override
+  String get futModeOneWayHint => 'One position per pair, Long or Short.';
+
+  @override
+  String get futModeHedgeHint =>
+      'A Long and a Short position per pair at once.';
+
+  @override
+  String get futOpen => 'Open';
+
+  @override
+  String get futCloseTab => 'Close';
+
+  @override
+  String get futCloseLong => 'Close Long';
+
+  @override
+  String get futCloseShort => 'Close Short';
+
+  @override
   String get paperErrInLiquidation =>
       'The account is being liquidated. Try again in a moment.';
 
@@ -1948,6 +2061,116 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get futKindTakeProfitMarket => 'Take Profit Market';
+
+  @override
+  String get futKindTrailingStop => 'Trailing Stop';
+
+  @override
+  String get futCallback => 'Callback %';
+
+  @override
+  String get futActivation => 'Activation price (optional)';
+
+  @override
+  String get futErrCallback => 'Enter 0.1 to 20.';
+
+  @override
+  String get futTifGtx => 'GTX · post-only';
+
+  @override
+  String get futTifGtd => 'GTD · good till a date';
+
+  @override
+  String get futGtdHour => '1 hour';
+
+  @override
+  String get futGtdDay => '1 day';
+
+  @override
+  String get futGtdWeek => '7 days';
+
+  @override
+  String get futAmend => 'Edit';
+
+  @override
+  String get calcOpen => 'Calculator';
+
+  @override
+  String calcTitle(String symbol) {
+    return '$symbol calculator';
+  }
+
+  @override
+  String get calcPnl => 'PnL';
+
+  @override
+  String get calcTarget => 'Target price';
+
+  @override
+  String get calcLiquidation => 'Liquidation price';
+
+  @override
+  String get calcMaxOpen => 'Max open';
+
+  @override
+  String get calcOpenPrice => 'Open price';
+
+  @override
+  String get calcEntry => 'Entry price';
+
+  @override
+  String get calcExit => 'Exit price';
+
+  @override
+  String get calcRoe => 'ROE % (negative for a loss)';
+
+  @override
+  String get calcWallet => 'Wallet balance (USDT)';
+
+  @override
+  String get calcWalletIsolated => 'Isolated margin (USDT, optional)';
+
+  @override
+  String get calcAddLot => 'Add a part';
+
+  @override
+  String get calcRemoveLot => 'Remove this part';
+
+  @override
+  String get calcLotsMissing => 'Enter at least one price and quantity.';
+
+  @override
+  String get calcCalculate => 'Calculate';
+
+  @override
+  String get calcInitialMargin => 'Initial margin';
+
+  @override
+  String get calcPnlResult => 'PnL (USDT)';
+
+  @override
+  String get calcRoeResult => 'ROE';
+
+  @override
+  String get calcTargetResult => 'Target price';
+
+  @override
+  String get calcLiquidationResult => 'Liquidation price';
+
+  @override
+  String get calcMaxQuantity => 'Max quantity';
+
+  @override
+  String get calcMaxNotional => 'Max value (USDT)';
+
+  @override
+  String get calcOpenPriceResult => 'Average open price';
+
+  @override
+  String get calcTotalQuantity => 'Total quantity';
+
+  @override
+  String get futAmendTitle => 'Edit the demo order';
 
   @override
   String get futTrigger => 'Trigger price';

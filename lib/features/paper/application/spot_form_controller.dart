@@ -11,10 +11,38 @@ import '../domain/paper.dart';
 import '../domain/paper_refusal.dart';
 
 /// The Spot order kinds of the first version (D-154 (2)).
-enum SpotKind { limit, market, stopLimit, stopMarket, oco, limitTpSl }
+/// The second-version kinds (T-123, plan 9.4) come last: post-only
+/// (`LIMIT_MAKER`) and OTO (a limit, then a limit the other way once it
+/// filled).
+enum SpotKind {
+  limit,
+  market,
+  stopLimit,
+  stopMarket,
+  oco,
+  limitTpSl,
+  postOnly,
+  oto;
+
+  /// The kinds that take a time in force (GTC, IOC, FOK).
+  bool get timed => this == limit || this == stopLimit;
+}
 
 /// The inputs of the form; a refusal is shown under its field.
-enum SpotField { price, amount, total, stop, takeProfit, stopLimit }
+enum SpotField {
+  price,
+  amount,
+  total,
+  stop,
+  takeProfit,
+  stopLimit,
+
+  /// Optional on a stop: the trailing distance in percent (T-123).
+  trailing,
+
+  /// OTO: the price of the limit placed once the first one filled.
+  pendingPrice,
+}
 
 /// Why a field cannot go yet, found on the phone before the server.
 enum InputIssue { required, notPositive, offStep, stopSide, takeProfitSide }
@@ -43,9 +71,13 @@ class SpotInputs {
     this.stop = '',
     this.takeProfit = '',
     this.stopLimit = '',
+    this.trailing = '',
+    this.pendingPrice = '',
     this.byTotal = false,
   });
 
+  final String trailing;
+  final String pendingPrice;
   final String price;
   final String amount;
 
@@ -66,6 +98,8 @@ class SpotInputs {
     SpotField.stop => stop,
     SpotField.takeProfit => takeProfit,
     SpotField.stopLimit => stopLimit,
+    SpotField.trailing => trailing,
+    SpotField.pendingPrice => pendingPrice,
   };
 
   SpotInputs set(SpotField field, String value) => SpotInputs(
@@ -75,6 +109,8 @@ class SpotInputs {
     stop: field == SpotField.stop ? value : stop,
     takeProfit: field == SpotField.takeProfit ? value : takeProfit,
     stopLimit: field == SpotField.stopLimit ? value : stopLimit,
+    trailing: field == SpotField.trailing ? value : trailing,
+    pendingPrice: field == SpotField.pendingPrice ? value : pendingPrice,
     byTotal: byTotal,
   );
 
@@ -85,6 +121,8 @@ class SpotInputs {
     stop: stop,
     takeProfit: takeProfit,
     stopLimit: stopLimit,
+    trailing: trailing,
+    pendingPrice: pendingPrice,
     byTotal: value,
   );
 
@@ -104,8 +142,11 @@ class SpotFormState {
     this.failure,
     this.submitting = false,
     this.placed = 0,
+    this.timeInForce = SpotTimeInForce.gtc,
   });
 
+  /// Limit and Stop Limit only ([SpotKind.timed]).
+  final SpotTimeInForce timeInForce;
   final OrderSide side;
   final SpotKind kind;
   final SpotInputs buy;
@@ -132,8 +173,19 @@ class SpotFormState {
       SpotField.stop,
       SpotField.price,
       SpotField.amount,
+      SpotField.trailing,
     ],
-    SpotKind.stopMarket => const [SpotField.stop, SpotField.amount],
+    SpotKind.stopMarket => const [
+      SpotField.stop,
+      SpotField.amount,
+      SpotField.trailing,
+    ],
+    SpotKind.postOnly => const [SpotField.price, SpotField.amount],
+    SpotKind.oto => const [
+      SpotField.price,
+      SpotField.amount,
+      SpotField.pendingPrice,
+    ],
     SpotKind.oco => const [
       SpotField.takeProfit,
       SpotField.stop,
@@ -160,7 +212,9 @@ class SpotFormState {
     bool clearOutcome = false,
     bool? submitting,
     int? placed,
+    SpotTimeInForce? timeInForce,
   }) => SpotFormState(
+    timeInForce: timeInForce ?? this.timeInForce,
     side: side ?? this.side,
     kind: kind ?? this.kind,
     buy: buy ?? this.buy,
@@ -211,6 +265,18 @@ class SpotFormController extends Notifier<SpotFormState> {
   }
 
   void setByTotal(bool byTotal) => _update(state.inputs.withByTotal(byTotal));
+
+  void setTimeInForce(SpotTimeInForce value) {
+    _pendingKey = null;
+    state = state.copyWith(timeInForce: value, clearOutcome: true);
+  }
+
+  /// The trailing percent as basis points (1 % = 100); null when empty.
+  int? _trailingDelta() {
+    final value = Decimal.tryParse(state.inputs.trailing);
+    if (value == null) return null;
+    return (value * Decimal.fromInt(100)).toBigInt().toInt();
+  }
 
   void edit(SpotField field, String value) {
     _pendingKey = null;
@@ -274,7 +340,7 @@ class SpotFormController extends Notifier<SpotFormState> {
     for (final field in state.fields) {
       final text = inputs.of(field);
       if (text.isEmpty) {
-        if (field != SpotField.stopLimit) {
+        if (field != SpotField.stopLimit && field != SpotField.trailing) {
           errors[field] = const FieldError.issue(InputIssue.required);
         }
         continue;
@@ -287,6 +353,8 @@ class SpotFormController extends Notifier<SpotFormState> {
       final step = switch (field) {
         SpotField.amount => pair.stepSize,
         SpotField.total => '0.00000001',
+        // Whole basis points: a percent with at most two decimals.
+        SpotField.trailing => '0.01',
         _ => pair.tickSize,
       };
       if (!_onStep(value, step)) {
@@ -382,6 +450,30 @@ class SpotFormController extends Notifier<SpotFormState> {
                   listClientOrderId: key,
                 ),
               ),
+        SpotKind.oto =>
+          await ref
+              .read(paperApiProvider)
+              .placeOto(
+                SpotOtoRequest(
+                  pairId: pair.pairId,
+                  working: SpotLeg(
+                    side: state.side,
+                    type: SpotOrderType.limit,
+                    price: inputs.price,
+                    quantity: inputs.amount,
+                  ),
+                  // The way back: the other side, at its own price.
+                  pending: SpotLeg(
+                    side: state.side == OrderSide.buy
+                        ? OrderSide.sell
+                        : OrderSide.buy,
+                    type: SpotOrderType.limit,
+                    price: inputs.pendingPrice,
+                    quantity: inputs.amount,
+                  ),
+                  listClientOrderId: key,
+                ),
+              ),
         _ => [await ref.read(paperApiProvider).placeOrder(_single(pair, key))],
       };
       _pendingKey = null;
@@ -422,6 +514,8 @@ class SpotFormController extends Notifier<SpotFormState> {
         price: inputs.price,
         quantity: inputs.amount,
         stopPrice: inputs.stop,
+        timeInForce: state.timeInForce,
+        trailingDelta: _trailingDelta(),
         clientOrderId: key,
       ),
       SpotKind.stopMarket => SpotOrderRequest(
@@ -430,6 +524,15 @@ class SpotFormController extends Notifier<SpotFormState> {
         type: _stopType(Decimal.parse(inputs.stop), limit: false),
         quantity: inputs.amount,
         stopPrice: inputs.stop,
+        trailingDelta: _trailingDelta(),
+        clientOrderId: key,
+      ),
+      SpotKind.postOnly => SpotOrderRequest(
+        pairId: pair.pairId,
+        side: side,
+        type: SpotOrderType.limitMaker,
+        price: inputs.price,
+        quantity: inputs.amount,
         clientOrderId: key,
       ),
       _ => SpotOrderRequest(
@@ -438,6 +541,7 @@ class SpotFormController extends Notifier<SpotFormState> {
         type: SpotOrderType.limit,
         price: inputs.price,
         quantity: inputs.amount,
+        timeInForce: state.timeInForce,
         clientOrderId: key,
       ),
     };
@@ -454,6 +558,9 @@ class SpotFormController extends Notifier<SpotFormState> {
     'oco.takeProfitPrice': SpotField.takeProfit,
     'oco.stopPrice': SpotField.stop,
     'oco.stopLimitPrice': SpotField.stopLimit,
+    'trailingDelta': SpotField.trailing,
+    'pending.price': SpotField.pendingPrice,
+    'pending.quantity': SpotField.amount,
   };
 
   void _refused(ApiFailure failure) {

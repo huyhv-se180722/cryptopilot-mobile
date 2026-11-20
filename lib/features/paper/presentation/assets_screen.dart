@@ -7,7 +7,11 @@ import '../../../core/errors/message_text.dart';
 import '../../../core/format/decimal_format.dart';
 import '../../../core/i18n/app_localizations.dart';
 import '../../../core/theme/cp_colors.dart';
+import '../../chart/presentation/metric_chart.dart';
+import '../../chart/presentation/metric_surface.dart';
 import '../application/assets_controller.dart';
+import '../application/assets_pnl_controller.dart';
+import '../application/futures_history_controller.dart';
 import '../application/trade_controller.dart';
 import '../data/futures_repository.dart';
 import '../data/paper_repository.dart';
@@ -50,6 +54,7 @@ class AssetsScreen extends ConsumerWidget {
       body = const Center(child: CircularProgressIndicator());
     } else {
       final coins = shownCoins(spot, hideSmall: assets.hideSmall);
+      final pnl = ref.watch(assetsPnlProvider.select((s) => s.pnl));
       body = RefreshIndicator(
         onRefresh: controller.refresh,
         child: ListView(
@@ -104,7 +109,12 @@ class AssetsScreen extends ConsumerWidget {
                 ),
                 OutlinedButton.icon(
                   key: const Key('assets-history'),
-                  onPressed: () => context.push('/assets/history'),
+                  onPressed: () {
+                    ref
+                        .read(historyFuturesProvider.notifier)
+                        .show(futures: false);
+                    context.push('/assets/history');
+                  },
                   icon: const Icon(Icons.history),
                   label: Text(l.assetsHistory),
                 ),
@@ -140,9 +150,19 @@ class AssetsScreen extends ConsumerWidget {
                 key: Key('coin-${coin.asset}'),
                 contentPadding: EdgeInsets.zero,
                 title: Text(coin.asset),
-                subtitle: Text(
-                  '${l.assetsFree(money(coin.free, places: 8))} · '
-                  '${l.assetsLocked(money(coin.locked, places: 8))}',
+                subtitle: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '${l.assetsFree(money(coin.free, places: 8))} · '
+                      '${l.assetsLocked(money(coin.locked, places: 8))}',
+                    ),
+                    if (coin.asset != 'USDT')
+                      _CoinPnlLine(
+                        pnl: pnl?.of(coin.asset),
+                        hidden: assets.hideBalances,
+                      ),
+                  ],
                 ),
                 trailing: coin.asset == 'USDT'
                     ? Text(money(coin.total))
@@ -164,6 +184,17 @@ class AssetsScreen extends ConsumerWidget {
             Row(
               children: [
                 Expanded(child: Text(l.assetsFutures, style: text.titleMedium)),
+                IconButton(
+                  key: const Key('assets-futures-history'),
+                  tooltip: l.assetsHistory,
+                  icon: const Icon(Icons.history),
+                  onPressed: () {
+                    ref
+                        .read(historyFuturesProvider.notifier)
+                        .show(futures: true);
+                    context.push('/assets/history');
+                  },
+                ),
                 TextButton(
                   key: const Key('assets-trade-futures'),
                   onPressed: () {
@@ -185,6 +216,8 @@ class AssetsScreen extends ConsumerWidget {
               ),
             ),
             _FuturesAccountRows(money: money),
+            const Divider(height: 32),
+            _EquityCard(hidden: assets.hideBalances),
           ],
         ),
       );
@@ -208,6 +241,145 @@ class AssetsScreen extends ConsumerWidget {
           Expanded(child: body),
         ],
       ),
+    );
+  }
+}
+
+/// A coin's average cost and unrealised PnL with its percent (plan 9.3);
+/// a dash where the backend does not know a figure.
+class _CoinPnlLine extends StatelessWidget {
+  const _CoinPnlLine({required this.pnl, required this.hidden});
+
+  final CoinPnl? pnl;
+  final bool hidden;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final pnl = this.pnl;
+    if (pnl == null) return const SizedBox.shrink();
+    final upnl = pnl.unrealizedPnl;
+    final percent = pnl.unrealizedPnlPercent;
+    String signed(String value) =>
+        '${value.startsWith('-') ? '' : '+'}${formatDecimal(value, 2)}';
+    final text = hidden
+        ? l.assetsCoinPnl(l.assetsHidden, l.assetsHidden)
+        : l.assetsCoinPnl(
+            pnl.averageCost == null ? '--' : groupThousands(pnl.averageCost!),
+            upnl == null
+                ? '--'
+                : percent == null
+                ? signed(upnl)
+                : '${signed(upnl)} (${signed(percent)}%)',
+          );
+    final color = hidden || upnl == null
+        ? context.cp.muted
+        : switch (directionOf(upnl)) {
+            Direction.up => context.cp.positive,
+            Direction.down => context.cp.negative,
+            Direction.flat => context.cp.muted,
+          };
+    return Text(
+      text,
+      key: Key('coin-pnl-${pnl.asset}'),
+      style: TextStyle(color: color),
+    );
+  }
+}
+
+/// The account's worth over the last 7, 30 or 90 days (plan 9.3), drawn
+/// with the SCR-11 metric chart; the amounts follow the eye switch.
+class _EquityCard extends ConsumerWidget {
+  const _EquityCard({required this.hidden});
+
+  final bool hidden;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context);
+    final state = ref.watch(assetsPnlProvider);
+    final controller = ref.read(assetsPnlProvider.notifier);
+    final equity = state.equity;
+    final history = equity?.history ?? const <EquityPoint>[];
+    final small = Theme.of(context).textTheme.bodySmall;
+    final Widget? cover;
+    if (hidden) {
+      cover = Text(l.assetsHidden);
+    } else if (equity == null && state.equityFailure != null) {
+      cover = Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            failureText(l, state.equityFailure!),
+            textAlign: TextAlign.center,
+          ),
+          TextButton(
+            onPressed: controller.loadEquity,
+            child: Text(l.commonRetry),
+          ),
+        ],
+      );
+    } else if (equity == null) {
+      cover = const CircularProgressIndicator();
+    } else if (history.length < 2) {
+      cover = Text(l.assetsEquityEmpty, textAlign: TextAlign.center);
+    } else {
+      cover = null;
+    }
+    return Column(
+      key: const Key('assets-equity'),
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                l.assetsEquity,
+                style: Theme.of(context).textTheme.titleSmall,
+              ),
+            ),
+            for (final days in equityPeriods)
+              Padding(
+                padding: const EdgeInsets.only(left: 4),
+                child: ChoiceChip(
+                  key: Key('equity-$days'),
+                  label: Text(l.assetsEquityDays(days)),
+                  selected: state.days == days,
+                  visualDensity: VisualDensity.compact,
+                  onSelected: (_) => controller.selectDays(days),
+                ),
+              ),
+          ],
+        ),
+        const SizedBox(height: 6),
+        MetricChart(
+          lines: [
+            if (!hidden && history.length >= 2)
+              MetricLine(
+                color: Theme.of(context).colorScheme.primary,
+                scale: MetricScale.right,
+                format: MetricFormat.amount,
+                points: [for (final p in history) (p.date, p.totalEquity)],
+              ),
+          ],
+          label: l.assetsEquityChart(state.days),
+          cover: cover == null ? null : Center(child: cover),
+        ),
+        if (!hidden && state.pnl?.totalUnrealizedPnl != null)
+          Padding(
+            padding: const EdgeInsets.only(top: 4),
+            child: Text(
+              l.assetsSpotUpnl(
+                '${state.pnl!.totalUnrealizedPnl!.startsWith('-') ? '' : '+'}'
+                '${formatDecimal(state.pnl!.totalUnrealizedPnl, 2)}',
+              ),
+              key: const Key('assets-spot-upnl'),
+              style: small,
+            ),
+          ),
+        if (!hidden && state.pnl != null && !state.pnl!.complete)
+          Text(l.assetsPnlIncomplete, style: small),
+      ],
     );
   }
 }

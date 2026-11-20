@@ -40,6 +40,9 @@ abstract interface class PaperApi {
   /// The orders of the placed group.
   Future<List<PaperOrder>> placeOrderList(SpotOrderListRequest request);
 
+  /// An OTO (T-123): the working order now, the pending one once it filled.
+  Future<List<PaperOrder>> placeOto(SpotOtoRequest request);
+
   /// 409 MSG43 (`PAPER_ORDER_NOT_OPEN`) for an order that has finished.
   Future<PaperOrder> cancelOrder(String orderId);
 
@@ -68,8 +71,12 @@ abstract interface class PaperApi {
     int pageSize = 20,
   });
 
-  /// Spot plus Futures and today's PnL; 404 MSG41 before the account opens.
-  Future<PaperEquity> equity();
+  /// Spot plus Futures and today's PnL, with the start of each of the last
+  /// [days] (1 to 365); 404 MSG41 before the account opens.
+  Future<PaperEquity> equity({int days = 1});
+
+  /// Each Spot coin's average cost and unrealised PnL (TR-13, T-123).
+  Future<SpotPnl> spotPnl();
 }
 
 class DioPaperApi implements PaperApi {
@@ -154,6 +161,12 @@ class DioPaperApi implements PaperApi {
       );
 
   @override
+  Future<List<PaperOrder>> placeOto(SpotOtoRequest request) => apiCall(
+    () => _dio.post<Object?>('paper/order-lists', data: request.toJson()),
+    decodeOrderList,
+  );
+
+  @override
   Future<PaperOrder> cancelOrder(String orderId) => apiCall(
     () => _dio.post<Object?>('paper/orders/$orderId/cancel'),
     decodeOrder,
@@ -228,10 +241,14 @@ class DioPaperApi implements PaperApi {
   );
 
   @override
-  Future<PaperEquity> equity() => apiCall(
-    () => _dio.get<Object?>('paper/equity', queryParameters: {'days': 1}),
+  Future<PaperEquity> equity({int days = 1}) => apiCall(
+    () => _dio.get<Object?>('paper/equity', queryParameters: {'days': days}),
     decodeEquity,
   );
+
+  @override
+  Future<SpotPnl> spotPnl() =>
+      apiCall(() => _dio.get<Object?>('paper/spot/pnl'), decodeSpotPnl);
 }
 
 final paperApiProvider = Provider<PaperApi>(

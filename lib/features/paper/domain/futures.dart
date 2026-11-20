@@ -327,6 +327,19 @@ class MarginCall {
 }
 
 /// A Futures order to place, or to ask the warnings of (`FuturesOrderRequest`).
+/// How long a Futures limit works (T-123): GTC, IOC, FOK, GTX (post-only)
+/// or GTD (until its `goodTillDate`, more than 600 s ahead).
+enum FuturesTimeInForce {
+  gtc('GTC'),
+  ioc('IOC'),
+  fok('FOK'),
+  gtx('GTX'),
+  gtd('GTD');
+
+  const FuturesTimeInForce(this.wire);
+  final String wire;
+}
+
 @immutable
 class FuturesOrderRequest {
   const FuturesOrderRequest({
@@ -341,7 +354,15 @@ class FuturesOrderRequest {
     this.takeProfitPrice,
     this.stopLossPrice,
     this.tpSlWorking = WorkingType.last,
+    this.timeInForce = FuturesTimeInForce.gtc,
+    this.goodTillDate,
   });
+
+  /// LIMIT only.
+  final FuturesTimeInForce timeInForce;
+
+  /// GTD only: when it expires.
+  final DateTime? goodTillDate;
 
   final String symbol;
   final OrderSide side;
@@ -362,7 +383,9 @@ class FuturesOrderRequest {
     'side': side.wire,
     'positionSide': positionSide.wire,
     'type': type,
-    if (type == 'LIMIT') 'timeInForce': 'GTC',
+    if (type == 'LIMIT') 'timeInForce': timeInForce.wire,
+    if (type == 'LIMIT' && timeInForce == FuturesTimeInForce.gtd)
+      'goodTillDate': ?goodTillDate?.toUtc().toIso8601String(),
     'quantity': quantity,
     'price': ?price,
     if (reduceOnly) 'reduceOnly': true,
@@ -389,15 +412,25 @@ class AlgoOrderRequest {
     this.price,
     this.reduceOnly = false,
     this.closePosition = false,
+    this.callbackRate,
+    this.activatePrice,
   });
+
+  /// TRAILING_STOP_MARKET only (TR-21): the pull-back in percent, 0.1 to
+  /// 20, and where it starts to follow (now when absent).
+  final String? callbackRate;
+  final String? activatePrice;
 
   final String symbol;
   final OrderSide side;
   final PositionSide positionSide;
 
-  /// STOP, TAKE_PROFIT (with [price]), STOP_MARKET or TAKE_PROFIT_MARKET.
+  /// STOP, TAKE_PROFIT (with [price]), STOP_MARKET, TAKE_PROFIT_MARKET or
+  /// TRAILING_STOP_MARKET.
   final String type;
-  final String triggerPrice;
+
+  /// Null for a trailing stop.
+  final String? triggerPrice;
   final WorkingType working;
   final String? quantity;
   final String? price;
@@ -416,11 +449,44 @@ class AlgoOrderRequest {
     if (price != null) 'timeInForce': 'GTC',
     'quantity': ?quantity,
     'price': ?price,
-    'triggerPrice': triggerPrice,
+    'triggerPrice': ?triggerPrice,
     'workingType': working.wire,
     if (reduceOnly) 'reduceOnly': true,
     if (closePosition) 'closePosition': true,
+    'activatePrice': ?activatePrice,
+    'callbackRate': ?callbackRate,
     'clientAlgoId': clientAlgoId,
+  };
+}
+
+/// `FuturesPositionModeResponse`: true in hedge mode.
+bool decodePositionMode(Object? body) =>
+    readBool(asJsonObject(body, 'position mode'), 'dualSidePosition');
+
+/// A new price and quantity for a Limit still open (`PUT /futures/order`,
+/// T-123); a quantity at most what executed cancels the order.
+@immutable
+class FuturesAmendRequest {
+  const FuturesAmendRequest({
+    required this.symbol,
+    required this.orderId,
+    required this.side,
+    required this.quantity,
+    required this.price,
+  });
+
+  final String symbol;
+  final String orderId;
+  final OrderSide side;
+  final String quantity;
+  final String price;
+
+  Map<String, Object?> toJson() => {
+    'symbol': symbol,
+    'orderId': orderId,
+    'side': side.wire,
+    'quantity': quantity,
+    'price': price,
   };
 }
 
