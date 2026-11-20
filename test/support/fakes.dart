@@ -20,6 +20,7 @@ import 'package:cryptopilot_mobile/features/auth/data/auth_api.dart';
 import 'package:cryptopilot_mobile/features/journal/data/performance_api.dart';
 import 'package:cryptopilot_mobile/features/journal/domain/performance.dart';
 import 'package:cryptopilot_mobile/features/market/data/market_api.dart';
+import 'package:cryptopilot_mobile/features/market/domain/coin_market.dart';
 import 'package:cryptopilot_mobile/features/market/domain/candle.dart';
 import 'package:cryptopilot_mobile/features/market/domain/market.dart';
 import 'package:cryptopilot_mobile/features/market/domain/order_book.dart';
@@ -387,6 +388,31 @@ class FakeMarketApi implements MarketApi {
 
   /// While set, `pairs()` waits for it (the loading state).
   Future<void>? hold;
+
+  @override
+  Future<MarketOverview> overview() async {
+    overviewCalls++;
+    if (overviewError case final error?) throw error;
+    return overviewValue;
+  }
+
+  int overviewCalls = 0;
+  Object? overviewError;
+  MarketOverview overviewValue = MarketOverview(
+    asOf: DateTime.utc(2026, 11, 20),
+    global: const GlobalMarket(
+      marketCapUsd: '2614000000000',
+      marketCapChange24hPercent: '-1.84',
+      volume24hUsd: '98400000000',
+      bitcoinDominancePercent: '58.21',
+    ),
+    fearGreed: const FearGreed(value: 22, classification: 'Extreme Fear'),
+    altcoinSeason: const AltcoinSeason(index: 31, altcoins: 9, days: 90),
+    openInterest: const OpenInterest(
+      valueUsd: '41200000000',
+      change24hPercent: '3.10',
+    ),
+  );
 
   @override
   Future<List<MarketPair>> pairs(Market market) async {

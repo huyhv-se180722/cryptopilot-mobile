@@ -5,6 +5,7 @@ import '../../../core/errors/api_failure.dart';
 import '../../../core/http/http_providers.dart';
 import '../../../core/json/json_read.dart';
 import '../domain/candle.dart';
+import '../domain/coin_market.dart';
 import '../domain/market.dart';
 import '../domain/order_book.dart';
 
@@ -13,6 +14,10 @@ import '../domain/order_book.dart';
 abstract interface class MarketApi {
   /// Enabled pairs of [market] in the administrator's display order.
   Future<List<MarketPair>> pairs(Market market);
+
+  /// The whole market's figures above the lists (`GET /market/coins`,
+  /// A-65); a figure not known is absent.
+  Future<MarketOverview> overview();
 
   /// One pair's REST snapshot, for the Delayed fallback (Q-65).
   Future<Ticker> stats(Market market, String symbol);
@@ -42,6 +47,10 @@ class DioMarketApi implements MarketApi {
   const DioMarketApi(this._dio);
 
   final Dio _dio;
+
+  @override
+  Future<MarketOverview> overview() =>
+      apiCall(() => _dio.get<Object?>('market/coins'), decodeMarketOverview);
 
   @override
   Future<List<MarketPair>> pairs(Market market) => apiCall(
