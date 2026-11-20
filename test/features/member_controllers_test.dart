@@ -133,4 +133,17 @@ void main() {
       'add p1 "Hi @An" parent=null mentions=u0,u1,u2,u3,u4,u5,u6,u7,u8,u9',
     );
   });
+
+  test('an administrator is neither followed nor blocked: no error, the '
+      'buttons go (Q-98)', () async {
+    container.listen(memberProvider('u1'), (_, _) {});
+    await settle();
+    api.failNext['follow'] = problem(409, 'RELATION_NOT_ALLOWED', 'MSG43');
+    expect(await ctl().toggleFollow(), isNull);
+    expect(member().profile!.followedByMe, isFalse);
+    expect(member().profile!.followers, 12);
+    expect(member().relationsAllowed, isFalse);
+    await ctl().load();
+    expect(member().relationsAllowed, isFalse);
+  });
 }
