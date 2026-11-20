@@ -2092,6 +2092,12 @@ abstract class AppLocalizations {
   /// **'Ask anything about trading…'**
   String get aiPlaceholderGeneral;
 
+  /// No description provided for @aiPlaceholderNoPair.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask about a coin…'**
+  String get aiPlaceholderNoPair;
+
   /// No description provided for @aiPlaceholderPair.
   ///
   /// In en, this message translates to:

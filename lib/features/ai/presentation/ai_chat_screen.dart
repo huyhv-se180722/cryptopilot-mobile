@@ -529,7 +529,8 @@ class _Composer extends ConsumerWidget {
         !state.waiting;
     final symbol = contextSymbol(ref, context0);
     final hint = switch (context0.topic) {
-      ConversationTopic.market => l.aiPlaceholderPair(symbol ?? '…'),
+      ConversationTopic.market =>
+        symbol == null ? l.aiPlaceholderNoPair : l.aiPlaceholderPair(symbol),
       ConversationTopic.myTrading => l.aiPlaceholderMine,
       ConversationTopic.general => l.aiPlaceholderGeneral,
     };
