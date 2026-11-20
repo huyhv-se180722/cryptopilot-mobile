@@ -1558,6 +1558,732 @@ abstract class AppLocalizations {
   /// **'Done'**
   String get aiDone;
 
+  /// No description provided for @planJournalEntry.
+  ///
+  /// In en, this message translates to:
+  /// **'Journal entry'**
+  String get planJournalEntry;
+
+  /// No description provided for @planMarkPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark price'**
+  String get planMarkPrice;
+
+  /// No description provided for @journalPair.
+  ///
+  /// In en, this message translates to:
+  /// **'Pair'**
+  String get journalPair;
+
+  /// No description provided for @planTabPositions.
+  ///
+  /// In en, this message translates to:
+  /// **'Positions'**
+  String get planTabPositions;
+
+  /// No description provided for @planTabActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get planTabActive;
+
+  /// No description provided for @planTabHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'History'**
+  String get planTabHistory;
+
+  /// No description provided for @planTabJournal.
+  ///
+  /// In en, this message translates to:
+  /// **'Journal'**
+  String get planTabJournal;
+
+  /// No description provided for @planCreateOnWeb.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a plan on the web'**
+  String get planCreateOnWeb;
+
+  /// No description provided for @planDrafts.
+  ///
+  /// In en, this message translates to:
+  /// **'Drafts'**
+  String get planDrafts;
+
+  /// No description provided for @planEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing here yet.'**
+  String get planEmpty;
+
+  /// No description provided for @planEmptyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Plans are created on the web; they show here once saved.'**
+  String get planEmptyHint;
+
+  /// No description provided for @planHistoryExecuted.
+  ///
+  /// In en, this message translates to:
+  /// **'Executed'**
+  String get planHistoryExecuted;
+
+  /// No description provided for @planHistoryCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled · Expired'**
+  String get planHistoryCancelled;
+
+  /// No description provided for @planPositionOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'OPEN'**
+  String get planPositionOpen;
+
+  /// No description provided for @planPositionClosed.
+  ///
+  /// In en, this message translates to:
+  /// **'CLOSED'**
+  String get planPositionClosed;
+
+  /// No description provided for @planLong.
+  ///
+  /// In en, this message translates to:
+  /// **'LONG'**
+  String get planLong;
+
+  /// No description provided for @planShort.
+  ///
+  /// In en, this message translates to:
+  /// **'SHORT'**
+  String get planShort;
+
+  /// No description provided for @planEntry.
+  ///
+  /// In en, this message translates to:
+  /// **'Entry'**
+  String get planEntry;
+
+  /// No description provided for @planStopLoss.
+  ///
+  /// In en, this message translates to:
+  /// **'SL'**
+  String get planStopLoss;
+
+  /// No description provided for @planTakeProfit.
+  ///
+  /// In en, this message translates to:
+  /// **'TP'**
+  String get planTakeProfit;
+
+  /// No description provided for @planDetailTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Trading plan'**
+  String get planDetailTitle;
+
+  /// No description provided for @planEditOnWeb.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit on the web'**
+  String get planEditOnWeb;
+
+  /// No description provided for @planSimulatedPosition.
+  ///
+  /// In en, this message translates to:
+  /// **'Simulated position'**
+  String get planSimulatedPosition;
+
+  /// No description provided for @planInvalidTakeProfit.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalidated: take profit reached before the entry'**
+  String get planInvalidTakeProfit;
+
+  /// No description provided for @planInvalidStopLoss.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalidated: stop loss reached before the entry'**
+  String get planInvalidStopLoss;
+
+  /// No description provided for @planInvalidPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalidated: the invalidation price was reached'**
+  String get planInvalidPrice;
+
+  /// No description provided for @planUnrealized.
+  ///
+  /// In en, this message translates to:
+  /// **'Unrealized P/L'**
+  String get planUnrealized;
+
+  /// No description provided for @planUnrealizedHint.
+  ///
+  /// In en, this message translates to:
+  /// **'By the current price; fees and funding not included.'**
+  String get planUnrealizedHint;
+
+  /// No description provided for @planNetPnl.
+  ///
+  /// In en, this message translates to:
+  /// **'Net P/L'**
+  String get planNetPnl;
+
+  /// No description provided for @planProvisional.
+  ///
+  /// In en, this message translates to:
+  /// **'provisional'**
+  String get planProvisional;
+
+  /// No description provided for @planEntryFill.
+  ///
+  /// In en, this message translates to:
+  /// **'Entry fill'**
+  String get planEntryFill;
+
+  /// No description provided for @planQuantity.
+  ///
+  /// In en, this message translates to:
+  /// **'Quantity'**
+  String get planQuantity;
+
+  /// No description provided for @planCurrentPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Current price'**
+  String get planCurrentPrice;
+
+  /// No description provided for @planLiquidation.
+  ///
+  /// In en, this message translates to:
+  /// **'Liquidation'**
+  String get planLiquidation;
+
+  /// No description provided for @planBreakeven.
+  ///
+  /// In en, this message translates to:
+  /// **'Breakeven'**
+  String get planBreakeven;
+
+  /// No description provided for @planExit.
+  ///
+  /// In en, this message translates to:
+  /// **'Exit'**
+  String get planExit;
+
+  /// No description provided for @planExitTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Exit time'**
+  String get planExitTime;
+
+  /// No description provided for @planRealized.
+  ///
+  /// In en, this message translates to:
+  /// **'Realized P/L'**
+  String get planRealized;
+
+  /// No description provided for @planFees.
+  ///
+  /// In en, this message translates to:
+  /// **'Fees'**
+  String get planFees;
+
+  /// No description provided for @planFunding.
+  ///
+  /// In en, this message translates to:
+  /// **'Funding'**
+  String get planFunding;
+
+  /// No description provided for @planEntryTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Entry time'**
+  String get planEntryTime;
+
+  /// No description provided for @planCloseTakeProfit.
+  ///
+  /// In en, this message translates to:
+  /// **'Take profit'**
+  String get planCloseTakeProfit;
+
+  /// No description provided for @planCloseStopLoss.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop loss'**
+  String get planCloseStopLoss;
+
+  /// No description provided for @planCloseManual.
+  ///
+  /// In en, this message translates to:
+  /// **'Closed manually'**
+  String get planCloseManual;
+
+  /// No description provided for @planCloseLiquidation.
+  ///
+  /// In en, this message translates to:
+  /// **'Liquidation'**
+  String get planCloseLiquidation;
+
+  /// No description provided for @planSeverityBlocking.
+  ///
+  /// In en, this message translates to:
+  /// **'BLOCKING'**
+  String get planSeverityBlocking;
+
+  /// No description provided for @planSeverityWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'WARNING'**
+  String get planSeverityWarning;
+
+  /// No description provided for @planSeverityInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'INFO'**
+  String get planSeverityInfo;
+
+  /// No description provided for @planInputs.
+  ///
+  /// In en, this message translates to:
+  /// **'Plan inputs'**
+  String get planInputs;
+
+  /// No description provided for @planEntryType.
+  ///
+  /// In en, this message translates to:
+  /// **'Entry type'**
+  String get planEntryType;
+
+  /// No description provided for @planCapital.
+  ///
+  /// In en, this message translates to:
+  /// **'Capital (USDT)'**
+  String get planCapital;
+
+  /// No description provided for @planRiskPercent.
+  ///
+  /// In en, this message translates to:
+  /// **'Risk per trade'**
+  String get planRiskPercent;
+
+  /// No description provided for @planLeverage.
+  ///
+  /// In en, this message translates to:
+  /// **'Leverage'**
+  String get planLeverage;
+
+  /// No description provided for @planTimeframe.
+  ///
+  /// In en, this message translates to:
+  /// **'Timeframe'**
+  String get planTimeframe;
+
+  /// No description provided for @planExpires.
+  ///
+  /// In en, this message translates to:
+  /// **'Expires'**
+  String get planExpires;
+
+  /// No description provided for @planNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Note'**
+  String get planNote;
+
+  /// No description provided for @planSnapshot.
+  ///
+  /// In en, this message translates to:
+  /// **'Calculation snapshot'**
+  String get planSnapshot;
+
+  /// No description provided for @planRiskAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Risk (USDT)'**
+  String get planRiskAmount;
+
+  /// No description provided for @planRewardAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Reward (USDT)'**
+  String get planRewardAmount;
+
+  /// No description provided for @planRiskReward.
+  ///
+  /// In en, this message translates to:
+  /// **'Risk/reward'**
+  String get planRiskReward;
+
+  /// No description provided for @planNetRiskReward.
+  ///
+  /// In en, this message translates to:
+  /// **'Risk/reward after fees'**
+  String get planNetRiskReward;
+
+  /// No description provided for @planStatusHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'Status history'**
+  String get planStatusHistory;
+
+  /// No description provided for @planActivate.
+  ///
+  /// In en, this message translates to:
+  /// **'Activate'**
+  String get planActivate;
+
+  /// No description provided for @planCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel plan'**
+  String get planCancel;
+
+  /// No description provided for @planKeep.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep it'**
+  String get planKeep;
+
+  /// No description provided for @planSetLevels.
+  ///
+  /// In en, this message translates to:
+  /// **'Set SL/TP'**
+  String get planSetLevels;
+
+  /// No description provided for @planClosePosition.
+  ///
+  /// In en, this message translates to:
+  /// **'Close position'**
+  String get planClosePosition;
+
+  /// No description provided for @planConfirmClose.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm close'**
+  String get planConfirmClose;
+
+  /// No description provided for @planClosed.
+  ///
+  /// In en, this message translates to:
+  /// **'Position closed.'**
+  String get planClosed;
+
+  /// No description provided for @planExitEstimate.
+  ///
+  /// In en, this message translates to:
+  /// **'Estimated exit price'**
+  String get planExitEstimate;
+
+  /// No description provided for @planPriceResult.
+  ///
+  /// In en, this message translates to:
+  /// **'Price result'**
+  String get planPriceResult;
+
+  /// No description provided for @planEntryFeeLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Entry fee'**
+  String get planEntryFeeLine;
+
+  /// No description provided for @planExitFee.
+  ///
+  /// In en, this message translates to:
+  /// **'Exit fee (taker)'**
+  String get planExitFee;
+
+  /// No description provided for @planNetEstimate.
+  ///
+  /// In en, this message translates to:
+  /// **'Estimated net P/L'**
+  String get planNetEstimate;
+
+  /// No description provided for @planRuleLong.
+  ///
+  /// In en, this message translates to:
+  /// **'stop loss below the last price, take profit above it'**
+  String get planRuleLong;
+
+  /// No description provided for @planRuleShort.
+  ///
+  /// In en, this message translates to:
+  /// **'stop loss above the last price, take profit below it'**
+  String get planRuleShort;
+
+  /// No description provided for @planSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get planSave;
+
+  /// No description provided for @journalAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get journalAll;
+
+  /// No description provided for @journalAllTime.
+  ///
+  /// In en, this message translates to:
+  /// **'All time'**
+  String get journalAllTime;
+
+  /// No description provided for @journalApply.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply'**
+  String get journalApply;
+
+  /// No description provided for @journalReset.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset'**
+  String get journalReset;
+
+  /// No description provided for @journalWin.
+  ///
+  /// In en, this message translates to:
+  /// **'WIN'**
+  String get journalWin;
+
+  /// No description provided for @journalLoss.
+  ///
+  /// In en, this message translates to:
+  /// **'LOSS'**
+  String get journalLoss;
+
+  /// No description provided for @journalBreakeven.
+  ///
+  /// In en, this message translates to:
+  /// **'BREAKEVEN'**
+  String get journalBreakeven;
+
+  /// No description provided for @journalOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get journalOpen;
+
+  /// No description provided for @journalClosed.
+  ///
+  /// In en, this message translates to:
+  /// **'Closed'**
+  String get journalClosed;
+
+  /// No description provided for @journalSimulated.
+  ///
+  /// In en, this message translates to:
+  /// **'Simulated'**
+  String get journalSimulated;
+
+  /// No description provided for @journalManual.
+  ///
+  /// In en, this message translates to:
+  /// **'Manual'**
+  String get journalManual;
+
+  /// No description provided for @journalPeriod.
+  ///
+  /// In en, this message translates to:
+  /// **'Period'**
+  String get journalPeriod;
+
+  /// No description provided for @journalMarket.
+  ///
+  /// In en, this message translates to:
+  /// **'Market'**
+  String get journalMarket;
+
+  /// No description provided for @journalSource.
+  ///
+  /// In en, this message translates to:
+  /// **'Source'**
+  String get journalSource;
+
+  /// No description provided for @journalResult.
+  ///
+  /// In en, this message translates to:
+  /// **'Result'**
+  String get journalResult;
+
+  /// No description provided for @journalStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Status'**
+  String get journalStatus;
+
+  /// No description provided for @journalStrategy.
+  ///
+  /// In en, this message translates to:
+  /// **'Strategy'**
+  String get journalStrategy;
+
+  /// No description provided for @journalNoStrategy.
+  ///
+  /// In en, this message translates to:
+  /// **'No strategy'**
+  String get journalNoStrategy;
+
+  /// No description provided for @journalEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No trades in this period.'**
+  String get journalEmpty;
+
+  /// No description provided for @journalRecordOnWeb.
+  ///
+  /// In en, this message translates to:
+  /// **'Record on the web'**
+  String get journalRecordOnWeb;
+
+  /// No description provided for @journalEntryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Trade'**
+  String get journalEntryTitle;
+
+  /// No description provided for @journalOpenPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'Open its trading plan'**
+  String get journalOpenPlan;
+
+  /// No description provided for @journalReview.
+  ///
+  /// In en, this message translates to:
+  /// **'Review'**
+  String get journalReview;
+
+  /// No description provided for @journalReviewImageNote.
+  ///
+  /// In en, this message translates to:
+  /// **'This trade has a chart image; its review is edited on the web so the image is kept.'**
+  String get journalReviewImageNote;
+
+  /// No description provided for @journalSetup.
+  ///
+  /// In en, this message translates to:
+  /// **'Setup description'**
+  String get journalSetup;
+
+  /// No description provided for @journalLessons.
+  ///
+  /// In en, this message translates to:
+  /// **'Lessons learned'**
+  String get journalLessons;
+
+  /// No description provided for @journalMistakes.
+  ///
+  /// In en, this message translates to:
+  /// **'Mistakes'**
+  String get journalMistakes;
+
+  /// No description provided for @journalImageFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The chart image could not be loaded.'**
+  String get journalImageFailed;
+
+  /// No description provided for @journalImageOnWeb.
+  ///
+  /// In en, this message translates to:
+  /// **'Chart image on the web'**
+  String get journalImageOnWeb;
+
+  /// No description provided for @journalEditOnWeb.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit on the web'**
+  String get journalEditOnWeb;
+
+  /// No description provided for @journalDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get journalDelete;
+
+  /// No description provided for @journalDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this trade?'**
+  String get journalDeleteTitle;
+
+  /// No description provided for @journalDeleteBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This manual trade and its review are removed from your journal and statistics.'**
+  String get journalDeleteBody;
+
+  /// No description provided for @journalDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Trade deleted.'**
+  String get journalDeleted;
+
+  /// No description provided for @journalLastDays.
+  ///
+  /// In en, this message translates to:
+  /// **'Last {days} days'**
+  String journalLastDays(int days);
+
+  /// No description provided for @planLevelHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'Level changes ({count})'**
+  String planLevelHistory(int count);
+
+  /// No description provided for @planWarnings.
+  ///
+  /// In en, this message translates to:
+  /// **'Warnings ({count})'**
+  String planWarnings(int count);
+
+  /// No description provided for @msg16.
+  ///
+  /// In en, this message translates to:
+  /// **'For {direction} positions: {rule}.'**
+  String msg16(String direction, String rule);
+
+  /// No description provided for @msg18.
+  ///
+  /// In en, this message translates to:
+  /// **'This plan has blocking warnings and cannot be activated.'**
+  String get msg18;
+
+  /// No description provided for @msg19.
+  ///
+  /// In en, this message translates to:
+  /// **'Trading plan activated.'**
+  String get msg19;
+
+  /// No description provided for @msg20.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel this trading plan? This action cannot be undone.'**
+  String get msg20;
+
+  /// No description provided for @msg21.
+  ///
+  /// In en, this message translates to:
+  /// **'Close this position at about {price}? Estimated P/L: {pnl}.'**
+  String msg21(String price, String pnl);
+
+  /// No description provided for @msg51.
+  ///
+  /// In en, this message translates to:
+  /// **'The price has moved {deviation}R from your plan. New quantity {quantity}, risk/reward {rr}. Activate anyway?'**
+  String msg51(String deviation, String quantity, String rr);
+
+  /// No description provided for @msg52.
+  ///
+  /// In en, this message translates to:
+  /// **'The price has moved {deviation}R from your plan, beyond the allowed {max}R or past the take profit. The plan was not activated.'**
+  String msg52(String deviation, String max);
+
   /// No description provided for @msg45.
   ///
   /// In en, this message translates to:

@@ -87,7 +87,11 @@ void main() {
         (of(NotificationReference.alert)! as AppScreen).location,
         '/alerts',
       );
-      expect((of(NotificationReference.plan)! as WebPage).path, '/plans/r%201');
+      // SCR-18 is in the app since T-091 (a web page before).
+      expect(
+        (of(NotificationReference.plan)! as AppScreen).location,
+        '/plan/r%201',
+      );
       expect(
         (of(NotificationReference.post)! as WebPage).path,
         '/community/r%201',
@@ -159,6 +163,11 @@ void main() {
           GoRoute(
             path: '/alerts',
             builder: (_, _) => const Scaffold(body: Text('ALERTS PAGE')),
+          ),
+          GoRoute(
+            path: '/plan/:id',
+            builder: (_, state) =>
+                Scaffold(body: Text('PLAN PAGE ${state.pathParameters['id']}')),
           ),
         ],
       );
@@ -305,7 +314,14 @@ void main() {
         await tester.pump();
       }
       expect(api.calls, contains('read n2'));
-      expect(web.opened, ['/plans/plan-7']);
+      expect(find.text('PLAN PAGE plan-7'), findsOneWidget);
+      expect(web.opened, isEmpty);
+
+      // SCR-18 is pushed in the app now: back to the list.
+      GoRouter.of(tester.element(find.text('PLAN PAGE plan-7'))).pop();
+      for (var i = 0; i < 4; i++) {
+        await tester.pump();
+      }
       expect(find.byKey(const Key('unread-dot-n2')), findsNothing);
 
       await tester.tap(find.byKey(const Key('notification-n1')));
@@ -325,7 +341,8 @@ void main() {
       for (var i = 0; i < 4; i++) {
         await tester.pump();
       }
-      expect(web.opened, ['/plans/plan-7']);
+      expect(find.text('PLAN PAGE plan-7'), findsOneWidget);
+      expect(web.opened, isEmpty);
       expect(find.text('No results found.'), findsOneWidget);
       await unmount(tester);
     });

@@ -7,6 +7,11 @@ import '../../features/ai/application/ai_context.dart';
 import '../../features/ai/domain/ai.dart';
 import '../../features/ai/presentation/ai_chat_screen.dart';
 import '../../features/ai/presentation/ai_conversations_screen.dart';
+import '../../features/journal/presentation/journal_entry_screen.dart';
+import '../../features/journal/presentation/journal_view.dart';
+import '../../features/journal/presentation/plan_journal_link.dart';
+import '../../features/plans/presentation/plan_detail_screen.dart';
+import '../../features/plans/presentation/plans_screen.dart';
 import '../../features/academy/presentation/academy_screen.dart';
 import '../../features/academy/presentation/glossary_screen.dart';
 import '../../features/academy/presentation/lesson_screen.dart';
@@ -29,7 +34,6 @@ import '../../features/shell/presentation/home_shell.dart';
 import '../../features/watchlist/presentation/watchlist_view.dart';
 import '../auth/session.dart';
 import '../auth/session_controller.dart';
-import '../i18n/app_localizations.dart';
 import 'splash_screen.dart';
 
 abstract final class Routes {
@@ -57,6 +61,10 @@ abstract final class Routes {
   static const ai = '/ai';
   static const aiNew = '/ai/new';
   static const aiChat = '/ai/c/:id';
+
+  /// SCR-18 and SCR-21 (T-091), pushed over the tabs.
+  static const plan = '/plan/:id';
+  static const journalEntry = '/journal/:id';
 
   /// SCR-10 (spot) and SCR-11 (futures).
   static const analysis = '/analysis/:market/:symbol';
@@ -100,22 +108,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     ..listen(sessionControllerProvider, (_, next) => session.value = next)
     ..onDispose(session.dispose);
 
-  StatefulShellBranch branch(
-    String path,
-    String Function(AppLocalizations) title, {
-    List<Widget> actions = const [],
-  }) => StatefulShellBranch(
-    routes: [
-      GoRoute(
-        path: path,
-        builder: (context, _) => PendingTab(
-          title: title(AppLocalizations.of(context)),
-          actions: actions,
-        ),
-      ),
-    ],
-  );
-
   final router = GoRouter(
     initialLocation: Routes.splash,
     refreshListenable: session,
@@ -158,15 +150,38 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             LessonScreen(slug: state.pathParameters['slug']!),
       ),
       GoRoute(
+        path: Routes.plan,
+        builder: (_, state) => PlanDetailScreen(
+          id: state.pathParameters['id']!,
+          // Features meet here: Ask AI (SCR-29) and the journal entry
+          // (SCR-21) of the plan.
+          extraActions: (plan) => [AskAiOnPlanButton(plan: plan.summary)],
+          journalLink: (plan) => PlanJournalLink(
+            journalKey: (
+              planId: plan.id,
+              pairId: plan.pairId,
+              market: plan.market,
+            ),
+          ),
+        ),
+      ),
+      GoRoute(
+        path: Routes.journalEntry,
+        builder: (_, state) =>
+            JournalEntryScreen(id: state.pathParameters['id']!),
+      ),
+      GoRoute(
         path: Routes.ai,
         builder: (_, _) => const AiConversationsScreen(),
       ),
       GoRoute(
         path: Routes.aiNew,
         builder: (_, state) => AiChatScreen(
-          args: AiChatArgs.fresh(
-            AiContext.fromQuery(state.uri.queryParameters),
-          ),
+          args: AiChatArgs.fresh(switch (state.extra) {
+            // Ask AI on SCR-18 carries the plan itself.
+            final AiContext seed => seed,
+            _ => AiContext.fromQuery(state.uri.queryParameters),
+          }),
         ),
       ),
       GoRoute(
@@ -218,7 +233,24 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               ),
             ],
           ),
-          branch(Routes.plans, (l) => l.navPlans),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: Routes.plans,
+                // The journal (SCR-20) is the Plans tab's fourth part
+                // (D-154), composed here so the features stay apart.
+                builder: (_, state) {
+                  final tab = state.uri.queryParameters['tab'];
+                  return PlansScreen(
+                    // A new tab request builds the tabs again on it.
+                    key: ValueKey(tab),
+                    initialTab: tab,
+                    journal: const JournalView(),
+                  );
+                },
+              ),
+            ],
+          ),
           StatefulShellBranch(
             routes: [
               GoRoute(

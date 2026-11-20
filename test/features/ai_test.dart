@@ -1,6 +1,3 @@
-import 'dart:convert';
-import 'dart:typed_data';
-
 import 'package:cryptopilot_mobile/core/errors/api_failure.dart';
 import 'package:cryptopilot_mobile/core/errors/message_text.dart';
 import 'package:cryptopilot_mobile/core/i18n/app_localizations_en.dart';
@@ -11,6 +8,8 @@ import 'package:cryptopilot_mobile/features/market/domain/candle.dart';
 import 'package:cryptopilot_mobile/features/market/domain/market.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+import '../support/http_fakes.dart';
 
 /// Shapes of backend develop 5c2398cb (`ai/dto/response`).
 Map<String, Object?> conversationJson({
@@ -54,35 +53,6 @@ Map<String, Object?> quotaJson({
   'canAsk': canAsk,
   'performanceContext': performance,
 };
-
-/// Records each request and answers with the next queued response.
-class RecordingAdapter implements HttpClientAdapter {
-  final List<RequestOptions> requests = [];
-  final List<(int, Object?)> answers = [];
-
-  @override
-  Future<ResponseBody> fetch(
-    RequestOptions options,
-    Stream<Uint8List>? requestStream,
-    Future<void>? cancelFuture,
-  ) async {
-    requests.add(options);
-    final (status, body) = answers.removeAt(0);
-    final problem = status >= 400;
-    return ResponseBody.fromString(
-      body == null ? '' : jsonEncode(body),
-      status,
-      headers: {
-        Headers.contentTypeHeader: [
-          problem ? 'application/problem+json' : 'application/json',
-        ],
-      },
-    );
-  }
-
-  @override
-  void close({bool force = false}) {}
-}
 
 void main() {
   group('AI decoders (backend develop 5c2398cb)', () {
