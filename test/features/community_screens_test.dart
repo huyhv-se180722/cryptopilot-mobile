@@ -6,6 +6,7 @@ import 'package:cryptopilot_mobile/core/router/app_router.dart';
 import 'package:cryptopilot_mobile/core/settings/settings.dart';
 import 'package:cryptopilot_mobile/features/community/domain/community.dart';
 import 'package:cryptopilot_mobile/features/community/presentation/community_widgets.dart';
+import 'package:cryptopilot_mobile/features/community/presentation/composer_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -145,13 +146,13 @@ void main() {
       await unmount(tester);
     });
 
-    testWidgets('writing a post opens the web (SCR-26, phase 2)', (
-      tester,
-    ) async {
+    testWidgets('writing a post opens the composer (SCR-26)', (tester) async {
       await open(tester, '/community');
       await tester.tap(find.byKey(const Key('community-new-post')));
-      await tester.pump();
-      expect(web.opened, ['/community/new']);
+      await frames(tester);
+      // In the app since T-135 (A-66); the web before.
+      expect(find.byType(ComposerScreen), findsOneWidget);
+      expect(web.opened, isEmpty);
       await unmount(tester);
     });
 
@@ -294,9 +295,13 @@ void main() {
       await tester.tap(find.byKey(const Key('post-menu')));
       await frames(tester);
       expect(find.byKey(const Key('post-report')), findsNothing);
-      await tester.tap(find.byKey(const Key('post-edit-web')));
+      await tester.tap(find.byKey(const Key('post-edit')));
       await frames(tester);
-      expect(web.opened, ['/community/p1/edit']);
+      // In the app since T-135 (A-66); the web before.
+      expect(find.byType(ComposerScreen), findsOneWidget);
+      expect(web.opened, isEmpty);
+      await tester.pageBack();
+      await frames(tester);
 
       await menu(tester, 'post-menu', 'post-delete');
       await tester.tap(find.byKey(const Key('confirm-delete')));
