@@ -143,9 +143,12 @@ sealed class NotificationTarget {
 }
 
 class AppScreen extends NotificationTarget {
-  const AppScreen(this.location);
+  const AppScreen(this.location, {this.tab = false});
 
   final String location;
+
+  /// A bottom-bar tab: gone to, not pushed.
+  final bool tab;
 }
 
 class WebPage extends NotificationTarget {
@@ -172,8 +175,11 @@ NotificationTarget? targetOf(AppNotification notification) {
     NotificationReference.member =>
       id == null ? null : WebPage('/community/members/$encoded'),
     NotificationReference.subscription => const WebPage('/subscription'),
-    // The paper Futures screen arrives with T-122.
-    NotificationReference.futuresPosition => const WebPage('/trade/futures'),
+    // The Futures side of the Trade tab (T-129).
+    NotificationReference.futuresPosition => const AppScreen(
+      '/trade?market=futures',
+      tab: true,
+    ),
     // An administrator's object; a Trader has nothing to open.
     NotificationReference.newsSource => null,
   };
