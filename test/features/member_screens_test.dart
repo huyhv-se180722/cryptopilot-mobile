@@ -256,4 +256,31 @@ void main() {
     expect(find.byType(SnackBar), findsNothing);
     await unmount(tester);
   });
+
+  testWidgets('an administrator (author of official posts) shows no Follow '
+      'or Block, and their official posts under Posts', (tester) async {
+    api.pinnedItems = [
+      postOf('o1', author: 'Operator', official: true, title: 'House rules'),
+      postOf('o2', author: 'Someone', official: true),
+    ];
+    await open(tester, '/community/members/u-Operator');
+    expect(find.byKey(const Key('member-follow')), findsNothing);
+    expect(find.byKey(const Key('member-menu')), findsNothing);
+    await tester.drag(find.byType(NestedScrollView), const Offset(0, -500));
+    await frames(tester);
+    expect(find.byKey(const Key('member-list-official')), findsOneWidget);
+    expect(find.byKey(const Key('post-o1')), findsOneWidget);
+    expect(find.byKey(const Key('post-o2')), findsNothing);
+    await unmount(tester);
+  });
+
+  testWidgets('a Trader who wrote no official post keeps Follow', (
+    tester,
+  ) async {
+    api.pinnedItems = [postOf('o1', author: 'Operator', official: true)];
+    await open(tester, '/community/members/u1');
+    expect(find.byKey(const Key('member-follow')), findsOneWidget);
+    expect(find.byKey(const Key('member-menu')), findsOneWidget);
+    await unmount(tester);
+  });
 }
