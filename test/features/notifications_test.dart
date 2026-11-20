@@ -105,10 +105,10 @@ void main() {
         (of(NotificationReference.subscription)! as WebPage).path,
         '/subscription',
       );
-      expect(
-        (of(NotificationReference.futuresPosition)! as WebPage).path,
-        '/trade/futures',
-      );
+      // The Futures side of the Trade tab since T-129 (the web before).
+      final futures = of(NotificationReference.futuresPosition)! as AppScreen;
+      expect(futures.location, '/trade?market=futures');
+      expect(futures.tab, isTrue);
       expect(of(NotificationReference.newsSource), isNull);
       expect(of(null), isNull);
     });

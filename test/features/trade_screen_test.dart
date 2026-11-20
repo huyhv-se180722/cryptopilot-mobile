@@ -288,4 +288,17 @@ void main() {
     );
     await unmount(tester);
   });
+
+  testWidgets('/trade?market=futures (a FUTURES notification) opens the '
+      'Futures side once; the Trader can switch back', (tester) async {
+    await open(tester);
+    final router = containerOf(tester).read(appRouterProvider);
+    router.go('/trade?market=futures');
+    await frames(tester);
+    expect(find.byKey(const Key('trade-futures')), findsOneWidget);
+    await tester.tap(find.text('Spot'));
+    await frames(tester);
+    expect(find.byKey(const Key('trade-futures')), findsNothing);
+    await unmount(tester);
+  });
 }

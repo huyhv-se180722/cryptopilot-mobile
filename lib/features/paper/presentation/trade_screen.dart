@@ -24,11 +24,33 @@ import 'paper_text.dart';
 /// The Trade tab (D-154, plan 9.2): the demo banner, Spot or Futures, and
 /// for Spot the pair, the order form beside the order book, then the open
 /// orders and the market trades; Futures as [FuturesTrade] (T-129).
-class TradeScreen extends ConsumerWidget {
-  const TradeScreen({super.key});
+class TradeScreen extends ConsumerStatefulWidget {
+  const TradeScreen({this.requestFutures, super.key});
+
+  /// Spot (false) or Futures (true) asked by a link (`/trade?market=`),
+  /// applied once; null keeps the Trader's choice.
+  final bool? requestFutures;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<TradeScreen> createState() => _TradeScreenState();
+}
+
+class _TradeScreenState extends ConsumerState<TradeScreen> {
+  @override
+  void initState() {
+    super.initState();
+    if (widget.requestFutures case final futures?) {
+      // Not during build: the provider changes once the frame is done.
+      Future.microtask(() {
+        if (mounted) {
+          ref.read(tradeFuturesProvider.notifier).show(futures: futures);
+        }
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     final futures = ref.watch(tradeFuturesProvider);
     return Scaffold(

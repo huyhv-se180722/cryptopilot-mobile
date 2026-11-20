@@ -243,7 +243,19 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             routes: [
               GoRoute(
                 path: Routes.trade,
-                builder: (_, _) => const TradeScreen(),
+                // `?market=futures` (a FUTURES notification) or `spot`
+                // picks the side once; a new request builds it again.
+                builder: (_, state) {
+                  final market = state.uri.queryParameters['market'];
+                  return TradeScreen(
+                    key: ValueKey(market),
+                    requestFutures: switch (market) {
+                      'futures' => true,
+                      'spot' => false,
+                      _ => null,
+                    },
+                  );
+                },
               ),
             ],
           ),

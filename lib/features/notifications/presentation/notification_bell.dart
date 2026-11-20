@@ -37,6 +37,8 @@ Future<void> openNotification(
         }),
   );
   switch (target) {
+    case AppScreen(:final location, tab: true):
+      router.go(location);
     case AppScreen(:final location):
       unawaited(router.push(location));
     case WebPage(:final path):
