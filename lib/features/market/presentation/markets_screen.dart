@@ -318,6 +318,8 @@ class _MarketRowState extends ConsumerState<MarketRow> {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         child: Row(
           children: [
+            CoinLogo(symbol: pair.baseAsset, url: pair.logoUrl),
+            const SizedBox(width: 10),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
