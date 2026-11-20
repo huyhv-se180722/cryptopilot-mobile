@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cryptopilot_mobile/features/journal/data/journal_api.dart';
 import 'package:cryptopilot_mobile/features/journal/domain/journal.dart';
 import 'package:cryptopilot_mobile/features/market/domain/market.dart';
@@ -308,6 +310,9 @@ class FakeJournalApi implements JournalApi {
   /// Each upload fails while this holds.
   bool refuseUploads = false;
 
+  /// An upload stops at half way until this completes.
+  Completer<void>? holdUpload;
+
   @override
   Future<ChartImageForm> chartImageForm(String id) async {
     calls.add('chartImageForm $id');
@@ -334,6 +339,7 @@ class FakeJournalApi implements JournalApi {
     calls.add('upload $path');
     if (refuseUploads) throw const ChartImageRefused();
     onProgress?.call(0.5);
+    if (holdUpload case final hold?) await hold.future;
     onProgress?.call(1);
     uploads.add(form.publicId);
   }

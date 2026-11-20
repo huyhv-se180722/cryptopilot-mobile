@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:cryptopilot_mobile/core/auth/token_store.dart';
 import 'package:cryptopilot_mobile/core/errors/api_failure.dart';
+import 'package:cryptopilot_mobile/core/media/media_picker.dart';
 import 'package:cryptopilot_mobile/features/journal/application/journal_controllers.dart';
 import 'package:cryptopilot_mobile/features/journal/data/journal_api.dart';
 import 'package:cryptopilot_mobile/features/journal/domain/journal.dart';
@@ -12,6 +15,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../support/community_fakes.dart' show FakeMediaPicker;
 import '../support/fakes.dart';
 import '../support/plans_fakes.dart';
 import '../support/realtime_fakes.dart';
@@ -21,6 +25,7 @@ void main() {
   late FakePlanApi plans;
   late FakePlanDetailApi details;
   late FakeJournalApi journal;
+  late FakeMediaPicker picker;
   late ProviderContainer container;
 
   Future<void> pump(
@@ -39,6 +44,7 @@ void main() {
           ),
           planDetailApiProvider.overrideWithValue(details),
           journalApiProvider.overrideWithValue(journal),
+          mediaPickerProvider.overrideWithValue(picker),
         ],
         retry: (_, _) => null,
         child: Consumer(
@@ -70,6 +76,10 @@ void main() {
     plans = FakePlanApi();
     details = FakePlanDetailApi();
     journal = FakeJournalApi();
+    picker = FakeMediaPicker()
+      ..nextImages = const [
+        PickedFile(path: '/tmp/chart.png', name: 'chart.png', size: 1000),
+      ];
   });
 
   group('Plans tab lists (A-61)', () {
@@ -337,6 +347,164 @@ void main() {
       final provider = journalEntryControllerProvider('gone');
       await pump(tester, [provider]);
       expect(container.read(provider).missing, isTrue);
+      await unmount(tester);
+    });
+  });
+
+  group('SCR-21 chart image (SRS 3.6.1; Q-97)', () {
+    const stored =
+        'cryptopilot/journal/owner/0b6f1c2e-1111-4222-8333-444455556666';
+    final provider = journalEntryControllerProvider('j1');
+    JournalEntryState read() => container.read(provider);
+    JournalEntryController controller() => container.read(provider.notifier);
+
+    testWidgets('a stored image keeps its key, read from its address, when '
+        'the review is saved', (tester) async {
+      journal.details['j1'] = JournalDetail(
+        entry: journalOf('j1'),
+        chartImageUrl: '${FakeJournalApi.storageBase}/v17/$stored.png',
+      );
+      await pump(tester, [provider]);
+      expect(read().reviewEditable, isTrue);
+      expect(read().image?.key, stored);
+      expect(read().canSave, isTrue);
+      await controller().saveReview(mistakes: 'Late entry');
+      expect(journal.reviews.single['chartImagePublicId'], stored);
+      expect(read().image?.key, stored);
+      await unmount(tester);
+    });
+
+    testWidgets('a picked image is uploaded at once and saved by its key', (
+      tester,
+    ) async {
+      await pump(tester, [provider]);
+      journal.holdUpload = Completer<void>();
+      final picking = controller().pickImage();
+      await tester.pump();
+      expect(picker.limits, [1]);
+      expect(read().image?.progress, 0.5);
+      expect(read().image?.path, '/tmp/chart.png');
+      // Nothing is saved while the image is on its way.
+      expect(read().canSave, isFalse);
+      await controller().saveReview(mistakes: 'x');
+      expect(journal.reviews, isEmpty);
+      controller().removeImage();
+      expect(read().image, isNotNull);
+
+      journal.holdUpload!.complete();
+      await picking;
+      expect(journal.calls, containsAllInOrder(['chartImageForm j1']));
+      expect(read().image?.ready, isTrue);
+      expect(read().canSave, isTrue);
+      await controller().saveReview(setupDescription: 'Retest');
+      final key = journal.uploads.single;
+      expect(journal.reviews.single['chartImagePublicId'], key);
+      expect(read().detail?.chartImageUrl, endsWith('$key.png'));
+      expect(read().image?.key, key);
+      await unmount(tester);
+    });
+
+    testWidgets('a file too large or of another format is not sent (MSG32)', (
+      tester,
+    ) async {
+      await pump(tester, [provider]);
+      journal.maxBytes = 500;
+      await controller().pickImage();
+      expect(read().image?.problem, ReviewImageProblem.tooLarge);
+      expect(read().image?.maxBytes, 500);
+      picker.nextImages = const [
+        PickedFile(path: '/tmp/chart.gif', name: 'chart.gif', size: 10),
+      ];
+      await controller().pickImage();
+      expect(read().image?.problem, ReviewImageProblem.format);
+      expect(journal.calls.where((c) => c.startsWith('upload')), isEmpty);
+      // A picked file without a key holds the review back until removed.
+      expect(read().canSave, isFalse);
+      controller().removeImage();
+      expect(read().image, isNull);
+      expect(read().canSave, isTrue);
+      await unmount(tester);
+    });
+
+    testWidgets('a refused upload is tried again with the same file', (
+      tester,
+    ) async {
+      await pump(tester, [provider]);
+      journal.refuseUploads = true;
+      await controller().pickImage();
+      expect(read().image?.problem, ReviewImageProblem.refused);
+      journal.refuseUploads = false;
+      await controller().retryImage();
+      expect(read().image?.ready, isTrue);
+      expect(read().image?.problem, isNull);
+      expect(journal.calls.where((c) => c == 'upload /tmp/chart.png'), [
+        'upload /tmp/chart.png',
+        'upload /tmp/chart.png',
+      ]);
+      await unmount(tester);
+    });
+
+    testWidgets('the signed form not given keeps its failure', (tester) async {
+      await pump(tester, [provider]);
+      journal.failNext['chartImageForm'] = problem(
+        503,
+        'MEDIA_STORAGE_UNAVAILABLE',
+        'MSG43',
+      );
+      await controller().pickImage();
+      expect(read().image?.problem, ReviewImageProblem.form);
+      expect(read().image?.failure, isA<ProblemFailure>());
+      await controller().retryImage();
+      expect(read().image?.ready, isTrue);
+      await unmount(tester);
+    });
+
+    testWidgets('a removed image is left out of the review, which drops it', (
+      tester,
+    ) async {
+      journal.details['j1'] = JournalDetail(
+        entry: journalOf('j1'),
+        chartImageUrl: '${FakeJournalApi.storageBase}/$stored.webp',
+      );
+      await pump(tester, [provider]);
+      controller().removeImage();
+      await controller().saveReview(mistakes: 'm');
+      expect(journal.reviews.single.containsKey('chartImagePublicId'), isFalse);
+      expect(read().detail?.chartImageUrl, isNull);
+      expect(read().image, isNull);
+      await unmount(tester);
+    });
+
+    testWidgets('MSG32 on saving keeps the image and the texts editable', (
+      tester,
+    ) async {
+      await pump(tester, [provider]);
+      await controller().pickImage();
+      journal.failNext['review'] = problem(
+        400,
+        'MEDIA_INVALID',
+        'MSG32',
+        fields: const {'chartImagePublicId': 'MSG32'},
+      );
+      await expectLater(
+        controller().saveReview(mistakes: 'm'),
+        throwsA(isA<ProblemFailure>()),
+      );
+      expect(read().saving, isFalse);
+      expect(read().image?.ready, isTrue);
+      expect(read().canSave, isTrue);
+      await unmount(tester);
+    });
+
+    testWidgets('a review kept read only picks no image', (tester) async {
+      journal.details['j1'] = JournalDetail(
+        entry: journalOf('j1'),
+        chartImageUrl: 'https://res.cloudinary.com/x/chart.png',
+      );
+      await pump(tester, [provider]);
+      await controller().pickImage();
+      expect(picker.limits, isEmpty);
+      expect(read().image?.url, 'https://res.cloudinary.com/x/chart.png');
       await unmount(tester);
     });
   });
