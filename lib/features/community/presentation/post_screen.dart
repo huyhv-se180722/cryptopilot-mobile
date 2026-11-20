@@ -418,7 +418,7 @@ class _Medium extends ConsumerWidget {
           );
     return Semantics(
       button: true,
-      label: video ? l.communityWatchVideo : null,
+      label: video ? l.communityWatchVideo : l.communityOpenImage,
       child: InkWell(
         key: Key('medium-${medium.publicId}'),
         onTap: video

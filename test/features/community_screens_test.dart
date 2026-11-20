@@ -271,6 +271,7 @@ void main() {
         ],
       );
       await open(tester, '/community/v1');
+      expect(find.bySemanticsLabel('Watch the video'), findsOneWidget);
       await tester.tap(find.byKey(const Key('medium-m1')));
       await tester.pump();
       expect(web.opened, ['https://res.cloudinary.com/x/video/upload/m1.mp4']);

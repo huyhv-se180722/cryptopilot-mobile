@@ -1690,6 +1690,12 @@ abstract class AppLocalizations {
   /// **'Watch the video'**
   String get communityWatchVideo;
 
+  /// No description provided for @communityOpenImage.
+  ///
+  /// In en, this message translates to:
+  /// **'Open the image'**
+  String get communityOpenImage;
+
   /// No description provided for @communityUnknownAuthor.
   ///
   /// In en, this message translates to:

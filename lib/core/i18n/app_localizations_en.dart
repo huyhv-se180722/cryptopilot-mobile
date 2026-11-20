@@ -900,6 +900,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get communityWatchVideo => 'Watch the video';
 
   @override
+  String get communityOpenImage => 'Open the image';
+
+  @override
   String get communityUnknownAuthor => 'Member';
 
   @override
