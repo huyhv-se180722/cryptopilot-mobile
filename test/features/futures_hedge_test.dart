@@ -1,9 +1,12 @@
+import 'dart:async';
+
 import 'package:cryptopilot_mobile/app.dart';
 import 'package:cryptopilot_mobile/core/auth/token_store.dart';
 import 'package:cryptopilot_mobile/core/router/app_router.dart';
 import 'package:cryptopilot_mobile/core/settings/settings.dart';
 import 'package:cryptopilot_mobile/features/paper/application/futures_form_controller.dart';
 import 'package:cryptopilot_mobile/features/paper/application/trade_controller.dart';
+import 'package:cryptopilot_mobile/features/paper/domain/futures.dart';
 import 'package:cryptopilot_mobile/features/paper/domain/paper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -27,7 +30,10 @@ void main() {
     }
   }
 
-  Future<void> open(WidgetTester tester) async {
+  Future<void> open(
+    WidgetTester tester, {
+    Brightness brightness = Brightness.light,
+  }) async {
     transport = FakeTransport();
     await tester.pumpWidget(
       ProviderScope(
@@ -47,6 +53,9 @@ void main() {
     app = ProviderScope.containerOf(
       tester.element(find.byType(CryptoPilotApp)),
     );
+    if (brightness == Brightness.dark) {
+      unawaited(app.read(themeModeProvider.notifier).select(ThemeMode.dark));
+    }
     app.read(tradeFuturesProvider.notifier).show(futures: true);
     app.read(appRouterProvider).go('/trade');
     await frames(tester);
@@ -147,4 +156,33 @@ void main() {
     expect(find.text('One-way'), findsOneWidget);
     await unmount(tester);
   });
+
+  for (final brightness in Brightness.values) {
+    testWidgets('360 dp, ${brightness.name}: the hedge form with its Open and '
+        'Close tabs, GTD and the trailing stop fits', (tester) async {
+      tester.view
+        ..physicalSize = const Size(360 * 3, 760 * 3)
+        ..devicePixelRatio = 3;
+      addTearDown(tester.view.reset);
+      api.hedge = true;
+      await open(tester, brightness: brightness);
+      expect(find.byKey(const Key('futures-open-close')), findsOneWidget);
+      expect(tester.takeException(), isNull);
+
+      final c = app.read(form.notifier)..setTimeInForce(FuturesTimeInForce.gtd);
+      await frames(tester);
+      expect(find.byKey(const Key('futures-gtd-24')), findsOneWidget);
+      expect(tester.takeException(), isNull);
+      c.selectKind(FuturesKind.trailingStop);
+      await frames(tester);
+      expect(find.byKey(const Key('futures-field-callback')), findsOneWidget);
+      expect(tester.takeException(), isNull);
+
+      await tester.tap(find.text('Close').first);
+      await frames(tester);
+      expect(find.text('Close Long'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+      await unmount(tester);
+    });
+  }
 }
