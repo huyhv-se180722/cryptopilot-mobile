@@ -1,8 +1,31 @@
 import 'package:cryptopilot_mobile/features/community/data/community_api.dart';
+import 'package:cryptopilot_mobile/features/community/data/media_picker.dart';
 import 'package:cryptopilot_mobile/features/community/domain/community.dart';
 import 'package:cryptopilot_mobile/features/market/domain/market.dart';
 
 final communityNow = DateTime.utc(2026, 11, 20, 3);
+
+class FakeMediaPicker implements MediaPicker {
+  List<PickedFile> nextImages = const [
+    PickedFile(path: '/tmp/a.png', name: 'a.png', size: 1000),
+    PickedFile(path: '/tmp/b.png', name: 'b.png', size: 2000),
+  ];
+  PickedFile? nextVideo = const PickedFile(
+    path: '/tmp/v.mp4',
+    name: 'v.mp4',
+    size: 5000,
+  );
+  final List<int> limits = [];
+
+  @override
+  Future<List<PickedFile>> images({required int limit}) async {
+    limits.add(limit);
+    return nextImages.take(limit).toList();
+  }
+
+  @override
+  Future<PickedFile?> video() async => nextVideo;
+}
 
 Post postOf(
   String id, {
