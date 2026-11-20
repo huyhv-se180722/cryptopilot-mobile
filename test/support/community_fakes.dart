@@ -255,4 +255,66 @@ class FakeCommunityApi implements CommunityApi {
     calls.add('report comment $id ${reason.wire} $description');
     _maybeFail('report');
   }
+
+  // Writing (T-135).
+
+  int _uploads = 0;
+  final List<PostDraft> drafts = [];
+
+  /// Files [upload] refuses, by path.
+  final Set<String> refusePaths = {};
+
+  @override
+  Future<UploadForm> uploadForm(MediaKind kind) async {
+    calls.add('form ${kind.wire}');
+    _maybeFail('form');
+    _uploads++;
+    return UploadForm(
+      uploadUrl: 'https://storage.test/upload',
+      apiKey: 'key',
+      timestamp: 1763600000,
+      signature: 'sig',
+      publicId: 'posts/u-me/m$_uploads',
+      allowedFormats: kind == MediaKind.image
+          ? const ['jpg', 'png', 'webp']
+          : const ['mp4', 'webm'],
+      overwrite: false,
+      kind: kind,
+      maxBytes: kind == MediaKind.image ? 10 * 1024 * 1024 : 100 * 1024 * 1024,
+      maxDurationSeconds: kind == MediaKind.video ? 120 : null,
+    );
+  }
+
+  @override
+  Future<void> upload(
+    UploadForm form,
+    String path, {
+    void Function(double share)? onProgress,
+  }) async {
+    calls.add('upload ${form.publicId} $path');
+    onProgress?.call(0.5);
+    if (refusePaths.contains(path)) throw const MediaRefused();
+    onProgress?.call(1);
+  }
+
+  @override
+  Future<Post> createPost(PostDraft draft) async {
+    calls.add('create "${draft.title}" media=${draft.media.length}');
+    _maybeFail('create');
+    drafts.add(draft);
+    return postOf(
+      'new-post',
+      title: draft.title,
+      text: draft.content,
+      mine: true,
+    );
+  }
+
+  @override
+  Future<Post> updatePost(String id, PostDraft draft) async {
+    calls.add('update $id "${draft.title}" media=${draft.media.length}');
+    _maybeFail('update');
+    drafts.add(draft);
+    return postOf(id, title: draft.title, text: draft.content, mine: true);
+  }
 }

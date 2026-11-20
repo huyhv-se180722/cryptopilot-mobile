@@ -446,3 +446,112 @@ CommunityPage<Post> decodePostPage(Object? body) => _page(body, decodePost);
 
 CommunityPage<Comment> decodeCommentPage(Object? body) =>
     _page(body, decodeComment);
+
+// Writing (SCR-26, A-66, T-135).
+
+/// The signed form of `POST /media/upload-signature` (D-98): the file goes
+/// straight to [uploadUrl] with these fields, then the post names
+/// [publicId].
+@immutable
+class UploadForm {
+  const UploadForm({
+    required this.uploadUrl,
+    required this.apiKey,
+    required this.timestamp,
+    required this.signature,
+    required this.publicId,
+    required this.allowedFormats,
+    required this.overwrite,
+    required this.kind,
+    required this.maxBytes,
+    this.maxDurationSeconds,
+  });
+
+  final String uploadUrl;
+  final String apiKey;
+  final int timestamp;
+  final String signature;
+  final String publicId;
+  final List<String> allowedFormats;
+  final bool overwrite;
+  final MediaKind kind;
+  final int maxBytes;
+  final int? maxDurationSeconds;
+}
+
+/// A file a post names: kept from the post or uploaded for it.
+@immutable
+class MediaRef {
+  const MediaRef({required this.publicId, required this.kind});
+
+  final String publicId;
+  final MediaKind kind;
+
+  Map<String, Object?> toJson() => {
+    'publicId': publicId,
+    'mediaType': kind.wire,
+  };
+}
+
+/// What `POST /posts` and `PUT /posts/{id}` take (SRS 3.7.2): a title of
+/// 5 to 150 characters, up to 10,000 of content, up to 5 coins, up to 4
+/// images or one video (BR-44).
+@immutable
+class PostDraft {
+  const PostDraft({
+    required this.title,
+    required this.content,
+    this.market,
+    this.coins = const [],
+    this.media = const [],
+    this.sentiment,
+  });
+
+  static const minTitle = 5;
+  static const maxTitle = 150;
+  static const maxContent = 10000;
+  static const maxCoins = 5;
+  static const maxImages = 4;
+
+  final String title;
+  final String content;
+  final Market? market;
+  final List<String> coins;
+  final List<MediaRef> media;
+  final PostSentiment? sentiment;
+
+  Map<String, Object?> toJson() => {
+    'title': title.trim(),
+    'content': content.trim(),
+    'marketType': ?market?.wire,
+    'coins': coins,
+    'media': [for (final m in media) m.toJson()],
+    'sentiment': ?sentiment?.wire,
+  };
+}
+
+UploadForm decodeUploadForm(Object? body) {
+  final json = asJsonObject(body, 'upload form');
+  final url = readString(json, 'uploadUrl');
+  if (!url.startsWith('https://')) {
+    throw const DecodeException('uploadUrl must be https');
+  }
+  return UploadForm(
+    uploadUrl: url,
+    apiKey: readString(json, 'apiKey'),
+    timestamp: _int(json, 'timestamp'),
+    signature: readString(json, 'signature'),
+    publicId: readString(json, 'publicId'),
+    allowedFormats: [
+      for (final f in _list(json, 'allowedFormats'))
+        switch (f) {
+          final String format => format,
+          _ => throw const DecodeException('allowedFormats holds a non-string'),
+        },
+    ],
+    overwrite: readBool(json, 'overwrite'),
+    kind: _enum(MediaKind.values, readString(json, 'mediaType'), (v) => v.wire),
+    maxBytes: _int(json, 'maxBytes'),
+    maxDurationSeconds: _optionalInt(json, 'maxDurationSeconds'),
+  );
+}
