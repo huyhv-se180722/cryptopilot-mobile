@@ -1693,6 +1693,26 @@ class AppLocalizationsEn extends AppLocalizations {
   String get journalImageOnWeb => 'Chart image on the web';
 
   @override
+  String get journalImageTitle => 'Chart image';
+
+  @override
+  String get journalImageHint => 'One image: JPG, PNG or WEBP, up to 5 MB.';
+
+  @override
+  String get journalAddImage => 'Add chart image';
+
+  @override
+  String get journalReplaceImage => 'Replace image';
+
+  @override
+  String get journalRemoveImage => 'Remove image';
+
+  @override
+  String journalUploading(int percent) {
+    return 'Uploading $percent%';
+  }
+
+  @override
   String get journalEditOnWeb => 'Edit on the web';
 
   @override
