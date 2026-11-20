@@ -799,6 +799,39 @@ class AppLocalizationsEn extends AppLocalizations {
   String get aiPrivacy => 'Your email, name and capital are never sent.';
 
   @override
+  String aiStyleChip(String style, String risk) {
+    return 'Style: $style · $risk';
+  }
+
+  @override
+  String get aiStyleNotSet => 'Set your trading style';
+
+  @override
+  String get aiStyleHint =>
+      'The assistant explains things for the way you trade.';
+
+  @override
+  String get aiStyleScalping => 'Scalping';
+
+  @override
+  String get aiStyleDay => 'Day trading';
+
+  @override
+  String get aiStyleSwing => 'Swing';
+
+  @override
+  String get aiStylePosition => 'Position';
+
+  @override
+  String get aiRiskConservative => 'Conservative';
+
+  @override
+  String get aiRiskBalanced => 'Balanced';
+
+  @override
+  String get aiRiskAggressive => 'Aggressive';
+
+  @override
   String get aiPlaceholderGeneral => 'Ask anything about trading…';
 
   @override

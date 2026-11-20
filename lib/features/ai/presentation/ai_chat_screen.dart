@@ -17,6 +17,7 @@ import '../domain/ai.dart';
 import 'ai_answer.dart';
 import 'ai_context_bar.dart';
 import 'ai_conversations_screen.dart';
+import 'ai_style_chip.dart';
 
 /// `/ai/c/{id}` opened without its conversation (a restored route): found in
 /// the list, page by page; MSG41 when the Trader has no such conversation.
@@ -551,6 +552,13 @@ class _Composer extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
+              // Only on a plan with the assistant (the upgrade card above
+              // otherwise), as the web shows it.
+              if (quota != null)
+                const Padding(
+                  padding: EdgeInsets.only(bottom: 4),
+                  child: AiStyleChip(),
+                ),
               AiContextBar(value: context0, onChanged: onContext, quota: quota),
               if (context0.topic == ConversationTopic.myTrading)
                 Padding(
