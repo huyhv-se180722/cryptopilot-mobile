@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/errors/api_failure.dart';
+import '../../../core/state/load_after_build.dart';
 import '../../market/domain/market.dart';
 import '../data/community_api.dart';
 import '../domain/community.dart';
@@ -115,7 +116,7 @@ class FeedController extends Notifier<FeedState> {
 
   @override
   FeedState build() {
-    unawaited(Future.microtask(load));
+    ref.loadAfterBuild(load);
     return const FeedState();
   }
 

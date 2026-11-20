@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/auth/session_controller.dart';
 import '../../../core/errors/api_failure.dart';
+import '../../../core/state/load_after_build.dart';
 import '../data/profile_api.dart';
 import '../domain/profile.dart';
 
@@ -41,7 +42,7 @@ final accountControllerProvider =
 class AccountController extends Notifier<AccountState> {
   @override
   AccountState build() {
-    unawaited(Future.microtask(load));
+    ref.loadAfterBuild(load);
     return const AccountState();
   }
 

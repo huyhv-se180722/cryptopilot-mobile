@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/errors/api_failure.dart';
+import '../../../core/state/load_after_build.dart';
 import '../data/ai_api.dart';
 import '../domain/ai.dart';
 
@@ -62,7 +63,7 @@ class AiConversationsController extends Notifier<AiConversationsState> {
 
   @override
   AiConversationsState build() {
-    unawaited(Future.microtask(load));
+    ref.loadAfterBuild(load);
     return const AiConversationsState();
   }
 

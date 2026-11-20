@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/errors/api_failure.dart';
 import '../../../core/realtime/realtime_hub.dart';
+import '../../../core/state/load_after_build.dart';
 import '../data/ai_api.dart';
 import '../domain/ai.dart';
 import 'ai_context.dart';
@@ -141,7 +142,7 @@ class AiChatController extends Notifier<AiChatState> {
     if (conversation == null) {
       return AiChatState(context: args.seed!, messages: const []);
     }
-    unawaited(Future.microtask(load));
+    ref.loadAfterBuild(load);
     return AiChatState(
       conversation: conversation,
       context: AiContext.of(conversation),

@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/errors/api_failure.dart';
 import '../../../core/json/json_read.dart';
 import '../../../core/realtime/realtime_hub.dart';
+import '../../../core/state/load_after_build.dart';
 import '../domain/market.dart';
 import '../domain/order_book.dart';
 import 'market_api.dart';
@@ -55,7 +56,7 @@ class OrderBookRepository extends Notifier<OrderBook> {
       unawaited(depth.cancel());
       unawaited(trades.cancel());
     });
-    unawaited(Future.microtask(load));
+    ref.loadAfterBuild(load);
     return const OrderBook();
   }
 

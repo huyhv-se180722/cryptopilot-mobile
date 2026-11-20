@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/errors/api_failure.dart';
 import '../../../core/json/json_read.dart';
 import '../../../core/realtime/realtime_hub.dart';
+import '../../../core/state/load_after_build.dart';
 import '../domain/market.dart';
 import 'market_api.dart';
 
@@ -81,7 +82,7 @@ class MarketRepository extends Notifier<MarketData> {
       liveness.cancel();
       unawaited(subscription.cancel());
     });
-    unawaited(Future.microtask(load));
+    ref.loadAfterBuild(load);
     return const MarketData();
   }
 
@@ -191,7 +192,7 @@ class PairTickerRepository extends Notifier<PairTicker> {
         .watch('/topic/ticker.${key.market.wire}.${key.symbol}')
         .listen(_onTicker);
     ref.onDispose(() => unawaited(subscription.cancel()));
-    unawaited(Future.microtask(_read));
+    ref.loadAfterBuild(_read);
     return const PairTicker();
   }
 

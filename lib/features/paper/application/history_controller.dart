@@ -3,8 +3,9 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../core/errors/api_failure.dart';
 import '../../../core/auth/session_controller.dart';
+import '../../../core/errors/api_failure.dart';
+import '../../../core/state/load_after_build.dart';
 import '../data/paper_api.dart';
 import '../domain/paper.dart';
 
@@ -71,7 +72,7 @@ class HistoryController extends Notifier<HistoryState> {
 
   @override
   HistoryState build() {
-    unawaited(Future.microtask(load));
+    ref.loadAfterBuild(load);
     return const HistoryState();
   }
 

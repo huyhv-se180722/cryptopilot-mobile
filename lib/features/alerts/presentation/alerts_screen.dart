@@ -30,9 +30,9 @@ class _AlertsScreenState extends ConsumerState<AlertsScreen> {
     // The first read starts with the controller; a later visit reads again,
     // since the engine changes statuses meanwhile.
     if (ref.read(alertsControllerProvider).items != null) {
-      Future.microtask(
-        () => ref.read(alertsControllerProvider.notifier).load(),
-      );
+      Future.microtask(() {
+        if (mounted) return ref.read(alertsControllerProvider.notifier).load();
+      });
     }
   }
 

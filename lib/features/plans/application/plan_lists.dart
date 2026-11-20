@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/errors/api_failure.dart';
 import '../../../core/realtime/realtime_hub.dart';
+import '../../../core/state/load_after_build.dart';
 import '../data/plan_api.dart';
 import '../data/plan_detail_api.dart';
 import '../domain/plan.dart';
@@ -89,7 +90,7 @@ class PlanListController extends Notifier<PlanListState> {
       ..listen(realtimeHubProvider, (previous, next) {
         if (previous?.generation != next.generation) unawaited(load());
       });
-    unawaited(Future.microtask(load));
+    ref.loadAfterBuild(load);
     return const PlanListState();
   }
 

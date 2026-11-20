@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/auth/session_controller.dart';
 import '../../../core/errors/api_failure.dart';
+import '../../../core/state/load_after_build.dart';
 import '../data/watchlist_api.dart';
 import '../domain/watchlist.dart';
 
@@ -95,7 +96,7 @@ class WatchlistController extends Notifier<WatchlistState> {
     final signedIn = ref.watch(
       sessionControllerProvider.select((session) => session is SignedIn),
     );
-    if (signedIn) unawaited(Future.microtask(load));
+    if (signedIn) ref.loadAfterBuild(load);
     return const WatchlistState();
   }
 

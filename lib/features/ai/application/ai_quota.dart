@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/errors/api_failure.dart';
+import '../../../core/state/load_after_build.dart';
 import '../data/ai_api.dart';
 import '../domain/ai.dart';
 
@@ -27,7 +28,7 @@ final aiQuotaProvider =
 class AiQuotaController extends Notifier<AiQuotaState> {
   @override
   AiQuotaState build() {
-    unawaited(Future.microtask(load));
+    ref.loadAfterBuild(load);
     return const AiQuotaState();
   }
 

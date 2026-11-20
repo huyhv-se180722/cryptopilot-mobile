@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/auth/session_controller.dart';
 import '../../../core/errors/api_failure.dart';
+import '../../../core/state/load_after_build.dart';
 import '../data/journal_api.dart';
 import '../domain/journal.dart';
 
@@ -61,7 +62,7 @@ class JournalController extends Notifier<JournalState> {
 
   @override
   JournalState build() {
-    unawaited(Future.microtask(load));
+    ref.loadAfterBuild(load);
     return const JournalState();
   }
 
@@ -188,7 +189,7 @@ class JournalEntryController extends Notifier<JournalEntryState> {
 
   @override
   JournalEntryState build() {
-    unawaited(Future.microtask(load));
+    ref.loadAfterBuild(load);
     return const JournalEntryState();
   }
 

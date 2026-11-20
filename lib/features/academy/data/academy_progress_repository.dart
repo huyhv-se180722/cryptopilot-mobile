@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/errors/api_failure.dart';
+import '../../../core/state/load_after_build.dart';
 import '../domain/academy.dart';
 import 'academy_api.dart';
 
@@ -29,7 +30,7 @@ final academyProgressProvider =
 class AcademyProgressRepository extends Notifier<ProgressState> {
   @override
   ProgressState build() {
-    unawaited(Future.microtask(load));
+    ref.loadAfterBuild(load);
     return const ProgressState();
   }
 

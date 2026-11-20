@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/auth/session_controller.dart';
 import '../../../core/errors/api_failure.dart';
 import '../../../core/realtime/realtime_hub.dart';
+import '../../../core/state/load_after_build.dart';
 import '../../market/data/market_repository.dart';
 import '../../market/domain/candle.dart';
 import '../../market/domain/market.dart';
@@ -89,7 +90,7 @@ class AnalysisController extends Notifier<AnalysisState> {
         unawaited(s.cancel());
       }
     });
-    unawaited(Future.microtask(load));
+    ref.loadAfterBuild(load);
     final known = ref.read(pair);
     return AnalysisState(ticker: known.ticker, failure: known.failure);
   }
@@ -171,7 +172,7 @@ class FuturesMetricsController extends Notifier<MetricsState> {
   MetricsState build() {
     final timer = Timer.periodic(refresh, (_) => unawaited(load()));
     ref.onDispose(timer.cancel);
-    unawaited(Future.microtask(load));
+    ref.loadAfterBuild(load);
     return const MetricsState();
   }
 

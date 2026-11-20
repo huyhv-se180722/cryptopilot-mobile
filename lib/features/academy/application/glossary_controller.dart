@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/errors/api_failure.dart';
+import '../../../core/state/load_after_build.dart';
 import '../data/academy_api.dart';
 import '../domain/academy.dart';
 import 'academy_controller.dart';
@@ -49,7 +50,7 @@ class GlossaryController extends Notifier<GlossaryState> {
   @override
   GlossaryState build() {
     ref.onDispose(() => _typing?.cancel());
-    unawaited(Future.microtask(load));
+    ref.loadAfterBuild(load);
     return const GlossaryState();
   }
 
