@@ -30,9 +30,7 @@ class CoinListView extends ConsumerStatefulWidget {
 class _CoinListViewState extends ConsumerState<CoinListView> {
   CoinSort _sort = CoinSort.top;
 
-  static int _byChange(String? a, String? b, {required bool up}) {
-    final x = Decimal.tryParse(a ?? '');
-    final y = Decimal.tryParse(b ?? '');
+  static int _byChange(Decimal? x, Decimal? y, {required bool up}) {
     // A coin without a change goes last.
     if (x == null || y == null) {
       return (x == null ? 1 : 0) - (y == null ? 1 : 0);
@@ -79,17 +77,14 @@ class _CoinListViewState extends ConsumerState<CoinListView> {
         for (final coin in o.coins)
           (coin, coinFigures(coin, tickers[coin.spotSymbol])),
       ];
-      switch (_sort) {
-        case CoinSort.top:
-          break;
-        case CoinSort.gainers:
-          rows.sort(
-            (a, b) => _byChange(a.$2.change24h, b.$2.change24h, up: true),
-          );
-        case CoinSort.losers:
-          rows.sort(
-            (a, b) => _byChange(a.$2.change24h, b.$2.change24h, up: false),
-          );
+      if (_sort != CoinSort.top) {
+        // Each change parsed once, not on every comparison (T-138).
+        final change = {
+          for (final row in rows)
+            row.$1: Decimal.tryParse(row.$2.change24h ?? ''),
+        };
+        final up = _sort == CoinSort.gainers;
+        rows.sort((a, b) => _byChange(change[a.$1], change[b.$1], up: up));
       }
       body = rows.isEmpty
           ? ListView(
