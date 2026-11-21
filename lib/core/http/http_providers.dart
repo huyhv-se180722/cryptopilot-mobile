@@ -3,7 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../auth/session_controller.dart';
 import '../config/config_provider.dart';
+import '../state/poll_gate.dart';
 import 'auth_interceptor.dart';
+import 'rate_limit_interceptor.dart';
 
 Dio _baseDio(String apiBaseUrl) => Dio(
   BaseOptions(
@@ -22,15 +24,19 @@ final plainDioProvider = Provider<Dio>(
 );
 
 /// Calls of a signed-in user: bearer token, refresh before expiry and once
-/// after a 401.
+/// after a 401; a 429 holds polling until its window ends (T-138).
 final apiDioProvider = Provider<Dio>((ref) {
   final dio = _baseDio(ref.watch(appConfigProvider).apiBaseUrl);
-  dio.interceptors.add(
+  dio.interceptors.addAll([
     AuthInterceptor(
       dio: dio,
       session: () => ref.read(sessionControllerProvider.notifier),
     ),
-  );
+    RateLimitInterceptor(
+      (retryAfter) =>
+          ref.read(pollGateProvider.notifier).rateLimited(retryAfter),
+    ),
+  ]);
   return dio;
 });
 
