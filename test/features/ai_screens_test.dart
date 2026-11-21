@@ -246,7 +246,7 @@ void main() {
         '/ai/new?topic=MARKET&pair=pair-ETH&symbol=ETHUSDT&market=SPOT&tf=4h',
       );
       expect(find.text('ETHUSDT · Spot'), findsOneWidget);
-      expect(find.text('4h ▾'), findsOneWidget);
+      expect(find.text('4h'), findsOneWidget);
       await type(tester, 'Where is support?');
       expect(sendEnabled(tester), isTrue);
       await unmount(tester);

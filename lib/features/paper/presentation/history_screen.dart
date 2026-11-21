@@ -10,6 +10,7 @@ import '../application/history_controller.dart';
 import '../domain/paper.dart';
 import 'futures_history_view.dart';
 import 'paper_text.dart';
+import '../../../core/widgets/empty_state.dart';
 
 /// The paper histories (plan 9.3): for Spot the orders, fills, the ledger
 /// and transfers, page after page; for Futures (T-123) the closed
@@ -49,6 +50,7 @@ class HistoryScreen extends ConsumerWidget {
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
               child: SegmentedButton<bool>(
+                showSelectedIcon: false,
                 key: const Key('history-market'),
                 segments: [
                   ButtonSegment(value: false, label: Text(l.tradeSpot)),
@@ -165,13 +167,10 @@ class _History extends ConsumerWidget {
         child: Center(child: CircularProgressIndicator()),
       );
     } else if (items.isEmpty) {
-      list = Padding(
-        padding: const EdgeInsets.all(24),
-        child: Text(
-          l.historyEmpty,
-          key: Key('history-empty-${kind.name}'),
-          textAlign: TextAlign.center,
-        ),
+      list = EmptyState(
+        key: Key('history-empty-${kind.name}'),
+        message: l.historyEmpty,
+        icon: Icons.history,
       );
     } else {
       list = Column(children: [for (final item in items) _Row(item: item)]);

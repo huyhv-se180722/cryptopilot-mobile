@@ -18,6 +18,7 @@ import 'ai_answer.dart';
 import 'ai_context_bar.dart';
 import 'ai_conversations_screen.dart';
 import 'ai_style_chip.dart';
+import '../../../core/widgets/empty_state.dart';
 
 /// `/ai/c/{id}` opened without its conversation (a restored route): found in
 /// the list, page by page; MSG41 when the Trader has no such conversation.
@@ -185,13 +186,9 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
     } else if (messages.isEmpty) {
       body = Center(
         key: const Key('ai-chat-empty'),
-        child: Padding(
-          padding: const EdgeInsets.all(32),
-          child: Text(
-            l.aiEmptyChat,
-            textAlign: TextAlign.center,
-            style: TextStyle(color: cp.muted),
-          ),
+        child: EmptyState(
+          message: l.aiEmptyChat,
+          icon: Icons.chat_bubble_outline,
         ),
       );
     } else {

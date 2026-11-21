@@ -158,7 +158,7 @@ void main() {
       expect(find.byType(PlansScreen), findsOneWidget);
       expect(find.byKey(const Key('plan-row-p2')), findsOneWidget);
       expect(find.byKey(const Key('plan-row-p3')), findsNothing);
-      expect(find.text('OPEN'), findsOneWidget);
+      expect(find.text('Open'), findsOneWidget);
 
       await tab(tester, 'plans-tab-active');
       expect(find.byKey(const Key('plan-row-p1')), findsOneWidget);
@@ -369,8 +369,8 @@ void main() {
       await open(tester, '/plans');
       await tab(tester, 'plans-tab-journal');
       expect(find.byKey(const Key('journal-row-j1')), findsOneWidget);
-      expect(find.text('WIN'), findsOneWidget);
-      expect(find.text('LOSS'), findsOneWidget);
+      expect(find.text('Win'), findsOneWidget);
+      expect(find.text('Loss'), findsOneWidget);
       expect(find.text('+18.40'), findsOneWidget);
 
       await tester.tap(find.byKey(const Key('journal-filter')));

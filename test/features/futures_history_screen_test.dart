@@ -152,7 +152,7 @@ void main() {
     await tester.tap(find.byKey(const Key('fh-symbol-orders')));
     await frames(tester);
     expect(find.text('All pairs'), findsNothing);
-    await tester.tap(find.text('ETHUSDT Perp').last);
+    await tester.tap(find.text('ETH/USDT', findRichText: true).last);
     await frames(tester);
     expect(reads().last, 'allOrders ETHUSDT -..- 100');
 

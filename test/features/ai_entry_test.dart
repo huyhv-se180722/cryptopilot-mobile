@@ -93,7 +93,7 @@ void main() {
     await frames(tester);
     expect(find.byType(AiChatScreen), findsOneWidget);
     expect(find.text('ETHUSDT · Spot'), findsOneWidget);
-    expect(find.text('4h ▾'), findsOneWidget);
+    expect(find.text('4h'), findsOneWidget);
     await unmount(tester);
   });
 

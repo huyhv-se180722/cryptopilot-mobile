@@ -76,16 +76,19 @@ class DemoBanner extends StatelessWidget {
     return Container(
       key: const Key('paper-demo-banner'),
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-      color: context.cp.warning.withValues(alpha: 0.15),
+      // One slim strip (D-163); it wraps rather than cut the wording.
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      color: context.cp.warning.withValues(alpha: 0.12),
       child: Row(
         children: [
-          Icon(Icons.science_outlined, size: 16, color: context.cp.warning),
-          const SizedBox(width: 8),
+          Icon(Icons.science_outlined, size: 14, color: context.cp.warning),
+          const SizedBox(width: 6),
           Expanded(
             child: Text(
               l.paperDemoBanner,
-              style: Theme.of(context).textTheme.bodySmall,
+              style: Theme.of(
+                context,
+              ).textTheme.labelSmall?.copyWith(color: context.cp.warning),
             ),
           ),
         ],

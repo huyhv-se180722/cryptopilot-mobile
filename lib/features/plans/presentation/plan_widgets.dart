@@ -8,6 +8,8 @@ import '../../market/data/market_repository.dart';
 import '../../market/domain/market.dart';
 import '../domain/plan.dart';
 import '../domain/plan_detail.dart';
+import '../../../core/widgets/pair_label.dart';
+import '../../../core/widgets/cp_tag.dart';
 
 /// MSG42 under every screen that shows trading plans (BR-60).
 class PlanDisclaimer extends StatelessWidget {
@@ -18,7 +20,6 @@ class PlanDisclaimer extends StatelessWidget {
     padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
     child: Text(
       AppLocalizations.of(context).msg42,
-      textAlign: TextAlign.center,
       style: Theme.of(
         context,
       ).textTheme.bodySmall?.copyWith(color: context.cp.muted),
@@ -96,23 +97,7 @@ class StatusChip extends StatelessWidget {
   final Color? tone;
 
   @override
-  Widget build(BuildContext context) {
-    final color = tone ?? context.cp.muted;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-      decoration: BoxDecoration(
-        border: Border.all(color: color),
-        borderRadius: BorderRadius.circular(4),
-      ),
-      child: Text(
-        label,
-        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-          color: color,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-    );
-  }
+  Widget build(BuildContext context) => CpTag(label, color: tone);
 }
 
 /// "BTCUSDT Futures LONG 5x": the head of a plan row and of SCR-18.
@@ -142,12 +127,20 @@ class PlanHeadline extends ConsumerWidget {
     return Text.rich(
       TextSpan(
         children: [
-          TextSpan(
-            text: pair?.symbol ?? '…',
-            style: (style ?? text.titleSmall)?.copyWith(
-              fontWeight: FontWeight.w700,
+          if (pair == null)
+            TextSpan(
+              text: '…',
+              style: (style ?? text.titleSmall)?.copyWith(
+                fontWeight: FontWeight.w700,
+              ),
+            )
+          else
+            ...pairSpans(
+              context,
+              base: pair.baseAsset,
+              quote: pair.quoteAsset,
+              style: style ?? text.titleSmall,
             ),
-          ),
           TextSpan(
             text: '  ${marketName(l, market)} ',
             style: text.bodySmall?.copyWith(color: cp.muted),

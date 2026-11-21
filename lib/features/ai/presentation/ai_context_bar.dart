@@ -101,7 +101,13 @@ class AiContextBar extends ConsumerWidget {
               ],
               child: Chip(
                 avatar: const Icon(Icons.schedule, size: 18),
-                label: Text('${value.timeframe.wire} ▾'),
+                label: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(value.timeframe.wire),
+                    const Icon(Icons.arrow_drop_down, size: 18),
+                  ],
+                ),
               ),
             ),
           ],

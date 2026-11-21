@@ -32,6 +32,7 @@ import '../../watchlist/domain/watchlist.dart';
 import '../../watchlist/presentation/add_pair_sheet.dart';
 import '../../watchlist/presentation/watchlist_view.dart';
 import '../application/home_providers.dart';
+import '../../../core/widgets/pair_label.dart';
 
 /// SCR-08 Trader Dashboard, the home tab (SRS: watchlist snapshot, active
 /// plans and open positions, recent notifications, performance summary,
@@ -274,12 +275,13 @@ class _WatchRow extends ConsumerWidget {
         child: Row(
           children: [
             Expanded(
-              child: Text(
-                pair == null
-                    ? item.symbol
-                    : '${pair.baseAsset}/${pair.quoteAsset}',
-                style: text.titleSmall?.copyWith(fontWeight: FontWeight.w700),
-              ),
+              child: pair == null
+                  ? PairLabel.symbol(item.symbol, style: text.titleSmall)
+                  : PairLabel(
+                      base: pair.baseAsset,
+                      quote: pair.quoteAsset,
+                      style: text.titleSmall,
+                    ),
             ),
             // A Futures-only pair has no Spot price (M-09): a dash.
             Text(

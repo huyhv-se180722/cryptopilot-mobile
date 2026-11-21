@@ -108,7 +108,7 @@ void main() {
     tester,
   ) async {
     await open(tester);
-    expect(find.text('BTCUSDT Perp'), findsOneWidget);
+    expect(find.text('BTC/USDT', findRichText: true), findsOneWidget);
     expect(find.text('Mark 76,000.00'), findsOneWidget);
     expect(find.text('Cross'), findsOneWidget);
     expect(find.text('20x'), findsOneWidget);

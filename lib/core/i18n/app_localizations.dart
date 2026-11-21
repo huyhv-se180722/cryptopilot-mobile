@@ -2599,13 +2599,13 @@ abstract class AppLocalizations {
   /// No description provided for @planPositionOpen.
   ///
   /// In en, this message translates to:
-  /// **'OPEN'**
+  /// **'Open'**
   String get planPositionOpen;
 
   /// No description provided for @planPositionClosed.
   ///
   /// In en, this message translates to:
-  /// **'CLOSED'**
+  /// **'Closed'**
   String get planPositionClosed;
 
   /// No description provided for @planLong.
@@ -3007,19 +3007,19 @@ abstract class AppLocalizations {
   /// No description provided for @journalWin.
   ///
   /// In en, this message translates to:
-  /// **'WIN'**
+  /// **'Win'**
   String get journalWin;
 
   /// No description provided for @journalLoss.
   ///
   /// In en, this message translates to:
-  /// **'LOSS'**
+  /// **'Loss'**
   String get journalLoss;
 
   /// No description provided for @journalBreakeven.
   ///
   /// In en, this message translates to:
-  /// **'BREAKEVEN'**
+  /// **'Breakeven'**
   String get journalBreakeven;
 
   /// No description provided for @journalOpen.

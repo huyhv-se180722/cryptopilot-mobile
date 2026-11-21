@@ -21,6 +21,8 @@ import '../domain/paper.dart';
 import 'futures_calculator_sheet.dart';
 import 'order_book_panel.dart';
 import 'paper_text.dart';
+import '../../../core/widgets/empty_state.dart';
+import '../../../core/widgets/pair_label.dart';
 
 /// Futures on the Trade tab (D-154, T-129): the pair, margin mode and
 /// leverage, the form with Buy/Long and Sell/Short, then the positions and
@@ -241,7 +243,11 @@ class _Header extends ConsumerWidget {
                           url: p.logoUrl,
                           size: 24,
                         ),
-                        title: Text('${p.symbol} Perp'),
+                        title: PairLabel(
+                          base: p.baseAsset,
+                          quote: p.quoteAsset,
+                          tag: l.marketPerpetual,
+                        ),
                         selected: p.symbol == pair.symbol,
                         onTap: () => Navigator.of(context).pop(p.symbol),
                       ),
@@ -254,10 +260,11 @@ class _Header extends ConsumerWidget {
             }
           },
           icon: const Icon(Icons.arrow_drop_down),
-          label: Text(
-            '${pair.symbol} Perp',
+          label: PairLabel(
+            base: pair.baseAsset,
+            quote: pair.quoteAsset,
+            tag: l.marketPerpetual,
             style: text.titleMedium,
-            overflow: TextOverflow.ellipsis,
           ),
         ),
         const SizedBox(width: 8),
@@ -540,6 +547,7 @@ class _Form extends ConsumerWidget {
         // Hedge mode: Open or Close, as the exchange's two tabs (TR-14b).
         if (hedge)
           SegmentedButton<bool>(
+            showSelectedIcon: false,
             key: const Key('futures-open-close'),
             segments: [
               ButtonSegment(value: false, label: Text(l.futOpen)),
@@ -1098,13 +1106,11 @@ class _Positions extends ConsumerWidget {
           ],
         ),
         if (positions.isEmpty)
-          Padding(
-            padding: const EdgeInsets.all(12),
-            child: Text(
-              l.futNoPositions,
-              key: const Key('futures-no-positions'),
-              textAlign: TextAlign.center,
-            ),
+          EmptyState(
+            key: const Key('futures-no-positions'),
+            message: l.futNoPositions,
+            icon: Icons.inbox_outlined,
+            inline: true,
           ),
         for (final position in positions) _PositionCard(position: position),
       ],
@@ -1447,6 +1453,7 @@ class _MarginSheetState extends State<_MarginSheet> {
       title: l.futMargin,
       children: [
         SegmentedButton<bool>(
+          showSelectedIcon: false,
           segments: [
             ButtonSegment(value: true, label: Text(l.futMarginAdd)),
             ButtonSegment(value: false, label: Text(l.futMarginRemove)),
@@ -1571,9 +1578,10 @@ class _Orders extends ConsumerWidget {
       children: [
         Text(l.futOrders(count), style: Theme.of(context).textTheme.titleSmall),
         if (count == 0)
-          Padding(
-            padding: const EdgeInsets.all(12),
-            child: Text(l.futNoOrders, textAlign: TextAlign.center),
+          EmptyState(
+            message: l.futNoOrders,
+            icon: Icons.receipt_long_outlined,
+            inline: true,
           ),
         for (final order in state.orders)
           ListTile(
