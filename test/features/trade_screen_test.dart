@@ -275,6 +275,50 @@ void main() {
     });
   }
 
+  for (final brightness in Brightness.values) {
+    testWidgets('360 dp, ${brightness.name}: the book and the market trades '
+        'say Live, then Delayed after 10 s without a depth push, then Live '
+        'again; the demo banner stays (CR-09, T-138)', (tester) async {
+      tester.view
+        ..physicalSize = const Size(360 * 3, 760 * 3)
+        ..devicePixelRatio = 3;
+      addTearDown(tester.view.reset);
+      await open(tester, brightness: brightness);
+      Finder said(String key, String text) =>
+          find.descendant(of: find.byKey(Key(key)), matching: find.text(text));
+      expect(said('book-live', 'Live'), findsOneWidget);
+
+      await tester.pump(const Duration(seconds: 11));
+      await frames(tester);
+      expect(said('book-live', 'Delayed'), findsOneWidget);
+      expect(find.byKey(const Key('paper-demo-banner')), findsOneWidget);
+      expect(tester.takeException(), isNull);
+
+      await tester.scrollUntilVisible(
+        find.text('Market trades'),
+        200,
+        scrollable: scrollable(),
+      );
+      await tester.tap(find.text('Market trades'));
+      await frames(tester);
+      expect(said('trades-live', 'Delayed'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+
+      transport.last.push('/topic/depth.SPOT.BTCUSDT', {
+        'bids': [
+          ['76000.00', '1'],
+        ],
+        'asks': [
+          ['76001.00', '1'],
+        ],
+      });
+      await frames(tester);
+      expect(said('trades-live', 'Live'), findsOneWidget);
+      expect(said('book-live', 'Live'), findsOneWidget);
+      await unmount(tester);
+    });
+  }
+
   testWidgets('the pair sheet shows each coin logo (T-132)', (tester) async {
     await open(tester);
     await tester.tap(find.byKey(const Key('trade-pair')));

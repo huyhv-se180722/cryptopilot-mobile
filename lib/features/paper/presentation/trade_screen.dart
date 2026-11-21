@@ -793,22 +793,29 @@ class _Trades extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context);
     if (!TickerMode.valuesOf(context).enabled) return const SizedBox.shrink();
-    final trades = ref.watch(
-      orderBookProvider((
-        market: Market.spot,
-        symbol: pair.symbol,
-      )).select((b) => b.trades),
+    final book = orderBookProvider((market: Market.spot, symbol: pair.symbol));
+    final trades = ref.watch(book.select((b) => b.trades));
+    final delayed = ref.watch(book.select((b) => b.delayed));
+    final badge = Align(
+      alignment: AlignmentDirectional.centerEnd,
+      child: LiveBadge(key: const Key('trades-live'), delayed: delayed),
     );
     if (trades.isEmpty) {
       return Padding(
         padding: const EdgeInsets.all(16),
-        child: Text(l.tradeNoTrades, textAlign: TextAlign.center),
+        child: Column(
+          children: [
+            badge,
+            Text(l.tradeNoTrades, textAlign: TextAlign.center),
+          ],
+        ),
       );
     }
     final small = Theme.of(context).textTheme.bodySmall;
     return Column(
       key: const Key('trade-trades'),
       children: [
+        badge,
         for (final trade in trades.take(20))
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 2),
