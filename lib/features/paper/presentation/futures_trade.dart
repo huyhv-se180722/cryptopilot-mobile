@@ -582,7 +582,11 @@ class _Form extends ConsumerWidget {
                 value: state.timeInForce,
                 onChanged: (tif) => c.setTimeInForce(tif!),
                 selectedItemBuilder: (_) => [
-                  for (final tif in FuturesTimeInForce.values) Text(tif.wire),
+                  for (final tif in FuturesTimeInForce.values)
+                    Align(
+                      alignment: AlignmentDirectional.centerStart,
+                      child: Text(tif.wire),
+                    ),
                 ],
                 items: [
                   for (final tif in FuturesTimeInForce.values)
@@ -833,6 +837,9 @@ class _SideAction extends StatelessWidget {
             key: Key('futures-${side.wire}'),
             style: FilledButton.styleFrom(
               backgroundColor: buy ? context.cp.positive : context.cp.negative,
+              foregroundColor: buy
+                  ? context.cp.onPositive
+                  : context.cp.onNegative,
             ),
             onPressed: onPressed,
             child: Text(

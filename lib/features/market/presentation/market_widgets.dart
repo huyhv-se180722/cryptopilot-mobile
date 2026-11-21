@@ -61,7 +61,11 @@ class ChangePill extends StatelessWidget {
       child: Text(
         formatSignedPercent(percent),
         style: TextStyle(
-          color: direction == Direction.flat ? context.cp.text : Colors.white,
+          color: switch (direction) {
+            Direction.up => context.cp.onPositive,
+            Direction.down => context.cp.onNegative,
+            Direction.flat => context.cp.text,
+          },
           fontWeight: FontWeight.w600,
           fontFeatures: const [FontFeature.tabularFigures()],
         ),

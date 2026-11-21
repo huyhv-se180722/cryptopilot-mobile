@@ -32,6 +32,7 @@ class HistoryScreen extends ConsumerWidget {
           title: Text(l.assetsHistory),
           bottom: TabBar(
             isScrollable: true,
+            tabAlignment: TabAlignment.start,
             tabs: futures
                 ? futuresHistoryTabs(l)
                 : [

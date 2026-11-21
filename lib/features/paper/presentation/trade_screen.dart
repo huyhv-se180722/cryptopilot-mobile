@@ -330,6 +330,7 @@ class _SpotForm extends ConsumerWidget {
     };
 
     final side = buy ? context.cp.positive : context.cp.negative;
+    final onSide = buy ? context.cp.onPositive : context.cp.onNegative;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -346,6 +347,9 @@ class _SpotForm extends ConsumerWidget {
                     color: s == OrderSide.buy
                         ? context.cp.positive
                         : context.cp.negative,
+                    onColor: s == OrderSide.buy
+                        ? context.cp.onPositive
+                        : context.cp.onNegative,
                     onTap: () => controller.selectSide(s),
                   ),
                 ),
@@ -388,7 +392,11 @@ class _SpotForm extends ConsumerWidget {
                 value: state.timeInForce,
                 onChanged: (tif) => controller.setTimeInForce(tif!),
                 selectedItemBuilder: (_) => [
-                  for (final tif in SpotTimeInForce.values) Text(tif.wire),
+                  for (final tif in SpotTimeInForce.values)
+                    Align(
+                      alignment: AlignmentDirectional.centerStart,
+                      child: Text(tif.wire),
+                    ),
                 ],
                 items: [
                   for (final tif in SpotTimeInForce.values)
@@ -457,7 +465,10 @@ class _SpotForm extends ConsumerWidget {
         const SizedBox(height: 6),
         FilledButton(
           key: const Key('trade-submit'),
-          style: FilledButton.styleFrom(backgroundColor: side),
+          style: FilledButton.styleFrom(
+            backgroundColor: side,
+            foregroundColor: onSide,
+          ),
           onPressed: state.submitting ? null : () => _submit(context, ref),
           child: Text(
             buy
@@ -587,6 +598,7 @@ class _SideButton extends StatelessWidget {
     required this.label,
     required this.selected,
     required this.color,
+    required this.onColor,
     required this.onTap,
     super.key,
   });
@@ -594,12 +606,16 @@ class _SideButton extends StatelessWidget {
   final String label;
   final bool selected;
   final Color color;
+  final Color onColor;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) => selected
       ? FilledButton(
-          style: FilledButton.styleFrom(backgroundColor: color),
+          style: FilledButton.styleFrom(
+            backgroundColor: color,
+            foregroundColor: onColor,
+          ),
           onPressed: onTap,
           child: Text(label),
         )
