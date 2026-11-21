@@ -80,9 +80,16 @@ class _ComposerScreenState extends ConsumerState<ComposerScreen> {
         title: Text(editing ? l.composerEdit : l.composerNew),
         actions: [
           Padding(
-            padding: const EdgeInsets.only(right: 8),
+            padding: const EdgeInsets.only(right: 12),
             child: FilledButton(
               key: const Key('composer-publish'),
+              // Compact inside the app bar (T-148): the theme's 48 dp
+              // minimum filled it edge to edge.
+              style: FilledButton.styleFrom(
+                minimumSize: const Size(64, 36),
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
               onPressed: state.canPublish ? _publish : null,
               child: state.submitting
                   ? const SizedBox.square(

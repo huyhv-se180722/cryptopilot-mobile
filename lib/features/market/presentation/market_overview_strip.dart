@@ -287,6 +287,6 @@ class _Note extends StatelessWidget {
     textAlign: end ? TextAlign.end : TextAlign.start,
     style: Theme.of(
       context,
-    ).textTheme.labelSmall?.copyWith(color: context.cp.muted, fontSize: 9),
+    ).textTheme.labelSmall?.copyWith(color: context.cp.muted),
   );
 }

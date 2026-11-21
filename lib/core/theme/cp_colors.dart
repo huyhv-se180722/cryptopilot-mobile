@@ -13,6 +13,8 @@ class CpColors extends ThemeExtension<CpColors> {
     required this.primary,
     required this.positive,
     required this.negative,
+    required this.onPositive,
+    required this.onNegative,
     required this.warning,
     required this.accent,
   });
@@ -27,6 +29,8 @@ class CpColors extends ThemeExtension<CpColors> {
     primary: Color(0xFF2563EB),
     positive: Color(0xFF087F5B),
     negative: Color(0xFFC52D3A),
+    onPositive: Color(0xFFFFFFFF),
+    onNegative: Color(0xFFFFFFFF),
     warning: Color(0xFF925400),
     accent: Color(0xFF0891B2),
   );
@@ -41,6 +45,8 @@ class CpColors extends ThemeExtension<CpColors> {
     primary: Color(0xFF3B82F6),
     positive: Color(0xFF10B981),
     negative: Color(0xFFF43F5E),
+    onPositive: Color(0xFF030712),
+    onNegative: Color(0xFF030712),
     warning: Color(0xFFFFBB33),
     accent: Color(0xFF06B6D4),
   );
@@ -58,6 +64,12 @@ class CpColors extends ThemeExtension<CpColors> {
 
   /// Down, losses, errors.
   final Color negative;
+
+  /// Text and icons on a [positive] or [negative] fill (buttons, change
+  /// pills): white on the deeper light-theme colours, near-black on the
+  /// brighter dark-theme ones, each at least 4.5:1 (T-148).
+  final Color onPositive;
+  final Color onNegative;
   final Color warning;
   final Color accent;
 
@@ -72,6 +84,8 @@ class CpColors extends ThemeExtension<CpColors> {
     Color? primary,
     Color? positive,
     Color? negative,
+    Color? onPositive,
+    Color? onNegative,
     Color? warning,
     Color? accent,
   }) => CpColors(
@@ -84,6 +98,8 @@ class CpColors extends ThemeExtension<CpColors> {
     primary: primary ?? this.primary,
     positive: positive ?? this.positive,
     negative: negative ?? this.negative,
+    onPositive: onPositive ?? this.onPositive,
+    onNegative: onNegative ?? this.onNegative,
     warning: warning ?? this.warning,
     accent: accent ?? this.accent,
   );
@@ -101,6 +117,8 @@ class CpColors extends ThemeExtension<CpColors> {
       primary: Color.lerp(primary, other.primary, t)!,
       positive: Color.lerp(positive, other.positive, t)!,
       negative: Color.lerp(negative, other.negative, t)!,
+      onPositive: Color.lerp(onPositive, other.onPositive, t)!,
+      onNegative: Color.lerp(onNegative, other.onNegative, t)!,
       warning: Color.lerp(warning, other.warning, t)!,
       accent: Color.lerp(accent, other.accent, t)!,
     );
