@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/errors/api_failure.dart';
 import '../../../core/json/json_read.dart';
 import '../../../core/realtime/realtime_hub.dart';
+import '../../../core/realtime/reload_on_reconnect.dart';
 import '../../../core/state/load_after_build.dart';
 import '../../market/data/market_api.dart';
 import '../../market/domain/candle.dart';
@@ -70,7 +71,10 @@ final candleRepositoryProvider = NotifierProvider.autoDispose
 /// D-144, D-150), for every chart that shows them: the cached ones at once,
 /// the fresh 500 closed ones read at the same time (SRS 3.3.2), the forming
 /// one from `/topic/kline.{M}.{S}.{tf}`, older ones on demand. Subscribed
-/// while a chart listens, unsubscribed with the last one.
+/// while a chart listens, unsubscribed with the last one. Candles that closed
+/// while the socket was away are read again on the next connection and
+/// joined to the older ones already drawn, so the chart never has a hole
+/// (T-138).
 class CandleRepository extends Notifier<CandlesState> {
   CandleRepository(this.key);
 
@@ -78,6 +82,8 @@ class CandleRepository extends Notifier<CandlesState> {
   static const olderPage = 300;
 
   final CandleKey key;
+
+  bool _catchingUp = false;
 
   MarketApi get _api => ref.read(marketApiProvider);
   CandleCache get _cache => ref.read(candleCacheProvider);
@@ -88,7 +94,9 @@ class CandleRepository extends Notifier<CandlesState> {
         .read(realtimeHubProvider.notifier)
         .watch('/topic/kline.${key.market.wire}.${key.symbol}.${key.tf.wire}')
         .listen(_onKline);
-    ref.onDispose(() => unawaited(kline.cancel()));
+    ref
+      ..onDispose(() => unawaited(kline.cancel()))
+      ..reloadOnReconnect(() => unawaited(_catchUp()));
     ref.loadAfterBuild(load);
     return const CandlesState();
   }
@@ -126,6 +134,46 @@ class CandleRepository extends Notifier<CandlesState> {
     }
   }
 
+  /// The latest closed candles again, after pushes may have been missed:
+  /// they replace the drawn ones they overlap; older ones already drawn stay
+  /// when they touch them, and are dropped when a hole would part them.
+  Future<void> _catchUp() async {
+    if (!ref.mounted || _catchingUp) return;
+    final drawn = state.candles;
+    if (drawn == null || drawn.isEmpty || state.fromCache) return load();
+    _catchingUp = true;
+    try {
+      final fresh = await _api.candles(key.market, key.symbol, key.tf);
+      if (!ref.mounted || fresh.isEmpty) return;
+      final now = state.candles ?? drawn;
+      final first = fresh.first.openTime;
+      final older = [
+        for (final c in now)
+          if (c.openTime.isBefore(first)) c,
+      ];
+      final joined =
+          older.isEmpty ||
+          !older.last.openTime.add(key.tf.step).isBefore(first);
+      final forming = now.last;
+      state = state.copyWith(
+        candles: [
+          if (joined) ...older,
+          ...fresh,
+          if (!forming.closed && forming.openTime.isAfter(fresh.last.openTime))
+            forming,
+        ],
+        clearFailure: true,
+        change: CandleChange.reset,
+        olderDone: joined && state.olderDone,
+      );
+      unawaited(_cache.write(key.market, key.symbol, key.tf, fresh));
+    } on ApiFailure {
+      // What is drawn stays; the next connection tries again.
+    } finally {
+      _catchingUp = false;
+    }
+  }
+
   /// Keeps a forming candle that arrived before the REST answer.
   List<Candle> _withForming(List<Candle> closed) {
     final last = state.candles?.lastOrNull;
@@ -151,6 +199,9 @@ class CandleRepository extends Notifier<CandlesState> {
         candles: [...list.sublist(0, list.length - 1), candle],
         change: CandleChange.update,
       );
+    } else if (candle.openTime.isAfter(last.openTime.add(key.tf.step))) {
+      // Candles are missing in between: read them before drawing this one.
+      unawaited(_catchUp());
     } else if (candle.openTime.isAfter(last.openTime)) {
       state = state.copyWith(
         candles: [...list, candle],

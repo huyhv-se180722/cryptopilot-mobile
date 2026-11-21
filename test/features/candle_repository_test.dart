@@ -185,4 +185,110 @@ void main() {
     expect(state.candles, hasLength(500));
     await unmount(tester);
   });
+
+  group('after a reconnect (T-138)', () {
+    Future<void> reconnect(WidgetTester tester) async {
+      transport.last.drop();
+      await tester.pump(const Duration(seconds: 1));
+      transport.last.onConnected();
+      for (var i = 0; i < 4; i++) {
+        await tester.pump();
+      }
+    }
+
+    void expectNoHole(List<Candle> candles) {
+      for (var i = 1; i < candles.length; i++) {
+        expect(
+          candles[i].openTime.difference(candles[i - 1].openTime),
+          Timeframe.h1.step,
+          reason: 'candle $i',
+        );
+      }
+    }
+
+    testWidgets('the candles closed meanwhile are read once and joined to '
+        'the older ones already drawn, with no hole', (tester) async {
+      final repository = candleRepositoryProvider(key);
+      await pump(tester, [repository]);
+      await container.read(repository.notifier).loadOlder();
+      await tester.pump();
+      final before = container.read(repository).candles!;
+      expect(before, hasLength(600));
+
+      // Three hours away: three more candles closed on the server.
+      api.candlesBy['SPOT BTCUSDT 1h'] = candleRun(
+        603,
+        end: end.add(const Duration(hours: 3)),
+      );
+      api.candleCalls.clear();
+      await reconnect(tester);
+
+      expect(api.candleCalls, ['SPOT BTCUSDT 1h 500']);
+      final state = container.read(repository);
+      expect(state.change, CandleChange.reset);
+      expect(state.candles, hasLength(603));
+      expect(state.candles!.first.openTime, before.first.openTime);
+      expect(state.candles!.last.openTime, end.add(const Duration(hours: 2)));
+      expectNoHole(state.candles!);
+      await tester.pump(const Duration(seconds: 10));
+      expect(api.candleCalls, hasLength(1));
+      await unmount(tester);
+    });
+
+    testWidgets('older candles a long gap parts from the fresh ones are '
+        'dropped rather than drawn across a hole', (tester) async {
+      final repository = candleRepositoryProvider(key);
+      await pump(tester, [repository]);
+      api.candlesBy['SPOT BTCUSDT 1h'] = candleRun(
+        500,
+        end: end.add(const Duration(days: 30)),
+      );
+      await reconnect(tester);
+
+      final state = container.read(repository);
+      expect(state.candles, hasLength(500));
+      expect(state.olderDone, isFalse);
+      expectNoHole(state.candles!);
+      await unmount(tester);
+    });
+
+    testWidgets('a kline past a hole is not drawn; the missing candles are '
+        'read first, then the next kline goes last', (tester) async {
+      final repository = candleRepositoryProvider(key);
+      await pump(tester, [repository]);
+      api.candlesBy['SPOT BTCUSDT 1h'] = candleRun(
+        503,
+        end: end.add(const Duration(hours: 3)),
+      );
+      api.candleCalls.clear();
+
+      final later = end.add(const Duration(hours: 3));
+      transport.last.push(topic, kline(later, '905.00'));
+      await tester.pump();
+      await tester.pump();
+      expect(api.candleCalls, ['SPOT BTCUSDT 1h 500']);
+      var state = container.read(repository);
+      expect(state.candles!.last.openTime, later.subtract(Timeframe.h1.step));
+      expectNoHole(state.candles!);
+
+      transport.last.push(topic, kline(later, '906.00'));
+      await tester.pump();
+      state = container.read(repository);
+      expect(state.candles!.last.openTime, later);
+      expect(state.candles!.last.closed, isFalse);
+      expectNoHole(state.candles!);
+      await unmount(tester);
+    });
+
+    testWidgets('a failed read keeps what is drawn', (tester) async {
+      final repository = candleRepositoryProvider(key);
+      await pump(tester, [repository]);
+      final before = container.read(repository).candles;
+      api.candlesError = problem(503, 'UNAVAILABLE', 'MSG43');
+      await reconnect(tester);
+      expect(container.read(repository).candles, same(before));
+      expect(container.read(repository).failure, isNull);
+      await unmount(tester);
+    });
+  });
 }

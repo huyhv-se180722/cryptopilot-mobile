@@ -5,13 +5,16 @@ import '../../../core/json/json_read.dart';
 /// Timeframes the backend stores and streams (BR-08); 1h is the default of
 /// the analysis screens (SRS 3.3.2).
 enum Timeframe {
-  m15('15m'),
-  h1('1h'),
-  h4('4h'),
-  d1('1d');
+  m15('15m', Duration(minutes: 15)),
+  h1('1h', Duration(hours: 1)),
+  h4('4h', Duration(hours: 4)),
+  d1('1d', Duration(days: 1));
 
-  const Timeframe(this.wire);
+  const Timeframe(this.wire, this.step);
   final String wire;
+
+  /// From one candle's open time to the next one's (UTC, no month frame).
+  final Duration step;
 
   static Timeframe? fromWire(String? wire) =>
       values.where((tf) => tf.wire == wire).firstOrNull;
