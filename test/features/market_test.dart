@@ -242,6 +242,94 @@ void main() {
       },
     );
 
+    testWidgets('a hidden tab reports no row as visible, so Delayed reads '
+        'nothing for it; shown again, its rows are read (T-138)', (
+      tester,
+    ) async {
+      transport = FakeTransport();
+      api = FakeMarketApi();
+      final shown = ValueNotifier(true);
+      addTearDown(shown.dispose);
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: baseOverrides(
+            store: MemoryTokenStore(),
+            tokens: FakeAuthTokenApi(),
+            transport: transport,
+            market: api,
+          ),
+          retry: (_, _) => null,
+          child: MaterialApp(
+            theme: appTheme(Brightness.light),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: ValueListenableBuilder(
+              valueListenable: shown,
+              builder: (_, on, _) =>
+                  TickerMode(enabled: on, child: const MarketsScreen()),
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+      await tester.pump();
+      transport.last.onConnected();
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 11));
+      await tester.pump();
+      expect(api.statsCalls, isNotEmpty);
+
+      shown.value = false;
+      await tester.pump();
+      api.statsCalls.clear();
+      await tester.pump(const Duration(seconds: 30));
+      expect(api.statsCalls, isEmpty);
+
+      shown.value = true;
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 10));
+      await tester.pump();
+      expect(api.statsCalls, isNotEmpty);
+      await unmount(tester);
+    });
+
+    testWidgets('price pushes alone keep the rows list, so the list itself '
+        'is not rebuilt; a sort that changes the order gives a new one '
+        '(T-138)', (tester) async {
+      await pump(tester);
+      final container = ProviderScope.containerOf(
+        tester.element(find.byType(MarketsScreen)),
+      );
+      final board = marketBoardProvider(Market.spot);
+      final before = container.read(board).rows;
+      var listChanges = 0;
+      final sub = container.listen(
+        board.select(
+          (b) => (b.pairs, b.failure, b.rows, b.delayed, b.sort, b.descending),
+        ),
+        (_, _) => listChanges++,
+      );
+      for (var i = 0; i < 10; i++) {
+        await push(tester, [
+          tick('BTCUSDT', '${76000 + i}', '1.0', '1000'),
+          tick('ETHUSDT', '${3400 + i}', '2.0', '900'),
+        ]);
+      }
+      expect(listChanges, 0);
+      expect(identical(container.read(board).rows, before), isTrue);
+
+      container.read(board.notifier).toggleSort(BoardSort.change);
+      await tester.pump();
+      expect(listChanges, 1);
+      final sorted = container.read(board).rows;
+      expect(sorted.first.symbol, 'ETHUSDT');
+      // The same order after more pushes: still the same list.
+      await push(tester, [tick('BTCUSDT', '76100', '1.1', '1000')]);
+      expect(identical(container.read(board).rows, sorted), isTrue);
+      sub.close();
+      await unmount(tester);
+    });
+
     testWidgets('the first read shows the list skeleton', (tester) async {
       final gate = Completer<void>();
       transport = FakeTransport();
