@@ -3265,6 +3265,32 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get futCardPnl => 'Unrealized PnL (USDT)';
+
+  @override
+  String get futCardRoi => 'ROI';
+
+  @override
+  String futCardSize(String asset) {
+    return 'Size ($asset)';
+  }
+
+  @override
+  String get futCardMargin => 'Margin (USDT)';
+
+  @override
+  String get futCardMarginRatio => 'Margin ratio';
+
+  @override
+  String get futCardEntry => 'Entry price';
+
+  @override
+  String get futCardMark => 'Mark price';
+
+  @override
+  String get futCardLiq => 'Liq. price';
+
+  @override
   String futMarginOf(String amount) {
     return 'Margin $amount';
   }

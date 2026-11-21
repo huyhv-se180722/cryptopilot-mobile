@@ -21,6 +21,8 @@ import 'futures_trade.dart';
 import 'order_book_panel.dart';
 import 'paper_text.dart';
 import '../../../core/widgets/empty_state.dart';
+import 'trade_widgets.dart';
+import '../../../core/widgets/pair_label.dart';
 
 /// The Trade tab (D-154, plan 9.2): the demo banner, Spot or Futures, and
 /// for Spot the pair, the order form beside the order book, then the open
@@ -56,7 +58,13 @@ class _TradeScreenState extends ConsumerState<TradeScreen> {
     final futures = ref.watch(tradeFuturesProvider);
     return Scaffold(
       appBar: AppBar(
-        title: Text(l.navTrade),
+        // Spot and Futures as the title (D-163, the exchange layout).
+        title: TradeMarketTabs(
+          key: const Key('trade-segment'),
+          futures: futures,
+          onSelect: (value) =>
+              ref.read(tradeFuturesProvider.notifier).show(futures: value),
+        ),
         actions: [
           IconButton(
             key: const Key('open-account'),
@@ -69,21 +77,6 @@ class _TradeScreenState extends ConsumerState<TradeScreen> {
       body: Column(
         children: [
           const DemoBanner(),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-            child: SegmentedButton<bool>(
-              showSelectedIcon: false,
-              key: const Key('trade-segment'),
-              segments: [
-                ButtonSegment(value: false, label: Text(l.tradeSpot)),
-                ButtonSegment(value: true, label: Text(l.tradeFutures)),
-              ],
-              selected: {futures},
-              onSelectionChanged: (s) => ref
-                  .read(tradeFuturesProvider.notifier)
-                  .show(futures: s.first),
-            ),
-          ),
           Expanded(child: futures ? const FuturesTrade() : const _SpotTrade()),
         ],
       ),
@@ -212,29 +205,38 @@ class _PairHeader extends ConsumerWidget {
     final text = Theme.of(context).textTheme;
     return Row(
       children: [
-        TextButton.icon(
-          key: const Key('trade-pair'),
-          onPressed: () => _choosePair(context, ref),
-          icon: const Icon(Icons.arrow_drop_down),
-          label: Text(
-            '${pair.baseAsset}/${pair.quoteAsset}',
-            style: text.titleMedium,
+        Flexible(
+          child: TextButton.icon(
+            key: const Key('trade-pair'),
+            onPressed: () => _choosePair(context, ref),
+            icon: const Icon(Icons.arrow_drop_down),
+            iconAlignment: IconAlignment.end,
+            label: PairLabel(
+              base: pair.baseAsset,
+              quote: pair.quoteAsset,
+              style: text.titleMedium,
+            ),
           ),
         ),
-        const Spacer(),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Text(
-              formatPrice(ticker?.lastPrice, pair.tickSize),
-              key: const Key('trade-last'),
-              style: text.titleMedium?.copyWith(color: color),
+        Text(
+          formatSignedPercent(change),
+          key: const Key('trade-change'),
+          style: text.labelLarge?.copyWith(color: color),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            formatPrice(ticker?.lastPrice, pair.tickSize),
+            key: const Key('trade-last'),
+            textAlign: TextAlign.end,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: text.titleMedium?.copyWith(
+              color: color,
+              fontWeight: FontWeight.w700,
+              fontFeatures: const [FontFeature.tabularFigures()],
             ),
-            Text(
-              formatSignedPercent(change),
-              style: text.bodySmall?.copyWith(color: color),
-            ),
-          ],
+          ),
         ),
       ],
     );
@@ -324,152 +326,158 @@ class _SpotForm extends ConsumerWidget {
 
     final side = buy ? context.cp.positive : context.cp.negative;
     final onSide = buy ? context.cp.onPositive : context.cp.onNegative;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Row(
-          children: [
-            for (final s in OrderSide.values)
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 2),
-                  child: _SideButton(
-                    key: Key('trade-side-${s.wire}'),
-                    label: s == OrderSide.buy ? l.tradeBuy : l.tradeSell,
-                    selected: state.side == s,
-                    color: s == OrderSide.buy
-                        ? context.cp.positive
-                        : context.cp.negative,
-                    onColor: s == OrderSide.buy
-                        ? context.cp.onPositive
-                        : context.cp.onNegative,
-                    onTap: () => controller.selectSide(s),
+    return tradeInputs(
+      context,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          SideToggle(
+            buy: buy,
+            buyLabel: l.tradeBuy,
+            sellLabel: l.tradeSell,
+            buyKey: const Key('trade-side-BUY'),
+            sellKey: const Key('trade-side-SELL'),
+            onSelect: (value) =>
+                controller.selectSide(value ? OrderSide.buy : OrderSide.sell),
+          ),
+          const SizedBox(height: 6),
+          // The time in force shares the kind's row: GTC, IOC or FOK on
+          // the button, said in full in its menu (T-123).
+          TradeSelectBox(
+            child: Row(
+              children: [
+                Expanded(
+                  child: DropdownButton<SpotKind>(
+                    key: const Key('trade-kind'),
+                    isDense: true,
+                    isExpanded: true,
+                    value: state.kind,
+                    onChanged: (kind) => controller.selectKind(kind!),
+                    items: [
+                      for (final kind in SpotKind.values)
+                        DropdownMenuItem(
+                          value: kind,
+                          child: Text(switch (kind) {
+                            SpotKind.limit => l.tradeKindLimit,
+                            SpotKind.market => l.tradeKindMarket,
+                            SpotKind.stopLimit => l.tradeKindStopLimit,
+                            SpotKind.stopMarket => l.tradeKindStopMarket,
+                            SpotKind.oco => l.tradeKindOco,
+                            SpotKind.limitTpSl => l.tradeKindLimitTpSl,
+                            SpotKind.postOnly => l.tradeKindPostOnly,
+                            SpotKind.oto => l.tradeKindOto,
+                          }),
+                        ),
+                    ],
                   ),
                 ),
-              ),
-          ],
-        ),
-        const SizedBox(height: 6),
-        // The time in force shares the kind's row: GTC, IOC or FOK on
-        // the button, said in full in its menu (T-123).
-        Row(
-          children: [
-            Expanded(
-              child: DropdownButton<SpotKind>(
-                key: const Key('trade-kind'),
-                isExpanded: true,
-                value: state.kind,
-                onChanged: (kind) => controller.selectKind(kind!),
-                items: [
-                  for (final kind in SpotKind.values)
-                    DropdownMenuItem(
-                      value: kind,
-                      child: Text(switch (kind) {
-                        SpotKind.limit => l.tradeKindLimit,
-                        SpotKind.market => l.tradeKindMarket,
-                        SpotKind.stopLimit => l.tradeKindStopLimit,
-                        SpotKind.stopMarket => l.tradeKindStopMarket,
-                        SpotKind.oco => l.tradeKindOco,
-                        SpotKind.limitTpSl => l.tradeKindLimitTpSl,
-                        SpotKind.postOnly => l.tradeKindPostOnly,
-                        SpotKind.oto => l.tradeKindOto,
-                      }),
-                    ),
+                if (state.kind.timed) ...[
+                  const SizedBox(width: 6),
+                  DropdownButton<SpotTimeInForce>(
+                    key: const Key('trade-tif'),
+                    isDense: true,
+                    value: state.timeInForce,
+                    onChanged: (tif) => controller.setTimeInForce(tif!),
+                    selectedItemBuilder: (_) => [
+                      for (final tif in SpotTimeInForce.values)
+                        Align(
+                          alignment: AlignmentDirectional.centerStart,
+                          child: Text(tif.wire),
+                        ),
+                    ],
+                    items: [
+                      for (final tif in SpotTimeInForce.values)
+                        DropdownMenuItem(
+                          value: tif,
+                          child: Text(switch (tif) {
+                            SpotTimeInForce.gtc => l.tradeTifGtc,
+                            SpotTimeInForce.ioc => l.tradeTifIoc,
+                            SpotTimeInForce.fok => l.tradeTifFok,
+                          }),
+                        ),
+                    ],
+                  ),
                 ],
-              ),
-            ),
-            if (state.kind.timed) ...[
-              const SizedBox(width: 6),
-              DropdownButton<SpotTimeInForce>(
-                key: const Key('trade-tif'),
-                value: state.timeInForce,
-                onChanged: (tif) => controller.setTimeInForce(tif!),
-                selectedItemBuilder: (_) => [
-                  for (final tif in SpotTimeInForce.values)
-                    Align(
-                      alignment: AlignmentDirectional.centerStart,
-                      child: Text(tif.wire),
-                    ),
-                ],
-                items: [
-                  for (final tif in SpotTimeInForce.values)
-                    DropdownMenuItem(
-                      value: tif,
-                      child: Text(switch (tif) {
-                        SpotTimeInForce.gtc => l.tradeTifGtc,
-                        SpotTimeInForce.ioc => l.tradeTifIoc,
-                        SpotTimeInForce.fok => l.tradeTifFok,
-                      }),
-                    ),
-                ],
-              ),
-            ],
-          ],
-        ),
-        if (state.kind == SpotKind.market)
-          Wrap(
-            spacing: 4,
-            children: [
-              ChoiceChip(
-                key: const Key('trade-by-amount'),
-                label: Text(l.tradeByAmount),
-                selected: !state.inputs.byTotal,
-                onSelected: (_) => controller.setByTotal(false),
-              ),
-              ChoiceChip(
-                key: const Key('trade-by-total'),
-                label: Text(l.tradeByTotal),
-                selected: state.inputs.byTotal,
-                onSelected: (_) => controller.setByTotal(true),
-              ),
-            ],
-          ),
-        for (final field in state.fields)
-          Padding(
-            padding: const EdgeInsets.only(top: 6),
-            child: _NumberField(
-              key: Key('trade-field-${field.name}'),
-              label: label(field),
-              value: state.inputs.of(field),
-              error: switch (state.errors[field]) {
-                final error? => fieldErrorText(l, error, quote),
-                null => null,
-              },
-              onChanged: (value) => controller.edit(field, value),
+              ],
             ),
           ),
-        if (available != null)
-          _ShareSlider(
-            key: ValueKey('trade-share-${state.side.wire}-${state.kind.name}'),
-            onChanged: (share) =>
-                controller.useShare(share, available: available),
+          if (state.kind == SpotKind.market)
+            Wrap(
+              spacing: 4,
+              children: [
+                ChoiceChip(
+                  key: const Key('trade-by-amount'),
+                  label: Text(l.tradeByAmount),
+                  selected: !state.inputs.byTotal,
+                  onSelected: (_) => controller.setByTotal(false),
+                ),
+                ChoiceChip(
+                  key: const Key('trade-by-total'),
+                  label: Text(l.tradeByTotal),
+                  selected: state.inputs.byTotal,
+                  onSelected: (_) => controller.setByTotal(true),
+                ),
+              ],
+            ),
+          for (final field in state.fields)
+            Padding(
+              padding: const EdgeInsets.only(top: 6),
+              child: _NumberField(
+                key: Key('trade-field-${field.name}'),
+                label: label(field),
+                value: state.inputs.of(field),
+                error: switch (state.errors[field]) {
+                  final error? => fieldErrorText(l, error, quote),
+                  null => null,
+                },
+                onChanged: (value) => controller.edit(field, value),
+                stepKey: field.name,
+                onStep: SpotFormController.steps(field)
+                    ? (up) => controller.step(field, up: up)
+                    : null,
+              ),
+            ),
+          if (available != null) ...[
+            _ShareSlider(
+              key: ValueKey(
+                'trade-share-${state.side.wire}-${state.kind.name}',
+              ),
+              onChanged: (share) =>
+                  controller.useShare(share, available: available),
+            ),
+            const PercentMarks(),
+            const SizedBox(height: 6),
+          ],
+          Text(
+            l.tradeAvailable(
+              formatDecimal(available, buy ? 2 : decimalPlaces(pair.stepSize)),
+              spendAsset,
+            ),
+            key: const Key('trade-available'),
+            style: Theme.of(context).textTheme.bodySmall,
           ),
-        Text(
-          l.tradeAvailable(
-            formatDecimal(available, buy ? 2 : decimalPlaces(pair.stepSize)),
-            spendAsset,
+          if (state.notice case final notice?)
+            _Notice(refusalText(l, notice, quote)),
+          if (state.failure case final failure?)
+            _Notice(failureText(l, failure)),
+          const SizedBox(height: 6),
+          FilledButton(
+            key: const Key('trade-submit'),
+            style: FilledButton.styleFrom(
+              minimumSize: const Size.fromHeight(40),
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              backgroundColor: side,
+              foregroundColor: onSide,
+            ),
+            onPressed: state.submitting ? null : () => _submit(context, ref),
+            child: Text(
+              buy
+                  ? l.tradeBuyAsset(pair.baseAsset)
+                  : l.tradeSellAsset(pair.baseAsset),
+            ),
           ),
-          key: const Key('trade-available'),
-          style: Theme.of(context).textTheme.bodySmall,
-        ),
-        if (state.notice case final notice?)
-          _Notice(refusalText(l, notice, quote)),
-        if (state.failure case final failure?) _Notice(failureText(l, failure)),
-        const SizedBox(height: 6),
-        FilledButton(
-          key: const Key('trade-submit'),
-          style: FilledButton.styleFrom(
-            backgroundColor: side,
-            foregroundColor: onSide,
-          ),
-          onPressed: state.submitting ? null : () => _submit(context, ref),
-          child: Text(
-            buy
-                ? l.tradeBuyAsset(pair.baseAsset)
-                : l.tradeSellAsset(pair.baseAsset),
-          ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -515,6 +523,8 @@ class _ShareSliderState extends State<_ShareSlider> {
   @override
   Widget build(BuildContext context) => Slider(
     key: const Key('trade-share'),
+    // Compact, its ends on the 0 % and 100 % marks below.
+    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
     value: _share,
     divisions: 4,
     label: '${(_share * 100).round()}%',
@@ -586,35 +596,6 @@ class _Notice extends StatelessWidget {
   );
 }
 
-class _SideButton extends StatelessWidget {
-  const _SideButton({
-    required this.label,
-    required this.selected,
-    required this.color,
-    required this.onColor,
-    required this.onTap,
-    super.key,
-  });
-
-  final String label;
-  final bool selected;
-  final Color color;
-  final Color onColor;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) => selected
-      ? FilledButton(
-          style: FilledButton.styleFrom(
-            backgroundColor: color,
-            foregroundColor: onColor,
-          ),
-          onPressed: onTap,
-          child: Text(label),
-        )
-      : OutlinedButton(onPressed: onTap, child: Text(label));
-}
-
 /// A decimal input whose text follows the view model (a book tap or the
 /// slider fills it) without moving the cursor while typing.
 class _NumberField extends StatefulWidget {
@@ -623,6 +604,8 @@ class _NumberField extends StatefulWidget {
     required this.value,
     required this.onChanged,
     this.error,
+    this.onStep,
+    this.stepKey = '',
     super.key,
   });
 
@@ -630,6 +613,10 @@ class _NumberField extends StatefulWidget {
   final String value;
   final String? error;
   final ValueChanged<String> onChanged;
+
+  /// − and + beside the value (null: none).
+  final ValueChanged<bool>? onStep;
+  final String stepKey;
 
   @override
   State<_NumberField> createState() => _NumberFieldState();
@@ -663,8 +650,30 @@ class _NumberFieldState extends State<_NumberField> {
       labelText: widget.label,
       errorText: widget.error,
       errorMaxLines: 3,
+      prefixIcon: _stepButton(up: false),
+      suffixIcon: _stepButton(up: true),
+      prefixIconConstraints: _stepBox,
+      suffixIconConstraints: _stepBox,
     ),
   );
+
+  static const _stepBox = BoxConstraints(minWidth: 32, minHeight: 32);
+
+  Widget? _stepButton({required bool up}) {
+    final onStep = widget.onStep;
+    if (onStep == null) return null;
+    final l = AppLocalizations.of(context);
+    return IconButton(
+      key: Key('trade-${up ? 'plus' : 'minus'}-${widget.stepKey}'),
+      tooltip: up ? l.futStepUp : l.futStepDown,
+      visualDensity: VisualDensity.compact,
+      padding: EdgeInsets.zero,
+      constraints: _stepBox,
+      iconSize: 18,
+      onPressed: () => onStep(up),
+      icon: Icon(up ? Icons.add : Icons.remove),
+    );
+  }
 }
 
 /// The order book: 7 asks above the last price, 7 bids below, on a chosen
@@ -692,42 +701,32 @@ class _OrdersAndTradesState extends ConsumerState<_OrdersAndTrades> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Row(
-          children: [
-            Expanded(
-              child: SegmentedButton<bool>(
-                showSelectedIcon: false,
-                key: const Key('trade-lists'),
-                segments: [
-                  ButtonSegment(
-                    value: false,
-                    label: Text(l.tradeOpenOrders(orders.length)),
+        TradeListTabs(
+          key: const Key('trade-lists'),
+          labels: [l.tradeOpenOrders(orders.length), l.tradeMarketTrades],
+          selected: _trades ? 1 : 0,
+          onSelect: (i) => setState(() => _trades = i == 1),
+          // Cancel all at the end of the tab row, as on the exchange.
+          trailing: !_trades && orders.isNotEmpty
+              ? TextButton(
+                  key: const Key('trade-cancel-all'),
+                  style: TextButton.styleFrom(
+                    visualDensity: VisualDensity.compact,
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   ),
-                  ButtonSegment(value: true, label: Text(l.tradeMarketTrades)),
-                ],
-                selected: {_trades},
-                onSelectionChanged: (s) => setState(() => _trades = s.first),
-              ),
-            ),
-          ],
+                  onPressed: () => _run(
+                    context,
+                    () => ref
+                        .read(openOrdersProvider.notifier)
+                        .cancelAll(pair.pairId),
+                  ),
+                  child: Text(l.tradeCancelAll),
+                )
+              : null,
         ),
         if (_trades)
           _Trades(pair: pair)
         else ...[
-          if (orders.isNotEmpty)
-            Align(
-              alignment: Alignment.centerRight,
-              child: TextButton(
-                key: const Key('trade-cancel-all'),
-                onPressed: () => _run(
-                  context,
-                  () => ref
-                      .read(openOrdersProvider.notifier)
-                      .cancelAll(pair.pairId),
-                ),
-                child: Text(l.tradeCancelAll),
-              ),
-            ),
           if (orders.isEmpty)
             EmptyState(
               key: const Key('trade-no-orders'),

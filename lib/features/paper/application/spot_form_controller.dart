@@ -287,6 +287,31 @@ class SpotFormController extends Notifier<SpotFormState> {
   /// A level tapped in the order book fills the price.
   void usePrice(String price) => edit(SpotField.price, price);
 
+  /// The fields with − and + beside them: the prices and the amount.
+  static bool steps(SpotField field) =>
+      field != SpotField.total && field != SpotField.trailing;
+
+  /// One step up or down (D-163, as on Futures): a price by the tick, the
+  /// amount by the step. An empty price starts at the last price.
+  void step(SpotField field, {required bool up}) {
+    final pair = _pair;
+    if (pair == null || !steps(field)) return;
+    final amount = field == SpotField.amount;
+    final step = Decimal.parse(amount ? pair.stepSize : pair.tickSize);
+    if (step <= Decimal.zero) return;
+    final start =
+        Decimal.tryParse(state.inputs.of(field)) ??
+        (amount ? Decimal.zero : Decimal.tryParse(_last ?? '')) ??
+        Decimal.zero;
+    final floored =
+        (start / step).toDecimal(scaleOnInfinitePrecision: 20).floor() * step;
+    var next = up
+        ? floored + step
+        : (floored == start ? start - step : floored);
+    if (next < step) next = step;
+    edit(field, next.toString());
+  }
+
   /// The slider: a share of what is available, rounded down to the step.
   /// A Buy spends quote at the price typed (or the last one for Market).
   void useShare(double share, {required String available}) {

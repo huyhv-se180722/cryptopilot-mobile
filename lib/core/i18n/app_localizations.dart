@@ -5836,6 +5836,54 @@ abstract class AppLocalizations {
   /// **'Close the whole {symbol} demo position at market?'**
   String futMarketCloseAsk(String symbol);
 
+  /// No description provided for @futCardPnl.
+  ///
+  /// In en, this message translates to:
+  /// **'Unrealized PnL (USDT)'**
+  String get futCardPnl;
+
+  /// No description provided for @futCardRoi.
+  ///
+  /// In en, this message translates to:
+  /// **'ROI'**
+  String get futCardRoi;
+
+  /// No description provided for @futCardSize.
+  ///
+  /// In en, this message translates to:
+  /// **'Size ({asset})'**
+  String futCardSize(String asset);
+
+  /// No description provided for @futCardMargin.
+  ///
+  /// In en, this message translates to:
+  /// **'Margin (USDT)'**
+  String get futCardMargin;
+
+  /// No description provided for @futCardMarginRatio.
+  ///
+  /// In en, this message translates to:
+  /// **'Margin ratio'**
+  String get futCardMarginRatio;
+
+  /// No description provided for @futCardEntry.
+  ///
+  /// In en, this message translates to:
+  /// **'Entry price'**
+  String get futCardEntry;
+
+  /// No description provided for @futCardMark.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark price'**
+  String get futCardMark;
+
+  /// No description provided for @futCardLiq.
+  ///
+  /// In en, this message translates to:
+  /// **'Liq. price'**
+  String get futCardLiq;
+
   /// No description provided for @futMarginOf.
   ///
   /// In en, this message translates to:

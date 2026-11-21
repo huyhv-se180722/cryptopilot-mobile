@@ -1882,6 +1882,21 @@
       }
     }
   },
+  "futCardPnl": "Unrealized PnL (USDT)",
+  "futCardRoi": "ROI",
+  "futCardSize": "Size ({asset})",
+  "@futCardSize": {
+    "placeholders": {
+      "asset": {
+        "type": "String"
+      }
+    }
+  },
+  "futCardMargin": "Margin (USDT)",
+  "futCardMarginRatio": "Margin ratio",
+  "futCardEntry": "Entry price",
+  "futCardMark": "Mark price",
+  "futCardLiq": "Liq. price",
   "futMarginOf": "Margin {amount}",
   "@futMarginOf": {
     "placeholders": {
