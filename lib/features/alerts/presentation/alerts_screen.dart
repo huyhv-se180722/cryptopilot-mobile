@@ -11,6 +11,8 @@ import '../application/alerts_controller.dart';
 import '../domain/alert.dart';
 import 'alert_format.dart';
 import 'alert_sheet.dart';
+import '../../../core/widgets/pair_label.dart';
+import '../../../core/widgets/cp_tag.dart';
 
 /// SCR-13 Alerts (SRS 3.4.3, UC-14), pushed from Markets (and Home): status
 /// and type filters on the server, 20 a page loaded as the list scrolls,
@@ -290,12 +292,9 @@ class AlertRow extends ConsumerWidget {
                     Row(
                       children: [
                         Flexible(
-                          child: Text(
+                          child: PairLabel.symbol(
                             alert.symbol,
-                            overflow: TextOverflow.ellipsis,
-                            style: text.titleSmall?.copyWith(
-                              fontWeight: FontWeight.w700,
-                            ),
+                            style: text.titleSmall,
                           ),
                         ),
                         const SizedBox(width: 6),
@@ -383,21 +382,7 @@ class _Tag extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tint = color ?? context.cp.muted;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
-      decoration: BoxDecoration(
-        color: tint.withValues(alpha: 0.14),
-        borderRadius: BorderRadius.circular(4),
-      ),
-      child: Text(
-        text,
-        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-          color: tint,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-    );
+    return CpTag(text, color: color);
   }
 }
 

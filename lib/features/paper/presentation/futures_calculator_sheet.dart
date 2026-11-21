@@ -125,6 +125,7 @@ class FuturesCalculator extends ConsumerWidget {
         if (state.tab != CalcTab.openPrice) ...[
           const SizedBox(height: 8),
           SegmentedButton<bool>(
+            showSelectedIcon: false,
             key: const Key('calc-side'),
             segments: [
               ButtonSegment(value: true, label: Text(l.futLong)),

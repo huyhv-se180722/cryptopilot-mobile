@@ -1407,10 +1407,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get planHistoryCancelled => 'Cancelled · Expired';
 
   @override
-  String get planPositionOpen => 'OPEN';
+  String get planPositionOpen => 'Open';
 
   @override
-  String get planPositionClosed => 'CLOSED';
+  String get planPositionClosed => 'Closed';
 
   @override
   String get planLong => 'LONG';
@@ -1617,13 +1617,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get journalReset => 'Reset';
 
   @override
-  String get journalWin => 'WIN';
+  String get journalWin => 'Win';
 
   @override
-  String get journalLoss => 'LOSS';
+  String get journalLoss => 'Loss';
 
   @override
-  String get journalBreakeven => 'BREAKEVEN';
+  String get journalBreakeven => 'Breakeven';
 
   @override
   String get journalOpen => 'Open';

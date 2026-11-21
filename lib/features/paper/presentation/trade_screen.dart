@@ -20,6 +20,7 @@ import '../domain/paper_refusal.dart';
 import 'futures_trade.dart';
 import 'order_book_panel.dart';
 import 'paper_text.dart';
+import '../../../core/widgets/empty_state.dart';
 
 /// The Trade tab (D-154, plan 9.2): the demo banner, Spot or Futures, and
 /// for Spot the pair, the order form beside the order book, then the open
@@ -71,6 +72,7 @@ class _TradeScreenState extends ConsumerState<TradeScreen> {
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
             child: SegmentedButton<bool>(
+              showSelectedIcon: false,
               key: const Key('trade-segment'),
               segments: [
                 ButtonSegment(value: false, label: Text(l.tradeSpot)),
@@ -158,15 +160,6 @@ class _SpotTrade extends ConsumerWidget {
         ),
         const SizedBox(height: 16),
         _OrdersAndTrades(pair: pair),
-        Padding(
-          padding: const EdgeInsets.only(top: 16),
-          child: Text(
-            l.paperDemoBanner,
-            style: Theme.of(
-              context,
-            ).textTheme.bodySmall?.copyWith(color: context.cp.muted),
-          ),
-        ),
       ],
     );
   }
@@ -703,6 +696,7 @@ class _OrdersAndTradesState extends ConsumerState<_OrdersAndTrades> {
           children: [
             Expanded(
               child: SegmentedButton<bool>(
+                showSelectedIcon: false,
                 key: const Key('trade-lists'),
                 segments: [
                   ButtonSegment(
@@ -735,13 +729,11 @@ class _OrdersAndTradesState extends ConsumerState<_OrdersAndTrades> {
               ),
             ),
           if (orders.isEmpty)
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Text(
-                l.tradeNoOpenOrders,
-                key: const Key('trade-no-orders'),
-                textAlign: TextAlign.center,
-              ),
+            EmptyState(
+              key: const Key('trade-no-orders'),
+              message: l.tradeNoOpenOrders,
+              icon: Icons.receipt_long_outlined,
+              inline: true,
             ),
           for (final order in orders)
             ListTile(

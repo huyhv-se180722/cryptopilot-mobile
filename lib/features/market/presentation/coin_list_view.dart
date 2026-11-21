@@ -14,6 +14,7 @@ import '../domain/coin_market.dart';
 import '../domain/market.dart';
 import 'market_widgets.dart';
 import 'pair_actions.dart';
+import '../../../core/widgets/empty_state.dart';
 
 enum CoinSort { top, gainers, losers }
 
@@ -89,8 +90,8 @@ class _CoinListViewState extends ConsumerState<CoinListView> {
       body = rows.isEmpty
           ? ListView(
               children: [
-                const SizedBox(height: 96),
-                Center(child: Text(l.msg41)),
+                const SizedBox(height: 64),
+                EmptyState(message: l.msg41, icon: Icons.search_off),
               ],
             )
           : ListView.separated(

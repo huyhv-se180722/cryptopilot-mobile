@@ -12,6 +12,8 @@ import '../application/history_controller.dart';
 import '../domain/futures.dart';
 import '../domain/futures_history.dart';
 import '../domain/paper.dart';
+import '../../../core/widgets/empty_state.dart';
+import '../../../core/widgets/pair_label.dart';
 
 /// The Futures tabs of the history screen (plan 9.3, T-123).
 List<Tab> futuresHistoryTabs(AppLocalizations l) => [
@@ -87,7 +89,11 @@ class FuturesHistoryView extends ConsumerWidget {
           for (final pair in pairs)
             DropdownMenuItem(
               value: pair.symbol,
-              child: Text('${pair.symbol} Perp'),
+              child: PairLabel(
+                base: pair.baseAsset,
+                quote: pair.quoteAsset,
+                tag: l.marketPerpetual,
+              ),
             ),
         ],
       ),
@@ -139,13 +145,10 @@ class FuturesHistoryView extends ConsumerWidget {
         child: Center(child: CircularProgressIndicator()),
       );
     } else if (items.isEmpty) {
-      list = Padding(
-        padding: const EdgeInsets.all(24),
-        child: Text(
-          l.historyEmpty,
-          key: Key('fh-empty-${kind.name}'),
-          textAlign: TextAlign.center,
-        ),
+      list = EmptyState(
+        key: Key('fh-empty-${kind.name}'),
+        message: l.historyEmpty,
+        icon: Icons.history,
       );
     } else {
       list = Column(

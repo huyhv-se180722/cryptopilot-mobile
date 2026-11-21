@@ -166,7 +166,7 @@ void main() {
     await tester.tap(find.byKey(const Key('assets-trade-futures')));
     await frames(tester);
     expect(find.byKey(const Key('trade-futures')), findsOneWidget);
-    expect(find.text('BTCUSDT Perp'), findsOneWidget);
+    expect(find.text('BTC/USDT', findRichText: true), findsOneWidget);
     await unmount(tester);
   });
 

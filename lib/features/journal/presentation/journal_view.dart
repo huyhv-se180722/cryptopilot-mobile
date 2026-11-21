@@ -16,6 +16,8 @@ import '../../market/presentation/market_widgets.dart';
 import '../../plans/domain/plan.dart';
 import '../application/journal_controllers.dart';
 import '../domain/journal.dart';
+import '../../../core/widgets/pair_label.dart';
+import '../../../core/widgets/cp_tag.dart';
 
 /// `/journal/{id}` (SCR-21), pushed over the tabs.
 String journalEntryLocation(String id) => '/journal/${Uri.encodeComponent(id)}';
@@ -195,12 +197,19 @@ class JournalRow extends ConsumerWidget {
                   child: Text.rich(
                     TextSpan(
                       children: [
-                        TextSpan(
-                          text: pair?.symbol ?? '…',
-                          style: text.titleSmall?.copyWith(
-                            fontWeight: FontWeight.w700,
+                        if (pair == null)
+                          TextSpan(
+                            text: '…',
+                            style: text.titleSmall?.copyWith(
+                              fontWeight: FontWeight.w700,
+                            ),
+                          )
+                        else
+                          ...pairSpans(
+                            context,
+                            base: pair.baseAsset,
+                            quote: pair.quoteAsset,
                           ),
-                        ),
                         TextSpan(
                           text:
                               '  ${entry.market == Market.spot ? l.marketSpot : l.marketFutures} ',
@@ -220,16 +229,13 @@ class JournalRow extends ConsumerWidget {
                   ),
                 ),
                 if (result != null) ...[
-                  Text(
+                  CpTag(
                     tradeResultName(l, result),
-                    style: text.labelSmall?.copyWith(
-                      color: switch (result) {
-                        TradeResult.win => cp.positive,
-                        TradeResult.loss => cp.negative,
-                        TradeResult.breakeven => cp.muted,
-                      },
-                      fontWeight: FontWeight.w700,
-                    ),
+                    color: switch (result) {
+                      TradeResult.win => cp.positive,
+                      TradeResult.loss => cp.negative,
+                      TradeResult.breakeven => cp.muted,
+                    },
                   ),
                   const SizedBox(width: 8),
                 ],

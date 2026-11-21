@@ -114,7 +114,7 @@ void main() {
     await tester.tap(find.byKey(const Key('trade-demo-ETHUSDT')));
     await frames(tester);
     expect(find.byKey(const Key('trade-futures')), findsOneWidget);
-    expect(find.text('ETHUSDT Perp'), findsOneWidget);
+    expect(find.text('ETH/USDT', findRichText: true), findsOneWidget);
 
     router.go('/analysis/spot/ETHUSDT');
     await frames(tester);

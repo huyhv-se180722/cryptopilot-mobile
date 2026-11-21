@@ -77,7 +77,7 @@ void main() {
     await frames();
     expect(find.byType(TradeScreen), findsOneWidget);
     expect(find.byKey(const Key('trade-futures')), findsOneWidget);
-    expect(find.text('ETHUSDT Perp'), findsOneWidget);
+    expect(find.text('ETH/USDT', findRichText: true), findsOneWidget);
     expect(web.opened, isEmpty);
 
     await tester.pumpWidget(const SizedBox());

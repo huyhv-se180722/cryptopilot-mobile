@@ -124,6 +124,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
           _Section(title: l.accountAppearance),
           const SizedBox(height: 8),
           SegmentedButton<ThemeMode>(
+            showSelectedIcon: false,
             segments: [
               ButtonSegment(
                 value: ThemeMode.system,
