@@ -264,6 +264,33 @@ void main() {
       await unmount(tester);
     });
 
+    testWidgets('a burst of 10 depth and 10 trade frames a second for 10 s '
+        'reaches the screen at most 4 times a second, 50 trades kept '
+        '(T-138)', (tester) async {
+      await pump(tester);
+      var changes = 0;
+      final counting = container.listen(
+        orderBookProvider(key),
+        (_, _) => changes++,
+      );
+      var id = 0;
+      for (var frame = 0; frame < 100; frame++) {
+        transport.last
+          ..push('/topic/depth.SPOT.BTCUSDT', depth('${76000 + frame}.00'))
+          ..push('/topic/trades.SPOT.BTCUSDT', trades([++id, ++id]));
+        await tester.pump(const Duration(milliseconds: 100));
+      }
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(changes, lessThanOrEqualTo(41));
+      final book = container.read(orderBookProvider(key));
+      expect(book.trades, hasLength(OrderBookRepository.keepTrades));
+      expect(book.trades.first.id, 200);
+      expect(book.depth!.bids.first.price, '76099.00');
+      expect(book.delayed, isFalse);
+      counting.close();
+      await unmount(tester);
+    });
+
     testWidgets('a depth that cannot be read gives the failure', (
       tester,
     ) async {
