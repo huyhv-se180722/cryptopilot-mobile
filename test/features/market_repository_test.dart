@@ -1,5 +1,6 @@
 import 'package:cryptopilot_mobile/core/auth/token_store.dart';
 import 'package:cryptopilot_mobile/core/errors/api_failure.dart';
+import 'package:cryptopilot_mobile/core/state/poll_gate.dart';
 import 'package:cryptopilot_mobile/features/market/application/market_board.dart';
 import 'package:cryptopilot_mobile/features/market/data/market_repository.dart';
 import 'package:cryptopilot_mobile/features/market/domain/market.dart';
@@ -164,6 +165,44 @@ void main() {
       transport.last.push('/topic/overview.SPOT', overview({'BTCUSDT': '1'}));
       await tester.pump();
       expect(container.read(repository).delayed, isFalse);
+      await unmount(tester);
+    });
+
+    testWidgets('the background neither reads prices nor counts towards '
+        'Delayed; a 429 holds the reads until its window ends (T-138)', (
+      tester,
+    ) async {
+      final repository = marketRepositoryProvider(Market.spot);
+      await pump(tester, [repository]);
+      container.read(repository.notifier).markVisible('C1USDT', visible: true);
+      await tester.pump(const Duration(seconds: 5));
+
+      tester.binding
+        ..handleAppLifecycleStateChanged(AppLifecycleState.inactive)
+        ..handleAppLifecycleStateChanged(AppLifecycleState.hidden)
+        ..handleAppLifecycleStateChanged(AppLifecycleState.paused);
+      await tester.pump(const Duration(minutes: 5));
+      expect(api.statsCalls, isEmpty);
+      expect(container.read(repository).delayed, isFalse);
+
+      tester.binding
+        ..handleAppLifecycleStateChanged(AppLifecycleState.hidden)
+        ..handleAppLifecycleStateChanged(AppLifecycleState.inactive)
+        ..handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+      // The hub closed its socket in the background; it comes back without
+      // a push, so the 5 s seen before plus 6 s now make it Delayed.
+      await tester.pump(const Duration(seconds: 5));
+      expect(container.read(repository).delayed, isFalse);
+      container
+          .read(pollGateProvider.notifier)
+          .rateLimited(const Duration(seconds: 30));
+      await tester.pump(const Duration(seconds: 25));
+      expect(container.read(repository).delayed, isTrue);
+      expect(api.statsCalls, isEmpty);
+
+      await tester.pump(const Duration(seconds: 6));
+      await tester.pump();
+      expect(api.statsCalls, ['C1USDT']);
       await unmount(tester);
     });
 

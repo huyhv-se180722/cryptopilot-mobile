@@ -189,4 +189,40 @@ void main() {
     await tester.pump();
     expect(api.calls.where((c) => c == 'count'), hasLength(2));
   });
+
+  testWidgets('the bell polls every minute while the socket is down, but '
+      'not in the background', (tester) async {
+    final api = FakeNotificationApi();
+    transport = FakeTransport();
+    container = ProviderContainer(
+      overrides: baseOverrides(
+        store: MemoryTokenStore(storedFor('saved')),
+        tokens: FakeAuthTokenApi(),
+        transport: transport,
+        notifications: api,
+      ),
+      retry: (_, _) => null,
+    );
+    addTearDown(container.dispose);
+    container.read(sessionControllerProvider);
+    await tester.pump();
+    await tester.pump();
+    container.listen(unreadCountProvider, (_, _) {});
+    for (var i = 0; i < 4; i++) {
+      await tester.pump();
+    }
+    int counts() => api.calls.where((c) => c == 'count').length;
+    expect(counts(), 1);
+
+    // Never connected: the bell falls back to a read a minute.
+    await tester.pump(const Duration(minutes: 2));
+    expect(counts(), 3);
+
+    background(tester);
+    await tester.pump(const Duration(minutes: 10));
+    expect(counts(), 3);
+    // The periodic timer lives as long as the bell; end it with the app.
+    container.dispose();
+    await tester.pump();
+  });
 }

@@ -7,6 +7,7 @@ import '../../../core/errors/api_failure.dart';
 import '../../../core/realtime/realtime_hub.dart';
 import '../../../core/realtime/reload_on_reconnect.dart';
 import '../../../core/state/load_after_build.dart';
+import '../../../core/state/poll_gate.dart';
 import '../data/plan_detail_api.dart';
 import '../domain/plan_detail.dart';
 import 'plan_lists.dart';
@@ -129,7 +130,7 @@ class PlanDetailController extends Notifier<PlanDetailState> {
       _poll?.cancel();
       _poll = null;
     } else {
-      _poll ??= Timer.periodic(pollEvery, (_) => unawaited(load()));
+      _poll ??= ref.pollEvery(pollEvery, () => unawaited(load()));
     }
   }
 
@@ -220,7 +221,7 @@ class CloseEstimateController extends Notifier<CloseEstimateState> {
 
   @override
   CloseEstimateState build() {
-    final timer = Timer.periodic(refreshEvery, (_) => unawaited(load()));
+    final timer = ref.pollEvery(refreshEvery, () => unawaited(load()));
     ref.onDispose(timer.cancel);
     ref.loadAfterBuild(load);
     return const CloseEstimateState();

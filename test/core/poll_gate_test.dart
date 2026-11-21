@@ -112,4 +112,47 @@ void main() {
       expect(limited, [const Duration(seconds: 30)]);
     });
   });
+
+  testWidgets('pollEvery skips the beats of a closed gate and does not '
+      'make them up when it opens again', (tester) async {
+    var reads = 0;
+    final poller = Provider<void>((ref) {
+      final timer = ref.pollEvery(const Duration(seconds: 10), () => reads++);
+      ref.onDispose(timer.cancel);
+    });
+    final container = ProviderContainer();
+    addTearDown(container.dispose);
+    container.listen(poller, (_, _) {});
+
+    await tester.pump(const Duration(seconds: 30));
+    expect(reads, 3);
+
+    tester.binding
+      ..handleAppLifecycleStateChanged(AppLifecycleState.inactive)
+      ..handleAppLifecycleStateChanged(AppLifecycleState.hidden)
+      ..handleAppLifecycleStateChanged(AppLifecycleState.paused);
+    await tester.pump(const Duration(minutes: 10));
+    expect(reads, 3);
+
+    tester.binding
+      ..handleAppLifecycleStateChanged(AppLifecycleState.hidden)
+      ..handleAppLifecycleStateChanged(AppLifecycleState.inactive)
+      ..handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+    await tester.pump(const Duration(seconds: 5));
+    expect(reads, 3);
+    await tester.pump(const Duration(seconds: 5));
+    expect(reads, 4);
+
+    container
+        .read(pollGateProvider.notifier)
+        .rateLimited(const Duration(seconds: 25));
+    await tester.pump(const Duration(seconds: 20));
+    expect(reads, 4);
+    await tester.pump(const Duration(seconds: 10));
+    expect(reads, 5);
+
+    container.dispose();
+    await tester.pump(const Duration(minutes: 1));
+    expect(reads, 5);
+  });
 }

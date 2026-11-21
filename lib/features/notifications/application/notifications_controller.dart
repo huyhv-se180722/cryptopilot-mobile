@@ -8,6 +8,7 @@ import '../../../core/errors/api_failure.dart';
 import '../../../core/realtime/realtime_hub.dart';
 import '../../../core/realtime/reload_on_reconnect.dart';
 import '../../../core/state/load_after_build.dart';
+import '../../../core/state/poll_gate.dart';
 import '../data/notification_api.dart';
 import '../domain/notification.dart';
 
@@ -90,7 +91,7 @@ class UnreadCount extends Notifier<int?> {
       _poll?.cancel();
       _poll = null;
     } else {
-      _poll ??= Timer.periodic(pollEvery, (_) => unawaited(load()));
+      _poll ??= ref.pollEvery(pollEvery, () => unawaited(load()));
     }
   }
 

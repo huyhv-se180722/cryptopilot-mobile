@@ -7,6 +7,7 @@ import '../../../core/errors/api_failure.dart';
 import '../../../core/realtime/realtime_hub.dart';
 import '../../../core/realtime/reload_on_reconnect.dart';
 import '../../../core/state/load_after_build.dart';
+import '../../../core/state/poll_gate.dart';
 import '../data/ai_api.dart';
 import '../domain/ai.dart';
 import 'ai_context.dart';
@@ -341,7 +342,7 @@ class AiChatController extends Notifier<AiChatState> {
       _poll?.cancel();
       _poll = null;
     } else {
-      _poll ??= Timer.periodic(pollEvery, (_) => unawaited(refresh()));
+      _poll ??= ref.pollEvery(pollEvery, () => unawaited(refresh()));
     }
   }
 }

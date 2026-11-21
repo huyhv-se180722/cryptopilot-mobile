@@ -62,3 +62,15 @@ class PollGate extends Notifier<PollGateState> {
     );
   }
 }
+
+extension GatedPolling on Ref {
+  /// A timed REST read: [tick] runs every [every] while the poll gate is
+  /// open; a beat that falls while it is closed is skipped, not made up when
+  /// it opens again (a resume already reads again through
+  /// `reloadOnReconnect`, and every poller catching up at once is the burst
+  /// the gate is there to avoid).
+  Timer pollEvery(Duration every, void Function() tick) =>
+      Timer.periodic(every, (_) {
+        if (mounted && read(pollGateProvider).open) tick();
+      });
+}
