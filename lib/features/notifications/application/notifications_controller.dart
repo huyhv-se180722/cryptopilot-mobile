@@ -6,7 +6,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/auth/session_controller.dart';
 import '../../../core/errors/api_failure.dart';
 import '../../../core/realtime/realtime_hub.dart';
+import '../../../core/realtime/reload_on_reconnect.dart';
 import '../../../core/state/load_after_build.dart';
+import '../../../core/state/poll_gate.dart';
 import '../data/notification_api.dart';
 import '../domain/notification.dart';
 
@@ -58,17 +60,16 @@ class UnreadCount extends Notifier<int?> {
         .read(realtimeHubProvider.notifier)
         .watch(notificationQueue)
         .listen(_onPush);
-    final lifecycle = AppLifecycleListener(onResume: () => unawaited(load()));
     ref
       ..onDispose(() {
         // Not awaited: a broadcast cancel only detaches the listener.
         unawaited(pushes.cancel());
-        lifecycle.dispose();
       })
-      ..listen(realtimeHubProvider, (previous, next) {
-        if (previous?.generation != next.generation) unawaited(load());
-        _pollWhile(down: !next.connected);
-      });
+      ..reloadOnReconnect(() => unawaited(load()))
+      ..listen(
+        realtimeHubProvider.select((s) => s.connected),
+        (_, connected) => _pollWhile(down: !connected),
+      );
     _pollWhile(down: !ref.read(realtimeHubProvider).connected);
     ref.loadAfterBuild(load);
     return null;
@@ -90,7 +91,7 @@ class UnreadCount extends Notifier<int?> {
       _poll?.cancel();
       _poll = null;
     } else {
-      _poll ??= Timer.periodic(pollEvery, (_) => unawaited(load()));
+      _poll ??= ref.pollEvery(pollEvery, () => unawaited(load()));
     }
   }
 

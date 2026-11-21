@@ -1,8 +1,8 @@
+import 'package:decimal/decimal.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/errors/api_failure.dart';
-import '../../../core/format/decimal_format.dart';
 import '../data/market_repository.dart';
 import '../domain/market.dart';
 
@@ -18,6 +18,7 @@ class MarketBoardState {
     this.query = '',
     this.sort = BoardSort.none,
     this.descending = true,
+    this.ordered,
   });
 
   final List<MarketPair>? pairs;
@@ -30,28 +31,48 @@ class MarketBoardState {
   final BoardSort sort;
   final bool descending;
 
+  /// [rows] as the board last gave them: the same list while the order
+  /// stays, so a price push alone does not rebuild the list (T-138).
+  final List<MarketPair>? ordered;
+
   /// Searched and sorted; ties and [BoardSort.none] keep the display order.
-  List<MarketPair> get rows {
+  List<MarketPair> get rows => ordered ?? order();
+
+  /// [rows] worked out again from the pairs, prices, search and sort.
+  List<MarketPair> order() {
     final all = pairs ?? const <MarketPair>[];
     final found = [
       for (final pair in all)
         if (pair.matches(query)) pair,
     ];
     if (sort == BoardSort.none) return found;
-    String? key(MarketPair pair) {
-      final ticker = tickers[pair.symbol];
-      return switch (sort) {
-        BoardSort.volume => ticker?.quoteVolume24h,
-        BoardSort.price => ticker?.displayPrice,
-        BoardSort.change => ticker?.changePercent24h,
-        BoardSort.none => null,
-      };
+    // Each value parsed once, not on every comparison.
+    final keys = <String, Decimal?>{
+      for (final pair in found)
+        pair.symbol: Decimal.tryParse(
+          switch (sort) {
+                BoardSort.volume => tickers[pair.symbol]?.quoteVolume24h,
+                BoardSort.price => tickers[pair.symbol]?.displayPrice,
+                BoardSort.change => tickers[pair.symbol]?.changePercent24h,
+                BoardSort.none => null,
+              } ??
+              '',
+        ),
+    };
+    int byValue(MarketPair a, MarketPair b) {
+      final x = keys[a.symbol];
+      final y = keys[b.symbol];
+      // Unreadable values sort first, as compareDecimal does.
+      if (x == null || y == null) {
+        return (x == null ? 0 : 1) - (y == null ? 0 : 1);
+      }
+      return x.compareTo(y);
     }
 
     final sorted = [...found]
       ..sort((a, b) {
-        final byValue = compareDecimal(key(a), key(b));
-        if (byValue != 0) return descending ? -byValue : byValue;
+        final value = byValue(a, b);
+        if (value != 0) return descending ? -value : value;
         return a.displayOrder.compareTo(b.displayOrder);
       });
     return sorted;
@@ -67,6 +88,7 @@ class MarketBoardState {
     BoardSort? sort,
     bool? descending,
   }) => MarketBoardState(
+    // Worked out again by the board, which keeps the list while it is equal.
     pairs: pairs ?? this.pairs,
     failure: clearFailure ? null : failure ?? this.failure,
     tickers: tickers ?? this.tickers,
@@ -74,6 +96,17 @@ class MarketBoardState {
     query: query ?? this.query,
     sort: sort ?? this.sort,
     descending: descending ?? this.descending,
+  );
+
+  MarketBoardState withOrder(List<MarketPair> rows) => MarketBoardState(
+    pairs: pairs,
+    failure: failure,
+    tickers: tickers,
+    delayed: delayed,
+    query: query,
+    sort: sort,
+    descending: descending,
+    ordered: rows,
   );
 }
 
@@ -96,20 +129,32 @@ class MarketBoard extends Notifier<MarketBoardState> {
   MarketBoardState build() {
     _data = ref.read(marketRepositoryProvider(market).notifier);
     ref.listen(marketRepositoryProvider(market), (_, data) {
-      state = state.copyWith(
-        pairs: data.pairs,
-        failure: data.failure,
-        clearFailure: data.failure == null,
-        tickers: data.tickers,
-        delayed: data.delayed,
+      _set(
+        state.copyWith(
+          pairs: data.pairs,
+          failure: data.failure,
+          clearFailure: data.failure == null,
+          tickers: data.tickers,
+          delayed: data.delayed,
+        ),
       );
     });
     final data = ref.read(marketRepositoryProvider(market));
-    return MarketBoardState(
+    final first = MarketBoardState(
       pairs: data.pairs,
       failure: data.failure,
       tickers: data.tickers,
       delayed: data.delayed,
+    );
+    return first.withOrder(first.order());
+  }
+
+  /// Every new state, with [MarketBoardState.ordered] kept when equal.
+  void _set(MarketBoardState next) {
+    final fresh = next.order();
+    final previous = state.ordered;
+    state = next.withOrder(
+      previous != null && listEquals(previous, fresh) ? previous : fresh,
     );
   }
 
@@ -122,17 +167,17 @@ class MarketBoard extends Notifier<MarketBoardState> {
   void markVisible(String symbol, {required bool visible}) =>
       _data.markVisible(symbol, visible: visible);
 
-  void search(String query) => state = state.copyWith(query: query);
+  void search(String query) => _set(state.copyWith(query: query));
 
   /// Binance-style header: first tap sorts descending, then ascending, then
   /// back to the display order.
   void toggleSort(BoardSort key) {
     if (state.sort != key) {
-      state = state.copyWith(sort: key, descending: true);
+      _set(state.copyWith(sort: key, descending: true));
     } else if (state.descending) {
-      state = state.copyWith(descending: false);
+      _set(state.copyWith(descending: false));
     } else {
-      state = state.copyWith(sort: BoardSort.none, descending: true);
+      _set(state.copyWith(sort: BoardSort.none, descending: true));
     }
   }
 }

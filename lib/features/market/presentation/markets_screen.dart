@@ -138,7 +138,14 @@ class MarketBoardView extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context);
     final provider = marketBoardProvider(market);
-    final board = ref.watch(provider);
+    // Everything but the prices: each row listens to its own ticker, and the
+    // rows keep their list while the order stays (T-138).
+    ref.watch(
+      provider.select(
+        (b) => (b.pairs, b.failure, b.rows, b.delayed, b.sort, b.descending),
+      ),
+    );
+    final board = ref.read(provider);
     final notifier = ref.read(provider.notifier);
     final rows = board.rows;
 
@@ -286,7 +293,9 @@ class _SortHeader extends StatelessWidget {
 
 /// One pair: base/quote and volume (Futures: funding) on the left, the price,
 /// and the 24 h change on a pill (Binance's market list). Reports itself as
-/// visible so the Delayed fallback reads only what is on screen.
+/// visible while built on a shown tab, so the Delayed fallback reads only
+/// what is on screen (a hidden tab or a route pushed over it turns
+/// [TickerMode] off, which also pauses the row's ticker, T-138).
 class MarketRow extends ConsumerStatefulWidget {
   const MarketRow({required this.pair, super.key});
 
@@ -298,12 +307,12 @@ class MarketRow extends ConsumerStatefulWidget {
 
 class _MarketRowState extends ConsumerState<MarketRow> {
   late final MarketBoard _board;
+  bool _shown = false;
 
   @override
   void initState() {
     super.initState();
-    _board = ref.read(marketBoardProvider(widget.pair.market).notifier)
-      ..markVisible(widget.pair.symbol, visible: true);
+    _board = ref.read(marketBoardProvider(widget.pair.market).notifier);
   }
 
   @override
@@ -314,6 +323,12 @@ class _MarketRowState extends ConsumerState<MarketRow> {
 
   @override
   Widget build(BuildContext context) {
+    final shown = TickerMode.valuesOf(context).enabled;
+    if (shown != _shown) {
+      _shown = shown;
+      // Only a set of symbols the next REST round reads; no state changes.
+      _board.markVisible(widget.pair.symbol, visible: shown);
+    }
     final l = AppLocalizations.of(context);
     final pair = widget.pair;
     final text = Theme.of(context).textTheme;

@@ -9,11 +9,12 @@ import '../../market/data/market_repository.dart';
 import '../../market/data/order_book_repository.dart';
 import '../../market/domain/market.dart';
 import '../../market/domain/order_book.dart';
+import '../../market/presentation/market_widgets.dart';
 
 /// The order book of a pair beside a Trade form (TR-03, plan 9.2): 7 + 7
 /// levels grouped by a chosen tick, the last price between them and the
 /// bid share; a level tapped hands its price to [onPrice]. Read only
-/// while the tab shows.
+/// while the tab shows; Live / Delayed beside the last price (CR-09).
 class OrderBookPanel extends ConsumerStatefulWidget {
   const OrderBookPanel({
     required this.pair,
@@ -96,10 +97,19 @@ class _OrderBookPanelState extends ConsumerState<OrderBookPanel> {
         for (final level in asks.reversed) row(level, context.cp.negative),
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 4),
-          child: Text(
-            formatPrice(last, pair.tickSize),
-            key: const Key('book-last'),
-            style: Theme.of(context).textTheme.titleSmall,
+          child: Row(
+            children: [
+              Flexible(
+                child: Text(
+                  formatPrice(last, pair.tickSize),
+                  key: const Key('book-last'),
+                  style: Theme.of(context).textTheme.titleSmall,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              const SizedBox(width: 6),
+              LiveBadge(key: const Key('book-live'), delayed: book.delayed),
+            ],
           ),
         ),
         for (final level in bids) row(level, context.cp.positive),

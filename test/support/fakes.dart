@@ -216,6 +216,7 @@ List<Override> baseOverrides({
   CommunityApi? community,
   Duration zone = Duration.zero,
   DateTime Function()? clock,
+  double Function()? jitter,
 }) => [
   tokenStoreProvider.overrideWithValue(store),
   authTokenApiProvider.overrideWithValue(tokens),
@@ -225,6 +226,8 @@ List<Override> baseOverrides({
   profileApiProvider.overrideWithValue(profile ?? FakeProfileApi()),
   webLinksProvider.overrideWithValue(web ?? FakeWebLinks()),
   realtimeTransportProvider.overrideWithValue(transport ?? FakeTransport()),
+  // The whole step by default, so reconnect times stay exact in tests.
+  realtimeJitterProvider.overrideWithValue(jitter ?? () => 1.0),
   marketApiProvider.overrideWithValue(market ?? FakeMarketApi()),
   watchlistApiProvider.overrideWithValue(watchlist ?? FakeWatchlistApi()),
   alertApiProvider.overrideWithValue(alerts ?? FakeAlertApi()),

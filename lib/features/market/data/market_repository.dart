@@ -7,6 +7,7 @@ import '../../../core/errors/api_failure.dart';
 import '../../../core/json/json_read.dart';
 import '../../../core/realtime/realtime_hub.dart';
 import '../../../core/state/load_after_build.dart';
+import '../../../core/state/poll_gate.dart';
 import '../domain/market.dart';
 import 'market_api.dart';
 
@@ -114,11 +115,15 @@ class MarketRepository extends Notifier<MarketData> {
   }
 
   void _tick() {
+    final gate = ref.read(pollGateProvider);
+    // The hub closes its socket in the background on purpose: time away
+    // neither counts towards Delayed nor reads anything (T-138).
+    if (!gate.foreground) return;
     _sincePush++;
     _sincePoll++;
     final stale = _sincePush > staleAfterSeconds;
     if (stale != state.delayed) state = state.copyWith(delayed: stale);
-    if (stale && _sincePoll >= pollEverySeconds) {
+    if (stale && gate.open && _sincePoll >= pollEverySeconds) {
       _sincePoll = 0;
       unawaited(_poll());
     }

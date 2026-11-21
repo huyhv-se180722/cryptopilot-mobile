@@ -191,6 +191,106 @@ void main() {
       await unmount(tester);
     });
 
+    testWidgets('10 s without a depth push: Delayed and read by REST every '
+        '10 s; a push makes it Live again (CR-09, T-138)', (tester) async {
+      await pump(tester);
+      api.bookCalls.clear();
+      await tester.pump(const Duration(seconds: 10));
+      expect(container.read(orderBookProvider(key)).delayed, isFalse);
+      expect(api.bookCalls, isEmpty);
+
+      await tester.pump(const Duration(seconds: 1));
+      expect(container.read(orderBookProvider(key)).delayed, isTrue);
+      await tester.pump(const Duration(seconds: 9));
+      await tester.pump();
+      expect(api.bookCalls, ['depth SPOT BTCUSDT', 'trades SPOT BTCUSDT']);
+      await tester.pump(const Duration(seconds: 10));
+      await tester.pump();
+      expect(api.bookCalls, hasLength(4));
+
+      transport.last.push('/topic/depth.SPOT.BTCUSDT', depth('76030.00'));
+      await tester.pump(const Duration(milliseconds: 300));
+      final book = container.read(orderBookProvider(key));
+      expect(book.delayed, isFalse);
+      expect(book.depth!.bids.first.price, '76030.00');
+      await tester.pump(const Duration(seconds: 10));
+      expect(api.bookCalls, hasLength(4));
+      await unmount(tester);
+    });
+
+    testWidgets('the background neither reads nor turns the book Delayed', (
+      tester,
+    ) async {
+      await pump(tester);
+      api.bookCalls.clear();
+      tester.binding
+        ..handleAppLifecycleStateChanged(AppLifecycleState.inactive)
+        ..handleAppLifecycleStateChanged(AppLifecycleState.hidden)
+        ..handleAppLifecycleStateChanged(AppLifecycleState.paused);
+      await tester.pump(const Duration(seconds: 25));
+      expect(container.read(orderBookProvider(key)).delayed, isFalse);
+      expect(api.bookCalls, isEmpty);
+      await unmount(tester);
+    });
+
+    testWidgets('a reconnect reads the book again once; the trades read join '
+        'the newer ones shown, with no repeat', (tester) async {
+      await pump(tester);
+      await tester.pump(const Duration(seconds: 11));
+      transport.last.push('/topic/depth.SPOT.BTCUSDT', depth('76010.00'));
+      transport.last.push('/topic/trades.SPOT.BTCUSDT', trades([1, 2]));
+      await tester.pump(const Duration(milliseconds: 300));
+      api.bookCalls.clear();
+      api.tradesAnswer = [
+        for (final id in [2, 1])
+          MarketTrade(
+            id: id,
+            price: '76000',
+            quantity: '0.1',
+            time: DateTime.utc(2026, 11, 19, 2),
+            buyerMaker: false,
+          ),
+      ];
+
+      transport.last.drop();
+      await tester.pump(const Duration(seconds: 1));
+      transport.last.onConnected();
+      await tester.pump();
+      await tester.pump();
+      expect(api.bookCalls, ['depth SPOT BTCUSDT', 'trades SPOT BTCUSDT']);
+      final book = container.read(orderBookProvider(key));
+      expect([for (final t in book.trades) t.id], [2, 1]);
+      expect(book.depth!.bids.first.price, '76000.00');
+      await unmount(tester);
+    });
+
+    testWidgets('a burst of 10 depth and 10 trade frames a second for 10 s '
+        'reaches the screen at most 4 times a second, 50 trades kept '
+        '(T-138)', (tester) async {
+      await pump(tester);
+      var changes = 0;
+      final counting = container.listen(
+        orderBookProvider(key),
+        (_, _) => changes++,
+      );
+      var id = 0;
+      for (var frame = 0; frame < 100; frame++) {
+        transport.last
+          ..push('/topic/depth.SPOT.BTCUSDT', depth('${76000 + frame}.00'))
+          ..push('/topic/trades.SPOT.BTCUSDT', trades([++id, ++id]));
+        await tester.pump(const Duration(milliseconds: 100));
+      }
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(changes, lessThanOrEqualTo(41));
+      final book = container.read(orderBookProvider(key));
+      expect(book.trades, hasLength(OrderBookRepository.keepTrades));
+      expect(book.trades.first.id, 200);
+      expect(book.depth!.bids.first.price, '76099.00');
+      expect(book.delayed, isFalse);
+      counting.close();
+      await unmount(tester);
+    });
+
     testWidgets('a depth that cannot be read gives the failure', (
       tester,
     ) async {

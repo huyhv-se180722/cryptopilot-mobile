@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -24,6 +25,14 @@ final realtimeTransportProvider = Provider<RealtimeTransport>(
   (ref) => const StompTransport(),
 );
 
+/// A fraction in [0, 1] that spreads the reconnect delays of many phones
+/// (T-138): after a backend restart they must not all come back in the same
+/// second.
+final realtimeJitterProvider = Provider<double Function()>((ref) {
+  final random = Random();
+  return random.nextDouble;
+});
+
 final realtimeHubProvider = NotifierProvider<RealtimeHub, RealtimeState>(
   RealtimeHub.new,
 );
@@ -33,8 +42,9 @@ final realtimeHubProvider = NotifierProvider<RealtimeHub, RealtimeState>(
 ///   30 s after the app goes to the background;
 /// - a fresh access token on every CONNECT, user queues only when signed in
 ///   (a refused SUBSCRIBE closes the whole connection);
-/// - reconnect after 1, 2, 4 … 30 s, then every destination is subscribed
-///   again.
+/// - reconnect after 1, 2, 4 … 30 s, each delay drawn between its half and
+///   its whole ([realtimeJitterProvider]), then every destination is
+///   subscribed again.
 class RealtimeHub extends Notifier<RealtimeState> {
   static const backgroundGrace = Duration(seconds: 30);
   static const maxBackoff = Duration(seconds: 30);
@@ -182,9 +192,12 @@ class RealtimeHub extends Notifier<RealtimeState> {
     if (!_foreground || _destinations.isEmpty) return;
     final seconds = 1 << _attempt.clamp(0, 5);
     _attempt++;
-    final delay = Duration(seconds: seconds) > maxBackoff
+    final base = Duration(seconds: seconds) > maxBackoff
         ? maxBackoff
         : Duration(seconds: seconds);
+    // Equal jitter: never sooner than half the step, never past the step.
+    final share = ref.read(realtimeJitterProvider)().clamp(0.0, 1.0);
+    final delay = base * (0.5 + share / 2);
     _retry?.cancel();
     _retry = Timer(delay, _ensureConnected);
   }

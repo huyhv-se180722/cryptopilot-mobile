@@ -7,6 +7,7 @@ import '../../../core/auth/session_controller.dart';
 import '../../../core/errors/api_failure.dart';
 import '../../../core/realtime/realtime_hub.dart';
 import '../../../core/state/load_after_build.dart';
+import '../../../core/state/poll_gate.dart';
 import '../../market/data/market_repository.dart';
 import '../../market/domain/candle.dart';
 import '../../market/domain/market.dart';
@@ -170,7 +171,7 @@ class FuturesMetricsController extends Notifier<MetricsState> {
 
   @override
   MetricsState build() {
-    final timer = Timer.periodic(refresh, (_) => unawaited(load()));
+    final timer = ref.pollEvery(refresh, () => unawaited(load()));
     ref.onDispose(timer.cancel);
     ref.loadAfterBuild(load);
     return const MetricsState();
