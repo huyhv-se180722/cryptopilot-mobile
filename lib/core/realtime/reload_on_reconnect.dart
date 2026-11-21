@@ -31,7 +31,8 @@ extension ReloadOnReconnect on Ref {
         fallback = Timer(fallbackAfter, () {
           fallback = null;
           if (!mounted || read(realtimeHubProvider).connected) return;
-          if (read(pollGateProvider).foreground) reload();
+          // Not on its own clock inside a 429 window either (ADR-014).
+          if (read(pollGateProvider).open) reload();
         });
       },
     );
