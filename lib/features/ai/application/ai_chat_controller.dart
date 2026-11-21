@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/errors/api_failure.dart';
 import '../../../core/realtime/realtime_hub.dart';
+import '../../../core/realtime/reload_on_reconnect.dart';
 import '../../../core/state/load_after_build.dart';
 import '../data/ai_api.dart';
 import '../domain/ai.dart';
@@ -122,20 +123,14 @@ class AiChatController extends Notifier<AiChatState> {
         .read(realtimeHubProvider.notifier)
         .watch(aiQueue)
         .listen(_onPush);
-    final lifecycle = AppLifecycleListener(
-      onResume: () => unawaited(refresh()),
-    );
     ref
       ..onDispose(() {
         _poll?.cancel();
         _poll = null;
         // Not awaited: a broadcast cancel only detaches the listener.
         unawaited(pushes.cancel());
-        lifecycle.dispose();
       })
-      ..listen(realtimeHubProvider, (previous, next) {
-        if (previous?.generation != next.generation) unawaited(refresh());
-      });
+      ..reloadOnReconnect(() => unawaited(refresh()));
     listenSelf((_, next) => _pollWhile(waiting: next.waiting));
 
     final conversation = args.conversation;

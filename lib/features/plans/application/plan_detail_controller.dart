@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/errors/api_failure.dart';
 import '../../../core/realtime/realtime_hub.dart';
+import '../../../core/realtime/reload_on_reconnect.dart';
 import '../../../core/state/load_after_build.dart';
 import '../data/plan_detail_api.dart';
 import '../domain/plan_detail.dart';
@@ -79,18 +80,14 @@ class PlanDetailController extends Notifier<PlanDetailState> {
         .read(realtimeHubProvider.notifier)
         .watch(positionsQueue)
         .listen(_onPush);
-    final lifecycle = AppLifecycleListener(onResume: () => unawaited(load()));
     ref
       ..onDispose(() {
         _poll?.cancel();
         _poll = null;
         // Not awaited: a broadcast cancel only detaches the listener.
         unawaited(pushes.cancel());
-        lifecycle.dispose();
       })
-      ..listen(realtimeHubProvider, (previous, next) {
-        if (previous?.generation != next.generation) unawaited(load());
-      });
+      ..reloadOnReconnect(() => unawaited(load()));
     listenSelf(
       (_, next) => _pollWhile(open: next.plan?.hasOpenPosition ?? false),
     );
