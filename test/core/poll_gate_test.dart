@@ -27,6 +27,23 @@ void main() {
     expect(container.read(pollGateProvider).open, isTrue);
   });
 
+  testWidgets('a gate first read while the app is away starts shut', (
+    tester,
+  ) async {
+    tester.binding
+      ..handleAppLifecycleStateChanged(AppLifecycleState.inactive)
+      ..handleAppLifecycleStateChanged(AppLifecycleState.hidden)
+      ..handleAppLifecycleStateChanged(AppLifecycleState.paused);
+    final container = ProviderContainer();
+    addTearDown(container.dispose);
+    expect(container.read(pollGateProvider).open, isFalse);
+    tester.binding
+      ..handleAppLifecycleStateChanged(AppLifecycleState.hidden)
+      ..handleAppLifecycleStateChanged(AppLifecycleState.inactive)
+      ..handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+    expect(container.read(pollGateProvider).open, isTrue);
+  });
+
   testWidgets('a 429 holds the gate until its window ends', (tester) async {
     final container = ProviderContainer();
     addTearDown(container.dispose);

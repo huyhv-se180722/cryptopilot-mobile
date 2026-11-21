@@ -40,7 +40,12 @@ class PollGate extends Notifier<PollGateState> {
       lifecycle.dispose();
       _limit?.cancel();
     });
-    return const PollGateState();
+    // First read while the app is away (a provider built late): start shut.
+    final now = WidgetsBinding.instance.lifecycleState;
+    return PollGateState(
+      foreground:
+          now != AppLifecycleState.hidden && now != AppLifecycleState.paused,
+    );
   }
 
   bool get open => state.open;
