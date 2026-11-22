@@ -349,6 +349,22 @@ void main() {
       await unmount(tester);
     });
 
+    testWidgets('T-151: mark all is an icon with its words as the tooltip', (
+      tester,
+    ) async {
+      await pump(tester);
+      await openList(tester);
+      expect(find.byTooltip('Mark all as read'), findsOneWidget);
+      expect(
+        find.descendant(
+          of: find.byKey(const Key('mark-all-read')),
+          matching: find.byIcon(Icons.done_all),
+        ),
+        findsOneWidget,
+      );
+      await unmount(tester);
+    });
+
     testWidgets('mark all as read empties the bell and the dots', (
       tester,
     ) async {

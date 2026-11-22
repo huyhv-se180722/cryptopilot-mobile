@@ -138,6 +138,8 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                 ref.read(themeModeProvider.notifier).select(selection.first),
           ),
           const SizedBox(height: 16),
+          // Each group under its own heading (T-151, inventory k02).
+          _Section(title: l.accountDemoTrading),
           SwitchListTile(
             key: const Key('confirm-orders'),
             contentPadding: EdgeInsets.zero,
@@ -146,6 +148,8 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
             onChanged: (value) =>
                 ref.read(confirmOrdersProvider.notifier).set(value),
           ),
+          const SizedBox(height: 8),
+          _Section(title: l.accountLearnShare),
           ListTile(
             key: const Key('open-academy'),
             contentPadding: EdgeInsets.zero,
@@ -166,12 +170,14 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
           _Section(title: l.accountOnWeb),
           ListTile(
             contentPadding: EdgeInsets.zero,
+            leading: const Icon(Icons.person_outline),
             title: Text(l.accountProfileLink),
             trailing: const Icon(Icons.open_in_new, size: 18),
             onTap: () => web.open('/profile'),
           ),
           ListTile(
             contentPadding: EdgeInsets.zero,
+            leading: const Icon(Icons.workspace_premium_outlined),
             title: Text(l.accountSubscriptionLink),
             trailing: const Icon(Icons.open_in_new, size: 18),
             onTap: () => web.open('/subscription'),
@@ -186,6 +192,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
           ListTile(
             key: const Key('open-licences'),
             contentPadding: EdgeInsets.zero,
+            leading: const Icon(Icons.description_outlined),
             title: Text(l.accountLicences),
             trailing: const Icon(Icons.chevron_right),
             // Third-party notices, e.g. TradingView Lightweight Charts

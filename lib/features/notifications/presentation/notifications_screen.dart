@@ -111,11 +111,15 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
         title: Text(l.notificationsTitle),
         actions: [
           if (unread > 0)
-            TextButton(
+            // An icon with its words as the tooltip, so the title keeps
+            // its room (T-151, inventory k01).
+            IconButton(
               key: const Key('mark-all-read'),
+              tooltip: l.notificationsMarkAll,
               onPressed: _markAll,
-              child: Text(l.notificationsMarkAll),
+              icon: const Icon(Icons.done_all),
             ),
+          const SizedBox(width: 4),
         ],
       ),
       body: Column(

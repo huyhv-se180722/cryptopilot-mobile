@@ -555,14 +555,22 @@ class _Composer extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Only on a plan with the assistant (the upgrade card above
-              // otherwise), as the web shows it.
-              if (quota != null)
-                const Padding(
-                  padding: EdgeInsets.only(bottom: 4),
-                  child: AiStyleChip(),
-                ),
-              AiContextBar(value: context0, onChanged: onContext, quota: quota),
+              // The style chip (only on a plan with the assistant, as the
+              // web shows it) flows on the context chips' line when they fit,
+              // so the composer takes less height (T-151, inventory i02).
+              Wrap(
+                spacing: 6,
+                runSpacing: 4,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  if (quota != null) const AiStyleChip(),
+                  AiContextBar(
+                    value: context0,
+                    onChanged: onContext,
+                    quota: quota,
+                  ),
+                ],
+              ),
               if (context0.topic == ConversationTopic.myTrading)
                 Padding(
                   padding: const EdgeInsets.only(top: 2),

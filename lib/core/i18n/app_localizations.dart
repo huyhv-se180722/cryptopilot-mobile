@@ -622,6 +622,18 @@ abstract class AppLocalizations {
   /// **'Appearance'**
   String get accountAppearance;
 
+  /// No description provided for @accountDemoTrading.
+  ///
+  /// In en, this message translates to:
+  /// **'Demo trading'**
+  String get accountDemoTrading;
+
+  /// No description provided for @accountLearnShare.
+  ///
+  /// In en, this message translates to:
+  /// **'Learn and share'**
+  String get accountLearnShare;
+
   /// No description provided for @themeSystem.
   ///
   /// In en, this message translates to:
@@ -3081,6 +3093,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Breakeven'**
   String get journalBreakeven;
+
+  /// No description provided for @journalTo.
+  ///
+  /// In en, this message translates to:
+  /// **'to'**
+  String get journalTo;
 
   /// No description provided for @journalOpen.
   ///
