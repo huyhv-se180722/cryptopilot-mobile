@@ -5,6 +5,7 @@ import 'package:cryptopilot_mobile/core/auth/token_store.dart';
 import 'package:cryptopilot_mobile/core/media/media_picker.dart';
 import 'package:cryptopilot_mobile/core/router/app_router.dart';
 import 'package:cryptopilot_mobile/core/settings/settings.dart';
+import 'package:cryptopilot_mobile/core/theme/app_theme.dart';
 import 'package:cryptopilot_mobile/features/ai/data/ai_api.dart';
 import 'package:cryptopilot_mobile/features/ai/presentation/ai_chat_screen.dart';
 import 'package:cryptopilot_mobile/features/journal/data/journal_api.dart';
@@ -14,6 +15,7 @@ import 'package:cryptopilot_mobile/features/market/domain/market.dart';
 import 'package:cryptopilot_mobile/features/plans/data/plan_detail_api.dart';
 import 'package:cryptopilot_mobile/features/plans/domain/plan.dart';
 import 'package:cryptopilot_mobile/features/plans/presentation/plan_detail_screen.dart';
+import 'package:cryptopilot_mobile/features/plans/presentation/plan_widgets.dart';
 import 'package:cryptopilot_mobile/features/plans/presentation/plans_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -744,5 +746,120 @@ void main() {
     );
     expect(find.byKey(const Key('plan-detail-disclaimer')), findsOneWidget);
     await unmount(tester);
+  });
+
+  group('SCR-18 summary (T-150, D-163)', () {
+    Finder detailList() => find
+        .descendant(
+          of: find.byKey(const Key('plan-detail')),
+          matching: find.byType(Scrollable),
+        )
+        .first;
+
+    testWidgets('risk-reward, the loss at the stop, the ladder and the levels; '
+        'the last price adds Now; Plan inputs open', (tester) async {
+      await open(tester, '/plan/p1');
+      final summary = find.byKey(const Key('plan-summary'));
+      expect(summary, findsOneWidget);
+      expect(find.text('1 : 2.20'), findsOneWidget);
+      // No loss at the stop in the snapshot: the risk amount, signed.
+      expect(find.text('−15.00 USDT'), findsOneWidget);
+      expect(find.byKey(const Key('plan-ladder')), findsOneWidget);
+      for (final label in ['Stop loss', 'Entry', 'Take profit', 'Quantity']) {
+        expect(
+          find.descendant(of: summary, matching: find.text(label)),
+          findsOneWidget,
+          reason: label,
+        );
+      }
+      expect(
+        find.descendant(of: summary, matching: find.text('Liquidation')),
+        findsOneWidget,
+      );
+      // No initial margin in the snapshot: no Margin cell at all.
+      expect(find.text('Margin (USDT)'), findsNothing);
+      expect(find.byKey(const Key('plan-ladder-now')), findsNothing);
+
+      transport.last.push('/topic/overview.FUTURES', {
+        'market': 'FUTURES',
+        'tickers': [
+          {
+            'market': 'FUTURES',
+            'symbol': 'BTCUSDT',
+            'lastPrice': '67210.00',
+            'markPrice': '67000.00',
+          },
+        ],
+      });
+      await frames(tester);
+      expect(find.byKey(const Key('plan-ladder-now')), findsOneWidget);
+
+      await tester.scrollUntilVisible(
+        find.byKey(const Key('plan-inputs')),
+        300,
+        scrollable: detailList(),
+      );
+      await tester.pump();
+      expect(find.text('Entry type'), findsOneWidget);
+      await unmount(tester);
+    });
+
+    testWidgets('an open position comes before the summary', (tester) async {
+      // A tall view so that both cards are built at once.
+      tester.view.physicalSize = const Size(800, 2400);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      await open(tester, '/plan/p2');
+      expect(
+        tester.getTopLeft(find.byKey(const Key('plan-position'))).dy,
+        lessThan(tester.getTopLeft(find.byKey(const Key('plan-summary'))).dy),
+      );
+      await unmount(tester);
+    });
+
+    for (final brightness in Brightness.values) {
+      testWidgets('360 dp, ${brightness.name}: the summary with Now fits', (
+        tester,
+      ) async {
+        tester.view
+          ..physicalSize = const Size(360 * 3, 760 * 3)
+          ..devicePixelRatio = 3;
+        addTearDown(tester.view.reset);
+        await open(tester, '/plan/p1', brightness: brightness);
+        transport.last.push('/topic/overview.FUTURES', {
+          'market': 'FUTURES',
+          'tickers': [
+            {'market': 'FUTURES', 'symbol': 'BTCUSDT', 'lastPrice': '69500.00'},
+          ],
+        });
+        await frames(tester);
+        expect(find.byKey(const Key('plan-summary')), findsOneWidget);
+        expect(find.byKey(const Key('plan-ladder-now')), findsOneWidget);
+        expect(tester.takeException(), isNull);
+        await unmount(tester);
+      });
+    }
+
+    testWidgets('the ladder shows nothing without all three levels', (
+      tester,
+    ) async {
+      Widget ladder(String? stop) => MaterialApp(
+        theme: appTheme(Brightness.light),
+        home: Scaffold(
+          body: PriceLadder(
+            stop: stop,
+            entry: '66800',
+            target: '69000',
+            now: null,
+            nowLabel: 'Now',
+            semantics: 'ladder',
+          ),
+        ),
+      );
+      await tester.pumpWidget(ladder('65800'));
+      expect(find.byKey(const Key('plan-ladder')), findsOneWidget);
+      await tester.pumpWidget(ladder(null));
+      expect(find.byKey(const Key('plan-ladder')), findsNothing);
+    });
   });
 }

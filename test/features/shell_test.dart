@@ -41,7 +41,11 @@ void main() {
       ['Home', 'Markets', 'Trade', 'Plans', 'Assets'],
     );
 
-    for (final (index, title) in [(2, 'Trade'), (4, 'Assets')]) {
+    // Trade's app bar shows its Spot / Futures tabs (T-150, D-163).
+    for (final (index, title, header) in [
+      (2, 'Trade', 'Spot'),
+      (4, 'Assets', 'Assets'),
+    ]) {
       await tester.tap(
         find.descendant(
           of: find.byType(NavigationBar),
@@ -54,7 +58,7 @@ void main() {
         index,
       );
       expect(
-        find.descendant(of: find.byType(AppBar), matching: find.text(title)),
+        find.descendant(of: find.byType(AppBar), matching: find.text(header)),
         findsOneWidget,
       );
     }

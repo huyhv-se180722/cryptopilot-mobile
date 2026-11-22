@@ -152,6 +152,11 @@ void main() {
     await type(tester, 'size', '100');
     // Within the preview's 400 ms: back to the button at once, then tap.
     await tester.pump(const Duration(milliseconds: 150));
+    // Typing into the off-screen Size field starts a 100 ms caret-reveal
+    // scroll that ignores taps; let it start and end (251 ms in all, inside
+    // the 400; FE owner 2026-11-22, timing only).
+    await tester.pump(const Duration(milliseconds: 1));
+    await tester.pump(const Duration(milliseconds: 100));
     await tester.ensureVisible(find.byKey(const Key('futures-SELL')));
     await tester.pump();
     await tester.tap(find.byKey(const Key('futures-SELL')));
@@ -212,8 +217,8 @@ void main() {
     await open(tester);
     const key = 'BTCUSDT-BOTH';
     await show(tester, find.byKey(const Key('position-$key')));
-    expect(find.textContaining('PnL +1.00'), findsOneWidget);
-    expect(find.textContaining('Margin ratio 0.40%'), findsOneWidget);
+    expect(find.text('+1.00'), findsOneWidget);
+    expect(find.text('0.40%'), findsOneWidget);
     expect(find.textContaining('+0.40%'), findsNothing);
 
     await tester.tap(find.byKey(const Key('close-$key')));

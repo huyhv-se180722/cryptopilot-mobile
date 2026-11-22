@@ -228,8 +228,9 @@ void main() {
     await open(tester);
     const key = 'BTCUSDT-BOTH';
     await show(tester, find.byKey(const Key('position-$key')));
-    expect(textOf(tester, 'position-title-$key'), 'BTCUSDT · Long · 20x');
-    expect(textOf(tester, 'position-pnl-$key'), 'PnL +1.00 (+2.63%)');
+    expect(textOf(tester, 'position-title-$key'), 'Cross 20x');
+    expect(textOf(tester, 'position-pnl-$key'), '+1.00');
+    expect(textOf(tester, 'position-roi-$key'), '+2.63%');
     expect(textOf(tester, 'tpsl-line-$key'), 'TP 80,000.00 · SL 72,000.00');
     await unmount(tester);
   });

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:decimal/decimal.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -11,6 +12,35 @@ import '../domain/paper.dart';
 
 /// The equity periods of plan 9.3.
 const equityPeriods = [7, 30, 90];
+
+/// The account's change over the last 7 days (D-163; a client figure the
+/// FE owner kept): the worth now less the start of the day six days back
+/// (UTC, as the history is), with its percent of that start. Null without
+/// that day's point: never a guess from another day.
+({String change, String? percent})? sevenDayChange(
+  PaperEquity? equity,
+  DateTime now,
+) {
+  if (equity == null) return null;
+  final utc = now.toUtc();
+  final start = DateTime.utc(
+    utc.year,
+    utc.month,
+    utc.day,
+  ).subtract(const Duration(days: 6));
+  final point = equity.history.where((p) => p.date == start).firstOrNull;
+  final then = Decimal.tryParse(point?.totalEquity ?? '');
+  final current = Decimal.tryParse(equity.totalEquity);
+  if (then == null || current == null) return null;
+  final change = current - then;
+  final percent = then > Decimal.zero
+      ? (change * Decimal.fromInt(100) / then)
+            .toDecimal(scaleOnInfinitePrecision: 10)
+            .round(scale: 2)
+            .toString()
+      : null;
+  return (change: change.toString(), percent: percent);
+}
 
 @immutable
 class AssetsPnlState {

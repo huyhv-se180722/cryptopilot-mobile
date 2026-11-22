@@ -2884,6 +2884,48 @@ abstract class AppLocalizations {
   /// **'Risk/reward after fees'**
   String get planNetRiskReward;
 
+  /// No description provided for @planSummaryRr.
+  ///
+  /// In en, this message translates to:
+  /// **'Risk : reward'**
+  String get planSummaryRr;
+
+  /// No description provided for @planLossAtSl.
+  ///
+  /// In en, this message translates to:
+  /// **'Loss at stop'**
+  String get planLossAtSl;
+
+  /// No description provided for @planNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Now'**
+  String get planNow;
+
+  /// No description provided for @planGridStop.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop loss'**
+  String get planGridStop;
+
+  /// No description provided for @planGridTake.
+  ///
+  /// In en, this message translates to:
+  /// **'Take profit'**
+  String get planGridTake;
+
+  /// No description provided for @planGridMargin.
+  ///
+  /// In en, this message translates to:
+  /// **'Margin (USDT)'**
+  String get planGridMargin;
+
+  /// No description provided for @planLadderLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Price ladder: stop loss {stop}, entry {entry}, take profit {target}, last price {now}'**
+  String planLadderLabel(String stop, String entry, String target, String now);
+
   /// No description provided for @planStatusHistory.
   ///
   /// In en, this message translates to:
@@ -4912,6 +4954,30 @@ abstract class AppLocalizations {
   /// **'Trade (demo)'**
   String get assetsTradeDemo;
 
+  /// No description provided for @assetsSevenDay.
+  ///
+  /// In en, this message translates to:
+  /// **'7-day change'**
+  String get assetsSevenDay;
+
+  /// No description provided for @assetsActionTrade.
+  ///
+  /// In en, this message translates to:
+  /// **'Trade'**
+  String get assetsActionTrade;
+
+  /// No description provided for @assetsActionPnl.
+  ///
+  /// In en, this message translates to:
+  /// **'PnL'**
+  String get assetsActionPnl;
+
+  /// No description provided for @assetsApprox.
+  ///
+  /// In en, this message translates to:
+  /// **'≈ {amount} USDT'**
+  String assetsApprox(String amount);
+
   /// No description provided for @assetsEquity.
   ///
   /// In en, this message translates to:
@@ -5835,6 +5901,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Close the whole {symbol} demo position at market?'**
   String futMarketCloseAsk(String symbol);
+
+  /// No description provided for @futCardPnl.
+  ///
+  /// In en, this message translates to:
+  /// **'Unrealized PnL (USDT)'**
+  String get futCardPnl;
+
+  /// No description provided for @futCardRoi.
+  ///
+  /// In en, this message translates to:
+  /// **'ROI'**
+  String get futCardRoi;
+
+  /// No description provided for @futCardSize.
+  ///
+  /// In en, this message translates to:
+  /// **'Size ({asset})'**
+  String futCardSize(String asset);
+
+  /// No description provided for @futCardMargin.
+  ///
+  /// In en, this message translates to:
+  /// **'Margin (USDT)'**
+  String get futCardMargin;
+
+  /// No description provided for @futCardMarginRatio.
+  ///
+  /// In en, this message translates to:
+  /// **'Margin ratio'**
+  String get futCardMarginRatio;
+
+  /// No description provided for @futCardEntry.
+  ///
+  /// In en, this message translates to:
+  /// **'Entry price'**
+  String get futCardEntry;
+
+  /// No description provided for @futCardMark.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark price'**
+  String get futCardMark;
+
+  /// No description provided for @futCardLiq.
+  ///
+  /// In en, this message translates to:
+  /// **'Liq. price'**
+  String get futCardLiq;
 
   /// No description provided for @futMarginOf.
   ///

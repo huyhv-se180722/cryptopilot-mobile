@@ -6,9 +6,12 @@ import '../theme/cp_colors.dart';
 /// case: one look for plan, position, alert and journal states (D-163). The
 /// word carries the meaning, never the colour alone.
 class CpTag extends StatelessWidget {
-  const CpTag(this.text, {this.color, super.key});
+  const CpTag(this.text, {this.color, this.textKey, super.key});
 
   final String text;
+
+  /// A key on the word itself, for a caller that reads it back.
+  final Key? textKey;
 
   /// The tint and text colour; muted when null.
   final Color? color;
@@ -24,6 +27,7 @@ class CpTag extends StatelessWidget {
       ),
       child: Text(
         text,
+        key: textKey,
         maxLines: 1,
         style: Theme.of(context).textTheme.labelSmall?.copyWith(
           color: tint,
