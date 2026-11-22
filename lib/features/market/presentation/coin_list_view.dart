@@ -124,23 +124,28 @@ class _CoinListViewState extends ConsumerState<CoinListView> {
 
     return Column(
       children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 10, 16, 6),
-          child: Wrap(
-            spacing: 6,
-            children: [
-              for (final (sort, label) in [
-                (CoinSort.top, l.coinsTop),
-                (CoinSort.gainers, l.coinsGainers),
-                (CoinSort.losers, l.coinsLosers),
-              ])
-                ChoiceChip(
-                  key: Key('coins-sort-${sort.name}'),
-                  label: Text(label),
-                  selected: _sort == sort,
-                  onSelected: (_) => setState(() => _sort = sort),
-                ),
-            ],
+        // Left-aligned like the other filters, no check mark (D-163).
+        Align(
+          alignment: AlignmentDirectional.centerStart,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 10, 16, 6),
+            child: Wrap(
+              spacing: 6,
+              children: [
+                for (final (sort, label) in [
+                  (CoinSort.top, l.coinsTop),
+                  (CoinSort.gainers, l.coinsGainers),
+                  (CoinSort.losers, l.coinsLosers),
+                ])
+                  ChoiceChip(
+                    key: Key('coins-sort-${sort.name}'),
+                    showCheckmark: false,
+                    label: Text(label),
+                    selected: _sort == sort,
+                    onSelected: (_) => setState(() => _sort = sort),
+                  ),
+              ],
+            ),
           ),
         ),
         const _ColumnHeader(),
@@ -154,6 +159,11 @@ class _CoinListViewState extends ConsumerState<CoinListView> {
     );
   }
 }
+
+/// The 7-day line's width: narrower under 400 dp so the cap and the 7-day
+/// change beside it stay readable at 360 dp (device check, T-151).
+double sparkWidth(BuildContext context) =>
+    MediaQuery.sizeOf(context).width < 400 ? 44 : 64;
 
 /// The column names over the coin rows (D-163, after CoinMarketCap).
 class _ColumnHeader extends StatelessWidget {
@@ -181,7 +191,7 @@ class _ColumnHeader extends StatelessWidget {
               ),
             ),
             SizedBox(
-              width: 64,
+              width: sparkWidth(context),
               child: Text(
                 l.coinsHead7d,
                 style: style,
@@ -271,7 +281,7 @@ class _CoinRow extends StatelessWidget {
               Semantics(
                 label: l.coinsChart(coin.symbol),
                 child: SizedBox(
-                  width: 64,
+                  width: sparkWidth(context),
                   height: 26,
                   child: CustomPaint(
                     key: Key('coin-line-${coin.symbol}'),
