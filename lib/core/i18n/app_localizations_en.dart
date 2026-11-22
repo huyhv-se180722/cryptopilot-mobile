@@ -301,6 +301,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get accountAppearance => 'Appearance';
 
   @override
+  String get accountDemoTrading => 'Demo trading';
+
+  @override
+  String get accountLearnShare => 'Learn and share';
+
+  @override
   String get themeSystem => 'System';
 
   @override
@@ -347,6 +353,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get marketCoins => 'Coins';
+
+  @override
+  String get coinsHeadCoin => 'Coin / Market cap';
+
+  @override
+  String get coinsHead7d => '7d';
+
+  @override
+  String get coinsHeadPrice => 'Price / 24h';
 
   @override
   String get coinsTop => 'Top';
@@ -1647,6 +1662,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get journalBreakeven => 'Breakeven';
+
+  @override
+  String get journalTo => 'to';
 
   @override
   String get journalOpen => 'Open';

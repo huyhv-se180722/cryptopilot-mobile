@@ -74,6 +74,56 @@ class ChangePill extends StatelessWidget {
   }
 }
 
+/// The change as coloured text with an arrow (D-163, list style): ▲ green
+/// up, ▼ red down, no arrow when flat; the sign is always written, so the
+/// colour is never the only signal.
+class ChangeText extends StatelessWidget {
+  const ChangeText({required this.percent, this.style, super.key});
+
+  final String? percent;
+  final TextStyle? style;
+
+  @override
+  Widget build(BuildContext context) {
+    final text = formatSignedPercent(percent);
+    // By the written sign, so "0.00%" from 0.001 gets no arrow either.
+    final direction = text.startsWith('+')
+        ? Direction.up
+        : text.startsWith('−')
+        ? Direction.down
+        : Direction.flat;
+    final color = switch (direction) {
+      Direction.up => context.cp.positive,
+      Direction.down => context.cp.negative,
+      Direction.flat => context.cp.muted,
+    };
+    final base = style ?? Theme.of(context).textTheme.bodySmall;
+    final size = base?.fontSize ?? 12;
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (direction != Direction.flat)
+          Icon(
+            direction == Direction.up
+                ? Icons.arrow_drop_up
+                : Icons.arrow_drop_down,
+            size: size + 6,
+            color: color,
+          ),
+        Text(
+          text,
+          maxLines: 1,
+          style: base?.copyWith(
+            color: color,
+            fontWeight: FontWeight.w600,
+            fontFeatures: const [FontFeature.tabularFigures()],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 /// Text coloured by the sign of [percent], with the sign written.
 class SignedPercentText extends StatelessWidget {
   const SignedPercentText(this.percent, {this.style, super.key});

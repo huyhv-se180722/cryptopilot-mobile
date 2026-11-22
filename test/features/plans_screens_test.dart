@@ -366,6 +366,33 @@ void main() {
   });
 
   group('SCR-20 and SCR-21', () {
+    testWidgets('T-151: entry and exit are joined by an arrow icon read as '
+        '"to", not a character', (tester) async {
+      await open(tester, '/plans');
+      await tab(tester, 'plans-tab-journal');
+      final row = find.byKey(const Key('journal-row-j1'));
+      expect(
+        find.descendant(of: row, matching: find.byIcon(Icons.arrow_forward)),
+        findsOneWidget,
+      );
+      expect(
+        tester
+            .widget<Icon>(
+              find.descendant(
+                of: row,
+                matching: find.byIcon(Icons.arrow_forward),
+              ),
+            )
+            .semanticLabel,
+        'to',
+      );
+      expect(
+        find.descendant(of: row, matching: find.textContaining('→')),
+        findsNothing,
+      );
+      await unmount(tester);
+    });
+
     testWidgets('the journal in the Plans tab: rows with results, the filter '
         'and a trade', (tester) async {
       await open(tester, '/plans');

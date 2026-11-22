@@ -446,21 +446,32 @@ class WatchRow extends ConsumerWidget {
                       ),
                     ),
                     const SizedBox(height: 2),
+                    // One line at 360 dp: the price column takes less now.
                     Text(
                       details,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: text.bodySmall?.copyWith(color: context.cp.muted),
                     ),
                   ],
                 ),
               ),
-              Text(
-                formatPrice(ticker?.displayPrice, pair?.tickSize),
-                style: text.titleSmall?.copyWith(
-                  fontFeatures: const [FontFeature.tabularFigures()],
-                ),
+              const SizedBox(width: 8),
+              // Price over its 24 h change (D-163).
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    formatPrice(ticker?.displayPrice, pair?.tickSize),
+                    style: text.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w600,
+                      fontFeatures: const [FontFeature.tabularFigures()],
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  ChangeText(percent: ticker?.changePercent24h),
+                ],
               ),
-              const SizedBox(width: 12),
-              ChangePill(percent: ticker?.changePercent24h, width: 76),
               PopupMenuButton<String>(
                 key: Key('watch-menu-${item.symbol}'),
                 onSelected: (action) {

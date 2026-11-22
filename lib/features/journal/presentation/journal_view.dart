@@ -245,11 +245,33 @@ class JournalRow extends ConsumerWidget {
               ],
             ),
             const SizedBox(height: 2),
-            Text(
-              [
-                '${price(entry.entryPrice)} → ${entry.exitPrice == null ? l.journalOpen : price(entry.exitPrice)}',
-                tradeSourceName(l, entry.source),
-              ].join(' · '),
+            // An arrow icon between entry and exit, not a character (M10).
+            Text.rich(
+              TextSpan(
+                children: [
+                  TextSpan(text: price(entry.entryPrice)),
+                  WidgetSpan(
+                    alignment: PlaceholderAlignment.middle,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 3),
+                      child: Icon(
+                        Icons.arrow_forward,
+                        size: 12,
+                        color: cp.muted,
+                        semanticLabel: l.journalTo,
+                      ),
+                    ),
+                  ),
+                  TextSpan(
+                    text: [
+                      entry.exitPrice == null
+                          ? l.journalOpen
+                          : price(entry.exitPrice),
+                      tradeSourceName(l, entry.source),
+                    ].join(' · '),
+                  ),
+                ],
+              ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: text.bodySmall?.copyWith(color: cp.muted),

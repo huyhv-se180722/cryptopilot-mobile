@@ -504,6 +504,21 @@ void main() {
       await unmount(tester);
     });
 
+    testWidgets('T-151: the account groups demo trading and learning under '
+        'their own headings', (tester) async {
+      await home(tester);
+      await tester.tap(find.byKey(const Key('open-account')));
+      await frames(tester);
+      await tester.scrollUntilVisible(
+        find.text('LEARN AND SHARE'),
+        200,
+        scrollable: find.byType(Scrollable).last,
+      );
+      expect(find.text('DEMO TRADING'), findsOneWidget);
+      expect(find.text('LEARN AND SHARE'), findsOneWidget);
+      await unmount(tester);
+    });
+
     testWidgets('progress that cannot be read leaves the card without it', (
       tester,
     ) async {

@@ -32,7 +32,9 @@ import '../../watchlist/domain/watchlist.dart';
 import '../../watchlist/presentation/add_pair_sheet.dart';
 import '../../watchlist/presentation/watchlist_view.dart';
 import '../application/home_providers.dart';
+import '../../../core/widgets/cp_tag.dart';
 import '../../../core/widgets/pair_label.dart';
+import '../../../core/widgets/price_ladder.dart';
 
 /// SCR-08 Trader Dashboard, the home tab (SRS: watchlist snapshot, active
 /// plans and open positions, recent notifications, performance summary,
@@ -110,7 +112,8 @@ class HomeScreen extends ConsumerWidget {
   }
 }
 
-/// A block of the dashboard: title, an optional "See all", its content.
+/// A block of the dashboard: title, an optional "See all ›", its content;
+/// a section on the page, not a framed card (D-163, mockup c3).
 class _Block extends StatelessWidget {
   const _Block({
     required this.title,
@@ -127,29 +130,44 @@ class _Block extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
-    return Card(
+    return Padding(
       key: blockKey,
-      margin: const EdgeInsets.only(bottom: 12),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 8, 8, 12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Row(
-              children: [
-                Expanded(
+      padding: const EdgeInsets.only(bottom: 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Semantics(
+                  header: true,
                   child: Text(
                     title,
-                    style: Theme.of(context).textTheme.titleMedium,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                 ),
-                if (onSeeAll != null)
-                  TextButton(onPressed: onSeeAll, child: Text(l.homeSeeAll)),
-              ],
-            ),
-            Padding(padding: const EdgeInsets.only(right: 8), child: child),
-          ],
-        ),
+              ),
+              if (onSeeAll != null)
+                TextButton(
+                  onPressed: onSeeAll,
+                  style: TextButton.styleFrom(
+                    padding: const EdgeInsets.only(left: 8),
+                    visualDensity: VisualDensity.compact,
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(l.homeSeeAll),
+                      const Icon(Icons.chevron_right, size: 18),
+                    ],
+                  ),
+                ),
+            ],
+          ),
+          child,
+        ],
       ),
     );
   }
@@ -274,6 +292,11 @@ class _WatchRow extends ConsumerWidget {
         padding: const EdgeInsets.symmetric(vertical: 8),
         child: Row(
           children: [
+            CoinLogo(
+              symbol: pair?.baseAsset ?? item.symbol,
+              url: pair?.logoUrl,
+            ),
+            const SizedBox(width: 10),
             Expanded(
               child: pair == null
                   ? PairLabel.symbol(item.symbol, style: text.titleSmall)
@@ -283,15 +306,22 @@ class _WatchRow extends ConsumerWidget {
                       style: text.titleSmall,
                     ),
             ),
-            // A Futures-only pair has no Spot price (M-09): a dash.
-            Text(
-              formatPrice(ticker?.lastPrice, pair?.tickSize),
-              style: text.titleSmall?.copyWith(
-                fontFeatures: const [FontFeature.tabularFigures()],
-              ),
+            // A Futures-only pair has no Spot price (M-09): a dash. Price
+            // over its change (D-163).
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  formatPrice(ticker?.lastPrice, pair?.tickSize),
+                  style: text.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w600,
+                    fontFeatures: const [FontFeature.tabularFigures()],
+                  ),
+                ),
+                const SizedBox(height: 2),
+                ChangeText(percent: ticker?.changePercent24h),
+              ],
             ),
-            const SizedBox(width: 12),
-            ChangePill(percent: ticker?.changePercent24h, width: 76),
           ],
         ),
       ),
@@ -414,6 +444,14 @@ class _PlanRow extends ConsumerWidget {
       ),
     );
     String price(String? value) => formatPrice(value, pair?.tickSize);
+    // The last price for the ladder's Now, read one way from Market.
+    final now = pair == null
+        ? null
+        : ref.watch(
+            marketRepositoryProvider(
+              plan.market,
+            ).select((s) => s.tickers[pair.symbol]?.displayPrice),
+          );
     final long = plan.direction == PlanDirection.long;
     return InkWell(
       key: Key('home-plan-${plan.id}'),
@@ -460,7 +498,20 @@ class _PlanRow extends ConsumerWidget {
                 Text(_planStatus(l, plan), style: text.bodySmall),
               ],
             ),
-            const SizedBox(height: 2),
+            const SizedBox(height: 4),
+            PriceLadder(
+              stop: plan.stopLoss,
+              entry: plan.entryPrice,
+              target: plan.takeProfit,
+              now: now,
+              nowLabel: l.planNow,
+              semantics: l.planLadderLabel(
+                price(plan.stopLoss),
+                price(plan.entryPrice),
+                price(plan.takeProfit),
+                price(now),
+              ),
+            ),
             Text(
               l.homePlanLevels(
                 price(plan.entryPrice),
@@ -574,8 +625,9 @@ class _PerformanceFigures extends StatelessWidget {
               Text(
                 value,
                 key: key,
-                style: text.titleMedium?.copyWith(
+                style: text.headlineSmall?.copyWith(
                   color: color,
+                  fontWeight: FontWeight.w700,
                   fontFeatures: const [FontFeature.tabularFigures()],
                 ),
               ),
@@ -839,15 +891,30 @@ class _NewsRow extends ConsumerWidget {
               overflow: TextOverflow.ellipsis,
               style: text.titleSmall,
             ),
-            const SizedBox(height: 2),
-            Text(
-              [
-                article.source,
-                notificationAge(l, article.publishedAt, now),
-                ?sentiment,
-                if (article.coins.isNotEmpty) article.coins.first,
-              ].join(' · '),
-              style: text.bodySmall?.copyWith(color: cp.muted),
+            const SizedBox(height: 4),
+            Wrap(
+              spacing: 6,
+              runSpacing: 4,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                Text(
+                  [
+                    article.source,
+                    notificationAge(l, article.publishedAt, now),
+                  ].join(' · '),
+                  style: text.bodySmall?.copyWith(color: cp.muted),
+                ),
+                if (sentiment != null)
+                  CpTag(
+                    sentiment,
+                    color: switch (article.sentiment) {
+                      NewsSentiment.bullish => cp.positive,
+                      NewsSentiment.bearish => cp.negative,
+                      _ => null,
+                    },
+                  ),
+                if (article.coins.isNotEmpty) CpTag(article.coins.first),
+              ],
             ),
           ],
         ),

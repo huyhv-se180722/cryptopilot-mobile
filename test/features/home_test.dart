@@ -6,6 +6,8 @@ import 'package:cryptopilot_mobile/core/format/decimal_format.dart';
 import 'package:cryptopilot_mobile/core/i18n/app_localizations.dart';
 import 'package:cryptopilot_mobile/core/json/json_read.dart';
 import 'package:cryptopilot_mobile/core/theme/app_theme.dart';
+import 'package:cryptopilot_mobile/core/widgets/cp_tag.dart';
+import 'package:cryptopilot_mobile/core/widgets/price_ladder.dart';
 import 'package:cryptopilot_mobile/features/home/presentation/home_screen.dart';
 import 'package:cryptopilot_mobile/features/journal/domain/performance.dart';
 import 'package:cryptopilot_mobile/features/market/domain/market.dart';
@@ -353,6 +355,36 @@ void main() {
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 400));
       expect(find.text('MARKETS TAB'), findsOneWidget);
+      await unmount(tester);
+    });
+
+    testWidgets('T-151 (D-163): sections without a card frame, a plan with '
+        'its price ladder, the news sentiment as a tag', (tester) async {
+      await pump(tester);
+      expect(
+        find.descendant(
+          of: find.byKey(const Key('home-watchlist')),
+          matching: find.byType(Card),
+        ),
+        findsNothing,
+      );
+      expect(find.byIcon(Icons.chevron_right), findsWidgets);
+      await scrollTo(tester, find.byKey(const Key('home-plan-p1')));
+      expect(
+        find.descendant(
+          of: find.byKey(const Key('home-plan-p1')),
+          matching: find.byType(PriceLadder),
+        ),
+        findsOneWidget,
+      );
+      await scrollTo(tester, find.byKey(const Key('home-news-a1')));
+      expect(
+        find.descendant(
+          of: find.byKey(const Key('home-news-a1')),
+          matching: find.widgetWithText(CpTag, 'Bullish'),
+        ),
+        findsOneWidget,
+      );
       await unmount(tester);
     });
 
