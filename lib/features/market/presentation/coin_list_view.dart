@@ -160,6 +160,11 @@ class _CoinListViewState extends ConsumerState<CoinListView> {
   }
 }
 
+/// The 7-day line's width: narrower under 400 dp so the cap and the 7-day
+/// change beside it stay readable at 360 dp (device check, T-151).
+double sparkWidth(BuildContext context) =>
+    MediaQuery.sizeOf(context).width < 400 ? 44 : 64;
+
 /// The column names over the coin rows (D-163, after CoinMarketCap).
 class _ColumnHeader extends StatelessWidget {
   const _ColumnHeader();
@@ -186,7 +191,7 @@ class _ColumnHeader extends StatelessWidget {
               ),
             ),
             SizedBox(
-              width: 64,
+              width: sparkWidth(context),
               child: Text(
                 l.coinsHead7d,
                 style: style,
@@ -276,7 +281,7 @@ class _CoinRow extends StatelessWidget {
               Semantics(
                 label: l.coinsChart(coin.symbol),
                 child: SizedBox(
-                  width: 64,
+                  width: sparkWidth(context),
                   height: 26,
                   child: CustomPaint(
                     key: Key('coin-line-${coin.symbol}'),

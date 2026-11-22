@@ -156,6 +156,35 @@ void main() {
       await unmount(tester);
     });
 
+    testWidgets('360 dp: the 7-day line narrows so the cap and the 7-day '
+        'change keep their room (device check)', (tester) async {
+      tester.view
+        ..physicalSize = const Size(360 * 3, 760 * 3)
+        ..devicePixelRatio = 3;
+      addTearDown(tester.view.reset);
+      api.overviewValue = MarketOverview(
+        asOf: DateTime.utc(2026, 11, 20),
+        coins: const [
+          CoinRow(
+            symbol: 'BTC',
+            name: 'Bitcoin',
+            rank: 1,
+            spotSymbol: 'BTCUSDT',
+            sparkline7d: [100, 104, 98, 110],
+          ),
+        ],
+      );
+      await render(tester);
+      await tester.ensureVisible(find.byKey(const Key('markets-coins')));
+      await tester.pump();
+      await tester.tap(find.byKey(const Key('markets-coins')));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(tester.getSize(find.byKey(const Key('coin-line-BTC'))).width, 44);
+      expect(tester.takeException(), isNull);
+      await unmount(tester);
+    });
+
     for (final brightness in Brightness.values) {
       testWidgets('360 dp, ${brightness.name}: Spot rows and the dial fit', (
         tester,
