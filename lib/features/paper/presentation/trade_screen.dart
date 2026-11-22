@@ -491,6 +491,9 @@ class _SpotForm extends ConsumerWidget {
     if (await ref.read(confirmOrdersProvider.notifier).current()) {
       if (!context.mounted) return;
       final state = ref.read(spotFormProvider(pair.symbol));
+      // A snack bar still showing (the last order's) would cover the confirm
+      // button, as on Futures; it goes first (emulator trade flow check).
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
       final go = await showModalBottomSheet<bool>(
         context: context,
         showDragHandle: true,

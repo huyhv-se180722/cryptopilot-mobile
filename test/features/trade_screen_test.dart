@@ -156,6 +156,39 @@ void main() {
     await unmount(tester);
   });
 
+  testWidgets('a second order right after the first: the snack bar goes, so '
+      'it never covers the confirm button (emulator trade flow)', (
+    tester,
+  ) async {
+    await open(tester);
+    Future<void> order(String price) async {
+      for (final (field, value) in [('price', price), ('amount', '0.01')]) {
+        await tester.enterText(
+          find.descendant(
+            of: find.byKey(Key('trade-field-$field')),
+            matching: find.byType(TextField),
+          ),
+          value,
+        );
+      }
+      await tester.tap(find.byKey(const Key('trade-submit')));
+      await frames(tester);
+    }
+
+    await order('76000');
+    await tester.tap(find.byKey(const Key('trade-confirm')));
+    await frames(tester);
+    expect(find.text('Demo order placed.'), findsOneWidget);
+
+    await order('75000');
+    expect(find.byKey(const Key('trade-confirm-sheet')), findsOneWidget);
+    expect(find.byType(SnackBar), findsNothing);
+    await tester.tap(find.byKey(const Key('trade-confirm')));
+    await frames(tester);
+    expect(paper.placed, hasLength(2));
+    await unmount(tester);
+  });
+
   testWidgets('with confirmation off the order goes at once; a refusal is '
       'told under its field', (tester) async {
     settings.values['paper.confirmOrders'] = 'false';
