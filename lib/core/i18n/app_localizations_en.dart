@@ -1555,6 +1555,29 @@ class AppLocalizationsEn extends AppLocalizations {
   String get planNetRiskReward => 'Risk/reward after fees';
 
   @override
+  String get planSummaryRr => 'Risk : reward';
+
+  @override
+  String get planLossAtSl => 'Loss at stop';
+
+  @override
+  String get planNow => 'Now';
+
+  @override
+  String get planGridStop => 'Stop loss';
+
+  @override
+  String get planGridTake => 'Take profit';
+
+  @override
+  String get planGridMargin => 'Margin (USDT)';
+
+  @override
+  String planLadderLabel(String stop, String entry, String target, String now) {
+    return 'Price ladder: stop loss $stop, entry $entry, take profit $target, last price $now';
+  }
+
+  @override
   String get planStatusHistory => 'Status history';
 
   @override

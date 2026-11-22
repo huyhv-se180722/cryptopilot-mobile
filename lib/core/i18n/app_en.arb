@@ -766,6 +766,29 @@
   "planRewardAmount": "Reward (USDT)",
   "planRiskReward": "Risk/reward",
   "planNetRiskReward": "Risk/reward after fees",
+  "planSummaryRr": "Risk : reward",
+  "planLossAtSl": "Loss at stop",
+  "planNow": "Now",
+  "planGridStop": "Stop loss",
+  "planGridTake": "Take profit",
+  "planGridMargin": "Margin (USDT)",
+  "planLadderLabel": "Price ladder: stop loss {stop}, entry {entry}, take profit {target}, last price {now}",
+  "@planLadderLabel": {
+    "placeholders": {
+      "stop": {
+        "type": "String"
+      },
+      "entry": {
+        "type": "String"
+      },
+      "target": {
+        "type": "String"
+      },
+      "now": {
+        "type": "String"
+      }
+    }
+  },
   "planStatusHistory": "Status history",
   "planActivate": "Activate",
   "planCancel": "Cancel plan",

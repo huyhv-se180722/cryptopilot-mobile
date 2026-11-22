@@ -113,11 +113,16 @@ class PlanDetailScreen extends ConsumerWidget {
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
           children: [
             _StatusLine(plan: plan),
+            // A live position comes first; the plan's summary follows it.
             if (plan.position case final position?) ...[
               const SizedBox(height: 12),
               _PositionCard(plan: plan, position: position),
             ],
             if (plan.position != null) ?journalLink?.call(plan),
+            if (plan.snapshot case final snapshot?) ...[
+              const SizedBox(height: 12),
+              _SummaryCard(plan: plan, snapshot: snapshot),
+            ],
             const SizedBox(height: 8),
             _PlanSections(plan: plan),
             const PlanDisclaimer(key: Key('plan-detail-disclaimer')),
@@ -373,6 +378,181 @@ class _WarningLine extends StatelessWidget {
   }
 }
 
+/// SCR-18 summary (D-163, mockup b4): the risk-reward large with the loss
+/// at the stop, the price ladder stop → entry → target with the last price,
+/// then the levels and the sizes. A plan is not an order: no order words.
+class _SummaryCard extends ConsumerWidget {
+  const _SummaryCard({required this.plan, required this.snapshot});
+
+  final PlanDetail plan;
+  final PlanSnapshot snapshot;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context);
+    final cp = context.cp;
+    final text = Theme.of(context).textTheme;
+    final pair = pairOf(ref, plan.market, plan.pairId);
+    String price(String? value) => priceText(pair, value);
+    // The last price, read one way from Market (as the alert sheet does).
+    final now = pair == null
+        ? null
+        : ref.watch(
+            marketRepositoryProvider(
+              plan.market,
+            ).select((s) => s.tickers[pair.symbol]?.displayPrice),
+          );
+    final loss = snapshot.lossAtStopLoss ?? snapshot.riskAmount;
+    final muted = text.bodySmall?.copyWith(color: cp.muted);
+    final rr = snapshot.riskRewardRatio;
+    return Container(
+      key: const Key('plan-summary'),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        border: Border.all(color: cp.border),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(l.planSummaryRr, style: muted),
+                    Text(
+                      rr == null ? '--' : '1 : ${formatDecimal(rr, 2)}',
+                      key: const Key('plan-summary-rr'),
+                      style: text.headlineSmall?.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              if (loss != null)
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(l.planLossAtSl, style: muted),
+                    Text(
+                      '${formatSignedDecimal(loss.trim().startsWith('-') ? loss : '-$loss')} USDT',
+                      key: const Key('plan-summary-loss'),
+                      style: text.titleMedium?.copyWith(
+                        color: cp.negative,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          PriceLadder(
+            stop: plan.stopLoss,
+            entry: plan.entryPrice,
+            target: plan.takeProfit,
+            now: now,
+            nowLabel: l.planNow,
+            semantics: l.planLadderLabel(
+              price(plan.stopLoss),
+              price(plan.entryPrice),
+              price(plan.takeProfit),
+              price(now),
+            ),
+          ),
+          const SizedBox(height: 4),
+          _Grid(
+            cells: [
+              (l.planGridStop, price(plan.stopLoss), cp.negative),
+              (l.planEntry, price(plan.entryPrice), null),
+              (l.planGridTake, price(plan.takeProfit), cp.positive),
+              (
+                l.planQuantity,
+                snapshot.positionQuantity == null
+                    ? '--'
+                    : '${formatDecimal(snapshot.positionQuantity, decimalPlaces(pair?.stepSize))}'
+                          '${pair == null ? '' : ' ${pair.baseAsset}'}',
+                null,
+              ),
+              if (snapshot.initialMargin != null)
+                (
+                  l.planGridMargin,
+                  formatDecimal(snapshot.initialMargin, 2),
+                  null,
+                ),
+              if (snapshot.estimatedLiquidationPrice != null)
+                (
+                  l.planLiquidation,
+                  price(snapshot.estimatedLiquidationPrice),
+                  null,
+                ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Figures three to a row: label above, value below; the third of each row
+/// aligned to the end.
+class _Grid extends StatelessWidget {
+  const _Grid({required this.cells});
+
+  final List<(String, String, Color?)> cells;
+
+  @override
+  Widget build(BuildContext context) {
+    final text = Theme.of(context).textTheme;
+    final label = text.bodySmall?.copyWith(color: context.cp.muted);
+    final value = text.bodyMedium?.copyWith(
+      fontWeight: FontWeight.w600,
+      fontFeatures: const [FontFeature.tabularFigures()],
+    );
+    return Column(
+      children: [
+        for (var r = 0; r < cells.length; r += 3)
+          Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                for (var c = r; c < r + 3; c++)
+                  Expanded(
+                    child: c >= cells.length
+                        ? const SizedBox.shrink()
+                        : Column(
+                            crossAxisAlignment: c % 3 == 2
+                                ? CrossAxisAlignment.end
+                                : CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                cells[c].$1,
+                                style: label,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              Text(
+                                cells[c].$2,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: value?.copyWith(color: cells[c].$3),
+                              ),
+                            ],
+                          ),
+                  ),
+              ],
+            ),
+          ),
+      ],
+    );
+  }
+}
+
 class _PlanSections extends ConsumerWidget {
   const _PlanSections({required this.plan});
 
@@ -400,6 +580,7 @@ class _PlanSections extends ConsumerWidget {
         ExpansionTile(
           key: const Key('plan-inputs'),
           tilePadding: EdgeInsets.zero,
+          initiallyExpanded: true,
           title: Text(l.planInputs),
           children: [
             FactRow(l.planEntryType, Text(plan.entryType)),

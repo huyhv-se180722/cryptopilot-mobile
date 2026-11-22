@@ -2884,6 +2884,48 @@ abstract class AppLocalizations {
   /// **'Risk/reward after fees'**
   String get planNetRiskReward;
 
+  /// No description provided for @planSummaryRr.
+  ///
+  /// In en, this message translates to:
+  /// **'Risk : reward'**
+  String get planSummaryRr;
+
+  /// No description provided for @planLossAtSl.
+  ///
+  /// In en, this message translates to:
+  /// **'Loss at stop'**
+  String get planLossAtSl;
+
+  /// No description provided for @planNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Now'**
+  String get planNow;
+
+  /// No description provided for @planGridStop.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop loss'**
+  String get planGridStop;
+
+  /// No description provided for @planGridTake.
+  ///
+  /// In en, this message translates to:
+  /// **'Take profit'**
+  String get planGridTake;
+
+  /// No description provided for @planGridMargin.
+  ///
+  /// In en, this message translates to:
+  /// **'Margin (USDT)'**
+  String get planGridMargin;
+
+  /// No description provided for @planLadderLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Price ladder: stop loss {stop}, entry {entry}, take profit {target}, last price {now}'**
+  String planLadderLabel(String stop, String entry, String target, String now);
+
   /// No description provided for @planStatusHistory.
   ///
   /// In en, this message translates to:
