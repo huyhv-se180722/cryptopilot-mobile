@@ -817,6 +817,29 @@ void main() {
       await unmount(tester);
     });
 
+    for (final brightness in Brightness.values) {
+      testWidgets('360 dp, ${brightness.name}: the summary with Now fits', (
+        tester,
+      ) async {
+        tester.view
+          ..physicalSize = const Size(360 * 3, 760 * 3)
+          ..devicePixelRatio = 3;
+        addTearDown(tester.view.reset);
+        await open(tester, '/plan/p1', brightness: brightness);
+        transport.last.push('/topic/overview.FUTURES', {
+          'market': 'FUTURES',
+          'tickers': [
+            {'market': 'FUTURES', 'symbol': 'BTCUSDT', 'lastPrice': '69500.00'},
+          ],
+        });
+        await frames(tester);
+        expect(find.byKey(const Key('plan-summary')), findsOneWidget);
+        expect(find.byKey(const Key('plan-ladder-now')), findsOneWidget);
+        expect(tester.takeException(), isNull);
+        await unmount(tester);
+      });
+    }
+
     testWidgets('the ladder shows nothing without all three levels', (
       tester,
     ) async {
