@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -6,6 +8,7 @@ import '../../../core/i18n/app_localizations.dart';
 import '../../../core/theme/cp_colors.dart';
 import '../application/market_overview.dart';
 import '../domain/coin_market.dart';
+import 'market_widgets.dart';
 
 String fearGreedLabel(AppLocalizations l, FearGreedBand band) => switch (band) {
   FearGreedBand.extremeFear => l.overviewFgExtremeFear,
@@ -46,13 +49,6 @@ class MarketOverviewStrip extends ConsumerWidget {
     );
   }
 
-  static Color? _signColor(CpColors cp, String? percent) =>
-      switch (directionOf(percent)) {
-        Direction.up => cp.positive,
-        Direction.down => cp.negative,
-        Direction.flat => null,
-      };
-
   static String _usd(String? value) =>
       value == null ? '--' : '\$${formatCompact(value)}';
 
@@ -73,7 +69,6 @@ class MarketOverviewStrip extends ConsumerWidget {
         title: l.overviewMarketCap,
         value: _usd(g?.marketCapUsd),
         change: g?.marketCapChange24hPercent,
-        changeColor: _signColor(cp, g?.marketCapChange24hPercent),
         source: l.overviewSourcePaprika,
       ),
       _Stat(
@@ -90,17 +85,63 @@ class MarketOverviewStrip extends ConsumerWidget {
             : '${formatDecimal(g!.bitcoinDominancePercent, 1)}%',
         source: l.overviewSourcePaprika,
       ),
-      _Stat(
+      _CardFrame(
         key: const Key('overview-fear-greed'),
-        title: l.overviewFearGreed,
-        value: fg == null ? '--' : '${fg.value}',
-        note: band == null ? null : fearGreedLabel(l, band),
-        noteColor: switch (band) {
-          FearGreedBand.extremeFear || FearGreedBand.fear => cp.negative,
-          FearGreedBand.greed || FearGreedBand.extremeGreed => cp.positive,
-          _ => null,
-        },
-        source: l.overviewSourceFearGreed,
+        tooltip: l.overviewSourceFearGreed,
+        semantics: [
+          l.overviewFearGreed,
+          fg == null ? '--' : '${fg.value}',
+          if (band != null) fearGreedLabel(l, band),
+        ].join(', '),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _Title(l.overviewFearGreed),
+            const SizedBox(height: 4),
+            Expanded(
+              child: Row(
+                children: [
+                  if (fg != null) ...[
+                    SizedBox(
+                      width: 44,
+                      height: 28,
+                      child: CustomPaint(
+                        key: const Key('overview-fear-greed-gauge'),
+                        painter: _Gauge(fg.value, cp),
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                  ],
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _Value(fg == null ? '--' : '${fg.value}'),
+                        if (band != null)
+                          Text(
+                            fearGreedLabel(l, band),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: Theme.of(context).textTheme.labelMedium
+                                ?.copyWith(
+                                  color: switch (band) {
+                                    FearGreedBand.extremeFear ||
+                                    FearGreedBand.fear => cp.negative,
+                                    FearGreedBand.greed ||
+                                    FearGreedBand.extremeGreed => cp.positive,
+                                    _ => cp.muted,
+                                  },
+                                  fontWeight: FontWeight.w600,
+                                ),
+                          ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
       _CardFrame(
         key: const Key('overview-season'),
@@ -145,7 +186,6 @@ class MarketOverviewStrip extends ConsumerWidget {
         title: l.overviewOpenInterest,
         value: _usd(oi?.valueUsd),
         change: oi?.change24hPercent,
-        changeColor: _signColor(cp, oi?.change24hPercent),
         source: l.overviewOpenInterestHint,
       ),
     ];
@@ -193,9 +233,6 @@ class _Stat extends StatelessWidget {
     required this.title,
     required this.value,
     this.change,
-    this.changeColor,
-    this.note,
-    this.noteColor,
     this.source,
     super.key,
   });
@@ -203,18 +240,14 @@ class _Stat extends StatelessWidget {
   final String title;
   final String value;
   final String? change;
-  final Color? changeColor;
-  final String? note;
-  final Color? noteColor;
   final String? source;
 
   @override
   Widget build(BuildContext context) {
     final percent = change == null ? null : formatSignedPercent(change);
-    final extra = percent ?? note;
     return _CardFrame(
       tooltip: source,
-      semantics: [title, value, ?extra].join(', '),
+      semantics: [title, value, ?percent].join(', '),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -222,17 +255,11 @@ class _Stat extends StatelessWidget {
           const SizedBox(height: 4),
           _Value(value),
           const Spacer(),
-          if (extra != null)
-            Text(
-              extra,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                color:
-                    (percent != null ? changeColor : noteColor) ??
-                    context.cp.muted,
-                fontWeight: FontWeight.w600,
-              ),
+          // The change with its arrow (D-163).
+          if (percent != null)
+            ChangeText(
+              percent: change,
+              style: Theme.of(context).textTheme.labelMedium,
             ),
         ],
       ),
@@ -289,4 +316,47 @@ class _Note extends StatelessWidget {
       context,
     ).textTheme.labelSmall?.copyWith(color: context.cp.muted),
   );
+}
+
+/// The Fear & Greed index on a half dial, red to green in five bands, with
+/// a dot at the value (D-163). Colours from the theme tokens only.
+class _Gauge extends CustomPainter {
+  _Gauge(this.value, this.cp);
+
+  final int value;
+  final CpColors cp;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final r = min(size.width / 2, size.height) - 4;
+    final center = Offset(size.width / 2, size.height - 2);
+    final rect = Rect.fromCircle(center: center, radius: r);
+    final colors = [
+      cp.negative,
+      Color.lerp(cp.negative, cp.warning, 0.5)!,
+      cp.warning,
+      Color.lerp(cp.warning, cp.positive, 0.5)!,
+      cp.positive,
+    ];
+    for (var i = 0; i < colors.length; i++) {
+      canvas.drawArc(
+        rect,
+        pi + i * pi / 5 + 0.04,
+        pi / 5 - 0.08,
+        false,
+        Paint()
+          ..color = colors[i]
+          ..strokeWidth = 4
+          ..strokeCap = StrokeCap.round
+          ..style = PaintingStyle.stroke,
+      );
+    }
+    final angle = pi + pi * value.clamp(0, 100) / 100;
+    final dot = center + Offset(r * cos(angle), r * sin(angle));
+    canvas.drawCircle(dot, 4.5, Paint()..color = cp.text);
+    canvas.drawCircle(dot, 2.5, Paint()..color = cp.surface);
+  }
+
+  @override
+  bool shouldRepaint(_Gauge old) => old.value != value || old.cp != cp;
 }

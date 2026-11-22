@@ -18,6 +18,11 @@ import 'pair_actions.dart';
 /// In tab order; Coins last so the earlier indexes stay (T-137).
 enum MarketsSegment { watchlist, spot, futures, coins }
 
+/// The tabs as shown. The mockup's Watchlist, Coins, Spot, Futures order
+/// scrolls the Watchlist tab off a 360 dp bar when Spot opens first, so the
+/// order stays (T-151, plan 8b); one list keeps the tabs and pages aligned.
+const marketsTabOrder = MarketsSegment.values;
+
 /// A request to show a segment, e.g. Home's "See all" of its watchlist; the
 /// Markets tab follows it and clears it.
 final marketsSegmentRequestProvider =
@@ -49,8 +54,8 @@ class MarketsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     return DefaultTabController(
-      length: 4,
-      initialIndex: 1,
+      length: marketsTabOrder.length,
+      initialIndex: marketsTabOrder.indexOf(MarketsSegment.spot),
       child: Scaffold(
         appBar: AppBar(
           title: Text(l.navMarkets),
@@ -73,20 +78,34 @@ class MarketsScreen extends StatelessWidget {
             isScrollable: true,
             tabAlignment: TabAlignment.start,
             tabs: [
-              Tab(text: l.marketWatchlist),
-              Tab(text: l.marketSpot),
-              Tab(text: l.marketFutures),
-              Tab(key: const Key('markets-coins'), text: l.marketCoins),
+              for (final segment in marketsTabOrder)
+                switch (segment) {
+                  MarketsSegment.watchlist => Tab(text: l.marketWatchlist),
+                  MarketsSegment.coins => Tab(
+                    key: const Key('markets-coins'),
+                    text: l.marketCoins,
+                  ),
+                  MarketsSegment.spot => Tab(text: l.marketSpot),
+                  MarketsSegment.futures => Tab(text: l.marketFutures),
+                },
             ],
           ),
         ),
         body: _FollowSegmentRequests(
           child: TabBarView(
             children: [
-              watchlist ?? Center(child: Text(l.tabComingTitle)),
-              const MarketBoardView(market: Market.spot),
-              const MarketBoardView(market: Market.futures),
-              const CoinListView(),
+              for (final segment in marketsTabOrder)
+                switch (segment) {
+                  MarketsSegment.watchlist =>
+                    watchlist ?? Center(child: Text(l.tabComingTitle)),
+                  MarketsSegment.coins => const CoinListView(),
+                  MarketsSegment.spot => const MarketBoardView(
+                    market: Market.spot,
+                  ),
+                  MarketsSegment.futures => const MarketBoardView(
+                    market: Market.futures,
+                  ),
+                },
             ],
           ),
         ),
@@ -109,7 +128,9 @@ class _FollowSegmentRequestsState
     extends ConsumerState<_FollowSegmentRequests> {
   void _follow(MarketsSegment? segment) {
     if (segment == null) return;
-    DefaultTabController.of(context).animateTo(segment.index);
+    DefaultTabController.of(
+      context,
+    ).animateTo(marketsTabOrder.indexOf(segment));
     ref.read(marketsSegmentRequestProvider.notifier).clear();
   }
 
@@ -185,6 +206,16 @@ class MarketBoardView extends ConsumerWidget {
                   textInputAction: TextInputAction.search,
                   decoration: InputDecoration(
                     isDense: true,
+                    filled: true,
+                    fillColor: context.cp.raised,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(24),
+                      borderSide: BorderSide.none,
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(24),
+                      borderSide: BorderSide.none,
+                    ),
                     prefixIcon: const Icon(Icons.search, size: 20),
                     hintText: l.marketSearch,
                   ),
@@ -271,28 +302,18 @@ class _SortHeader extends StatelessWidget {
               child: head(l.marketSortVolume, BoardSort.volume),
             ),
           ),
-          Expanded(
-            child: Align(
-              alignment: Alignment.centerRight,
-              child: head(l.marketSortPrice, BoardSort.price),
-            ),
-          ),
-          const SizedBox(width: 12),
-          SizedBox(
-            width: 84,
-            child: Align(
-              alignment: Alignment.centerRight,
-              child: head(l.marketSortChange, BoardSort.change),
-            ),
-          ),
+          // Price over change in the rows: both sorts at the right edge.
+          head(l.marketSortPrice, BoardSort.price),
+          const SizedBox(width: 8),
+          head(l.marketSortChange, BoardSort.change),
         ],
       ),
     );
   }
 }
 
-/// One pair: base/quote and volume (Futures: funding) on the left, the price,
-/// and the 24 h change on a pill (Binance's market list). Reports itself as
+/// One pair: base/quote and volume (Futures: funding) on the left, the price
+/// over the 24 h change as coloured text on the right (D-163). Reports itself as
 /// visible while built on a shown tab, so the Delayed fallback reads only
 /// what is on screen (a hidden tab or a route pushed over it turns
 /// [TickerMode] off, which also pauses the row's ticker, T-138).
@@ -385,17 +406,23 @@ class _MarketRowState extends ConsumerState<MarketRow> {
                 ],
               ),
             ),
-            Expanded(
-              child: Text(
-                formatPrice(ticker?.displayPrice, pair.tickSize),
-                textAlign: TextAlign.right,
-                style: text.titleSmall?.copyWith(
-                  fontFeatures: const [FontFeature.tabularFigures()],
+            const SizedBox(width: 8),
+            // Price over its 24 h change, right-aligned (D-163).
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  formatPrice(ticker?.displayPrice, pair.tickSize),
+                  textAlign: TextAlign.right,
+                  style: text.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w600,
+                    fontFeatures: const [FontFeature.tabularFigures()],
+                  ),
                 ),
-              ),
+                const SizedBox(height: 2),
+                ChangeText(percent: ticker?.changePercent24h),
+              ],
             ),
-            const SizedBox(width: 12),
-            ChangePill(percent: ticker?.changePercent24h),
           ],
         ),
       ),

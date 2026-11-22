@@ -143,6 +143,7 @@ class _CoinListViewState extends ConsumerState<CoinListView> {
             ],
           ),
         ),
+        const _ColumnHeader(),
         Expanded(
           child: RefreshIndicator(
             onRefresh: () async => ref.invalidate(marketOverviewProvider),
@@ -150,6 +151,48 @@ class _CoinListViewState extends ConsumerState<CoinListView> {
           ),
         ),
       ],
+    );
+  }
+}
+
+/// The column names over the coin rows (D-163, after CoinMarketCap).
+class _ColumnHeader extends StatelessWidget {
+  const _ColumnHeader();
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final style = Theme.of(
+      context,
+    ).textTheme.labelSmall?.copyWith(color: context.cp.muted);
+    return ExcludeSemantics(
+      child: Padding(
+        key: const Key('coins-header'),
+        padding: const EdgeInsets.fromLTRB(12, 4, 12, 4),
+        child: Row(
+          children: [
+            SizedBox(width: 26, child: Text('#', style: style)),
+            Expanded(
+              child: Text(
+                l.coinsHeadCoin,
+                style: style,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            SizedBox(
+              width: 64,
+              child: Text(
+                l.coinsHead7d,
+                style: style,
+                textAlign: TextAlign.center,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Text(l.coinsHeadPrice, style: style),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -228,7 +271,7 @@ class _CoinRow extends StatelessWidget {
               Semantics(
                 label: l.coinsChart(coin.symbol),
                 child: SizedBox(
-                  width: 52,
+                  width: 64,
                   height: 26,
                   child: CustomPaint(
                     key: Key('coin-line-${coin.symbol}'),
@@ -243,11 +286,12 @@ class _CoinRow extends StatelessWidget {
                 Text(
                   formatPrice(f.price, pair?.tickSize),
                   style: text.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w600,
                     fontFeatures: const [FontFeature.tabularFigures()],
                   ),
                 ),
                 const SizedBox(height: 2),
-                ChangePill(percent: f.change24h, width: 70),
+                ChangeText(percent: f.change24h),
               ],
             ),
           ],

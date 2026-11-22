@@ -349,6 +349,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get marketCoins => 'Coins';
 
   @override
+  String get coinsHeadCoin => 'Coin / Market cap';
+
+  @override
+  String get coinsHead7d => '7d';
+
+  @override
+  String get coinsHeadPrice => 'Price / 24h';
+
+  @override
   String get coinsTop => 'Top';
 
   @override

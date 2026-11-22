@@ -718,6 +718,24 @@ abstract class AppLocalizations {
   /// **'Coins'**
   String get marketCoins;
 
+  /// No description provided for @coinsHeadCoin.
+  ///
+  /// In en, this message translates to:
+  /// **'Coin / Market cap'**
+  String get coinsHeadCoin;
+
+  /// No description provided for @coinsHead7d.
+  ///
+  /// In en, this message translates to:
+  /// **'7d'**
+  String get coinsHead7d;
+
+  /// No description provided for @coinsHeadPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Price / 24h'**
+  String get coinsHeadPrice;
+
   /// No description provided for @coinsTop.
   ///
   /// In en, this message translates to:

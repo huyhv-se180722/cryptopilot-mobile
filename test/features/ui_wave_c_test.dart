@@ -1,8 +1,16 @@
+import 'package:cryptopilot_mobile/core/auth/token_store.dart';
+import 'package:cryptopilot_mobile/core/i18n/app_localizations.dart';
 import 'package:cryptopilot_mobile/core/theme/app_theme.dart';
 import 'package:cryptopilot_mobile/core/theme/cp_colors.dart';
+import 'package:cryptopilot_mobile/features/market/domain/coin_market.dart';
 import 'package:cryptopilot_mobile/features/market/presentation/market_widgets.dart';
+import 'package:cryptopilot_mobile/features/market/presentation/markets_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+import '../support/fakes.dart';
+import '../support/realtime_fakes.dart';
 
 /// T-151 (D-163): the list style of Markets and Home.
 void main() {
@@ -48,6 +56,108 @@ void main() {
         // Rounded to zero: no sign, no arrow, muted.
         expect(tester.widget<Text>(find.text('0.00%')).style!.color, cp.muted);
         expect(find.text('--'), findsOneWidget);
+      });
+    }
+  });
+
+  group('Markets', () {
+    late FakeMarketApi api;
+
+    Future<void> render(
+      WidgetTester tester, {
+      Brightness brightness = Brightness.light,
+    }) async {
+      final transport = FakeTransport();
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: baseOverrides(
+            store: MemoryTokenStore(storedFor('saved')),
+            tokens: FakeAuthTokenApi(),
+            transport: transport,
+            market: api,
+          ),
+          retry: (_, _) => null,
+          child: MaterialApp(
+            theme: appTheme(brightness),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: const MarketsScreen(),
+          ),
+        ),
+      );
+      for (var i = 0; i < 6; i++) {
+        await tester.pump();
+      }
+    }
+
+    Future<void> unmount(WidgetTester tester) async {
+      await tester.pumpWidget(const SizedBox());
+      await tester.pump(const Duration(seconds: 31));
+    }
+
+    setUp(() => api = FakeMarketApi());
+
+    testWidgets('Fear & Greed on a dial, read out with its band; the cap '
+        'change has its arrow', (tester) async {
+      final semantics = tester.ensureSemantics();
+      await render(tester);
+      await tester.scrollUntilVisible(
+        find.byKey(const Key('overview-fear-greed')),
+        120,
+        scrollable: find
+            .descendant(
+              of: find.byKey(const Key('market-overview')),
+              matching: find.byType(Scrollable),
+            )
+            .first,
+      );
+      expect(
+        find.byKey(const Key('overview-fear-greed-gauge')),
+        findsOneWidget,
+      );
+      expect(
+        find.bySemanticsLabel('Fear & Greed, 22, Extreme fear'),
+        findsOneWidget,
+      );
+      expect(
+        find.descendant(
+          of: find.byKey(const Key('overview-cap')),
+          matching: find.byIcon(Icons.arrow_drop_down),
+        ),
+        findsOneWidget,
+      );
+      semantics.dispose();
+      await unmount(tester);
+    });
+
+    testWidgets('Spot rows write the change as text, no pill; Coins has its '
+        'column names', (tester) async {
+      api.overviewValue = MarketOverview(
+        asOf: DateTime.utc(2026, 11, 20),
+        coins: const [CoinRow(symbol: 'BTC', name: 'Bitcoin', rank: 1)],
+      );
+      await render(tester);
+      expect(find.byType(ChangeText), findsWidgets);
+      expect(find.byType(ChangePill), findsNothing);
+      await tester.tap(find.byKey(const Key('markets-coins')));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(find.byKey(const Key('coins-header')), findsOneWidget);
+      expect(find.text('Price / 24h'), findsOneWidget);
+      await unmount(tester);
+    });
+
+    for (final brightness in Brightness.values) {
+      testWidgets('360 dp, ${brightness.name}: Spot rows and the dial fit', (
+        tester,
+      ) async {
+        tester.view
+          ..physicalSize = const Size(360 * 3, 760 * 3)
+          ..devicePixelRatio = 3;
+        addTearDown(tester.view.reset);
+        await render(tester, brightness: brightness);
+        expect(tester.takeException(), isNull);
+        await unmount(tester);
       });
     }
   });
