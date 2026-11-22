@@ -144,6 +144,15 @@ void main() {
       await tester.pump(const Duration(milliseconds: 400));
       expect(find.byKey(const Key('coins-header')), findsOneWidget);
       expect(find.text('Price / 24h'), findsOneWidget);
+      // Left-aligned like the other filters, without a check mark.
+      final top = tester.widget<ChoiceChip>(
+        find.byKey(const Key('coins-sort-top')),
+      );
+      expect(top.showCheckmark, isFalse);
+      expect(
+        tester.getTopLeft(find.byKey(const Key('coins-sort-top'))).dx,
+        lessThan(40),
+      );
       await unmount(tester);
     });
 

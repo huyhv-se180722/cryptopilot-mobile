@@ -5,6 +5,7 @@ import 'package:cryptopilot_mobile/core/auth/token_store.dart';
 import 'package:cryptopilot_mobile/core/router/app_router.dart';
 import 'package:cryptopilot_mobile/core/settings/settings.dart';
 import 'package:cryptopilot_mobile/features/paper/application/assets_pnl_controller.dart';
+import 'package:cryptopilot_mobile/features/market/domain/market.dart';
 import 'package:cryptopilot_mobile/features/paper/domain/paper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -76,6 +77,7 @@ void main() {
 
   late FakeTransport transport;
   late FakePaperApi paper;
+  late FakeMarketApi market;
 
   Future<void> frames(WidgetTester tester) async {
     for (var i = 0; i < 10; i++) {
@@ -96,6 +98,7 @@ void main() {
           transport: transport,
           paper: paper,
           futures: FakeFuturesApi(),
+          market: market,
           metricChart: FakeMetricSurface(),
           settings: MemorySettingsStore(),
         ),
@@ -123,12 +126,44 @@ void main() {
   }
 
   setUp(() {
+    market = FakeMarketApi();
     // The fake clock is 2026-11-06 10:00 UTC: the 7-day start is 31 Oct.
     paper = FakePaperApi()
       ..equityAnswer = equity('15000.00', {
         DateTime.utc(2026, 10, 31): '14000.00',
         DateTime.utc(2026, 11, 6): '14900.00',
       });
+  });
+
+  testWidgets('a coin row shows the logo of its Spot pair (device check)', (
+    tester,
+  ) async {
+    market.pairsBy[Market.spot] = [
+      const MarketPair(
+        pairId: 'pair-BTC',
+        symbol: 'BTCUSDT',
+        market: Market.spot,
+        baseAsset: 'BTC',
+        quoteAsset: 'USDT',
+        baseAssetName: 'Bitcoin',
+        tickSize: '0.010000000000',
+        stepSize: '0.000010000000',
+        displayOrder: 1,
+        logoUrl: 'https://img.invalid/btc.png',
+      ),
+    ];
+    await open(tester);
+    final row = find.byKey(const Key('coin-BTC'), skipOffstage: false);
+    expect(row, findsOneWidget);
+    expect(
+      find.descendant(
+        of: row,
+        matching: find.byKey(const Key('coin-frame')),
+        skipOffstage: false,
+      ),
+      findsOneWidget,
+    );
+    await unmount(tester);
   });
 
   for (final brightness in Brightness.values) {

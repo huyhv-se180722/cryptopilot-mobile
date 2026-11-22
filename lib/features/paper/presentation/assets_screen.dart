@@ -11,6 +11,8 @@ import '../../../core/theme/cp_colors.dart';
 import '../../../core/widgets/empty_state.dart';
 import '../../chart/presentation/metric_chart.dart';
 import '../../chart/presentation/metric_surface.dart';
+import '../../market/data/market_repository.dart';
+import '../../market/domain/market.dart';
 import '../../market/presentation/market_widgets.dart';
 import '../application/assets_controller.dart';
 import '../application/assets_pnl_controller.dart';
@@ -851,7 +853,7 @@ class _SplitCard extends StatelessWidget {
 
 /// A Spot coin: logo, name and what is in orders; the amount held and its
 /// worth in USDT; tapped (not USDT), Trade opens on its pair.
-class _CoinRow extends StatelessWidget {
+class _CoinRow extends ConsumerWidget {
   const _CoinRow({
     required this.coin,
     required this.hidden,
@@ -868,17 +870,27 @@ class _CoinRow extends StatelessWidget {
   final VoidCallback? onTrade;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context);
     final text = Theme.of(context).textTheme;
     final muted = text.bodySmall?.copyWith(color: context.cp.muted);
     final usdt = coin.asset == 'USDT' ? coin.total : coin.usdtValue;
+    // The coin's logo from the Spot pairs the app already reads (one way
+    // from Market); letters until they arrive or for a coin with no pair.
+    final logo = ref.watch(
+      marketRepositoryProvider(Market.spot).select(
+        (s) => s.pairs
+            ?.where((p) => p.baseAsset == coin.asset && p.logoUrl != null)
+            .firstOrNull
+            ?.logoUrl,
+      ),
+    );
     final row = Padding(
       padding: const EdgeInsets.symmetric(vertical: 10),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          CoinLogo(symbol: coin.asset, size: 32),
+          CoinLogo(symbol: coin.asset, url: logo, size: 32),
           const SizedBox(width: 12),
           Expanded(
             child: Column(

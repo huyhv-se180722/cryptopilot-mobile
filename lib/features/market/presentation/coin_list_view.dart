@@ -124,23 +124,28 @@ class _CoinListViewState extends ConsumerState<CoinListView> {
 
     return Column(
       children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 10, 16, 6),
-          child: Wrap(
-            spacing: 6,
-            children: [
-              for (final (sort, label) in [
-                (CoinSort.top, l.coinsTop),
-                (CoinSort.gainers, l.coinsGainers),
-                (CoinSort.losers, l.coinsLosers),
-              ])
-                ChoiceChip(
-                  key: Key('coins-sort-${sort.name}'),
-                  label: Text(label),
-                  selected: _sort == sort,
-                  onSelected: (_) => setState(() => _sort = sort),
-                ),
-            ],
+        // Left-aligned like the other filters, no check mark (D-163).
+        Align(
+          alignment: AlignmentDirectional.centerStart,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 10, 16, 6),
+            child: Wrap(
+              spacing: 6,
+              children: [
+                for (final (sort, label) in [
+                  (CoinSort.top, l.coinsTop),
+                  (CoinSort.gainers, l.coinsGainers),
+                  (CoinSort.losers, l.coinsLosers),
+                ])
+                  ChoiceChip(
+                    key: Key('coins-sort-${sort.name}'),
+                    showCheckmark: false,
+                    label: Text(label),
+                    selected: _sort == sort,
+                    onSelected: (_) => setState(() => _sort = sort),
+                  ),
+              ],
+            ),
           ),
         ),
         const _ColumnHeader(),
