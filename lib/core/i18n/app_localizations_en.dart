@@ -2732,6 +2732,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String get assetsTradeDemo => 'Trade (demo)';
 
   @override
+  String get assetsSevenDay => '7-day change';
+
+  @override
+  String get assetsActionTrade => 'Trade';
+
+  @override
+  String get assetsActionPnl => 'PnL';
+
+  @override
+  String assetsApprox(String amount) {
+    return '≈ $amount USDT';
+  }
+
+  @override
   String get assetsEquity => 'Equity';
 
   @override

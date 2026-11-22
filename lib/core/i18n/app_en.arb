@@ -1521,6 +1521,17 @@
   "assetsTransfer": "Transfer",
   "assetsHistory": "History",
   "assetsTradeDemo": "Trade (demo)",
+  "assetsSevenDay": "7-day change",
+  "assetsActionTrade": "Trade",
+  "assetsActionPnl": "PnL",
+  "assetsApprox": "≈ {amount} USDT",
+  "@assetsApprox": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "assetsEquity": "Equity",
   "assetsEquityDays": "{days}D",
   "@assetsEquityDays": {

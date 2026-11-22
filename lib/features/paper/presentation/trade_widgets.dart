@@ -343,7 +343,9 @@ class TradeCheck extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 4),
-            Flexible(child: Text(label)),
+            Flexible(
+              child: Text(label, maxLines: 1, overflow: TextOverflow.ellipsis),
+            ),
           ],
         ),
       ),
@@ -368,18 +370,23 @@ class TradeSectionHeader extends StatelessWidget {
     ),
     child: Row(
       children: [
-        Expanded(
-          child: Semantics(
-            header: true,
-            child: Text(
-              title,
-              style: Theme.of(
-                context,
-              ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700),
-            ),
+        Semantics(
+          header: true,
+          child: Text(
+            title,
+            style: Theme.of(
+              context,
+            ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700),
           ),
         ),
-        ?trailing,
+        const SizedBox(width: 8),
+        // The action takes what is left and shrinks before it overflows.
+        Expanded(
+          child: Align(
+            alignment: AlignmentDirectional.centerEnd,
+            child: trailing,
+          ),
+        ),
       ],
     ),
   );

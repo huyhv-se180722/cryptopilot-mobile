@@ -148,3 +148,12 @@ String? subtractDecimal(String? a, String? b) {
   if (x == null || y == null) return null;
   return (x - y).toString();
 }
+
+/// `a + b` exactly, as a decimal string; null when either side is absent
+/// or unreadable.
+String? addDecimal(String? a, String? b) {
+  final x = a == null ? null : Decimal.tryParse(a.trim());
+  final y = b == null ? null : Decimal.tryParse(b.trim());
+  if (x == null || y == null) return null;
+  return (x + y).toString();
+}

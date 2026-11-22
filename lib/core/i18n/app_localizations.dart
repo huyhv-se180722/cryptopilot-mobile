@@ -4912,6 +4912,30 @@ abstract class AppLocalizations {
   /// **'Trade (demo)'**
   String get assetsTradeDemo;
 
+  /// No description provided for @assetsSevenDay.
+  ///
+  /// In en, this message translates to:
+  /// **'7-day change'**
+  String get assetsSevenDay;
+
+  /// No description provided for @assetsActionTrade.
+  ///
+  /// In en, this message translates to:
+  /// **'Trade'**
+  String get assetsActionTrade;
+
+  /// No description provided for @assetsActionPnl.
+  ///
+  /// In en, this message translates to:
+  /// **'PnL'**
+  String get assetsActionPnl;
+
+  /// No description provided for @assetsApprox.
+  ///
+  /// In en, this message translates to:
+  /// **'≈ {amount} USDT'**
+  String assetsApprox(String amount);
+
   /// No description provided for @assetsEquity.
   ///
   /// In en, this message translates to:
