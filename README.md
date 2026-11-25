@@ -13,7 +13,7 @@ Flutter client of **CryptoPilot**, a crypto decision-support and paper-trading a
 |---|---|
 | Markets | Spot, Futures and Coins lists with live prices, market overview (dominance, Fear & Greed, altcoin season) |
 | Watchlist and alerts | Grouped watchlists, price and indicator alerts, notifications |
-| Analysis and chart | Candlestick chart (TradingView Lightweight Charts in a WebView), indicators, analysis score |
+| Analysis and chart | Candlestick chart (TradingView Lightweight Charts in a WebView), indicators, analysis score; a full-screen Chart screen with the drawing tools of the web (touch), saved per pair in named copies |
 | Plans and journal | Trading plans with positions, journal entries, performance |
 | Paper trading | Spot and Futures demo accounts: orders, positions, history, PnL, assets |
 | AI assistant | Chat with market and portfolio context |
@@ -102,7 +102,8 @@ test/
   support/                   fakes of the API ports and the realtime hub
   fixtures/                  reference data (TA-Lib indicator values)
 integration_test/            runs on an emulator against a real backend
-assets/                      brand images, chart page (Lightweight Charts)
+assets/                      brand images, chart page (Lightweight Charts; drawings.js is built
+                             by `npm run build:mobile-drawings` in cryptopilot-frontend)
 ```
 
 ## Architecture rules

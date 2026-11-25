@@ -6,6 +6,9 @@
   let chart, candles, theme, lines = [], extra = [], asking = false, payload = null;
   // Seconds added to every time: the library draws UTC only (BR-08).
   let offset = 0, payloadOffset = 0;
+  // The Trader's drawings (D-149, T-153): the web's engine (drawings.js) on
+  // the candles, fed with the candles on the page and what the app sends.
+  let layer = null, bars = [], barSeconds = 3600, places = 2, drawn = {};
 
   function post(m) { Host.postMessage(JSON.stringify(m)); }
 
@@ -35,6 +38,10 @@
       handleScroll: { vertTouchDrag: false },
     }, layout(t)));
     candles = chart.addSeries(L.CandlestickSeries, candleColors(t));
+    if (window.CPDrawings) {
+      layer = CPDrawings.attach(chart, candles, document.getElementById('c'), post);
+      layer.setAccent(t.accent);
+    }
     chart.timeScale().subscribeVisibleLogicalRangeChange(function (r) {
       if (r && r.from < 10 && !asking && candles.data().length > 0) {
         asking = true;
@@ -48,11 +55,34 @@
     theme = t;
     chart.applyOptions(layout(t));
     candles.applyOptions(candleColors(t));
+    if (layer) layer.setAccent(t.accent);
     if (payload) setIndicators(payload, true);
   };
 
+  function project() {
+    if (layer) layer.setBars({ bars: bars, barSeconds: barSeconds, offset: offset, places: places });
+  }
+
+  window.setBarSeconds = function (seconds) { barSeconds = seconds; };
+
+  // What the app holds for the layer; only what changed is passed on, so a
+  // drawing being placed keeps its anchors while the drawings come back.
+  window.setDrawingLayer = function (s) {
+    if (!layer) return;
+    if (s.editable !== drawn.editable) layer.setEditable(s.editable);
+    layer.setOptions(s.options);
+    layer.setDrawings(s.drawings);
+    if (s.tool !== drawn.tool || s.editable !== drawn.editable) layer.setTool(s.tool);
+    if (s.selected !== drawn.selected) layer.select(s.selected);
+    drawn = { editable: s.editable, tool: s.tool, selected: s.selected };
+  };
+
+  window.cancelDrawing = function () { if (layer) layer.cancel(); };
+
   window.setPrecision = function (p) {
     candles.applyOptions({ priceFormat: { type: 'price', precision: p, minMove: Math.pow(10, -p) } });
+    places = p;
+    project();
   };
 
   // Set before the candles of a pair and timeframe; 0 for daily candles.
@@ -86,6 +116,8 @@
     const r = shift > 0 ? chart.timeScale().getVisibleLogicalRange() : null;
     if (!(shift > 0)) { clearIndicators(); payload = null; }
     candles.setData(list.map(bar));
+    bars = list;
+    project();
     if (r) {
       chart.timeScale().setVisibleLogicalRange({ from: r.from + shift, to: r.to + shift });
     } else if (list.length > 0) {
@@ -95,7 +127,16 @@
     requestAnimationFrame(function () { requestAnimationFrame(function () { post({ type: 'rendered', tag: tag }); }); });
   };
 
-  window.update = function (c) { candles.update(bar(c)); };
+  window.update = function (c) {
+    candles.update(bar(c));
+    const last = bars[bars.length - 1];
+    if (last && last.openTime === c.openTime) {
+      bars[bars.length - 1] = c;
+    } else {
+      bars = bars.concat([c]);
+      project();
+    }
+  };
 
   function points(times, values, by) {
     return values.map(function (v, i) {

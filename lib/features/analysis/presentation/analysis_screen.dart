@@ -10,6 +10,7 @@ import '../../../core/i18n/app_localizations.dart';
 import '../../../core/theme/cp_colors.dart';
 import '../../../core/web/web_links.dart';
 import '../../chart/application/chart_prefs.dart';
+import '../../chart/presentation/chart_screen.dart';
 import '../../chart/presentation/chart_surface.dart';
 import '../../chart/presentation/chart_view.dart';
 import '../../chart/presentation/indicator_sheet.dart';
@@ -356,6 +357,16 @@ class _ChartBlock extends ConsumerWidget {
               icon: const Icon(Icons.tune),
               onPressed: () => unawaited(showIndicatorSheet(context)),
             ),
+            IconButton(
+              key: const Key('open-chart'),
+              tooltip: l.drawingOpenChart,
+              icon: const Icon(Icons.draw_outlined),
+              onPressed: () => unawaited(
+                context.push(
+                  chartLocation(pair.market, pair.symbol, timeframe),
+                ),
+              ),
+            ),
           ],
         ),
         const SizedBox(height: 4),
@@ -370,6 +381,8 @@ class _ChartBlock extends ConsumerWidget {
             precision: decimalsOf(pair.tickSize),
             indicators: ref.watch(chartIndicatorsProvider),
             lines: lines,
+            // Read-only here; the Chart screen draws (T-153).
+            drawingPairId: pair.pairId,
           ),
         ),
         if (short)

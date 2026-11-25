@@ -9,6 +9,7 @@ import '../../../core/theme/cp_colors.dart';
 import '../../market/domain/candle.dart';
 import '../application/candles_controller.dart';
 import '../application/chart_prefs.dart';
+import '../application/drawing_board_controller.dart';
 import '../domain/chart_indicators.dart';
 import '../domain/chart_time.dart';
 import 'chart_surface.dart';
@@ -17,12 +18,20 @@ import 'chart_surface.dart';
 /// plans and paper trading (ADR-012 / D-144). It pushes what the candles
 /// controller holds to the chart page: the whole list on a reset or when
 /// older candles go in front, one candle per kline otherwise.
+///
+/// With [drawingPairId] it also shows the Trader's drawings of that pair
+/// (D-149, T-153): read-only, or drawn by touch when [editable] (the Chart
+/// screen, which fills its space with [expand] on a page of its own).
 class ChartView extends ConsumerStatefulWidget {
   const ChartView({
     required this.candleKey,
     required this.precision,
     this.indicators = ChartIndicator.defaults,
     this.lines = const [],
+    this.drawingPairId,
+    this.editable = false,
+    this.expand = false,
+    this.surface,
     super.key,
   });
 
@@ -30,6 +39,12 @@ class ChartView extends ConsumerStatefulWidget {
   final int precision;
   final Set<ChartIndicator> indicators;
   final List<ChartPriceLine> lines;
+  final String? drawingPairId;
+  final bool editable;
+  final bool expand;
+
+  /// The page to draw on; the app's shared one when null.
+  final ChartSurface? surface;
 
   /// The price pane plus one band per panel (Volume, RSI, MACD).
   static double heightFor(Set<ChartIndicator> indicators) =>
@@ -42,8 +57,11 @@ class ChartView extends ConsumerStatefulWidget {
 }
 
 class _ChartViewState extends ConsumerState<ChartView> {
-  ChartSurface get _surface => ref.read(chartSurfaceProvider);
+  late final ChartSurface _surface =
+      widget.surface ?? ref.read(chartSurfaceProvider);
   StreamSubscription<String>? _requests;
+  StreamSubscription<DrawingEvent>? _drawingEvents;
+  DrawingLayerState? _layer;
   ChartTheme? _theme;
   int _closedCount = -1;
 
@@ -74,21 +92,70 @@ class _ChartViewState extends ConsumerState<ChartView> {
             .loadOlder(),
       );
     });
+    _drawingEvents = _surface.drawingEvents.listen(_onDrawing);
     unawaited(_surface.setTimeOffset(_offset.inSeconds));
+    unawaited(_surface.setBarSeconds(widget.candleKey.tf.step.inSeconds));
     unawaited(_surface.setPrecision(widget.precision));
     unawaited(_surface.setLines(widget.lines));
+    // A chart without drawings does not show those of an earlier pair.
+    if (widget.drawingPairId == null) _pushLayer(DrawingLayerState.none);
     // Candles already held (the provider outlived an earlier chart).
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       final state = ref.read(candlesControllerProvider(widget.candleKey));
       if (state.candles != null) unawaited(_push(state));
+      final pairId = widget.drawingPairId;
+      if (pairId != null) _pushBoard(ref.read(drawingBoardProvider(pairId)));
     });
   }
 
   @override
   void dispose() {
     unawaited(_requests?.cancel());
+    unawaited(_drawingEvents?.cancel());
     super.dispose();
+  }
+
+  void _pushLayer(DrawingLayerState layer) {
+    if (layer == _layer) return;
+    _layer = layer;
+    unawaited(_surface.setDrawingLayer(layer));
+  }
+
+  void _pushBoard(DrawingBoardState board) {
+    final editable = widget.editable;
+    final options = board.options;
+    _pushLayer(
+      DrawingLayerState(
+        drawings: board.shown,
+        magnet: options.magnet,
+        stayInDrawing: options.stayInDrawing,
+        lockAll: options.lockAll,
+        hideAll: options.hideAll,
+        tool: editable ? board.tool : null,
+        editable: editable,
+        selectedId: editable ? board.selectedId : null,
+      ),
+    );
+  }
+
+  /// What the Trader did on the page goes to the board, which saves it.
+  void _onDrawing(DrawingEvent event) {
+    final pairId = widget.drawingPairId;
+    if (pairId == null || !widget.editable || !mounted) return;
+    final board = ref.read(drawingBoardProvider(pairId).notifier);
+    switch (event) {
+      case DrawingPlaced(:final draft):
+        board.placed(draft);
+      case DrawingMoved(:final id, :final points):
+        board.moved(id, points);
+      case DrawingRemoved(:final id):
+        board.removed(id);
+      case DrawingSelected(:final id):
+        board.selected(id);
+      case DrawingToolDone():
+        board.toolDone();
+    }
   }
 
   @override
@@ -109,6 +176,13 @@ class _ChartViewState extends ConsumerState<ChartView> {
       _lists++;
       // Before the candles of the new timeframe go to the page.
       unawaited(_surface.setTimeOffset(_offset.inSeconds));
+      unawaited(_surface.setBarSeconds(widget.candleKey.tf.step.inSeconds));
+    }
+    final pairId = widget.drawingPairId;
+    if (pairId == null) {
+      if (old.drawingPairId != null) _pushLayer(DrawingLayerState.none);
+    } else if (old.drawingPairId != pairId || old.editable != widget.editable) {
+      _pushBoard(ref.read(drawingBoardProvider(pairId)));
     } else if (!_sameSet(old.indicators, widget.indicators) &&
         candles != null) {
       unawaited(
@@ -157,15 +231,19 @@ class _ChartViewState extends ConsumerState<ChartView> {
     ref.listen(candlesControllerProvider(widget.candleKey), (previous, next) {
       if (!identical(previous?.candles, next.candles)) unawaited(_push(next));
     });
+    final pairId = widget.drawingPairId;
+    if (pairId != null) {
+      ref.listen(drawingBoardProvider(pairId), (_, next) => _pushBoard(next));
+    }
     final state = ref.watch(candlesControllerProvider(widget.candleKey));
     final first = state.candles == null || state.candles!.isEmpty;
 
     final chart = SizedBox(
       key: const Key('chart-view'),
-      height: ChartView.heightFor(widget.indicators),
+      height: widget.expand ? null : ChartView.heightFor(widget.indicators),
       child: Stack(
         children: [
-          Positioned.fill(child: _surface.view()),
+          Positioned.fill(child: _surface.view(fullScreen: widget.expand)),
           if (first && state.failure != null)
             Positioned.fill(
               child: ColoredBox(
@@ -203,10 +281,10 @@ class _ChartViewState extends ConsumerState<ChartView> {
       ),
     );
     return Column(
-      mainAxisSize: MainAxisSize.min,
+      mainAxisSize: widget.expand ? MainAxisSize.max : MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        chart,
+        if (widget.expand) Expanded(child: chart) else chart,
         // The axis has no zone of its own: say which one it shows.
         Padding(
           padding: const EdgeInsets.only(top: 4),
