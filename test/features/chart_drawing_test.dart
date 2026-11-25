@@ -460,6 +460,20 @@ void main() {
       expect(api.layoutRows.single.pairId, btcPair());
     });
 
+    testWidgets('the magnet on the bar turns on and off', (tester) async {
+      await mount(
+        tester,
+        const ChartScreen(market: Market.spot, symbol: 'BTCUSDT'),
+      );
+      expect(page.layer.magnet, isFalse);
+      await tester.tap(find.byKey(const Key('drawing-magnet')));
+      await tester.pumpAndSettle();
+      expect(page.layer.magnet, isTrue);
+      await tester.tap(find.byKey(const Key('drawing-magnet')));
+      await tester.pumpAndSettle();
+      expect(page.layer.magnet, isFalse);
+    });
+
     testWidgets('the selected drawing gets its bar: lock, hide, settings', (
       tester,
     ) async {

@@ -12,9 +12,79 @@ import '../domain/drawing.dart';
 import '../domain/drawing_tools.dart';
 import 'drawing_labels.dart';
 
+/// A horseshoe magnet: Material has no icon for it.
+class MagnetIcon extends StatelessWidget {
+  const MagnetIcon({required this.color, super.key});
+
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    final size = IconTheme.of(context).size ?? 24;
+    return SizedBox.square(
+      dimension: size,
+      child: CustomPaint(painter: _MagnetPainter(color)),
+    );
+  }
+}
+
+class _MagnetPainter extends CustomPainter {
+  _MagnetPainter(this.color);
+
+  final Color color;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final s = size.width / 24;
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2 * s
+      ..strokeCap = StrokeCap.round;
+    // Legs up, the bend at the bottom, tilted like the web's icon.
+    canvas
+      ..save()
+      ..translate(12 * s, 12 * s)
+      ..rotate(0.785398) // 45 degrees
+      ..translate(-12 * s, -12 * s);
+    final body = Path()
+      ..moveTo(5 * s, 3 * s)
+      ..lineTo(5 * s, 13 * s)
+      ..arcToPoint(
+        Offset(19 * s, 13 * s),
+        radius: Radius.circular(7 * s),
+        clockwise: false,
+      )
+      ..lineTo(19 * s, 3 * s)
+      ..moveTo(9 * s, 3 * s)
+      ..lineTo(9 * s, 13 * s)
+      ..arcToPoint(
+        Offset(15 * s, 13 * s),
+        radius: Radius.circular(3 * s),
+        clockwise: false,
+      )
+      ..lineTo(15 * s, 3 * s)
+      ..moveTo(5 * s, 3 * s)
+      ..lineTo(9 * s, 3 * s)
+      ..moveTo(15 * s, 3 * s)
+      ..lineTo(19 * s, 3 * s)
+      // The poles.
+      ..moveTo(5 * s, 7 * s)
+      ..lineTo(9 * s, 7 * s)
+      ..moveTo(15 * s, 7 * s)
+      ..lineTo(19 * s, 7 * s);
+    canvas
+      ..drawPath(body, paint)
+      ..restore();
+  }
+
+  @override
+  bool shouldRepaint(_MagnetPainter old) => old.color != color;
+}
+
 /// The tool bar on the left of the Chart screen (D-149 (3)): one button per
-/// group, which opens the group's tools; undo, redo and the cancel of the
-/// tool in hand below.
+/// group, which opens the group's tools; magnet, undo, redo and the cancel
+/// of the tool in hand below.
 class DrawingRail extends ConsumerWidget {
   const DrawingRail({required this.pairId, super.key});
 
@@ -49,6 +119,17 @@ class DrawingRail extends ConsumerWidget {
                       : null,
                 ),
               const Divider(height: 8, indent: 10, endIndent: 10),
+              // Within reach as on the web's bar; the options menu has it too.
+              IconButton(
+                key: const Key('drawing-magnet'),
+                tooltip: l.drawingMagnet,
+                isSelected: board.options.magnet,
+                icon: MagnetIcon(color: cp.muted),
+                selectedIcon: MagnetIcon(color: cp.primary),
+                onPressed: () => controller.setOptions(
+                  board.options.copyWith(magnet: !board.options.magnet),
+                ),
+              ),
               IconButton(
                 key: const Key('drawing-undo'),
                 tooltip: l.drawingUndo,
