@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:cryptopilot_mobile/core/auth/token_store.dart';
 import 'package:cryptopilot_mobile/core/i18n/app_localizations.dart';
 import 'package:cryptopilot_mobile/core/i18n/app_localizations_en.dart';
-import 'package:cryptopilot_mobile/core/json/json_read.dart';
 import 'package:cryptopilot_mobile/core/theme/app_theme.dart';
 import 'package:cryptopilot_mobile/features/market/presentation/market_widgets.dart';
 import 'package:cryptopilot_mobile/features/notifications/application/notifications_controller.dart';
@@ -44,7 +43,8 @@ void main() {
       expect(n.createdAt, DateTime.utc(2026, 11, 7, 2, 15, 0, 123, 456));
     });
 
-    test('every type the backend sends is known; others are refused', () {
+    test('every type the backend sends is known; others read as SYSTEM', () {
+      // NotificationType of backend develop e02a7c3b (MARKET since #111).
       for (final wire in [
         'ALERT',
         'PLAN',
@@ -55,13 +55,66 @@ void main() {
         'FOLLOW',
         'MENTION',
         'FUTURES',
+        'MARKET',
       ]) {
         expect(decodeNotification({...payload, 'type': wire}).type.wire, wire);
       }
       expect(
-        () => decodeNotification({...payload, 'type': 'PROMO'}),
-        throwsA(isA<DecodeException>()),
+        decodeNotification({...payload, 'type': 'PROMO'}).type,
+        NotificationType.system,
       );
+    });
+
+    test('every reference the backend sends is known; others open nothing', () {
+      // NotificationReference of backend develop e02a7c3b (PAPER_ORDER
+      // since #113).
+      for (final wire in [
+        'ALERT',
+        'PLAN',
+        'POST',
+        'SUBSCRIPTION',
+        'NEWS_SOURCE',
+        'MEMBER',
+        'FUTURES_POSITION',
+        'PAPER_ORDER',
+      ]) {
+        expect(
+          decodeNotification({
+            ...payload,
+            'referenceType': wire,
+          }).referenceType?.wire,
+          wire,
+        );
+      }
+      final unknown = decodeNotification({
+        ...payload,
+        'referenceType': 'INVOICE',
+      });
+      expect(unknown.referenceType, isNull);
+      expect(targetOf(unknown), isNull);
+    });
+
+    test('a page with a Spot demo order notice still reads (backend #113)', () {
+      // As PaperNotificationServiceImpl writes a Spot fill.
+      final page = decodeNotificationPage({
+        'items': [
+          payload,
+          {
+            ...payload,
+            'id': '01a18807-0000-7000-8000-000000000002',
+            'type': 'MARKET',
+            'title': 'Order filled',
+            'content': 'Your limit buy of BTCUSDT filled 0.001.',
+            'referenceType': 'PAPER_ORDER',
+          },
+        ],
+        'page': 1,
+        'pageSize': 20,
+        'total': 2,
+      });
+      expect(page.items, hasLength(2));
+      expect(page.items.last.type, NotificationType.market);
+      expect(page.items.last.referenceType, NotificationReference.paperOrder);
     });
 
     test('a page and the unread count', () {
@@ -111,6 +164,30 @@ void main() {
       expect(futures.location, '/trade?market=futures');
       expect(futures.tab, isTrue);
       expect(of(NotificationReference.newsSource), isNull);
+      // A demo order: the side of the Trade tab of its market (#113).
+      final spotOrder =
+          targetOf(
+                notificationOf(
+                  'o',
+                  type: NotificationType.market,
+                  reference: NotificationReference.paperOrder,
+                  referenceId: 'order 1',
+                ),
+              )!
+              as AppScreen;
+      expect(spotOrder.location, '/trade?market=spot');
+      expect(spotOrder.tab, isTrue);
+      final futuresOrder =
+          targetOf(
+                notificationOf(
+                  'o',
+                  type: NotificationType.futures,
+                  reference: NotificationReference.paperOrder,
+                  referenceId: 'order 2',
+                ),
+              )!
+              as AppScreen;
+      expect(futuresOrder.location, '/trade?market=futures');
       expect(of(null), isNull);
     });
   });
