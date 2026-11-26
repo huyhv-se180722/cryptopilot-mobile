@@ -3389,4 +3389,122 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get futErrTpSlReduceOnly => 'TP/SL cannot go with reduce-only.';
+
+  @override
+  String get msg57 =>
+      'Trading on this market is paused while exchange data is unavailable. Please try again once it reopens.';
+
+  @override
+  String get mktSpot => 'Spot';
+
+  @override
+  String get mktFutures => 'Futures';
+
+  @override
+  String mktPausedTitle(String market) {
+    return '$market trading is paused';
+  }
+
+  @override
+  String mktPausedBody(String since) {
+    return 'Exchange data has been unavailable since $since. Your orders, positions and plans are kept; nothing is filled, liquidated or charged until the data is back.';
+  }
+
+  @override
+  String mktMaintenanceTitle(String market) {
+    return '$market is under maintenance';
+  }
+
+  @override
+  String get mktMaintenanceBody =>
+      'Trading is closed. Your orders, positions and plans are kept.';
+
+  @override
+  String mktExpectedEnd(String time) {
+    return 'Expected to end at $time.';
+  }
+
+  @override
+  String mktRetryAt(String time) {
+    return 'The exchange accepts calls again at about $time.';
+  }
+
+  @override
+  String mktRecoveringTitle(String market) {
+    return '$market is catching up';
+  }
+
+  @override
+  String get mktRecoveringBody =>
+      'Exchange data is back. The missed period is being applied as the exchange traded; trading reopens when it is done.';
+
+  @override
+  String mktProgress(String done, String total) {
+    return '$done of $total pairs caught up';
+  }
+
+  @override
+  String mktResumedTitle(String market) {
+    return '$market trading has reopened';
+  }
+
+  @override
+  String mktResumedBody(String since, String resumed) {
+    return 'The period from $since to $resumed was applied at the exchange\'s prices. Check your notifications for what changed.';
+  }
+
+  @override
+  String get mktReferenceOkx => 'Reference prices from OKX, for display only.';
+
+  @override
+  String get mktReferenceNone => 'No reference price is available.';
+
+  @override
+  String get mktDismiss => 'Dismiss';
+
+  @override
+  String get mktReasonStreamLost => 'The exchange stream sends nothing.';
+
+  @override
+  String get mktReasonRestUnavailable => 'The exchange does not answer.';
+
+  @override
+  String get mktReasonRateLimited => 'The exchange limits our calls.';
+
+  @override
+  String get mktReasonIpBanned => 'The exchange blocked the server.';
+
+  @override
+  String get mktReasonMaintenance => 'Maintenance.';
+
+  @override
+  String mktBlocked(String market) {
+    return '$market trading is paused: orders cannot be placed, changed or cancelled now.';
+  }
+
+  @override
+  String mktPairBlocked(String symbol) {
+    return 'Data for $symbol is unavailable: trading this pair is paused.';
+  }
+
+  @override
+  String mktReferencePrice(String price) {
+    return 'Reference price $price';
+  }
+
+  @override
+  String mktSourceAsOf(String time) {
+    return 'Source: OKX (reference), as of $time';
+  }
+
+  @override
+  String get mktDiverged =>
+      'This reference price may differ markedly from the exchange.';
+
+  @override
+  String get mktNoReference => 'No reference price for this pair.';
+
+  @override
+  String get mktBookPaused =>
+      'Paused: the order book and trades return when exchange data is back.';
 }

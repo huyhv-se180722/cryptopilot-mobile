@@ -13,6 +13,7 @@ import '../../chart/presentation/metric_chart.dart';
 import '../../chart/presentation/metric_surface.dart';
 import '../../market/data/market_repository.dart';
 import '../../market/domain/market.dart';
+import '../../market/presentation/market_status_banner.dart';
 import '../../market/presentation/market_widgets.dart';
 import '../application/assets_controller.dart';
 import '../application/assets_pnl_controller.dart';
@@ -298,6 +299,8 @@ class AssetsScreen extends ConsumerWidget {
       body: Column(
         children: [
           const DemoBanner(),
+          // D-159 (T-146): Spot and Futures wallets live here.
+          const MarketStatusBanner(key: Key('assets-market-status')),
           Expanded(child: body),
         ],
       ),

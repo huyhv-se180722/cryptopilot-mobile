@@ -20,6 +20,8 @@ import 'package:cryptopilot_mobile/features/auth/data/auth_api.dart';
 import 'package:cryptopilot_mobile/features/journal/data/performance_api.dart';
 import 'package:cryptopilot_mobile/features/journal/domain/performance.dart';
 import 'package:cryptopilot_mobile/features/market/data/market_api.dart';
+import 'package:cryptopilot_mobile/features/market/data/market_status_repository.dart';
+import 'package:cryptopilot_mobile/features/market/domain/market_health.dart';
 import 'package:cryptopilot_mobile/features/market/domain/coin_market.dart';
 import 'package:cryptopilot_mobile/features/market/domain/candle.dart';
 import 'package:cryptopilot_mobile/features/market/domain/market.dart';
@@ -200,6 +202,7 @@ List<Override> baseOverrides({
   WebLinks? web,
   FakeTransport? transport,
   MarketApi? market,
+  MarketStatusApi? marketStatus,
   WatchlistApi? watchlist,
   AlertApi? alerts,
   NotificationApi? notifications,
@@ -229,6 +232,9 @@ List<Override> baseOverrides({
   // The whole step by default, so reconnect times stay exact in tests.
   realtimeJitterProvider.overrideWithValue(jitter ?? () => 1.0),
   marketApiProvider.overrideWithValue(market ?? FakeMarketApi()),
+  marketStatusApiProvider.overrideWithValue(
+    marketStatus ?? FakeMarketStatusApi(),
+  ),
   watchlistApiProvider.overrideWithValue(watchlist ?? FakeWatchlistApi()),
   alertApiProvider.overrideWithValue(alerts ?? FakeAlertApi()),
   notificationApiProvider.overrideWithValue(
@@ -247,6 +253,27 @@ List<Override> baseOverrides({
   paperApiProvider.overrideWithValue(paper ?? FakePaperApi()),
   futuresApiProvider.overrideWithValue(futures ?? FakeFuturesApi()),
 ];
+
+/// `GET /market/status` and `/market/fallback` (D-159): both markets live
+/// unless a test sets [current]; [calls] records the reads.
+class FakeMarketStatusApi implements MarketStatusApi {
+  MarketStatus current = MarketStatus.allLive;
+  final Map<Market, FallbackPrices> prices = {};
+  final List<String> calls = [];
+
+  @override
+  Future<MarketStatus> status() async {
+    calls.add('status');
+    return current;
+  }
+
+  @override
+  Future<FallbackPrices> fallback(Market market) async {
+    calls.add('fallback ${market.wire}');
+    return prices[market] ??
+        FallbackPrices(market: market, source: DisplaySource.binance);
+  }
+}
 
 class FakeWatchlistApi implements WatchlistApi {
   List<WatchItem> items = [

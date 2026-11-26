@@ -10,6 +10,7 @@ import '../../../core/format/age_format.dart';
 import '../../../core/i18n/app_localizations.dart';
 import '../../../core/theme/cp_colors.dart';
 import '../../../core/web/web_links.dart';
+import '../../market/presentation/market_status_banner.dart';
 import '../../market/presentation/market_widgets.dart';
 import '../application/plan_lists.dart';
 import '../domain/plan.dart';
@@ -77,23 +78,31 @@ class PlansScreen extends StatelessWidget {
             ],
           ),
         ),
-        body: TabBarView(
+        body: Column(
           children: [
-            const _PlanListView(
-              lists: [PlanList.openPositions],
-              emptyIcon: Icons.show_chart,
-            ),
-            const _PlanListView(
-              lists: [PlanList.active, PlanList.drafts],
-              emptyIcon: Icons.assignment_outlined,
-            ),
-            const _HistoryView(),
-            journal,
+            // D-159 (T-146): a paused market holds its plans' fills.
+            const MarketStatusBanner(key: Key('plans-market-status')),
+            Expanded(child: _tabs(journal)),
           ],
         ),
       ),
     );
   }
+
+  Widget _tabs(Widget journal) => TabBarView(
+    children: [
+      const _PlanListView(
+        lists: [PlanList.openPositions],
+        emptyIcon: Icons.show_chart,
+      ),
+      const _PlanListView(
+        lists: [PlanList.active, PlanList.drafts],
+        emptyIcon: Icons.assignment_outlined,
+      ),
+      const _HistoryView(),
+      journal,
+    ],
+  );
 }
 
 class _HistoryView extends StatefulWidget {

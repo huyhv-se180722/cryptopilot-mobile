@@ -72,6 +72,10 @@ String messageText(
       return l.msg44;
     case 'MSG50':
       return l.msg50(arg(0));
+    // TRADING_PAUSED (D-159): 503 on every paper and plan write while the
+    // market's exchange data is lost; wording as on the web (no SRS text).
+    case 'MSG57':
+      return l.msg57;
     default:
       return l.msg43(traceId ?? l.errorUnknownReference);
   }
