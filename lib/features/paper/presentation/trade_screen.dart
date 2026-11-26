@@ -11,6 +11,7 @@ import '../../../core/theme/cp_colors.dart';
 import '../../market/data/market_repository.dart';
 import '../../market/data/order_book_repository.dart';
 import '../../market/domain/market.dart';
+import '../../market/presentation/market_status_banner.dart';
 import '../../market/presentation/market_widgets.dart';
 import '../application/spot_form_controller.dart';
 import '../application/trade_controller.dart';
@@ -77,6 +78,11 @@ class _TradeScreenState extends ConsumerState<TradeScreen> {
       body: Column(
         children: [
           const DemoBanner(),
+          // D-159 (T-146): the side shown, paused, catching up or reopened.
+          MarketStatusBanner(
+            key: const Key('trade-market-status'),
+            markets: [futures ? Market.futures : Market.spot],
+          ),
           Expanded(child: futures ? const FuturesTrade() : const _SpotTrade()),
         ],
       ),
@@ -133,6 +139,7 @@ class _SpotTrade extends ConsumerWidget {
       padding: const EdgeInsets.fromLTRB(12, 8, 12, 24),
       children: [
         _PairHeader(pair: pair),
+        ReferencePriceNote(market: Market.spot, symbol: pair.symbol),
         const SizedBox(height: 8),
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -309,6 +316,8 @@ class _SpotForm extends ConsumerWidget {
       paperAccountProvider.select((s) => s.spotBalance(spendAsset)?.free),
     );
     final quote = pair.quoteAsset;
+    // D-159: closed market or a pair whose data is lost (E5).
+    final blocked = watchTradingBlock(ref, l, Market.spot, pair.symbol);
 
     String label(SpotField field) => switch (field) {
       SpotField.price => l.tradePrice,
@@ -460,6 +469,7 @@ class _SpotForm extends ConsumerWidget {
             _Notice(refusalText(l, notice, quote)),
           if (state.failure case final failure?)
             _Notice(failureText(l, failure)),
+          if (blocked != null) TradingBlockNotice(blocked),
           const SizedBox(height: 6),
           FilledButton(
             key: const Key('trade-submit'),
@@ -469,7 +479,9 @@ class _SpotForm extends ConsumerWidget {
               backgroundColor: side,
               foregroundColor: onSide,
             ),
-            onPressed: state.submitting ? null : () => _submit(context, ref),
+            onPressed: state.submitting || blocked != null
+                ? null
+                : () => _submit(context, ref),
             child: Text(
               buy
                   ? l.tradeBuyAsset(pair.baseAsset)

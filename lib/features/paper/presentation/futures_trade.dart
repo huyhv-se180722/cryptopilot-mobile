@@ -10,6 +10,7 @@ import '../../../core/i18n/app_localizations.dart';
 import '../../../core/theme/cp_colors.dart';
 import '../../market/data/market_repository.dart';
 import '../../market/domain/market.dart';
+import '../../market/presentation/market_status_banner.dart';
 import '../../market/presentation/market_widgets.dart';
 import '../application/futures_form_controller.dart';
 import '../application/futures_preview_controller.dart';
@@ -88,6 +89,7 @@ class FuturesTrade extends ConsumerWidget {
       padding: const EdgeInsets.fromLTRB(12, 8, 12, 24),
       children: [
         _Header(pair: pair, pairs: pairs ?? const []),
+        ReferencePriceNote(market: Market.futures, symbol: pair.symbol),
         const SizedBox(height: 4),
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -523,6 +525,8 @@ class _Form extends ConsumerWidget {
     final hedge =
         ref.watch(futuresModeProvider.select((s) => s.hedge)) ?? false;
     final closing = hedge && state.closing;
+    // D-159: closed market or a pair whose data is lost (E5).
+    final blocked = watchTradingBlock(ref, l, Market.futures, pair.symbol);
 
     String label(FuturesField field) => switch (field) {
       FuturesField.price => l.tradePrice,
@@ -719,6 +723,7 @@ class _Form extends ConsumerWidget {
           if (state.refusal case final refusal?)
             _Red(refusalText(l, refusal, 'USDT')),
           if (state.failure case final failure?) _Red(failureText(l, failure)),
+          if (blocked != null) TradingBlockNotice(blocked),
           const SizedBox(height: 6),
           for (final side in OrderSide.values)
             _SideAction(
@@ -731,7 +736,8 @@ class _Form extends ConsumerWidget {
               // A BLOCKING warning disables its side (TR-26, plan 9.2; FE
               // owner 2026-11-19); the sheet still blocks when the preview
               // could not be read.
-              onPressed: state.busy || preview.of(side).blocked
+              onPressed:
+                  state.busy || preview.of(side).blocked || blocked != null
                   ? null
                   : () => _go(context, ref, side),
             ),

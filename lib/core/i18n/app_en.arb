@@ -1973,5 +1973,131 @@
       }
     }
   },
-  "futErrTpSlReduceOnly": "TP/SL cannot go with reduce-only."
+  "futErrTpSlReduceOnly": "TP/SL cannot go with reduce-only.",
+  "msg57": "Trading on this market is paused while exchange data is unavailable. Please try again once it reopens.",
+  "mktSpot": "Spot",
+  "mktFutures": "Futures",
+  "mktPausedTitle": "{market} trading is paused",
+  "@mktPausedTitle": {
+    "placeholders": {
+      "market": {
+        "type": "String"
+      }
+    }
+  },
+  "mktPausedBody": "Exchange data has been unavailable since {since}. Your orders, positions and plans are kept; nothing is filled, liquidated or charged until the data is back.",
+  "@mktPausedBody": {
+    "placeholders": {
+      "since": {
+        "type": "String"
+      }
+    }
+  },
+  "mktMaintenanceTitle": "{market} is under maintenance",
+  "@mktMaintenanceTitle": {
+    "placeholders": {
+      "market": {
+        "type": "String"
+      }
+    }
+  },
+  "mktMaintenanceBody": "Trading is closed. Your orders, positions and plans are kept.",
+  "mktExpectedEnd": "Expected to end at {time}.",
+  "@mktExpectedEnd": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "mktRetryAt": "The exchange accepts calls again at about {time}.",
+  "@mktRetryAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "mktRecoveringTitle": "{market} is catching up",
+  "@mktRecoveringTitle": {
+    "placeholders": {
+      "market": {
+        "type": "String"
+      }
+    }
+  },
+  "mktRecoveringBody": "Exchange data is back. The missed period is being applied as the exchange traded; trading reopens when it is done.",
+  "mktProgress": "{done} of {total} pairs caught up",
+  "@mktProgress": {
+    "placeholders": {
+      "done": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "mktResumedTitle": "{market} trading has reopened",
+  "@mktResumedTitle": {
+    "placeholders": {
+      "market": {
+        "type": "String"
+      }
+    }
+  },
+  "mktResumedBody": "The period from {since} to {resumed} was applied at the exchange's prices. Check your notifications for what changed.",
+  "@mktResumedBody": {
+    "placeholders": {
+      "since": {
+        "type": "String"
+      },
+      "resumed": {
+        "type": "String"
+      }
+    }
+  },
+  "mktReferenceOkx": "Reference prices from OKX, for display only.",
+  "mktReferenceNone": "No reference price is available.",
+  "mktDismiss": "Dismiss",
+  "mktReasonStreamLost": "The exchange stream sends nothing.",
+  "mktReasonRestUnavailable": "The exchange does not answer.",
+  "mktReasonRateLimited": "The exchange limits our calls.",
+  "mktReasonIpBanned": "The exchange blocked the server.",
+  "mktReasonMaintenance": "Maintenance.",
+  "mktBlocked": "{market} trading is paused: orders cannot be placed, changed or cancelled now.",
+  "@mktBlocked": {
+    "placeholders": {
+      "market": {
+        "type": "String"
+      }
+    }
+  },
+  "mktPairBlocked": "Data for {symbol} is unavailable: trading this pair is paused.",
+  "@mktPairBlocked": {
+    "placeholders": {
+      "symbol": {
+        "type": "String"
+      }
+    }
+  },
+  "mktReferencePrice": "Reference price {price}",
+  "@mktReferencePrice": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "mktSourceAsOf": "Source: OKX (reference), as of {time}",
+  "@mktSourceAsOf": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "mktDiverged": "This reference price may differ markedly from the exchange.",
+  "mktNoReference": "No reference price for this pair.",
+  "mktBookPaused": "Paused: the order book and trades return when exchange data is back."
 }

@@ -6063,6 +6063,180 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'TP/SL cannot go with reduce-only.'**
   String get futErrTpSlReduceOnly;
+
+  /// No description provided for @msg57.
+  ///
+  /// In en, this message translates to:
+  /// **'Trading on this market is paused while exchange data is unavailable. Please try again once it reopens.'**
+  String get msg57;
+
+  /// No description provided for @mktSpot.
+  ///
+  /// In en, this message translates to:
+  /// **'Spot'**
+  String get mktSpot;
+
+  /// No description provided for @mktFutures.
+  ///
+  /// In en, this message translates to:
+  /// **'Futures'**
+  String get mktFutures;
+
+  /// No description provided for @mktPausedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{market} trading is paused'**
+  String mktPausedTitle(String market);
+
+  /// No description provided for @mktPausedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Exchange data has been unavailable since {since}. Your orders, positions and plans are kept; nothing is filled, liquidated or charged until the data is back.'**
+  String mktPausedBody(String since);
+
+  /// No description provided for @mktMaintenanceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{market} is under maintenance'**
+  String mktMaintenanceTitle(String market);
+
+  /// No description provided for @mktMaintenanceBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Trading is closed. Your orders, positions and plans are kept.'**
+  String get mktMaintenanceBody;
+
+  /// No description provided for @mktExpectedEnd.
+  ///
+  /// In en, this message translates to:
+  /// **'Expected to end at {time}.'**
+  String mktExpectedEnd(String time);
+
+  /// No description provided for @mktRetryAt.
+  ///
+  /// In en, this message translates to:
+  /// **'The exchange accepts calls again at about {time}.'**
+  String mktRetryAt(String time);
+
+  /// No description provided for @mktRecoveringTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{market} is catching up'**
+  String mktRecoveringTitle(String market);
+
+  /// No description provided for @mktRecoveringBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Exchange data is back. The missed period is being applied as the exchange traded; trading reopens when it is done.'**
+  String get mktRecoveringBody;
+
+  /// No description provided for @mktProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'{done} of {total} pairs caught up'**
+  String mktProgress(String done, String total);
+
+  /// No description provided for @mktResumedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{market} trading has reopened'**
+  String mktResumedTitle(String market);
+
+  /// No description provided for @mktResumedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The period from {since} to {resumed} was applied at the exchange\'s prices. Check your notifications for what changed.'**
+  String mktResumedBody(String since, String resumed);
+
+  /// No description provided for @mktReferenceOkx.
+  ///
+  /// In en, this message translates to:
+  /// **'Reference prices from OKX, for display only.'**
+  String get mktReferenceOkx;
+
+  /// No description provided for @mktReferenceNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No reference price is available.'**
+  String get mktReferenceNone;
+
+  /// No description provided for @mktDismiss.
+  ///
+  /// In en, this message translates to:
+  /// **'Dismiss'**
+  String get mktDismiss;
+
+  /// No description provided for @mktReasonStreamLost.
+  ///
+  /// In en, this message translates to:
+  /// **'The exchange stream sends nothing.'**
+  String get mktReasonStreamLost;
+
+  /// No description provided for @mktReasonRestUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'The exchange does not answer.'**
+  String get mktReasonRestUnavailable;
+
+  /// No description provided for @mktReasonRateLimited.
+  ///
+  /// In en, this message translates to:
+  /// **'The exchange limits our calls.'**
+  String get mktReasonRateLimited;
+
+  /// No description provided for @mktReasonIpBanned.
+  ///
+  /// In en, this message translates to:
+  /// **'The exchange blocked the server.'**
+  String get mktReasonIpBanned;
+
+  /// No description provided for @mktReasonMaintenance.
+  ///
+  /// In en, this message translates to:
+  /// **'Maintenance.'**
+  String get mktReasonMaintenance;
+
+  /// No description provided for @mktBlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'{market} trading is paused: orders cannot be placed, changed or cancelled now.'**
+  String mktBlocked(String market);
+
+  /// No description provided for @mktPairBlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Data for {symbol} is unavailable: trading this pair is paused.'**
+  String mktPairBlocked(String symbol);
+
+  /// No description provided for @mktReferencePrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Reference price {price}'**
+  String mktReferencePrice(String price);
+
+  /// No description provided for @mktSourceAsOf.
+  ///
+  /// In en, this message translates to:
+  /// **'Source: OKX (reference), as of {time}'**
+  String mktSourceAsOf(String time);
+
+  /// No description provided for @mktDiverged.
+  ///
+  /// In en, this message translates to:
+  /// **'This reference price may differ markedly from the exchange.'**
+  String get mktDiverged;
+
+  /// No description provided for @mktNoReference.
+  ///
+  /// In en, this message translates to:
+  /// **'No reference price for this pair.'**
+  String get mktNoReference;
+
+  /// No description provided for @mktBookPaused.
+  ///
+  /// In en, this message translates to:
+  /// **'Paused: the order book and trades return when exchange data is back.'**
+  String get mktBookPaused;
 }
 
 class _AppLocalizationsDelegate

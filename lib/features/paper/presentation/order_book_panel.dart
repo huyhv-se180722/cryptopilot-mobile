@@ -6,6 +6,7 @@ import '../../../core/format/decimal_format.dart';
 import '../../../core/i18n/app_localizations.dart';
 import '../../../core/theme/cp_colors.dart';
 import '../../market/data/market_repository.dart';
+import '../../market/data/market_status_repository.dart';
 import '../../market/data/order_book_repository.dart';
 import '../../market/domain/market.dart';
 import '../../market/domain/order_book.dart';
@@ -40,6 +41,25 @@ class _OrderBookPanelState extends ConsumerState<OrderBookPanel> {
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     if (!TickerMode.valuesOf(context).enabled) return const SizedBox.shrink();
+    // D-159: while the market's exchange data is lost the book is not
+    // current; it says so instead of showing stale levels.
+    final lost = ref.watch(
+      marketStatusProvider.select(
+        (status) => status.of(widget.market).dataLost,
+      ),
+    );
+    if (lost) {
+      return Padding(
+        key: const Key('book-paused'),
+        padding: const EdgeInsets.all(16),
+        child: Text(
+          l.mktBookPaused,
+          style: Theme.of(
+            context,
+          ).textTheme.bodySmall?.copyWith(color: context.cp.muted),
+        ),
+      );
+    }
     final pair = widget.pair;
     final book = ref.watch(
       orderBookProvider((market: widget.market, symbol: pair.symbol)),

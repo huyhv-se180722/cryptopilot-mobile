@@ -15,6 +15,7 @@ IconData notificationIcon(NotificationType type) => switch (type) {
   NotificationType.alert => Icons.alarm,
   NotificationType.plan => Icons.assignment_outlined,
   NotificationType.futures => Icons.candlestick_chart_outlined,
+  NotificationType.market => Icons.show_chart,
   NotificationType.subscription => Icons.workspace_premium_outlined,
   NotificationType.comment => Icons.chat_bubble_outline,
   NotificationType.mention => Icons.alternate_email,

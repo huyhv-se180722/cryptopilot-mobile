@@ -13,6 +13,7 @@ import '../../../core/theme/cp_colors.dart';
 import '../../../core/web/web_links.dart';
 import '../../market/data/market_repository.dart';
 import '../../market/domain/market.dart';
+import '../../market/presentation/market_status_banner.dart';
 import '../application/plan_detail_controller.dart';
 import '../domain/plan.dart';
 import '../domain/plan_detail.dart';
@@ -106,8 +107,23 @@ class PlanDetailScreen extends ConsumerWidget {
             ),
         ],
       ),
-      body: RefreshIndicator(
-        onRefresh: ref.read(provider.notifier).load,
+      body: Column(
+        children: [
+          // D-159 (T-146): the plan's own market.
+          MarketStatusBanner(
+            key: const Key('plan-market-status'),
+            markets: [plan.market],
+          ),
+          Expanded(child: _body(plan, ref.read(provider.notifier).load)),
+        ],
+      ),
+      bottomNavigationBar: _ActionBar(plan: plan, busy: state.busy),
+    );
+  }
+
+  Widget _body(PlanDetail plan, Future<void> Function() onRefresh) =>
+      RefreshIndicator(
+        onRefresh: onRefresh,
         child: ListView(
           key: const Key('plan-detail'),
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
@@ -128,10 +144,7 @@ class PlanDetailScreen extends ConsumerWidget {
             const PlanDisclaimer(key: Key('plan-detail-disclaimer')),
           ],
         ),
-      ),
-      bottomNavigationBar: _ActionBar(plan: plan, busy: state.busy),
-    );
-  }
+      );
 }
 
 class _StatusLine extends StatelessWidget {
@@ -666,28 +679,37 @@ class _ActionBar extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context);
     final controller = ref.read(planDetailControllerProvider(plan.id).notifier);
+    // D-159: while the plan's market is closed a plan is not activated, an
+    // active one not cancelled and a position neither changed nor closed (as
+    // on the web); a draft stays cancellable. The backend answers MSG57.
+    final closed = watchTradingBlock(ref, l, plan.market, null);
+    final paused = closed != null;
     final buttons = <Widget>[
       if (plan.status == PlanStatus.draft)
         FilledButton(
           key: const Key('plan-activate'),
-          onPressed: busy ? null : () => _activate(context, controller),
+          onPressed: busy || paused
+              ? null
+              : () => _activate(context, controller),
           child: Text(l.planActivate),
         ),
       if (plan.status == PlanStatus.draft || plan.status == PlanStatus.active)
         OutlinedButton(
           key: const Key('plan-cancel'),
-          onPressed: busy ? null : () => _cancel(context, controller),
+          onPressed: busy || paused && plan.status == PlanStatus.active
+              ? null
+              : () => _cancel(context, controller),
           child: Text(l.planCancel),
         ),
       if (plan.hasOpenPosition) ...[
         OutlinedButton(
           key: const Key('plan-set-levels'),
-          onPressed: busy ? null : () => _setLevels(context, plan),
+          onPressed: busy || paused ? null : () => _setLevels(context, plan),
           child: Text(l.planSetLevels),
         ),
         FilledButton(
           key: const Key('plan-close'),
-          onPressed: busy ? null : () => _close(context, plan),
+          onPressed: busy || paused ? null : () => _close(context, plan),
           child: Text(l.planClosePosition),
         ),
       ],
@@ -702,12 +724,27 @@ class _ActionBar extends ConsumerWidget {
             border: Border(top: BorderSide(color: context.cp.border)),
           ),
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-          child: Row(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              for (var i = 0; i < buttons.length; i++) ...[
-                if (i > 0) const SizedBox(width: 8),
-                Expanded(child: buttons[i]),
-              ],
+              if (closed != null)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 6),
+                  child: Text(
+                    closed,
+                    key: const Key('plan-trading-block'),
+                    style: TextStyle(color: context.cp.warning, fontSize: 12),
+                  ),
+                ),
+              Row(
+                children: [
+                  for (var i = 0; i < buttons.length; i++) ...[
+                    if (i > 0) const SizedBox(width: 8),
+                    Expanded(child: buttons[i]),
+                  ],
+                ],
+              ),
             ],
           ),
         ),

@@ -1,6 +1,7 @@
 import '../../../core/json/json_read.dart';
 
-/// What a notification is about (SRS 3.4.5; D-99, D-125, TR-43).
+/// What a notification is about (SRS 3.4.5; D-99, D-125, TR-43; `MARKET`:
+/// D-159 trading pauses and Spot demo orders, backend #111 and #113).
 enum NotificationType {
   alert('ALERT'),
   plan('PLAN'),
@@ -10,16 +11,17 @@ enum NotificationType {
   system('SYSTEM'),
   follow('FOLLOW'),
   mention('MENTION'),
-  futures('FUTURES');
+  futures('FUTURES'),
+  market('MARKET');
 
   const NotificationType(this.wire);
 
   final String wire;
 
-  static NotificationType decode(String value) => values.firstWhere(
-    (type) => type.wire == value,
-    orElse: () => throw DecodeException('notification type $value is unknown'),
-  );
+  /// A type this build does not know reads as [system]: one notification of
+  /// a newer backend must not make the whole list unreadable.
+  static NotificationType decode(String value) =>
+      values.firstWhere((type) => type.wire == value, orElse: () => system);
 }
 
 /// What opening a notification navigates to (SRS 3.4.5).
@@ -30,16 +32,21 @@ enum NotificationReference {
   subscription('SUBSCRIPTION'),
   newsSource('NEWS_SOURCE'),
   member('MEMBER'),
-  futuresPosition('FUTURES_POSITION');
+  futuresPosition('FUTURES_POSITION'),
+  paperOrder('PAPER_ORDER');
 
   const NotificationReference(this.wire);
 
   final String wire;
 
-  static NotificationReference decode(String value) => values.firstWhere(
-    (reference) => reference.wire == value,
-    orElse: () => throw DecodeException('reference $value is unknown'),
-  );
+  /// Null for a reference this build does not know: the notification still
+  /// shows, it only opens nothing.
+  static NotificationReference? decode(String value) {
+    for (final reference in values) {
+      if (reference.wire == value) return reference;
+    }
+    return null;
+  }
 }
 
 /// One notification of SCR-15 (`NotificationResponse`), also the body of
@@ -178,6 +185,14 @@ NotificationTarget? targetOf(AppNotification notification) {
     // The Futures side of the Trade tab (T-129).
     NotificationReference.futuresPosition => const AppScreen(
       '/trade?market=futures',
+      tab: true,
+    ),
+    // A demo order filled, triggered, cancelled or expired (backend #113):
+    // the side of the Trade tab it belongs to, FUTURES or else Spot.
+    NotificationReference.paperOrder => AppScreen(
+      notification.type == NotificationType.futures
+          ? '/trade?market=futures'
+          : '/trade?market=spot',
       tab: true,
     ),
     // An administrator's object; a Trader has nothing to open.
