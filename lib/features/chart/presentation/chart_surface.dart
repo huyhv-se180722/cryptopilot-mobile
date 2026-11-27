@@ -9,6 +9,8 @@ import 'package:webview_flutter/webview_flutter.dart';
 
 import '../../../core/theme/cp_colors.dart';
 import '../../market/domain/candle.dart';
+import '../domain/drawing.dart';
+import '../domain/drawing_tools.dart';
 
 /// A horizontal line on the price axis: BR-14 support and resistance now;
 /// plan entry, stop loss and take profit later (cp-paper-trading-boundary:
@@ -46,6 +48,7 @@ class ChartTheme {
     required this.grid,
     required this.up,
     required this.down,
+    this.accent = '#2962FF',
   });
 
   factory ChartTheme.of(CpColors cp) => ChartTheme(
@@ -54,6 +57,7 @@ class ChartTheme {
     grid: _rgba(cp.border),
     up: _hex(cp.positive),
     down: _hex(cp.negative),
+    accent: _hex(cp.primary),
   );
 
   final String bg;
@@ -64,12 +68,16 @@ class ChartTheme {
   final String up;
   final String down;
 
+  /// The handles of the selected drawing.
+  final String accent;
+
   Map<String, Object?> toJson() => {
     'bg': bg,
     'text': text,
     'grid': grid,
     'up': up,
     'down': down,
+    'accent': accent,
   };
 
   @override
@@ -79,10 +87,135 @@ class ChartTheme {
       other.text == text &&
       other.grid == grid &&
       other.up == up &&
-      other.down == down;
+      other.down == down &&
+      other.accent == accent;
 
   @override
-  int get hashCode => Object.hash(bg, text, grid, up, down);
+  int get hashCode => Object.hash(bg, text, grid, up, down, accent);
+}
+
+/// What the drawing layer of the page holds (D-149, T-153). The page passes
+/// on only what changed, so sending it again keeps a drawing being placed.
+@immutable
+class DrawingLayerState {
+  const DrawingLayerState({
+    this.drawings = const [],
+    this.magnet = false,
+    this.stayInDrawing = false,
+    this.lockAll = false,
+    this.hideAll = false,
+    this.tool,
+    this.editable = false,
+    this.selectedId,
+  });
+
+  static const none = DrawingLayerState();
+
+  final List<ChartDrawing> drawings;
+  final bool magnet;
+  final bool stayInDrawing;
+  final bool lockAll;
+  final bool hideAll;
+  final DrawingTool? tool;
+
+  /// Off, the layer only paints (the analysis card); on, touch draws.
+  final bool editable;
+  final String? selectedId;
+
+  Map<String, Object?> toJson() => {
+    'drawings': [for (final drawing in drawings) drawing.toJson()],
+    'options': {
+      'magnet': magnet,
+      'stayInDrawing': stayInDrawing,
+      'lockAll': lockAll,
+      'hideAll': hideAll,
+    },
+    'tool': tool?.name,
+    'editable': editable,
+    'selected': selectedId,
+  };
+
+  @override
+  bool operator ==(Object other) =>
+      other is DrawingLayerState &&
+      listEquals(other.drawings, drawings) &&
+      other.magnet == magnet &&
+      other.stayInDrawing == stayInDrawing &&
+      other.lockAll == lockAll &&
+      other.hideAll == hideAll &&
+      other.tool == tool &&
+      other.editable == editable &&
+      other.selectedId == selectedId;
+
+  @override
+  int get hashCode => Object.hash(
+    Object.hashAll(drawings),
+    magnet,
+    stayInDrawing,
+    lockAll,
+    hideAll,
+    tool,
+    editable,
+    selectedId,
+  );
+}
+
+/// What the Trader did on the drawing layer; the app saves it.
+sealed class DrawingEvent {
+  const DrawingEvent();
+
+  /// null for a message that is not the layer's or does not decode.
+  static DrawingEvent? fromJson(Map<String, Object?> json) {
+    try {
+      return switch (json['type']) {
+        'drawing.create' ||
+        'drawing.text' => DrawingPlaced(DrawingDraft.fromJson(json['draft'])),
+        'drawing.change' => DrawingMoved(json['id']! as String, [
+          for (final point in json['points']! as List)
+            DrawingPoint.fromJson(point),
+        ]),
+        'drawing.remove' => DrawingRemoved(json['id']! as String),
+        'drawing.select' => DrawingSelected(json['id'] as String?),
+        'drawing.toolDone' => const DrawingToolDone(),
+        _ => null,
+      };
+    } on Object catch (error) {
+      debugPrint('chart page: drawing event not read: $error');
+      return null;
+    }
+  }
+}
+
+/// A drawing was placed (a text one still needs its text).
+class DrawingPlaced extends DrawingEvent {
+  const DrawingPlaced(this.draft);
+
+  final DrawingDraft draft;
+}
+
+/// A drawing was dragged, whole or by one anchor.
+class DrawingMoved extends DrawingEvent {
+  const DrawingMoved(this.id, this.points);
+
+  final String id;
+  final List<DrawingPoint> points;
+}
+
+class DrawingRemoved extends DrawingEvent {
+  const DrawingRemoved(this.id);
+
+  final String id;
+}
+
+class DrawingSelected extends DrawingEvent {
+  const DrawingSelected(this.id);
+
+  final String? id;
+}
+
+/// The tool was put down after a drawing was finished.
+class DrawingToolDone extends DrawingEvent {
+  const DrawingToolDone();
 }
 
 String _hex(Color c) =>
@@ -124,7 +257,20 @@ abstract interface class ChartSurface {
 
   Future<void> setLines(List<ChartPriceLine> lines);
 
-  Widget view();
+  /// Seconds of one candle of the timeframe shown, so drawings can sit right
+  /// of the last candle; set before its candles.
+  Future<void> setBarSeconds(int seconds);
+
+  Future<void> setDrawingLayer(DrawingLayerState layer);
+
+  /// Drops the anchors placed so far, then the tool, then the selection.
+  Future<void> cancelDrawing();
+
+  Stream<DrawingEvent> get drawingEvents;
+
+  /// [fullScreen]: the chart takes every gesture (no screen scrolls around
+  /// it), so a finger can draw in any direction.
+  Widget view({bool fullScreen = false});
 }
 
 /// TradingView Lightweight Charts in one WebView kept for the whole app,
@@ -139,6 +285,12 @@ class WebViewChartSurface implements ChartSurface {
   Stream<String> get requests => _events.stream
       .where((e) => e['type'] == 'more')
       .map((e) => e['type']! as String);
+
+  @override
+  Stream<DrawingEvent> get drawingEvents => _events.stream
+      .map(DrawingEvent.fromJson)
+      .where((e) => e != null)
+      .cast<DrawingEvent>();
 
   @override
   Future<void> warm() => _ready ??= _start();
@@ -225,24 +377,42 @@ class WebViewChartSurface implements ChartSurface {
   );
 
   @override
-  Widget view() {
+  Future<void> setBarSeconds(int seconds) => _run('setBarSeconds($seconds)');
+
+  @override
+  Future<void> setDrawingLayer(DrawingLayerState layer) =>
+      _run('setDrawingLayer(${jsonEncode(layer.toJson())})');
+
+  @override
+  Future<void> cancelDrawing() => _run('cancelDrawing()');
+
+  @override
+  Widget view({bool fullScreen = false}) {
     final web = _web;
     if (web == null) return const SizedBox.expand();
     return WebViewWidget(
       controller: web,
-      // Horizontal drags and pinches go to the chart; a vertical drag
-      // scrolls the screen around it.
-      gestureRecognizers: const {
-        Factory<HorizontalDragGestureRecognizer>(
-          HorizontalDragGestureRecognizer.new,
-        ),
-        Factory<ScaleGestureRecognizer>(ScaleGestureRecognizer.new),
-      },
+      gestureRecognizers: fullScreen
+          ? const {Factory<EagerGestureRecognizer>(EagerGestureRecognizer.new)}
+          // Horizontal drags and pinches go to the chart; a vertical drag
+          // scrolls the screen around it.
+          : const {
+              Factory<HorizontalDragGestureRecognizer>(
+                HorizontalDragGestureRecognizer.new,
+              ),
+              Factory<ScaleGestureRecognizer>(ScaleGestureRecognizer.new),
+            },
     );
   }
 }
 
 /// One page for the whole app (ADR-012 item 2).
 final chartSurfaceProvider = Provider<ChartSurface>(
+  (ref) => WebViewChartSurface(),
+);
+
+/// The page of the Chart screen (T-153): a second one, so the analysis card
+/// under it keeps its own; started when the screen opens.
+final fullChartSurfaceProvider = Provider.autoDispose<ChartSurface>(
   (ref) => WebViewChartSurface(),
 );

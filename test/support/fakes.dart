@@ -27,6 +27,7 @@ import 'package:cryptopilot_mobile/features/market/domain/candle.dart';
 import 'package:cryptopilot_mobile/features/market/domain/market.dart';
 import 'package:cryptopilot_mobile/features/market/domain/order_book.dart';
 import 'package:cryptopilot_mobile/features/chart/application/chart_prefs.dart';
+import 'package:cryptopilot_mobile/features/chart/data/chart_drawing_api.dart';
 import 'package:cryptopilot_mobile/features/chart/presentation/chart_surface.dart';
 import 'package:cryptopilot_mobile/features/chart/presentation/metric_surface.dart';
 import 'package:cryptopilot_mobile/features/news/data/news_api.dart';
@@ -210,7 +211,9 @@ List<Override> baseOverrides({
   NewsApi? news,
   PerformanceApi? performance,
   FakeChartSurface? chart,
+  FakeChartSurface? fullChart,
   FakeMetricSurface? metricChart,
+  ChartDrawingApi? drawings,
   SettingsStore? settings,
   AnalysisApi? analysis,
   AcademyApi? academy,
@@ -245,6 +248,8 @@ List<Override> baseOverrides({
   communityApiProvider.overrideWithValue(community ?? FakeCommunityApi()),
   performanceApiProvider.overrideWithValue(performance ?? FakePerformanceApi()),
   chartSurfaceProvider.overrideWithValue(chart ?? FakeChartSurface()),
+  fullChartSurfaceProvider.overrideWithValue(fullChart ?? FakeChartSurface()),
+  chartDrawingApiProvider.overrideWithValue(drawings ?? FakeChartDrawingApi()),
   metricSurfaceProvider.overrideWithValue(metricChart ?? FakeMetricSurface()),
   // Never the zone of the machine that runs the tests.
   chartZoneProvider.overrideWithValue(zone),

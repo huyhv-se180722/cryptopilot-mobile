@@ -23,11 +23,13 @@ import '../../features/academy/presentation/lesson_screen.dart';
 import '../../features/account/presentation/account_screen.dart';
 import '../../features/alerts/presentation/alerts_screen.dart';
 import '../../features/analysis/presentation/analysis_screen.dart';
+import '../../features/chart/presentation/chart_screen.dart';
 import '../../features/auth/presentation/admin_notice_screen.dart';
 import '../../features/auth/presentation/forgot_password_screen.dart';
 import '../../features/auth/presentation/login_screen.dart';
 import '../../features/auth/presentation/reset_password_screen.dart';
 import '../../features/home/presentation/home_screen.dart';
+import '../../features/market/domain/candle.dart';
 import '../../features/market/domain/market.dart';
 import '../../features/market/presentation/markets_screen.dart';
 import '../../features/notifications/presentation/notification_bell.dart';
@@ -79,6 +81,9 @@ abstract final class Routes {
 
   /// SCR-10 (spot) and SCR-11 (futures).
   static const analysis = '/analysis/:market/:symbol';
+
+  /// The Chart screen with the drawing tools (T-153); `?tf=` the timeframe.
+  static const chart = '/chart/:market/:symbol';
 }
 
 const _publicRoutes = {
@@ -255,6 +260,18 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (_, state) => AnalysisScreen(
           market: _marketOf(state)!,
           symbol: state.pathParameters['symbol']!,
+        ),
+      ),
+      GoRoute(
+        path: Routes.chart,
+        redirect: (_, state) =>
+            _marketOf(state) == null ? Routes.markets : null,
+        builder: (_, state) => ChartScreen(
+          market: _marketOf(state)!,
+          symbol: state.pathParameters['symbol']!,
+          timeframe:
+              Timeframe.fromWire(state.uri.queryParameters['tf']) ??
+              Timeframe.h1,
         ),
       ),
       StatefulShellRoute.indexedStack(

@@ -6237,6 +6237,594 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Paused: the order book and trades return when exchange data is back.'**
   String get mktBookPaused;
+
+  /// No description provided for @drawingOpenChart.
+  ///
+  /// In en, this message translates to:
+  /// **'Draw on the chart'**
+  String get drawingOpenChart;
+
+  /// No description provided for @drawingChartTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{symbol} chart'**
+  String drawingChartTitle(String symbol);
+
+  /// No description provided for @drawingTools.
+  ///
+  /// In en, this message translates to:
+  /// **'Drawing tools'**
+  String get drawingTools;
+
+  /// No description provided for @drawingGroupLines.
+  ///
+  /// In en, this message translates to:
+  /// **'Lines'**
+  String get drawingGroupLines;
+
+  /// No description provided for @drawingGroupFibonacci.
+  ///
+  /// In en, this message translates to:
+  /// **'Fibonacci'**
+  String get drawingGroupFibonacci;
+
+  /// No description provided for @drawingGroupShapes.
+  ///
+  /// In en, this message translates to:
+  /// **'Shapes'**
+  String get drawingGroupShapes;
+
+  /// No description provided for @drawingGroupPositions.
+  ///
+  /// In en, this message translates to:
+  /// **'Positions'**
+  String get drawingGroupPositions;
+
+  /// No description provided for @drawingGroupMeasure.
+  ///
+  /// In en, this message translates to:
+  /// **'Measure'**
+  String get drawingGroupMeasure;
+
+  /// No description provided for @drawingGroupPatterns.
+  ///
+  /// In en, this message translates to:
+  /// **'Patterns'**
+  String get drawingGroupPatterns;
+
+  /// No description provided for @drawingGroupElliott.
+  ///
+  /// In en, this message translates to:
+  /// **'Elliott waves'**
+  String get drawingGroupElliott;
+
+  /// No description provided for @drawingGroupAnnotation.
+  ///
+  /// In en, this message translates to:
+  /// **'Text'**
+  String get drawingGroupAnnotation;
+
+  /// No description provided for @drawingToolTrendLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Trend line'**
+  String get drawingToolTrendLine;
+
+  /// No description provided for @drawingToolRay.
+  ///
+  /// In en, this message translates to:
+  /// **'Ray'**
+  String get drawingToolRay;
+
+  /// No description provided for @drawingToolExtendedLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Extended line'**
+  String get drawingToolExtendedLine;
+
+  /// No description provided for @drawingToolHorizontalLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Horizontal line'**
+  String get drawingToolHorizontalLine;
+
+  /// No description provided for @drawingToolHorizontalRay.
+  ///
+  /// In en, this message translates to:
+  /// **'Horizontal ray'**
+  String get drawingToolHorizontalRay;
+
+  /// No description provided for @drawingToolVerticalLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Vertical line'**
+  String get drawingToolVerticalLine;
+
+  /// No description provided for @drawingToolParallelChannel.
+  ///
+  /// In en, this message translates to:
+  /// **'Parallel channel'**
+  String get drawingToolParallelChannel;
+
+  /// No description provided for @drawingToolArrow.
+  ///
+  /// In en, this message translates to:
+  /// **'Arrow'**
+  String get drawingToolArrow;
+
+  /// No description provided for @drawingToolFibRetracement.
+  ///
+  /// In en, this message translates to:
+  /// **'Fib retracement'**
+  String get drawingToolFibRetracement;
+
+  /// No description provided for @drawingToolFibExtension.
+  ///
+  /// In en, this message translates to:
+  /// **'Fib extension'**
+  String get drawingToolFibExtension;
+
+  /// No description provided for @drawingToolRectangle.
+  ///
+  /// In en, this message translates to:
+  /// **'Rectangle'**
+  String get drawingToolRectangle;
+
+  /// No description provided for @drawingToolLongPosition.
+  ///
+  /// In en, this message translates to:
+  /// **'Long position'**
+  String get drawingToolLongPosition;
+
+  /// No description provided for @drawingToolShortPosition.
+  ///
+  /// In en, this message translates to:
+  /// **'Short position'**
+  String get drawingToolShortPosition;
+
+  /// No description provided for @drawingToolPriceRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Price range'**
+  String get drawingToolPriceRange;
+
+  /// No description provided for @drawingToolDateRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Date range'**
+  String get drawingToolDateRange;
+
+  /// No description provided for @drawingToolText.
+  ///
+  /// In en, this message translates to:
+  /// **'Text'**
+  String get drawingToolText;
+
+  /// No description provided for @drawingToolXabcd.
+  ///
+  /// In en, this message translates to:
+  /// **'XABCD pattern'**
+  String get drawingToolXabcd;
+
+  /// No description provided for @drawingToolCypher.
+  ///
+  /// In en, this message translates to:
+  /// **'Cypher pattern'**
+  String get drawingToolCypher;
+
+  /// No description provided for @drawingToolAbcd.
+  ///
+  /// In en, this message translates to:
+  /// **'ABCD pattern'**
+  String get drawingToolAbcd;
+
+  /// No description provided for @drawingToolThreeDrives.
+  ///
+  /// In en, this message translates to:
+  /// **'Three drives pattern'**
+  String get drawingToolThreeDrives;
+
+  /// No description provided for @drawingToolHeadAndShoulders.
+  ///
+  /// In en, this message translates to:
+  /// **'Head and shoulders'**
+  String get drawingToolHeadAndShoulders;
+
+  /// No description provided for @drawingToolTrianglePattern.
+  ///
+  /// In en, this message translates to:
+  /// **'Triangle pattern'**
+  String get drawingToolTrianglePattern;
+
+  /// No description provided for @drawingToolElliottImpulse.
+  ///
+  /// In en, this message translates to:
+  /// **'Elliott impulse wave (12345)'**
+  String get drawingToolElliottImpulse;
+
+  /// No description provided for @drawingToolElliottCorrection.
+  ///
+  /// In en, this message translates to:
+  /// **'Elliott correction wave (ABC)'**
+  String get drawingToolElliottCorrection;
+
+  /// No description provided for @drawingToolElliottTriangle.
+  ///
+  /// In en, this message translates to:
+  /// **'Elliott triangle wave (ABCDE)'**
+  String get drawingToolElliottTriangle;
+
+  /// No description provided for @drawingToolElliottDoubleCombo.
+  ///
+  /// In en, this message translates to:
+  /// **'Elliott double combo wave (WXY)'**
+  String get drawingToolElliottDoubleCombo;
+
+  /// No description provided for @drawingToolElliottTripleCombo.
+  ///
+  /// In en, this message translates to:
+  /// **'Elliott triple combo wave (WXYXZ)'**
+  String get drawingToolElliottTripleCombo;
+
+  /// No description provided for @drawingPlaceHint.
+  ///
+  /// In en, this message translates to:
+  /// **'{tool}: touch where each point goes and lift your finger.'**
+  String drawingPlaceHint(String tool);
+
+  /// No description provided for @drawingCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get drawingCancel;
+
+  /// No description provided for @drawingUndo.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo'**
+  String get drawingUndo;
+
+  /// No description provided for @drawingRedo.
+  ///
+  /// In en, this message translates to:
+  /// **'Redo'**
+  String get drawingRedo;
+
+  /// No description provided for @drawingMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Drawing options'**
+  String get drawingMore;
+
+  /// No description provided for @drawingMagnet.
+  ///
+  /// In en, this message translates to:
+  /// **'Magnet: snap to open, high, low or close'**
+  String get drawingMagnet;
+
+  /// No description provided for @drawingStayInDrawing.
+  ///
+  /// In en, this message translates to:
+  /// **'Stay in drawing mode'**
+  String get drawingStayInDrawing;
+
+  /// No description provided for @drawingLockAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Lock all drawings'**
+  String get drawingLockAll;
+
+  /// No description provided for @drawingHideAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide all drawings'**
+  String get drawingHideAll;
+
+  /// No description provided for @drawingShowHidden.
+  ///
+  /// In en, this message translates to:
+  /// **'Show {count} hidden drawings'**
+  String drawingShowHidden(int count);
+
+  /// No description provided for @drawingRemoveAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove all drawings'**
+  String get drawingRemoveAll;
+
+  /// No description provided for @drawingRemoveAllTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove all drawings?'**
+  String get drawingRemoveAllTitle;
+
+  /// No description provided for @drawingRemoveAllBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Every drawing of \"{layout}\" on {symbol} is removed, locked ones included, from both the Spot and the Futures chart. This cannot be undone.'**
+  String drawingRemoveAllBody(String layout, String symbol);
+
+  /// No description provided for @drawingRemoveAllConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove all'**
+  String get drawingRemoveAllConfirm;
+
+  /// No description provided for @drawingSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'Selected drawing'**
+  String get drawingSelected;
+
+  /// No description provided for @drawingColor.
+  ///
+  /// In en, this message translates to:
+  /// **'Colour'**
+  String get drawingColor;
+
+  /// No description provided for @drawingWidth.
+  ///
+  /// In en, this message translates to:
+  /// **'Line width'**
+  String get drawingWidth;
+
+  /// No description provided for @drawingWidthOption.
+  ///
+  /// In en, this message translates to:
+  /// **'{width} px'**
+  String drawingWidthOption(int width);
+
+  /// No description provided for @drawingLineStyle.
+  ///
+  /// In en, this message translates to:
+  /// **'Line style'**
+  String get drawingLineStyle;
+
+  /// No description provided for @drawingLineSolid.
+  ///
+  /// In en, this message translates to:
+  /// **'Solid'**
+  String get drawingLineSolid;
+
+  /// No description provided for @drawingLineDashed.
+  ///
+  /// In en, this message translates to:
+  /// **'Dashed'**
+  String get drawingLineDashed;
+
+  /// No description provided for @drawingLineDotted.
+  ///
+  /// In en, this message translates to:
+  /// **'Dotted'**
+  String get drawingLineDotted;
+
+  /// No description provided for @drawingSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get drawingSettings;
+
+  /// No description provided for @drawingLock.
+  ///
+  /// In en, this message translates to:
+  /// **'Lock'**
+  String get drawingLock;
+
+  /// No description provided for @drawingUnlock.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock'**
+  String get drawingUnlock;
+
+  /// No description provided for @drawingHide.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide'**
+  String get drawingHide;
+
+  /// No description provided for @drawingRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get drawingRemove;
+
+  /// No description provided for @drawingSettingsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{tool} settings'**
+  String drawingSettingsTitle(String tool);
+
+  /// No description provided for @drawingFill.
+  ///
+  /// In en, this message translates to:
+  /// **'Fill'**
+  String get drawingFill;
+
+  /// No description provided for @drawingExtendLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'Extend left'**
+  String get drawingExtendLeft;
+
+  /// No description provided for @drawingExtendRight.
+  ///
+  /// In en, this message translates to:
+  /// **'Extend right'**
+  String get drawingExtendRight;
+
+  /// No description provided for @drawingText.
+  ///
+  /// In en, this message translates to:
+  /// **'Text'**
+  String get drawingText;
+
+  /// No description provided for @drawingTextPlaceholder.
+  ///
+  /// In en, this message translates to:
+  /// **'Your note'**
+  String get drawingTextPlaceholder;
+
+  /// No description provided for @drawingFontSize.
+  ///
+  /// In en, this message translates to:
+  /// **'Font size'**
+  String get drawingFontSize;
+
+  /// No description provided for @drawingPointPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Point {n} price'**
+  String drawingPointPrice(int n);
+
+  /// No description provided for @drawingEntryPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Entry price'**
+  String get drawingEntryPrice;
+
+  /// No description provided for @drawingStopPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop price'**
+  String get drawingStopPrice;
+
+  /// No description provided for @drawingTargetPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Target price'**
+  String get drawingTargetPrice;
+
+  /// No description provided for @drawingInvalidPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a price greater than 0.'**
+  String get drawingInvalidPrice;
+
+  /// No description provided for @drawingInvalidPosition.
+  ///
+  /// In en, this message translates to:
+  /// **'The stop and the target must lie on their sides of the entry.'**
+  String get drawingInvalidPosition;
+
+  /// No description provided for @drawingSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get drawingSave;
+
+  /// No description provided for @drawingTextTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add text'**
+  String get drawingTextTitle;
+
+  /// No description provided for @drawingAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get drawingAdd;
+
+  /// No description provided for @drawingSaveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The drawing could not be saved. Your drawings were loaded again.'**
+  String get drawingSaveFailed;
+
+  /// No description provided for @drawingLimitReached.
+  ///
+  /// In en, this message translates to:
+  /// **'This copy already holds the most drawings allowed (200). Remove one to add another.'**
+  String get drawingLimitReached;
+
+  /// No description provided for @drawingLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The drawings could not be loaded.'**
+  String get drawingLoadFailed;
+
+  /// No description provided for @drawingCopies.
+  ///
+  /// In en, this message translates to:
+  /// **'Chart copies of {symbol}'**
+  String drawingCopies(String symbol);
+
+  /// No description provided for @drawingCopyName.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy {n}'**
+  String drawingCopyName(int n);
+
+  /// No description provided for @drawingCopyCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} drawings'**
+  String drawingCopyCount(int count);
+
+  /// No description provided for @drawingNewCopy.
+  ///
+  /// In en, this message translates to:
+  /// **'New copy'**
+  String get drawingNewCopy;
+
+  /// No description provided for @drawingDuplicate.
+  ///
+  /// In en, this message translates to:
+  /// **'Duplicate this copy'**
+  String get drawingDuplicate;
+
+  /// No description provided for @drawingRename.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename'**
+  String get drawingRename;
+
+  /// No description provided for @drawingNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Name of the copy'**
+  String get drawingNameLabel;
+
+  /// No description provided for @drawingRemoveCopy.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove this copy'**
+  String get drawingRemoveCopy;
+
+  /// No description provided for @drawingRemoveCopyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove \"{name}\"?'**
+  String drawingRemoveCopyTitle(String name);
+
+  /// No description provided for @drawingRemoveCopyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The copy and its {count} drawings are removed from both the Spot and the Futures chart. This cannot be undone.'**
+  String drawingRemoveCopyBody(int count);
+
+  /// No description provided for @drawingRemoveCopyConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove copy'**
+  String get drawingRemoveCopyConfirm;
+
+  /// No description provided for @drawingCopyLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'A pair holds at most 10 copies.'**
+  String get drawingCopyLimit;
+
+  /// No description provided for @drawingLayoutLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'This pair already holds the most copies allowed (10). Remove one to add another.'**
+  String get drawingLayoutLimit;
+
+  /// No description provided for @drawingLayoutFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The copy could not be saved. Try again.'**
+  String get drawingLayoutFailed;
 }
 
 class _AppLocalizationsDelegate

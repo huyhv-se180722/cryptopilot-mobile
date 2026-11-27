@@ -3507,4 +3507,327 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get mktBookPaused =>
       'Paused: the order book and trades return when exchange data is back.';
+
+  @override
+  String get drawingOpenChart => 'Draw on the chart';
+
+  @override
+  String drawingChartTitle(String symbol) {
+    return '$symbol chart';
+  }
+
+  @override
+  String get drawingTools => 'Drawing tools';
+
+  @override
+  String get drawingGroupLines => 'Lines';
+
+  @override
+  String get drawingGroupFibonacci => 'Fibonacci';
+
+  @override
+  String get drawingGroupShapes => 'Shapes';
+
+  @override
+  String get drawingGroupPositions => 'Positions';
+
+  @override
+  String get drawingGroupMeasure => 'Measure';
+
+  @override
+  String get drawingGroupPatterns => 'Patterns';
+
+  @override
+  String get drawingGroupElliott => 'Elliott waves';
+
+  @override
+  String get drawingGroupAnnotation => 'Text';
+
+  @override
+  String get drawingToolTrendLine => 'Trend line';
+
+  @override
+  String get drawingToolRay => 'Ray';
+
+  @override
+  String get drawingToolExtendedLine => 'Extended line';
+
+  @override
+  String get drawingToolHorizontalLine => 'Horizontal line';
+
+  @override
+  String get drawingToolHorizontalRay => 'Horizontal ray';
+
+  @override
+  String get drawingToolVerticalLine => 'Vertical line';
+
+  @override
+  String get drawingToolParallelChannel => 'Parallel channel';
+
+  @override
+  String get drawingToolArrow => 'Arrow';
+
+  @override
+  String get drawingToolFibRetracement => 'Fib retracement';
+
+  @override
+  String get drawingToolFibExtension => 'Fib extension';
+
+  @override
+  String get drawingToolRectangle => 'Rectangle';
+
+  @override
+  String get drawingToolLongPosition => 'Long position';
+
+  @override
+  String get drawingToolShortPosition => 'Short position';
+
+  @override
+  String get drawingToolPriceRange => 'Price range';
+
+  @override
+  String get drawingToolDateRange => 'Date range';
+
+  @override
+  String get drawingToolText => 'Text';
+
+  @override
+  String get drawingToolXabcd => 'XABCD pattern';
+
+  @override
+  String get drawingToolCypher => 'Cypher pattern';
+
+  @override
+  String get drawingToolAbcd => 'ABCD pattern';
+
+  @override
+  String get drawingToolThreeDrives => 'Three drives pattern';
+
+  @override
+  String get drawingToolHeadAndShoulders => 'Head and shoulders';
+
+  @override
+  String get drawingToolTrianglePattern => 'Triangle pattern';
+
+  @override
+  String get drawingToolElliottImpulse => 'Elliott impulse wave (12345)';
+
+  @override
+  String get drawingToolElliottCorrection => 'Elliott correction wave (ABC)';
+
+  @override
+  String get drawingToolElliottTriangle => 'Elliott triangle wave (ABCDE)';
+
+  @override
+  String get drawingToolElliottDoubleCombo => 'Elliott double combo wave (WXY)';
+
+  @override
+  String get drawingToolElliottTripleCombo =>
+      'Elliott triple combo wave (WXYXZ)';
+
+  @override
+  String drawingPlaceHint(String tool) {
+    return '$tool: touch where each point goes and lift your finger.';
+  }
+
+  @override
+  String get drawingCancel => 'Cancel';
+
+  @override
+  String get drawingUndo => 'Undo';
+
+  @override
+  String get drawingRedo => 'Redo';
+
+  @override
+  String get drawingMore => 'Drawing options';
+
+  @override
+  String get drawingMagnet => 'Magnet: snap to open, high, low or close';
+
+  @override
+  String get drawingStayInDrawing => 'Stay in drawing mode';
+
+  @override
+  String get drawingLockAll => 'Lock all drawings';
+
+  @override
+  String get drawingHideAll => 'Hide all drawings';
+
+  @override
+  String drawingShowHidden(int count) {
+    return 'Show $count hidden drawings';
+  }
+
+  @override
+  String get drawingRemoveAll => 'Remove all drawings';
+
+  @override
+  String get drawingRemoveAllTitle => 'Remove all drawings?';
+
+  @override
+  String drawingRemoveAllBody(String layout, String symbol) {
+    return 'Every drawing of \"$layout\" on $symbol is removed, locked ones included, from both the Spot and the Futures chart. This cannot be undone.';
+  }
+
+  @override
+  String get drawingRemoveAllConfirm => 'Remove all';
+
+  @override
+  String get drawingSelected => 'Selected drawing';
+
+  @override
+  String get drawingColor => 'Colour';
+
+  @override
+  String get drawingWidth => 'Line width';
+
+  @override
+  String drawingWidthOption(int width) {
+    return '$width px';
+  }
+
+  @override
+  String get drawingLineStyle => 'Line style';
+
+  @override
+  String get drawingLineSolid => 'Solid';
+
+  @override
+  String get drawingLineDashed => 'Dashed';
+
+  @override
+  String get drawingLineDotted => 'Dotted';
+
+  @override
+  String get drawingSettings => 'Settings';
+
+  @override
+  String get drawingLock => 'Lock';
+
+  @override
+  String get drawingUnlock => 'Unlock';
+
+  @override
+  String get drawingHide => 'Hide';
+
+  @override
+  String get drawingRemove => 'Remove';
+
+  @override
+  String drawingSettingsTitle(String tool) {
+    return '$tool settings';
+  }
+
+  @override
+  String get drawingFill => 'Fill';
+
+  @override
+  String get drawingExtendLeft => 'Extend left';
+
+  @override
+  String get drawingExtendRight => 'Extend right';
+
+  @override
+  String get drawingText => 'Text';
+
+  @override
+  String get drawingTextPlaceholder => 'Your note';
+
+  @override
+  String get drawingFontSize => 'Font size';
+
+  @override
+  String drawingPointPrice(int n) {
+    return 'Point $n price';
+  }
+
+  @override
+  String get drawingEntryPrice => 'Entry price';
+
+  @override
+  String get drawingStopPrice => 'Stop price';
+
+  @override
+  String get drawingTargetPrice => 'Target price';
+
+  @override
+  String get drawingInvalidPrice => 'Enter a price greater than 0.';
+
+  @override
+  String get drawingInvalidPosition =>
+      'The stop and the target must lie on their sides of the entry.';
+
+  @override
+  String get drawingSave => 'Save';
+
+  @override
+  String get drawingTextTitle => 'Add text';
+
+  @override
+  String get drawingAdd => 'Add';
+
+  @override
+  String get drawingSaveFailed =>
+      'The drawing could not be saved. Your drawings were loaded again.';
+
+  @override
+  String get drawingLimitReached =>
+      'This copy already holds the most drawings allowed (200). Remove one to add another.';
+
+  @override
+  String get drawingLoadFailed => 'The drawings could not be loaded.';
+
+  @override
+  String drawingCopies(String symbol) {
+    return 'Chart copies of $symbol';
+  }
+
+  @override
+  String drawingCopyName(int n) {
+    return 'Copy $n';
+  }
+
+  @override
+  String drawingCopyCount(int count) {
+    return '$count drawings';
+  }
+
+  @override
+  String get drawingNewCopy => 'New copy';
+
+  @override
+  String get drawingDuplicate => 'Duplicate this copy';
+
+  @override
+  String get drawingRename => 'Rename';
+
+  @override
+  String get drawingNameLabel => 'Name of the copy';
+
+  @override
+  String get drawingRemoveCopy => 'Remove this copy';
+
+  @override
+  String drawingRemoveCopyTitle(String name) {
+    return 'Remove \"$name\"?';
+  }
+
+  @override
+  String drawingRemoveCopyBody(int count) {
+    return 'The copy and its $count drawings are removed from both the Spot and the Futures chart. This cannot be undone.';
+  }
+
+  @override
+  String get drawingRemoveCopyConfirm => 'Remove copy';
+
+  @override
+  String get drawingCopyLimit => 'A pair holds at most 10 copies.';
+
+  @override
+  String get drawingLayoutLimit =>
+      'This pair already holds the most copies allowed (10). Remove one to add another.';
+
+  @override
+  String get drawingLayoutFailed => 'The copy could not be saved. Try again.';
 }
