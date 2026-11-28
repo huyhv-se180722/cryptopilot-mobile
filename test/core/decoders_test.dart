@@ -26,6 +26,25 @@ void main() {
       expect(problem.fieldErrors, {'email': 'MSG02', 'password': 'MSG01'});
     });
 
+    test('keeps the other plain members as extensions', () {
+      final problem = decodeApiProblem({
+        'title': 'Service Unavailable',
+        'code': 'TRADING_PAUSED',
+        'messageCode': 'MSG63',
+        'messageArgs': ['SPOT'],
+        'market': 'SPOT',
+        'state': 'PAUSED',
+        'since': '2026-11-19T07:32:05Z',
+        'nested': {'not': 'kept'},
+      }, 503)!;
+
+      expect(problem.extensions, {
+        'market': 'SPOT',
+        'state': 'PAUSED',
+        'since': '2026-11-19T07:32:05Z',
+      });
+    });
+
     test('is null for a body that is not a problem', () {
       expect(decodeApiProblem('<html>', 502), isNull);
       expect(decodeApiProblem({'status': 500}, 500), isNull);

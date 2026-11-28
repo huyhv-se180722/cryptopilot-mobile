@@ -8,6 +8,7 @@ class ApiProblem {
     this.traceId,
     this.messageArgs = const [],
     this.fieldErrors = const {},
+    this.extensions = const {},
   });
 
   final int status;
@@ -19,7 +20,24 @@ class ApiProblem {
   /// Field name → message code. Binding notes such as "is required" arrive as
   /// plain English and are read as MSG01.
   final Map<String, String> fieldErrors;
+
+  /// The other plain members of the body, e.g. `market`, `state` and `since`
+  /// of TRADING_PAUSED (MSG63).
+  final Map<String, String> extensions;
 }
+
+const _known = {
+  'type',
+  'title',
+  'status',
+  'detail',
+  'instance',
+  'code',
+  'messageCode',
+  'messageArgs',
+  'errors',
+  'traceId',
+};
 
 /// Reads a problem body, or `null` when [body] is not one.
 ApiProblem? decodeApiProblem(Object? body, int status) {
@@ -42,6 +60,14 @@ ApiProblem? decodeApiProblem(Object? body, int status) {
               '${entry.key}': _fieldCode(entry.value),
           }
         : const {},
+    extensions: {
+      for (final entry in body.entries)
+        if (!_known.contains(entry.key) &&
+            (entry.value is String ||
+                entry.value is num ||
+                entry.value is bool))
+          '${entry.key}': '${entry.value}',
+    },
   );
 }
 

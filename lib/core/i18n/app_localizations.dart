@@ -6064,11 +6064,29 @@ abstract class AppLocalizations {
   /// **'TP/SL cannot go with reduce-only.'**
   String get futErrTpSlReduceOnly;
 
-  /// No description provided for @msg57.
+  /// No description provided for @msg61.
   ///
   /// In en, this message translates to:
-  /// **'Trading on this market is paused while exchange data is unavailable. Please try again once it reopens.'**
-  String get msg57;
+  /// **'You already have an order awaiting payment ({orderCode}). Finish it or wait until it expires.'**
+  String msg61(String orderCode);
+
+  /// No description provided for @msg62.
+  ///
+  /// In en, this message translates to:
+  /// **'An administrator account cannot be banned from a moderation decision.'**
+  String get msg62;
+
+  /// No description provided for @msg63.
+  ///
+  /// In en, this message translates to:
+  /// **'Trading on {market} is paused since {since} ({state}). Try again when it reopens.'**
+  String msg63(String market, String since, String state);
+
+  /// No description provided for @msg64.
+  ///
+  /// In en, this message translates to:
+  /// **'This account status change is not allowed.'**
+  String get msg64;
 
   /// No description provided for @mktSpot.
   ///

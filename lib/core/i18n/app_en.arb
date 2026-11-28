@@ -1974,7 +1974,30 @@
     }
   },
   "futErrTpSlReduceOnly": "TP/SL cannot go with reduce-only.",
-  "msg57": "Trading on this market is paused while exchange data is unavailable. Please try again once it reopens.",
+  "msg61": "You already have an order awaiting payment ({orderCode}). Finish it or wait until it expires.",
+  "@msg61": {
+    "placeholders": {
+      "orderCode": {
+        "type": "String"
+      }
+    }
+  },
+  "msg62": "An administrator account cannot be banned from a moderation decision.",
+  "msg63": "Trading on {market} is paused since {since} ({state}). Try again when it reopens.",
+  "@msg63": {
+    "placeholders": {
+      "market": {
+        "type": "String"
+      },
+      "since": {
+        "type": "String"
+      },
+      "state": {
+        "type": "String"
+      }
+    }
+  },
+  "msg64": "This account status change is not allowed.",
   "mktSpot": "Spot",
   "mktFutures": "Futures",
   "mktPausedTitle": "{market} trading is paused",

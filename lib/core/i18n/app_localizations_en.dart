@@ -3391,8 +3391,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get futErrTpSlReduceOnly => 'TP/SL cannot go with reduce-only.';
 
   @override
-  String get msg57 =>
-      'Trading on this market is paused while exchange data is unavailable. Please try again once it reopens.';
+  String msg61(String orderCode) {
+    return 'You already have an order awaiting payment ($orderCode). Finish it or wait until it expires.';
+  }
+
+  @override
+  String get msg62 =>
+      'An administrator account cannot be banned from a moderation decision.';
+
+  @override
+  String msg63(String market, String since, String state) {
+    return 'Trading on $market is paused since $since ($state). Try again when it reopens.';
+  }
+
+  @override
+  String get msg64 => 'This account status change is not allowed.';
 
   @override
   String get mktSpot => 'Spot';
