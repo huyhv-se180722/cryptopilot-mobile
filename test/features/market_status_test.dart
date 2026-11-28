@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:cryptopilot_mobile/app.dart';
 import 'package:cryptopilot_mobile/core/auth/token_store.dart';
+import 'package:cryptopilot_mobile/core/errors/api_failure.dart';
+import 'package:cryptopilot_mobile/core/errors/api_problem.dart';
 import 'package:cryptopilot_mobile/core/errors/message_text.dart';
 import 'package:cryptopilot_mobile/core/i18n/app_localizations_en.dart';
 import 'package:cryptopilot_mobile/core/router/app_router.dart';
@@ -13,6 +15,7 @@ import 'package:cryptopilot_mobile/features/plans/data/plan_detail_api.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:intl/intl.dart';
 
 import '../support/fakes.dart';
 import '../support/paper_fakes.dart';
@@ -151,11 +154,45 @@ void main() {
     expect(tradingBlockText(l, pair, null), isNull);
   });
 
-  test('MSG57 has its own words, no longer MSG43', () {
+  test('MSG63 names the market, since when and its state', () {
+    final paused = decodeApiProblem({
+      'code': 'TRADING_PAUSED',
+      'messageCode': 'MSG63',
+      'messageArgs': ['SPOT'],
+      'market': 'SPOT',
+      'state': 'PAUSED',
+      'since': '2026-11-19T07:32:05Z',
+    }, 503)!;
+    final since = DateFormat(
+      'd MMM HH:mm',
+      'en_US',
+    ).format(DateTime.parse('2026-11-19T07:32:05Z').toLocal());
     expect(
-      failureText(l, problem(503, 'TRADING_PAUSED', 'MSG57')),
-      'Trading on this market is paused while exchange data is unavailable. '
-      'Please try again once it reopens.',
+      failureText(l, ProblemFailure(paused)),
+      'Trading on SPOT is paused since $since (paused). '
+      'Try again when it reopens.',
+    );
+  });
+
+  test('MSG61, MSG62 and MSG64 have their own words', () {
+    expect(
+      failureText(
+        l,
+        problem(409, 'ORDER_ALREADY_PENDING', 'MSG61', args: ['CP-1']),
+      ),
+      'You already have an order awaiting payment (CP-1). '
+      'Finish it or wait until it expires.',
+    );
+    expect(
+      failureText(l, problem(409, 'MODERATION_BAN_ADMIN_REFUSED', 'MSG62')),
+      'An administrator account cannot be banned from a moderation decision.',
+    );
+    expect(
+      failureText(
+        l,
+        problem(409, 'ACCOUNT_STATUS_TRANSITION_INVALID', 'MSG64'),
+      ),
+      'This account status change is not allowed.',
     );
   });
 

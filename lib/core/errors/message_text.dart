@@ -1,14 +1,18 @@
+import 'package:intl/intl.dart';
+
 import '../i18n/app_localizations.dart';
 import 'api_failure.dart';
 
 /// The text of an SRS 5.3 message code (D-25: the backend sends codes, the
-/// client owns the words). [field] fills MSG01; [args] are `messageArgs`.
+/// client owns the words). [field] fills MSG01; [args] are `messageArgs`;
+/// [extensions] are the other members of the body (MSG63).
 String messageText(
   AppLocalizations l,
   String code, {
   List<String> args = const [],
   String? field,
   String? traceId,
+  Map<String, String> extensions = const {},
 }) {
   String arg(int i) => i < args.length ? args[i] : '';
   switch (code) {
@@ -72,14 +76,35 @@ String messageText(
       return l.msg44;
     case 'MSG50':
       return l.msg50(arg(0));
+    case 'MSG61':
+      return l.msg61(arg(0));
+    case 'MSG62':
+      return l.msg62;
     // TRADING_PAUSED (D-159): 503 on every paper and plan write while the
-    // market's exchange data is lost; wording as on the web (no SRS text).
-    case 'MSG57':
-      return l.msg57;
+    // market is not live.
+    case 'MSG63':
+      return l.msg63(
+        extensions['market'] ?? arg(0),
+        _since(l, extensions['since']),
+        _state(l, extensions['state']),
+      );
+    case 'MSG64':
+      return l.msg64;
     default:
       return l.msg43(traceId ?? l.errorUnknownReference);
   }
 }
+
+String _since(AppLocalizations l, String? since) {
+  final at = since == null ? null : DateTime.tryParse(since);
+  if (at == null) return l.errorUnknownReference;
+  return DateFormat('d MMM HH:mm', 'en_US').format(at.toLocal());
+}
+
+String _state(AppLocalizations l, String? state) =>
+    state == null || state.isEmpty
+    ? l.errorUnknownReference
+    : state.toLowerCase().replaceAll('_', ' ');
 
 String _status(AppLocalizations l, String status) => switch (status) {
   'LOCKED' => l.statusLocked,
@@ -95,6 +120,7 @@ String failureText(AppLocalizations l, ApiFailure failure) {
       problem.messageCode,
       args: problem.messageArgs,
       traceId: problem.traceId,
+      extensions: problem.extensions,
     ),
     NetworkFailure(:final timeout) => timeout ? l.errorTimeout : l.errorNetwork,
     SessionExpiredFailure() => l.msg44,
